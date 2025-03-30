@@ -18,6 +18,7 @@ import 'package:finamp/screens/album_settings_screen.dart';
 import 'package:finamp/screens/artist_settings_screen.dart';
 import 'package:finamp/screens/downloads_settings_screen.dart';
 import 'package:finamp/screens/genre_settings_screen.dart';
+import 'package:finamp/screens/home_screen.dart';
 import 'package:finamp/screens/interaction_settings_screen.dart';
 import 'package:finamp/screens/login_screen.dart';
 import 'package:finamp/screens/lyrics_settings_screen.dart';
@@ -630,6 +631,7 @@ class FinampApp extends ConsumerWidget {
         SplashScreen.routeName: (context) => const SplashScreen(),
         LoginScreen.routeName: (context) => const LoginScreen(),
         ViewSelector.routeName: (context) => const ViewSelector(),
+        HomeScreen.routeName: (context) => const HomeScreen(),
         MusicScreen.routeName: (context) => const MusicScreen(),
         AlbumScreen.routeName: (context) => const AlbumScreen(),
         ArtistScreen.routeName: (context) => const ArtistScreen(),
