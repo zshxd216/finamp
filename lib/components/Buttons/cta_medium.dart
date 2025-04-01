@@ -46,7 +46,16 @@ class CTAMedium extends StatelessWidget {
           children: [
             Icon(icon, size: 24, color: accentColor, weight: 1.0),
             const SizedBox(width: 8),
-            Text(text, style: const TextStyle(color: Colors.white)),
+            Text(
+              text,
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Color.alphaBlend(accentColor.withOpacity(0.33), Colors.black)
+                    : Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
