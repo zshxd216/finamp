@@ -184,7 +184,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     } else {
       offlineItems = await _isarDownloader.getAllCollections(
         nameFilter: widget.searchTerm,
-        baseTypeFilter: widget.tabContentType.itemType,
+        includeItemTypes: [widget.tabContentType.itemType],
         fullyDownloaded: settings.onlyShowFullyDownloaded,
         viewFilter: widget.tabContentType == TabContentType.albums ? widget.view?.id : null,
         childViewFilter:
@@ -192,11 +192,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
             ? widget.view?.id
             : null,
         nullableViewFilters: widget.tabContentType == TabContentType.albums && settings.showDownloadsWithUnknownLibrary,
-        onlyFavorites:
-            (widget.isFavoriteOverride == true || (widget.isFavoriteOverride == null && settings.onlyShowFavorites)) &&
-            settings.trackOfflineFavorites,
-        infoForType: (widget.tabContentType == TabContentType.artists) ? artistInfoForType : null,
-        genreFilter: widget.tabContentType == TabContentType.playlists ? null : widget.genreFilter,
+        onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
       );
     }
 
