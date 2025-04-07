@@ -2953,50 +2953,6 @@ enum ItemSwipeActions {
   }
 }
 
-enum HomeScreenSectionType {
-  @HiveField(0)
-  listenAgain,
-  @HiveField(1)
-  newlyAdded,
-  @HiveField(2)
-  favoriteArtists,
-  @HiveField(3)
-  collection;
-
-  /// Human-readable version of the [HomeScreenSectionType]
-  @override
-  @Deprecated("Use toLocalisedString when possible")
-  String toString() => _humanReadableName(this);
-
-  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
-
-  String _humanReadableName(HomeScreenSectionType homeScreenSectionType) {
-    switch (homeScreenSectionType) {
-      case HomeScreenSectionType.listenAgain:
-        return "Listen Again";
-      case HomeScreenSectionType.newlyAdded:
-        return "Newly Added";
-      case HomeScreenSectionType.favoriteArtists:
-        return "Favorite Artists";
-      case HomeScreenSectionType.collection:
-        return "Collection";
-    }
-  }
-
-  String _humanReadableLocalisedName(HomeScreenSectionType homeScreenSectionType, BuildContext context) {
-    switch (homeScreenSectionType) {
-      case HomeScreenSectionType.listenAgain:
-        return "Listen Again*";
-      case HomeScreenSectionType.newlyAdded:
-        return "Newly Added*";
-      case HomeScreenSectionType.favoriteArtists:
-        return "Favorite Artists*";
-      case HomeScreenSectionType.collection:
-        return "Collection*";
-    }
-  }
-}
-
 /// Enum for artist list types
 @HiveType(typeId: 93)
 enum ArtistType {
@@ -3071,26 +3027,6 @@ class FinampOutputRoute {
 
   Map<String, dynamic> toJson() {
     return _$FinampOutputRouteToJson(this);
-  }
-}
-
-@JsonSerializable(converters: [BaseItemIdConverter()])
-@HiveType(typeId: 79)
-class HomeScreenSectionInfo {
-  @HiveField(0)
-  final HomeScreenSectionType type;
-  @HiveField(1)
-  final BaseItemId? itemId;
-
-  HomeScreenSectionInfo({required this.type, this.itemId});
-
-  factory HomeScreenSectionInfo.fromJson(Map<String, dynamic> json) => _$HomeScreenSectionInfoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$HomeScreenSectionInfoToJson(this);
-
-  @override
-  String toString() {
-    return jsonEncode(toJson());
   }
 }
 
@@ -3670,4 +3606,78 @@ class RawThemeResult {
   @HiveField(1)
   final int _backgroundInt;
   Color get background => Color(_backgroundInt);
+}
+
+@HiveType(typeId: 109)
+enum HomeScreenSectionType {
+  @HiveField(0)
+  listenAgain,
+  @HiveField(1)
+  newlyAdded,
+  @HiveField(2)
+  favoriteArtists,
+  @HiveField(3)
+  collection;
+
+  /// Human-readable version of the [HomeScreenSectionType]
+  @override
+  @Deprecated("Use toLocalisedString when possible")
+  String toString() => _humanReadableName(this);
+
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableName(HomeScreenSectionType homeScreenSectionType) {
+    switch (homeScreenSectionType) {
+      case HomeScreenSectionType.listenAgain:
+        return "Listen Again";
+      case HomeScreenSectionType.newlyAdded:
+        return "Newly Added";
+      case HomeScreenSectionType.favoriteArtists:
+        return "Favorite Artists";
+      case HomeScreenSectionType.collection:
+        return "Collection";
+    }
+  }
+
+  String _humanReadableLocalisedName(HomeScreenSectionType homeScreenSectionType, BuildContext context) {
+    switch (homeScreenSectionType) {
+      case HomeScreenSectionType.listenAgain:
+        return "Listen Again*";
+      case HomeScreenSectionType.newlyAdded:
+        return "Newly Added*";
+      case HomeScreenSectionType.favoriteArtists:
+        return "Favorite Artists*";
+      case HomeScreenSectionType.collection:
+        return "Collection*";
+    }
+  }
+}
+
+@JsonSerializable(converters: [BaseItemIdConverter()])
+@HiveType(typeId: 110)
+class HomeScreenSectionInfo {
+  @HiveField(0)
+  final HomeScreenSectionType type;
+  @HiveField(1)
+  final BaseItemId? itemId;
+
+  HomeScreenSectionInfo({required this.type, this.itemId});
+
+  factory HomeScreenSectionInfo.fromJson(Map<String, dynamic> json) => _$HomeScreenSectionInfoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$HomeScreenSectionInfoToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is HomeScreenSectionInfo && other.type == type && other.itemId == itemId;
+  }
+
+  @override
+  @ignore
+  int get hashCode => Object.hash(type, itemId);
 }

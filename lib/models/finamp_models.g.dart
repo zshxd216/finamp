@@ -1404,43 +1404,6 @@ class DeviceInfoAdapter extends TypeAdapter<DeviceInfo> {
           typeId == other.typeId;
 }
 
-class HomeScreenSectionInfoAdapter extends TypeAdapter<HomeScreenSectionInfo> {
-  @override
-  final typeId = 79;
-
-  @override
-  HomeScreenSectionInfo read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return HomeScreenSectionInfo(
-      type: fields[0] as HomeScreenSectionType,
-      itemId: fields[1] as BaseItemId?,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, HomeScreenSectionInfo obj) {
-    writer
-      ..writeByte(2)
-      ..writeByte(0)
-      ..write(obj.type)
-      ..writeByte(1)
-      ..write(obj.itemId);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HomeScreenSectionInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
 class ScreenSizeAdapter extends TypeAdapter<ScreenSize> {
   @override
   final typeId = 94;
@@ -1554,6 +1517,43 @@ class RawThemeResultAdapter extends TypeAdapter<RawThemeResult> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RawThemeResultAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class HomeScreenSectionInfoAdapter extends TypeAdapter<HomeScreenSectionInfo> {
+  @override
+  final typeId = 110;
+
+  @override
+  HomeScreenSectionInfo read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return HomeScreenSectionInfo(
+      type: fields[0] as HomeScreenSectionType,
+      itemId: fields[1] as BaseItemId?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, HomeScreenSectionInfo obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.type)
+      ..writeByte(1)
+      ..write(obj.itemId);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HomeScreenSectionInfoAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -3024,6 +3024,51 @@ class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is PlaybackActionRowPageAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class HomeScreenSectionTypeAdapter extends TypeAdapter<HomeScreenSectionType> {
+  @override
+  final typeId = 109;
+
+  @override
+  HomeScreenSectionType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return HomeScreenSectionType.listenAgain;
+      case 1:
+        return HomeScreenSectionType.newlyAdded;
+      case 2:
+        return HomeScreenSectionType.favoriteArtists;
+      case 3:
+        return HomeScreenSectionType.collection;
+      default:
+        return HomeScreenSectionType.listenAgain;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, HomeScreenSectionType obj) {
+    switch (obj) {
+      case HomeScreenSectionType.listenAgain:
+        writer.writeByte(0);
+      case HomeScreenSectionType.newlyAdded:
+        writer.writeByte(1);
+      case HomeScreenSectionType.favoriteArtists:
+        writer.writeByte(2);
+      case HomeScreenSectionType.collection:
+        writer.writeByte(3);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HomeScreenSectionTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

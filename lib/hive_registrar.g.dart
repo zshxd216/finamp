@@ -48,6 +48,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(FinampUserAdapter());
     registerAdapter(GenreItemSectionsAdapter());
     registerAdapter(HomeScreenSectionInfoAdapter());
+    registerAdapter(HomeScreenSectionTypeAdapter());
     registerAdapter(HttpHeaderInfoAdapter());
     registerAdapter(ImageBlurHashesAdapter());
     registerAdapter(ItemSwipeActionsAdapter());
@@ -148,6 +149,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(FinampUserAdapter());
     registerAdapter(GenreItemSectionsAdapter());
     registerAdapter(HomeScreenSectionInfoAdapter());
+    registerAdapter(HomeScreenSectionTypeAdapter());
     registerAdapter(HttpHeaderInfoAdapter());
     registerAdapter(ImageBlurHashesAdapter());
     registerAdapter(ItemSwipeActionsAdapter());
