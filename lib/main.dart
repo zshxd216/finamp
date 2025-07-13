@@ -96,6 +96,7 @@ import 'services/locale_helper.dart';
 import 'services/music_player_background_task.dart';
 import 'services/theme_mode_helper.dart';
 import 'setup_logging.dart';
+import 'package:finamp/services/animated_music_service.dart';
 
 final _mainLog = Logger("Main()");
 
@@ -182,6 +183,7 @@ Future<void> _setupEdgeToEdgeOverlayStyle() async {
 
 Future<void> _setupJellyfinApiData() async {
   GetIt.instance.registerSingleton(JellyfinApiHelper());
+  GetIt.instance.registerSingleton(AnimatedMusicService());
 }
 
 void _setupOfflineListenLogHelper() {
