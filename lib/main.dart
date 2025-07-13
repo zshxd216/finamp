@@ -57,6 +57,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl_standalone.dart';
 import 'package:isar/isar.dart';
 import 'package:logging/logging.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:path/path.dart' as path_helper;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -128,6 +129,8 @@ void main() async {
     _mainLog.info("Setup audio player");
     await _setupKeepScreenOnHelper();
     _mainLog.info("Setup KeepScreenOnHelper");
+    MediaKit.ensureInitialized();
+    _mainLog.info("Setup MediaKit");
   } catch (error, trace) {
     hasFailed = true;
     Logger("ErrorApp").severe(error, null, trace);
