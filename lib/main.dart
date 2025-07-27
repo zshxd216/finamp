@@ -513,21 +513,19 @@ class _FinampState extends State<Finamp> with WindowListener {
   @override
   void initState() {
     super.initState();
-    // Subscribe to all events (initial link and further)
-    _uriLinkSubscription = AppLinks().uriLinkStream.listen((uri) async {
-      linkHandlingLogger.info("Received link: $uri");
-      int attempts = 0;
-      do {
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _uriLinkSubscription = AppLinks().uriLinkStream.listen((uri) async {
+        linkHandlingLogger.info("Received link: $uri");
         var context = GlobalSnackbar.materialAppNavigatorKey.currentContext;
         if (context != null) {
           if (uri.host == "internal") {
             await Navigator.of(context).pushNamed(uri.path);
           }
-          break;
+        } else {
+          linkHandlingLogger.warning("No context available to handle link");
         }
-        // Wait for the context to be available
-        await Future<void>.delayed(const Duration(milliseconds: 250));
-      } while (++attempts < 10);
+      });
     });
 
     // If the app is running on desktop, we add a listener to the window manager
