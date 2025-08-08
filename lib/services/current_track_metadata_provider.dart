@@ -18,6 +18,8 @@ final currentTrackMetadataProvider = AutoDisposeProvider<AsyncValue<MetadataProv
         item: base,
         queueItem: itemToPrecache,
         includeLyrics: true,
+        includeAnimatedCover: true,
+        includeVerticalBackgroundVideo: true,
         checkIfSpeedControlNeeded:
             ref.watch(finampSettingsProvider.playbackSpeedVisibility) == PlaybackSpeedVisibility.automatic,
       );
@@ -31,6 +33,8 @@ final currentTrackMetadataProvider = AutoDisposeProvider<AsyncValue<MetadataProv
       item: currentTrack!.baseItem!,
       queueItem: currentTrack,
       includeLyrics: true,
+      includeAnimatedCover: true,
+      includeVerticalBackgroundVideo: true,
       checkIfSpeedControlNeeded:
           ref.watch(finampSettingsProvider.playbackSpeedVisibility) == PlaybackSpeedVisibility.automatic,
     );

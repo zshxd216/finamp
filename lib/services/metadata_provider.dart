@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:finamp/models/finamp_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -15,6 +17,8 @@ class MetadataRequest {
     required this.item,
     this.queueItem,
     this.includeLyrics = false,
+    this.includeAnimatedCover = false,
+    this.includeVerticalBackgroundVideo = false,
     this.checkIfSpeedControlNeeded = false,
   }) : super();
 
@@ -22,6 +26,12 @@ class MetadataRequest {
   final FinampQueueItem? queueItem;
 
   final bool includeLyrics;
+
+  /// Requries the Animated Cover plugin
+  final bool includeAnimatedCover;
+
+  /// Requries the Animated Cover plugin
+  final bool includeVerticalBackgroundVideo;
   final bool checkIfSpeedControlNeeded;
 
   @override
@@ -29,6 +39,8 @@ class MetadataRequest {
     return other is MetadataRequest &&
         other.includeLyrics == includeLyrics &&
         other.checkIfSpeedControlNeeded == checkIfSpeedControlNeeded &&
+        other.includeAnimatedCover == includeAnimatedCover &&
+        other.includeVerticalBackgroundVideo == includeVerticalBackgroundVideo &&
         other.item.id == item.id &&
         other.queueItem?.id == queueItem?.id;
   }
@@ -47,17 +59,29 @@ class MetadataProvider {
 
   final MediaSourceInfo mediaSourceInfo;
   LyricDto? lyrics;
+  bool hasAnimatedCover;
+  File? animatedCoverFile;
+  bool hasVerticalBackgroundVideo;
+  File? verticalBackgroundVideoFile;
   bool isDownloaded;
   bool qualifiesForPlaybackSpeedControl;
 
   MetadataProvider({
     required this.mediaSourceInfo,
     this.lyrics,
+    this.hasAnimatedCover = false,
+    this.animatedCoverFile,
+    this.hasVerticalBackgroundVideo = false,
+    this.verticalBackgroundVideoFile,
     this.isDownloaded = false,
     this.qualifiesForPlaybackSpeedControl = false,
-  });
+    BaseItemDto? item,
+  }) : _item = item;
 
   bool get hasLyrics => mediaSourceInfo.mediaStreams.any((e) => e.type == "Lyric");
+
+  // Store reference to the item to check metadata
+  final BaseItemDto? _item;
 }
 
 final AutoDisposeFutureProviderFamily<MetadataProvider?, MetadataRequest>
@@ -155,7 +179,11 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, Metadata
     return null;
   }
 
-  final metadata = MetadataProvider(mediaSourceInfo: playbackInfo, isDownloaded: localPlaybackInfo != null);
+  final metadata = MetadataProvider(
+    mediaSourceInfo: playbackInfo,
+    isDownloaded: localPlaybackInfo != null,
+    item: request.item,
+  );
 
   // check if item qualifies for having playback speed control available
   if (request.checkIfSpeedControlNeeded) {
@@ -222,8 +250,82 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, Metadata
     }
   }
 
+  /// Adds animated cover to metadata
+  ///
+  /// Requires the Animated Covers Plugin
+  if (request.includeAnimatedCover) {
+    //!!! only use offline metadata if the app is in offline mode
+    // Finamp should always use the server metadata when online, if possible
+    if (FinampSettingsHelper.finampSettings.isOffline) {
+      DownloadItem? downloadedAnimatedCover = downloadsService.getAnimatedCoverDownload(item: request.item);
+      if (downloadedAnimatedCover?.file != null) {
+        metadata.animatedCoverFile = downloadedAnimatedCover!.file;
+        metadataProviderLogger.fine("Got offline animated cover for '${request.item.name}'");
+      } else {
+        metadataProviderLogger.fine("No offline animated cover for '${request.item.name}'");
+      }
+    } else {
+      metadataProviderLogger.fine("Fetching animated cover for '${request.item.name}' (${request.item.id})");
+      try {
+        // In online mode, trigger download if not already downloaded for future offline use
+        DownloadItem? downloadedAnimatedCover = downloadsService.getAnimatedCoverDownload(item: request.item);
+        if (downloadedAnimatedCover?.file != null) {
+          metadata.animatedCoverFile = downloadedAnimatedCover!.file;
+          metadataProviderLogger.fine("Using cached animated cover for '${request.item.name}'");
+        } else {
+          // File not cached, but we can still provide the URL for online streaming
+          // The downloads service will handle background caching if configured
+          metadataProviderLogger.fine("Animated cover not cached for '${request.item.name}', using online streaming");
+        }
+      } catch (e) {
+        metadataProviderLogger.warning(
+          "Failed to fetch animated cover for '${request.item.name}' (${request.item.id}). Metadata might be stale",
+          e,
+        );
+      }
+    }
+  }
+
+  /// Adds vertical background video to metadata
+  ///
+  /// Requires the Animated Covers Plugin
+  if (request.includeVerticalBackgroundVideo) {
+    //!!! only use offline metadata if the app is in offline mode
+    // Finamp should always use the server metadata when online, if possible
+    if (FinampSettingsHelper.finampSettings.isOffline) {
+      DownloadItem? downloadedVerticalVideo = downloadsService.getVerticalBackgroundVideoDownload(item: request.item);
+      if (downloadedVerticalVideo?.file != null) {
+        metadata.verticalBackgroundVideoFile = downloadedVerticalVideo!.file;
+        metadataProviderLogger.fine("Got offline vertical background video for '${request.item.name}'");
+      } else {
+        metadataProviderLogger.fine("No offline vertical background video for '${request.item.name}'");
+      }
+    } else {
+      metadataProviderLogger.fine("Fetching vertical background video for '${request.item.name}' (${request.item.id})");
+      try {
+        // In online mode, trigger download if not already downloaded for future offline use
+        DownloadItem? downloadedVerticalVideo = downloadsService.getVerticalBackgroundVideoDownload(item: request.item);
+        if (downloadedVerticalVideo?.file != null) {
+          metadata.verticalBackgroundVideoFile = downloadedVerticalVideo!.file;
+          metadataProviderLogger.fine("Using cached vertical background video for '${request.item.name}'");
+        } else {
+          // File not cached, but we can still provide the URL for online streaming
+          // The downloads service will handle background caching if configured
+          metadataProviderLogger.fine(
+            "Vertical background video not cached for '${request.item.name}', using online streaming",
+          );
+        }
+      } catch (e) {
+        metadataProviderLogger.warning(
+          "Failed to fetch vertical background video for '${request.item.name}' (${request.item.id}). Metadata might be stale",
+          e,
+        );
+      }
+    }
+  }
+
   metadataProviderLogger.fine(
-    "Fetched metadata for '${request.item.name}' (${request.item.id}): ${metadata.lyrics} ${metadata.hasLyrics}",
+    "Fetched metadata for '${request.item.name}' (${request.item.id}): lyrics=${metadata.lyrics != null}, animatedCover=${metadata.animatedCoverFile != null}, verticalVideo=${metadata.verticalBackgroundVideoFile != null}",
   );
 
   return metadata;
