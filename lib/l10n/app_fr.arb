@@ -828,7 +828,7 @@
     "@queueRestoreButtonLabel": {
         "description": "Button to restore archived now playing queue, overwriting current queue"
     },
-    "confirmAddToNextUp": "Ajout de {type, select, track{Track} album{album} artiste{artiste} playlist{playlist} genre{genre} disque{disque} autre{élément}} à Suivant",
+    "confirmAddToNextUp": "Ajout de {type, select, track{Track} album{album} artist{artiste} playlist{playlist} genre{genre} disc{disque} other{élément}} à Suivant",
     "@confirmAddToNextUp": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
         "placeholders": {
