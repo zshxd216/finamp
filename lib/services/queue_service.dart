@@ -9,6 +9,7 @@ import 'package:finamp/gen/assets.gen.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
+import 'package:finamp/services/item_helper.dart';
 import 'package:finamp/services/playback_history_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
@@ -43,6 +44,7 @@ class QueueService {
   final _downloadsService = GetIt.instance<DownloadsService>();
   final _queueServiceLogger = Logger("QueueService");
   final _queuesBox = Hive.box<FinampStorableQueueInfo>("Queues");
+  final _radioRandom = Random();
 
   // internal state
 
@@ -149,18 +151,18 @@ class QueueService {
 
   Future<void> maybeAddRadioSong() async {
     // TODO: Have this work even if songs are less than 10 seconds and finish naturally
-    // TODO: Don't pollute the linear queue.
-    if (_queueNextUp.length + _queue.length < 5 && _useRadio) {
-      // Queue likely contains multiple of the same item. Deduplicate using a set for an equal chance of any item.
-      Set<jellyfin_models.BaseItemDto> itemsSet = {};
-      for (FinampQueueItem queueItem in getQueue().fullQueue) {
-        itemsSet.add(queueItem.baseItem!);
+    // TODO: Prevent repeat all alongside radio being enabled?
+    // TODO: Add setting to control how full the queue should be.
+    final queueMinimum = 5;
+    final queueSize = _queueNextUp.length + _queue.length;
+    if (queueSize < queueMinimum && _useRadio) {
+      final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
+      for (var i = queueSize; i < queueMinimum; i++) {
+        // Pick an item to add
+        int nextIndex = _radioRandom.nextInt(items.length);
+        await addToQueue(items: [items[nextIndex]]);
+        _queueServiceLogger.finer("Added ${items[nextIndex].name} to the queue for radio.");
       }
-      List<jellyfin_models.BaseItemDto> items = [...itemsSet];
-      // Pick an item to add
-      int nextIndex = Random().nextInt(items.length);
-      await addToQueue(items: [items[nextIndex]]);
-      _queueServiceLogger.finer("Added ${items[nextIndex].name} to the next up for randomization.");
     }
   }
 
