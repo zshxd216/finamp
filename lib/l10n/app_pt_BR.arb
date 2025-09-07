@@ -55,7 +55,7 @@
     "@revenue": {},
     "downloadMissingImages": "Baixar imagens ausentes",
     "@downloadMissingImages": {},
-    "downloadedMissingImages": "{count,plural, =0{Nenhuma imagem ausente} =1{{count} imagem ausente baixada} other{{count} imagens ausentes baixadas}}",
+    "downloadedMissingImages": "{count,plural, =0{Nenhuma imagem ausente encontrada} =1{{count} imagem ausente baixada} other{{count} imagens ausentes baixadas}}",
     "@downloadedMissingImages": {
         "description": "Message that shows when the user downloads missing images",
         "placeholders": {
@@ -184,7 +184,7 @@
     "@layoutAndTheme": {},
     "enableTranscoding": "Ativar transcodificação",
     "@enableTranscoding": {},
-    "customLocation": "Localização customizada",
+    "customLocation": "Localização personalizada",
     "@customLocation": {},
     "selectDirectory": "Selecionar diretório",
     "@selectDirectory": {},
@@ -196,7 +196,7 @@
     "@hideTrackArtistsIfSameAsAlbumArtistsSubtitle": {},
     "bitrateSubtitle": "Uma taxa de bits mais alta resulta em um áudio de maior qualidade, com um custo maior de largura de banda. Não se aplica a formatos sem perdas, por exemplo o FLAC",
     "@bitrateSubtitle": {},
-    "appDirectory": "Diretório de aplicativo",
+    "appDirectory": "Diretório do aplicativo",
     "@appDirectory": {},
     "unknownError": "Erro desconhecido",
     "@unknownError": {},
@@ -326,7 +326,7 @@
     "@failedToGetTrackFromDownloadId": {},
     "stackTrace": "Traçado da pilha",
     "@stackTrace": {},
-    "shuffleAllTrackCountSubtitle": "Quantidade de faixas para carregar ao utilizar o botão misturar todas as faixas.",
+    "shuffleAllTrackCountSubtitle": "Quantidade de faixas a serem carregadas ao utilizar o botão misturar tudo na aba faixas ou na tela de gênero.",
     "@shuffleAllTrackCountSubtitle": {},
     "viewType": "Tipo de visualização",
     "@viewType": {},
@@ -614,7 +614,7 @@
             }
         }
     },
-    "confirmAddToQueue": "{type, select, track{Faixa adicionada} album{Álbum adicionado} artist{Artista adicionado} playlist{Lista de reprodução adicionada} genre{Gênero adicionado} other{item}} à fila",
+    "confirmAddToQueue": "{type, select, track{Faixa adicionada} album{Álbum adicionado} artist{Artista adicionado} playlist{Lista de reprodução adicionada} genre{Gênero adicionado} disc{Disco adicionado} other{item}} à fila",
     "@confirmAddToQueue": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the regular queue",
         "placeholders": {
@@ -709,7 +709,7 @@
     "@shuffleNext": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
-    "confirmAddToNextUp": "{type, select, track{Faixa adicionada} album{Álbum adicionado} artist{Artista adicionado} playlist{Lista de reprodução adicionada} genre{Gênero adicionado} other{item}} às próximas",
+    "confirmAddToNextUp": "{type, select, track{Faixa adicionada} album{Álbum adicionado} artist{Artista adicionado} playlist{Lista de reprodução adicionada} genre{Gênero adicionado} disc{Disco adicionado} other{item}} às próximas",
     "@confirmAddToNextUp": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
         "placeholders": {
@@ -1987,5 +1987,7 @@
                 "type": "int"
             }
         }
-    }
+    },
+    "none": "Nenhum",
+    "@none": {}
 }
