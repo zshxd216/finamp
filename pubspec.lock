@@ -149,8 +149,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: e387fcaef4fabf7a24e8c7d9dbb9c967ab1582f4
-      resolved-ref: e387fcaef4fabf7a24e8c7d9dbb9c967ab1582f4
+      ref: "8f3603a639be6a7d5b0008ec54b0e90df7cd8323"
+      resolved-ref: "8f3603a639be6a7d5b0008ec54b0e90df7cd8323"
       url: "https://github.com/Komodo5197/flutter-balanced-text.git"
     source: git
     version: "0.0.3"

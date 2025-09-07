@@ -72,6 +72,7 @@ class TrackNameContent extends StatelessWidget {
                             )..layout(maxWidth: 280);
 
                             final wouldOverflow = textPainter.didExceedMaxLines;
+                            textPainter.dispose();
 
                             if (!isTwoLineMode) {
                               return Text(
