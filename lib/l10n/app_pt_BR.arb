@@ -21,7 +21,7 @@
     "@music": {},
     "clear": "Limpar",
     "@clear": {},
-    "shuffleAll": "Aleatório",
+    "shuffleAll": "Misturar Tudo",
     "@shuffleAll": {},
     "finamp": "Finamp",
     "@finamp": {},
@@ -29,7 +29,7 @@
     "@downloads": {},
     "settings": "Configurações",
     "@settings": {},
-    "offlineMode": "Modo offline",
+    "offlineMode": "Modo Offline",
     "@offlineMode": {},
     "sortOrder": "Ordenação",
     "@sortOrder": {},
@@ -39,7 +39,7 @@
     "@album": {},
     "dateAdded": "Adicionado em",
     "@dateAdded": {},
-    "datePlayed": "Ultima vez reproduzido em",
+    "datePlayed": "Última vez reproduzido em",
     "@datePlayed": {},
     "playCount": "Número de reproduções",
     "@playCount": {},
@@ -194,7 +194,7 @@
     "@useCoverAsBackground": {},
     "hideTrackArtistsIfSameAsAlbumArtistsSubtitle": "Indica se os nomes dos artistas da faixa devem ser exibidos na tela do álbum se não forem diferentes dos nomes dos artistas do álbum.",
     "@hideTrackArtistsIfSameAsAlbumArtistsSubtitle": {},
-    "bitrateSubtitle": "Uma taxa de bits mais alta resulta em um áudio de maior qualidade, com um custo maior de largura de banda.",
+    "bitrateSubtitle": "Uma taxa de bits mais alta resulta em um áudio de maior qualidade, com um custo maior de largura de banda. Não se aplica a formatos sem perdas, por exemplo o FLAC",
     "@bitrateSubtitle": {},
     "appDirectory": "Diretório de aplicativo",
     "@appDirectory": {},
@@ -246,7 +246,7 @@
     "@light": {},
     "tabs": "Abas",
     "@tabs": {},
-    "setSleepTimer": "Configurar o temporizador de sono",
+    "setSleepTimer": "Pausar reprodução após",
     "@setSleepTimer": {},
     "unknownArtist": "Artista desconhecido",
     "@unknownArtist": {},
@@ -1269,7 +1269,7 @@
             }
         }
     },
-    "sleepTimerRemainingTime": "Suspendendo em {time} minutos",
+    "sleepTimerRemainingTime": "Suspendendo em {time,plural,=1{<1 minuto} other{{time} minutos}}",
     "@sleepTimerRemainingTime": {
         "description": "Button label for sleep timer. {time} is the amount of minutes left.",
         "placeholders": {
