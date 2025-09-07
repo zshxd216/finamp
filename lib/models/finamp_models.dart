@@ -1810,6 +1810,8 @@ enum QueueItemSourceType {
   track,
   @HiveField(21)
   remoteClient,
+  @HiveField(22)
+  radio,
 }
 
 @HiveType(typeId: 53)
@@ -1929,6 +1931,8 @@ enum QueueItemSourceNameType {
   queue,
   @HiveField(9)
   remoteClient,
+  @HiveField(10)
+  radio,
 }
 
 @HiveType(typeId: 56)
@@ -1968,6 +1972,8 @@ class QueueItemSourceName {
         return AppLocalizations.of(context)!.queue;
       case QueueItemSourceNameType.remoteClient:
         return "";
+      case QueueItemSourceNameType.radio:
+        return AppLocalizations.of(context)!.radio;
     }
   }
 }

@@ -1071,6 +1071,10 @@
   "@tracksFormerNextUp": {
     "description": "Title for the queue source for tracks that were once added to the queue via the \"Next Up\" feature, but have since been played"
   },
+  "radio": "Radio",
+  "@radio": {
+    "description": "Title for the queue source for tracks added via the \"Radio\" feature"
+  },
   "savedQueue": "Saved Queue",
   "@savedQueue": {
     "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"

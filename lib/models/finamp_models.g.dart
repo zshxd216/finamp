@@ -1654,6 +1654,8 @@ class QueueItemSourceTypeAdapter extends TypeAdapter<QueueItemSourceType> {
         return QueueItemSourceType.track;
       case 21:
         return QueueItemSourceType.remoteClient;
+      case 22:
+        return QueueItemSourceType.radio;
       default:
         return QueueItemSourceType.album;
     }
@@ -1706,6 +1708,8 @@ class QueueItemSourceTypeAdapter extends TypeAdapter<QueueItemSourceType> {
         writer.writeByte(20);
       case QueueItemSourceType.remoteClient:
         writer.writeByte(21);
+      case QueueItemSourceType.radio:
+        writer.writeByte(22);
     }
   }
 
@@ -1793,6 +1797,8 @@ class QueueItemSourceNameTypeAdapter
         return QueueItemSourceNameType.queue;
       case 9:
         return QueueItemSourceNameType.remoteClient;
+      case 10:
+        return QueueItemSourceNameType.radio;
       default:
         return QueueItemSourceNameType.preTranslated;
     }
@@ -1821,6 +1827,8 @@ class QueueItemSourceNameTypeAdapter
         writer.writeByte(8);
       case QueueItemSourceNameType.remoteClient:
         writer.writeByte(9);
+      case QueueItemSourceNameType.radio:
+        writer.writeByte(10);
     }
   }
 

@@ -160,7 +160,10 @@ class QueueService {
       for (var i = queueSize; i < queueMinimum; i++) {
         // Pick an item to add
         int nextIndex = _radioRandom.nextInt(items.length);
-        await addToQueue(items: [items[nextIndex]]);
+        await addToQueue(items: [items[nextIndex]],
+            source: QueueItemSource(type: QueueItemSourceType.radio,
+                name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
+                id: _order.originalSource.item!.id));
         _queueServiceLogger.finer("Added ${items[nextIndex].name} to the queue for radio.");
       }
     }
