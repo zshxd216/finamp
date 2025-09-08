@@ -316,46 +316,53 @@ class IsarTaskQueue implements TaskQueue {
           }
           await SchedulerBinding.instance.scheduleTask(() {
             _activeDownloads.add(task.isarId);
-            // Base URL shouldn't be null at this point (user has to be logged in
-            // to get to the point where they can add downloads).
-            var url = switch (task.type) {
-              DownloadItemType.track =>
-                _jellyfinApiData
-                    .getTrackDownloadUrl(item: task.baseItem!, transcodingProfile: task.fileTranscodingProfile)
-                    .toString(),
-              DownloadItemType.image =>
-                _jellyfinApiData
-                    .getImageUrl(
-                      item: task.baseItem!,
-                      // Download original file
-                      quality: null,
-                      format: null,
-                    )
-                    .toString(),
-              _ => throw StateError("Invalid enqueue ${task.name} which is a ${task.type}"),
-            };
-            _enqueueLog.fine("Submitting download ${task.name} to background_downloader.");
-            var downloadTask = DownloadTask(
-              taskId: task.isarId.toString(),
-              url: url,
-              displayName: task.name,
-              baseDirectory: task.fileDownloadLocation!.baseDirectory.baseDirectory,
-              retries: 3,
-              directory: path_helper.dirname(task.path!),
-              headers: {"Authorization": _finampUserHelper.authorizationHeader},
-              filename: path_helper.basename(task.path!),
-            );
-            return Future.sync(() async {
-              //bool success = await FileDownloader().resume(downloadTask);
-              //if (!success) {
-              bool success = await FileDownloader().enqueue(downloadTask);
-              //}
-              if (!success) {
-                // We currently have no way to recover here.  The user must re-sync to clear
-                // the stuck download.
-                _enqueueLog.severe("Task ${task.name} failed to enqueue with background_downloader.");
-              }
-            });
+            try {
+              // Base URL shouldn't be null at this point (user has to be logged in
+              // to get to the point where they can add downloads).
+              var url = switch (task.type) {
+                DownloadItemType.track =>
+                  _jellyfinApiData
+                      .getTrackDownloadUrl(item: task.baseItem!, transcodingProfile: task.fileTranscodingProfile)
+                      .toString(),
+                DownloadItemType.image =>
+                  _jellyfinApiData
+                      .getImageUrl(
+                        item: task.baseItem!,
+                        // Download original file
+                        quality: null,
+                        format: null,
+                      )
+                      .toString(),
+                _ => throw StateError("Invalid enqueue ${task.name} which is a ${task.type}"),
+              };
+              _enqueueLog.fine("Submitting download ${task.name} to background_downloader.");
+              var downloadTask = DownloadTask(
+                taskId: task.isarId.toString(),
+                url: url,
+                displayName: task.name,
+                baseDirectory: task.fileDownloadLocation!.baseDirectory.baseDirectory,
+                retries: 3,
+                directory: path_helper.dirname(task.path!),
+                headers: {"Authorization": _finampUserHelper.authorizationHeader},
+                filename: path_helper.basename(task.path!),
+              );
+              return Future.sync(() async {
+                //bool success = await FileDownloader().resume(downloadTask);
+                //if (!success) {
+                bool success = await FileDownloader().enqueue(downloadTask);
+                //}
+                if (!success) {
+                  // We currently have no way to recover here.  The user must re-sync to clear
+                  // the stuck download.
+                  _enqueueLog.severe("Task ${task.name} failed to enqueue with background_downloader.");
+                }
+              });
+            } catch (e) {
+              _enqueueLog.severe("Error creating download task for ${task.name}.");
+              _isar.writeTxnSync(() {
+                _downloadsService.updateItemState(task, DownloadItemState.failed);
+              });
+            }
             // Set priority high to prevent stalling
           }, Priority.animation + 50);
           // This helps prevent choking the method channel, see MemoryTaskQueue
@@ -1511,7 +1518,7 @@ class DownloadsSyncService {
 
   /// Removes unsafe characters from file names.  Used by [_downloadTrack] and
   /// [_downloadImage] for human readable download locations.
-  String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp('[/?<>\\:*|"]'), "_");
+  String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp(r'[/?<>\:*|\.\\"]'), "_");
 
   /// Prepares for downloading of a given track by filling in the path information
   /// and media sources, and marking item as enqueued in isar.
