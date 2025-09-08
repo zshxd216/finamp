@@ -2731,5 +2731,9 @@
     "moreActionsOnAlbumDisc": "Lisää levytoimintoja",
     "@moreActionsOnAlbumDisc": {
         "description": "Label for the disc header menu button."
+    },
+    "dragToReorder": "Raahaa järjestääksesi uudelleen",
+    "@dragToReorder": {
+        "description": "Label shown on drag handles of track list  tiles in the queue list"
     }
 }
