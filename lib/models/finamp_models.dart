@@ -1435,35 +1435,47 @@ class DownloadItem extends DownloadStub {
     required bool forceCopy,
   }) {
     String? json;
+    String? imageName;
+    List<int>? newOrderedChildren;
     if (type == DownloadItemType.image) {
-      // Images do not have any attributes we might want to update
-      return null;
-    }
-    if (item != null) {
-      if (baseItemType != BaseItemDtoType.fromItem(item) || baseItem == null) {
+      // The only relevant attribute for an image is the imageid.  If it is unchanged, do not update.
+      if (item == null) {
+        return null;
+      }
+      if ((item.blurHash ?? item.imageId) != id) {
         throw "Could not update $name - incompatible new item $item";
       }
-      if (item.id != id) {
-        throw "Could not update $name - incompatible new item $item";
+      if (item.imageId == baseItem!.imageId) {
+        return null;
       }
-      // Not all BaseItemDto are requested with mediaSources, mediaStreams or childCount.  Do not
-      // overwrite with null if the new item does not have them.
-      item.mediaSources ??= baseItem?.mediaSources;
-      item.mediaStreams ??= baseItem?.mediaStreams;
-      item.sortName ??= baseItem?.sortName;
-    }
-    assert(
-      item == null ||
-          ((item.mediaSources == null || item.mediaSources!.isNotEmpty) &&
-              (item.mediaStreams == null || item.mediaStreams!.isNotEmpty)),
-    );
-    var orderedChildren = orderedChildItems?.map((e) => e.isarId).toList();
-    if (!forceCopy) {
-      if (viewId == null || viewId == this.viewId) {
-        if (item == null || baseItem!.mostlyEqual(item)) {
-          var equal = const DeepCollectionEquality().equals;
-          if (equal(orderedChildren, this.orderedChildren)) {
-            return null;
+      imageName = "Image for ${item.name}";
+    } else {
+      if (item != null) {
+        if (baseItemType != BaseItemDtoType.fromItem(item) || baseItem == null) {
+          throw "Could not update $name - incompatible new item $item";
+        }
+        if (item.id.raw != id) {
+          throw "Could not update $name - incompatible new item $item";
+        }
+        // Not all BaseItemDto are requested with mediaSources, mediaStreams or childCount.  Do not
+        // overwrite with null if the new item does not have them.
+        item.mediaSources ??= baseItem?.mediaSources;
+        item.mediaStreams ??= baseItem?.mediaStreams;
+        item.sortName ??= baseItem?.sortName;
+      }
+      assert(
+        item == null ||
+            ((item.mediaSources == null || item.mediaSources!.isNotEmpty) &&
+                (item.mediaStreams == null || item.mediaStreams!.isNotEmpty)),
+      );
+      newOrderedChildren = orderedChildItems?.map((e) => e.isarId).toList();
+      if (!forceCopy) {
+        if (viewId == null || viewId == this.viewId) {
+          if (item == null || baseItem!.mostlyEqual(item)) {
+            var equal = const DeepCollectionEquality().equals;
+            if (equal(newOrderedChildren, orderedChildren)) {
+              return null;
+            }
           }
         }
       }
@@ -1477,8 +1489,8 @@ class DownloadItem extends DownloadStub {
       id: id,
       isarId: isarId,
       jsonItem: json ?? jsonItem,
-      name: item?.name ?? name,
-      orderedChildren: orderedChildren ?? this.orderedChildren,
+      name: imageName ?? item?.name ?? name,
+      orderedChildren: newOrderedChildren ?? orderedChildren,
       parentIndexNumber: item?.parentIndexNumber ?? parentIndexNumber,
       path: path,
       state: state,

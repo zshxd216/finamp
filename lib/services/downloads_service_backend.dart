@@ -855,7 +855,10 @@ class DownloadsSyncService {
 
     DownloadItem? isarParent;
 
-    // Skip items that are unlikely to need syncing if allowed.
+    // Skip items that are unlikely to need syncing if allowed.  This cannot skip info-only items as we do not have
+    // enough information to know if they have ever been synced, limiting utility with track and playlist downloads,
+    // but it should be more effective with albums, libraries, artists, and genres, which should primarily result
+    // in complete album downloads.
     if (FinampSettingsHelper.finampSettings.preferQuickSyncs && !_downloadsService.forceFullSync) {
       if (parent.type.requiresItem && !parent.baseItemType.expectChanges) {
         isarParent = _isar.downloadItems.getSync(parent.isarId);
@@ -875,11 +878,32 @@ class DownloadsSyncService {
     // metadata can be used, especially imageId and blurhash.
     BaseItemDto? newBaseItem;
     //If we aren't quicksyncing, fetch the latest BaseItemDto to copy into Isar.
-    if (parent.type.requiresItem &&
-        (!FinampSettingsHelper.finampSettings.preferQuickSyncs ||
-            _downloadsService.forceFullSync ||
-            _needsMetadataUpdate(parent))) {
-      newBaseItem = (await _getCollectionInfo(parent.baseItem!.id, parent.type, true))?.baseItem;
+    if (parent.type.requiresItem) {
+      bool expectNewItem = false;
+      if (!FinampSettingsHelper.finampSettings.preferQuickSyncs ||
+          _downloadsService.forceFullSync ||
+          _needsMetadataUpdate(parent)) {
+        newBaseItem = (await _getCollectionInfo(parent.baseItem!.id, parent.type, true))?.baseItem;
+        expectNewItem = true;
+      } else if (_metadataCache.containsKey(parent.baseItem!.id)) {
+        // Opportunistically check for item updates if we've already fetched from the server
+        newBaseItem = (await _metadataCache[parent.baseItem!.id])?.baseItem;
+        expectNewItem = true;
+      }
+      // If we fail to get a valid baseItemDto from the server, for most items we just wait for all other items to unlink us.
+      // For images, we may remain linked due to our blurhash/imageId still being used, so we attempt to find a
+      // replacement baseItemDto whose blurhash/imageId match.
+      if (expectNewItem) {
+        if (parent.type == DownloadItemType.image) {
+          if ((newBaseItem?.blurHash ?? newBaseItem?.imageId) != parent.id) {
+            newBaseItem = await _updateImageBaseItem(parent);
+          }
+        } else {
+          if (newBaseItem == null) {
+            _syncLogger.warning("No item found on server for id ${parent.id}, ${parent.name}.");
+          }
+        }
+      }
     }
     // We return the same BaseItemDto for all requests, so null out playlistItemId
     // as it will not usually be accurate.  Modifying without copying should be
@@ -1407,6 +1431,26 @@ class DownloadsSyncService {
       }
     }
     return null;
+  }
+
+  /// If items on the server are deleted or updated, it is possible that the BaseItemDto stored in the image download is
+  /// no longer a valid parent for the image, as identified by blurHash??imageId.  This attempts to select a new parent
+  /// with a valid BaseItemDto referring to the given image.
+  Future<BaseItemDto?> _updateImageBaseItem(DownloadStub parent) async {
+    _syncLogger.finer("Attempting to update image item id for ${parent.name}");
+    final localParents = _isar.downloadItems
+        .filter()
+        .requires((q) => q.isarIdEqualTo(parent.isarId))
+        .or()
+        .info((q) => q.isarIdEqualTo(parent.isarId))
+        .findAllSync();
+    final serverParents = await Future.wait(
+      localParents.where((x) => x.type.requiresItem).map((x) => _getCollectionInfo(x.baseItem!.id, x.type, true)),
+    );
+    final validParent = serverParents.firstWhereOrNull(
+      (x) => (x?.baseItem?.blurHash ?? x?.baseItem?.imageId) == parent.id,
+    );
+    return validParent?.baseItem;
   }
 
   /// This returns whether the given item needs its metadata refreshed from the server.
