@@ -459,7 +459,12 @@ Future<void> _trustAndroidUserCerts() async {
   // Extend the default security context to trust Android user certificates.
   // This is a workaround for <https://github.com/dart-lang/sdk/issues/50435>.
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterUserCertificatesAndroid().trustAndroidUserCertificates(SecurityContext.defaultContext);
+  try {
+    await FlutterUserCertificatesAndroid().trustAndroidUserCertificates(SecurityContext.defaultContext);
+  } catch (e) {
+    Logger("AndroidCertTrust").severe("Failed to trust certificates: $e", e);
+    GlobalSnackbar.error("Failed to trust user certificates: $e");
+  }
 }
 
 Future<void> _setupFinampUserHelper() async {
