@@ -1021,8 +1021,8 @@ packages:
     dependency: "direct main"
     description:
       path: "libs/windows/media_kit_libs_windows_audio"
-      ref: "475a08cc97b94702f774bc906e1472b5bddc932b"
-      resolved-ref: "475a08cc97b94702f774bc906e1472b5bddc932b"
+      ref: bfbcea1976093311d6b0ab6bc004a0cc7cd25811
+      resolved-ref: bfbcea1976093311d6b0ab6bc004a0cc7cd25811
       url: "https://github.com/Komodo5197/media-kit.git"
     source: git
     version: "1.0.9"
