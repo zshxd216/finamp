@@ -281,6 +281,10 @@ Future<void> setupHive() async {
   Box<ThemeMode> themeModeBox = Hive.box("ThemeMode");
   if (themeModeBox.isEmpty) ThemeModeHelper.setThemeMode(DefaultSettings.theme);
 
+  final compactFile = File(path_helper.join(dir.path, "$isarDatabaseName.compact}"));
+  if (compactFile.existsSync()) {
+    compactFile.deleteSync();
+  }
   final isar = await Isar.open(
     [DownloadItemSchema, IsarTaskDataSchema, FinampUserSchema, DownloadedLyricsSchema],
     directory: dir.path,
