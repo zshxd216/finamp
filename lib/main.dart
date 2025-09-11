@@ -281,7 +281,7 @@ Future<void> setupHive() async {
   Box<ThemeMode> themeModeBox = Hive.box("ThemeMode");
   if (themeModeBox.isEmpty) ThemeModeHelper.setThemeMode(DefaultSettings.theme);
 
-  final compactFile = File(path_helper.join(dir.path, "$isarDatabaseName.compact}"));
+  final compactFile = File(path_helper.join(dir.path, "$isarDatabaseName.isar.compact}"));
   if (compactFile.existsSync()) {
     compactFile.deleteSync();
   }
