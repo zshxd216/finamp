@@ -19,13 +19,10 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:flutter_to_airplay/flutter_to_airplay.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logging/logging.dart';
 
 const outputMenuRouteName = "/output-menu";
 
 Future<void> showOutputMenu({required BuildContext context, bool usePlayerTheme = true}) async {
-  final outputPanelLogger = Logger("OutputPanel");
-
   final queueService = GetIt.instance<QueueService>();
 
   FeedbackHelper.feedback(FeedbackType.selection);
@@ -48,7 +45,6 @@ Future<void> showOutputMenu({required BuildContext context, bool usePlayerTheme 
               onChange: (double currentValue) async {
                 final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
                 audioHandler.setVolume(currentValue);
-                outputPanelLogger.fine("Volume set to $currentValue");
               },
               forceLoading: true,
             );
@@ -448,9 +444,6 @@ class RoundedRectangleTrackShape extends RoundedRectSliderTrackShape {
       thumbCenter.dx + sliderTheme.thumbShape!.getPreferredSize(isEnabled, isDiscrete).width,
       trackRect.bottom,
     );
-
-    // Inactive track
-    final inactiveRect = Rect.fromLTRB(thumbCenter.dx, trackRect.top, trackRect.right, trackRect.bottom);
 
     final Paint activePaint = Paint()..color = sliderTheme.activeTrackColor!;
     final Paint inactivePaint = Paint()..color = sliderTheme.inactiveTrackColor!;
