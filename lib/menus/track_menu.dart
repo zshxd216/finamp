@@ -458,7 +458,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
           child: Padding(
             padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
             child: Divider(
-              color: Theme.of(context).brightness == Brightness.light
+              color: Theme.brightnessOf(context) == Brightness.light
                   ? Color.alphaBlend(Theme.of(context).primaryColor.withOpacity(0.6), Colors.black26)
                   : Color.alphaBlend(Theme.of(context).primaryColor.withOpacity(0.8), Colors.white),
               indent: 24.0,

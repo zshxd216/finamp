@@ -59,7 +59,7 @@ class TrackNameContent extends StatelessWidget {
                             final textStyle = TextStyle(
                               fontSize: 20,
                               height: 1.2,
-                              fontWeight: Theme.of(context).brightness == Brightness.light
+                              fontWeight: Theme.brightnessOf(context) == Brightness.light
                                   ? FontWeight.w500
                                   : FontWeight.w600,
                             );

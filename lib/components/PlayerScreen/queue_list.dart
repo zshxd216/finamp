@@ -250,7 +250,7 @@ Future<dynamic> showQueueBottomSheet(BuildContext context, WidgetRef ref) {
                 children: [
                   if (ref.watch(finampSettingsProvider.useCoverAsBackground))
                     BlurredPlayerScreenBackground(
-                      opacityFactor: Theme.of(context).brightness == Brightness.dark ? 1.0 : 0.85,
+                      opacityFactor: Theme.brightnessOf(context) == Brightness.dark ? 1.0 : 0.85,
                     ),
                   Column(
                     mainAxisSize: MainAxisSize.min,
@@ -306,13 +306,21 @@ Future<dynamic> showQueueBottomSheet(BuildContext context, WidgetRef ref) {
     enableDrag: true,
     useSafeArea: true,
     routeSettings: const RouteSettings(name: QueueList.routeName),
-    constraints: BoxConstraints(maxWidth: (MediaQuery.widthOf(context) * 0.9).clamp(640, 900)),
+    constraints: BoxConstraints(maxWidth: double.infinity),
     clipBehavior: Clip.antiAlias,
     // Anchor to bottom right sub screen, required for foldables
     // On book-style foldables, this will anchor to the right half of the screen.
     // On flip-style foldables, this will anchor to the bottom half of the screen.
     anchorPoint: Offset(double.maxFinite, double.maxFinite),
-    builder: (context) => menu,
+    builder: (context) => LayoutBuilder(
+      builder: (context, constraints) {
+        final double maxWidth = (constraints.maxWidth * 0.9).clamp(640, 900);
+        return ConstrainedBox(
+          constraints: constraints.copyWith(maxWidth: maxWidth),
+          child: menu,
+        );
+      },
+    ),
   );
 }
 
@@ -684,10 +692,10 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
                   color: Color.alphaBlend(
-                    Theme.of(context).brightness == Brightness.dark
+                    Theme.brightnessOf(context) == Brightness.dark
                         ? IconTheme.of(context).color!.withOpacity(0.35)
                         : IconTheme.of(context).color!.withOpacity(0.65),
-                    Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
+                    Theme.brightnessOf(context) == Brightness.dark ? Colors.black : Colors.white,
                   ),
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
                 ),
@@ -779,7 +787,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                             fontSize: 16,
                                             height: 26 / 20,
                                             color: Colors.white,
-                                            fontWeight: Theme.of(context).brightness == Brightness.light
+                                            fontWeight: Theme.brightnessOf(context) == Brightness.light
                                                 ? FontWeight.w500
                                                 : FontWeight.w600,
                                           ),
@@ -1081,7 +1089,7 @@ class NextUpSectionHeader extends StatelessWidget {
               icon: TablerIcons.x,
               iconPosition: IconPosition.end,
               iconSize: 32.0,
-              iconColor: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+              iconColor: Theme.brightnessOf(context) == Brightness.light ? Colors.black : Colors.white,
               onPressed: () {
                 queueService.clearNextUp();
                 FeedbackHelper.feedback(FeedbackType.success);
@@ -1139,13 +1147,13 @@ class PreviousTracksSectionHeader extends SliverPersistentHeaderDelegate {
                   return Icon(
                     TablerIcons.chevron_up,
                     size: 28.0,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                    color: Theme.brightnessOf(context) == Brightness.light ? Colors.black : Colors.white,
                   );
                 } else {
                   return Icon(
                     TablerIcons.chevron_down,
                     size: 28.0,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                    color: Theme.brightnessOf(context) == Brightness.light ? Colors.black : Colors.white,
                   );
                 }
               },

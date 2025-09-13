@@ -39,7 +39,7 @@ class PlayerScreenTheme extends StatelessWidget {
           if (item == null) {
             return null;
           }
-          // Setting useIsolate to true provides negligible speedup for player images and induces lag.
+          // Setting useIsolate to false provides negligible speedup for player images and induces lag.
           return ThemeInfo(item, largeThemeImage: true, useIsolate: true);
         }),
       ],

@@ -41,7 +41,7 @@ class NowPlayingBar extends StatelessWidget {
       BoxShadow(
         blurRadius: 12.0,
         spreadRadius: 8.0,
-        color: Theme.of(context).brightness == Brightness.light
+        color: Theme.brightnessOf(context) == Brightness.light
             ? darkColorScheme.surface.withOpacity(0.15)
             : darkColorScheme.surface.withOpacity(0.7),
       ),
@@ -51,10 +51,10 @@ class NowPlayingBar extends StatelessWidget {
   Color getProgressBackgroundColor(WidgetRef ref) {
     return ref.watch(finampSettingsProvider.showProgressOnNowPlayingBar)
         ? Color.alphaBlend(
-            Theme.of(ref.context).brightness == Brightness.dark
+            Theme.brightnessOf(ref.context) == Brightness.dark
                 ? IconTheme.of(ref.context).color!.withOpacity(0.35)
                 : IconTheme.of(ref.context).color!.withOpacity(0.5),
-            Theme.of(ref.context).brightness == Brightness.dark ? Colors.black : Colors.white,
+            Theme.brightnessOf(ref.context) == Brightness.dark ? Colors.black : Colors.white,
           )
         : IconTheme.of(ref.context).color!.withOpacity(0.85);
   }
@@ -77,10 +77,10 @@ class NowPlayingBar extends StatelessWidget {
           child: Material(
             shadowColor: Theme.of(
               context,
-            ).colorScheme.primary.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.75 : 0.3),
+            ).colorScheme.primary.withOpacity(Theme.brightnessOf(context) == Brightness.light ? 0.75 : 0.3),
             borderRadius: BorderRadius.circular(12.0),
             clipBehavior: Clip.antiAlias,
-            color: Theme.of(context).brightness == Brightness.dark
+            color: Theme.brightnessOf(context) == Brightness.dark
                 ? IconTheme.of(context).color!.withOpacity(0.1)
                 : Theme.of(context).cardColor,
             elevation: 8.0,
@@ -210,10 +210,10 @@ class NowPlayingBar extends StatelessWidget {
                   child: Material(
                     shadowColor: Theme.of(
                       context,
-                    ).colorScheme.primary.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.75 : 0.3),
+                    ).colorScheme.primary.withOpacity(Theme.brightnessOf(context) == Brightness.light ? 0.75 : 0.3),
                     borderRadius: BorderRadius.circular(12.0),
                     clipBehavior: Clip.antiAlias,
-                    color: Theme.of(context).brightness == Brightness.dark
+                    color: Theme.brightnessOf(context) == Brightness.dark
                         ? IconTheme.of(context).color!.withOpacity(0.1)
                         : Theme.of(context).cardColor,
                     elevation: 8.0,
@@ -343,7 +343,7 @@ class NowPlayingBar extends StatelessWidget {
                                                           fontSize: 16,
                                                           height: 26 / 20,
                                                           color: Colors.white,
-                                                          fontWeight: Theme.of(context).brightness == Brightness.light
+                                                          fontWeight: Theme.brightnessOf(context) == Brightness.light
                                                               ? FontWeight.w500
                                                               : FontWeight.w600,
                                                         ),

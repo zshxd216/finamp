@@ -140,13 +140,14 @@ class _ThemedBottomSheetState extends ConsumerState<ThemedBottomSheet> {
   }
 
   Widget buildInternal(double stackHeight, List<Widget> slivers) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        stackHeight += widget.showDragHandle ? 29.5 : 0;
-        // Account for bottom padding in PaddedCustomscrollview
-        stackHeight += 32;
-        stackHeight += MediaQuery.paddingOf(context).bottom;
-        if (Platform.isIOS || Platform.isAndroid) {
+    stackHeight += widget.showDragHandle ? 29.5 : 0;
+    // Account for bottom padding in PaddedCustomscrollview
+    stackHeight += 32;
+    stackHeight += MediaQuery.paddingOf(context).bottom;
+
+    if (Platform.isIOS || Platform.isAndroid) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
           var size = (stackHeight / constraints.maxHeight).clamp(widget.minDraggableHeight, 1.0);
           return DraggableScrollableSheet(
             controller: dragController,
@@ -156,17 +157,22 @@ class _ThemedBottomSheetState extends ConsumerState<ThemedBottomSheet> {
             expand: false,
             builder: (context, scrollController) => menu(scrollController, slivers),
           );
-        } else {
+        },
+      );
+    } else {
+      final child = menu(_controller, slivers);
+      return LayoutBuilder(
+        builder: (context, constraints) {
           var minSize = widget.minDraggableHeight * constraints.maxHeight;
           return SizedBox(
             // This is an overestimate of stack height on desktop, but this widget
             // needs some bottom padding on large displays anyway.
             height: max(minSize, stackHeight),
-            child: menu(_controller, slivers),
+            child: child,
           );
-        }
-      },
-    );
+        },
+      );
+    }
   }
 
   Widget menu(ScrollController scrollController, List<Widget> slivers) {

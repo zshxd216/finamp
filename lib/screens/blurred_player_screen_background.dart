@@ -21,7 +21,7 @@ class BlurredPlayerScreenBackground extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var ThemeImage(image: imageProvider, blurHash: localBlurhash) = ref.watch(localImageProvider);
 
-    var overlayColor = Theme.of(context).brightness == Brightness.dark
+    var overlayColor = Theme.brightnessOf(context) == Brightness.dark
         ? Colors.black.withOpacity(ui.clampDouble(0.675 * opacityFactor, 0.0, 1.0))
         : Colors.white.withOpacity(ui.clampDouble(0.75 * opacityFactor, 0.0, 1.0));
 
@@ -45,7 +45,7 @@ class BlurredPlayerScreenBackground extends ConsumerWidget {
             : OctoImage(
                 // Don't transition between images with identical files/urls unless
                 // system theme has changed
-                key: ValueKey(imageProvider.hashCode + Theme.of(context).brightness.hashCode),
+                key: ValueKey(imageProvider.hashCode + Theme.brightnessOf(context).hashCode),
                 image: imageProvider,
                 fit: BoxFit.cover,
                 fadeInDuration: Duration.zero,
@@ -85,7 +85,7 @@ class CachePaint extends SingleChildRenderObjectWidget {
 
   @override
   RenderCachePaint createRenderObject(BuildContext context) {
-    return RenderCachePaint(imageKey, MediaQuery.sizeOf(context), Theme.of(context).brightness);
+    return RenderCachePaint(imageKey, MediaQuery.sizeOf(context), Theme.brightnessOf(context));
   }
 }
 

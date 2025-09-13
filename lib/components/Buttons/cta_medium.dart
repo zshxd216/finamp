@@ -32,7 +32,7 @@ class CTAMedium extends StatelessWidget {
           EdgeInsets.only(left: 8 + paddingHorizontal, right: 8, top: paddingVertical, bottom: paddingVertical),
         ),
         backgroundColor: WidgetStateProperty.all<Color>(
-          Theme.of(context).brightness == Brightness.dark ? accentColor.withOpacity(0.3) : accentColor,
+          Theme.brightnessOf(context) == Brightness.dark ? accentColor.withOpacity(0.3) : accentColor,
         ),
       ),
       child: Container(
@@ -45,7 +45,7 @@ class CTAMedium extends StatelessWidget {
             Icon(
               icon,
               size: 24,
-              color: Theme.of(context).brightness == Brightness.dark ? accentColor : Colors.white,
+              color: Theme.brightnessOf(context) == Brightness.dark ? accentColor : Colors.white,
               weight: 1.5,
             ),
             const SizedBox(width: 8),

@@ -377,7 +377,6 @@ class _LyricsViewState extends ConsumerState<LyricsView> with WidgetsBindingObse
                     ),
                   ),
                 ),
-                ),
                 if (_isSynchronizedLyrics)
                   Positioned(
                     bottom: 24,
@@ -432,18 +431,10 @@ class _LyricLine extends ConsumerWidget {
       color: Theme.of(context).textTheme.bodyLarge!.color,
       fontWeight: FontWeight.normal,
       // Keep text width consistent across the different weights
-      letterSpacing: 0.02,
-      fontSize: lyricsFontSizeToSize(ref.watch(finampSettingsProvider.lyricsFontSize)) * 0.75,
-      height: 1.25,
-    );
-    final currentLineStyle = TextStyle(
-      color: Theme.of(context).textTheme.bodyLarge!.color,
-      fontWeight: FontWeight.w500,
-      // Keep text width consistent across the different weights
       letterSpacing: -0.4,
       fontSize: lyricsFontSizeToSize(ref.watch(finampSettingsProvider.lyricsFontSize)).toDouble(),
-      height: 1.25,
     );
+    final currentLineStyle = unSyncedStyle;
     final lowlightStyle = unSyncedStyle.copyWith(color: Colors.grey);
     final cueHighlightStyle = currentLineStyle.copyWith(color: Theme.of(context).colorScheme.primary);
     final cueGreyStyle = currentLineStyle.copyWith(color: Colors.white);
