@@ -237,7 +237,6 @@ class EnvironmentMetadata {
   }
 
   String get pretty =>
-      "=== METADATA ===\n"
       "${deviceInfo.pretty}\n"
       "${appInfo.pretty}\n"
       "${serverInfo?.pretty ?? "Server Info: Not available"}";

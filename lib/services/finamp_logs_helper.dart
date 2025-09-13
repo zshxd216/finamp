@@ -65,6 +65,7 @@ class FinampLogsHelper {
     final logMeta = await EnvironmentMetadata.create();
 
     // Prepend this metadata to the logs
+    fullLogsBuffer.writeln("=== METADATA ===");
     fullLogsBuffer.writeln(logMeta.pretty);
     fullLogsBuffer.writeln("=== LOGS ===");
 
@@ -91,7 +92,7 @@ class FinampLogsHelper {
   /// Write logs to a file and share the file
   Future<void> shareLogs() async {
     final tempDir = await getTemporaryDirectory();
-    final tempFile = File(path_helper.join(tempDir.path, "finamp-logs.txt"));
+    final tempFile = File(path_helper.join(tempDir.path, "finamp-logs-${DateTime.now().millisecondsSinceEpoch}.txt"));
     tempFile.createSync();
 
     tempFile.writeAsStringSync(await getFullLogs());
@@ -105,7 +106,7 @@ class FinampLogsHelper {
   /// Write logs to a file and save to user-picked directory
   Future<void> exportLogs() async {
     await FilePicker.platform.saveFile(
-      fileName: "finamp-logs.txt",
+      fileName: "finamp-logs-${DateTime.now().millisecondsSinceEpoch}.txt",
       // initialDirectory is ignored on mobile
       initialDirectory: (await getApplicationDocumentsDirectory()).path,
       bytes: utf8.encode(await getFullLogs()),

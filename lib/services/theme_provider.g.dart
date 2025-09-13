@@ -149,7 +149,7 @@ class _FinampThemeProviderElement
   ThemeInfo get request => (origin as FinampThemeProvider).request;
 }
 
-String _$themeImageHash() => r'a272002f5ed1a8b542f8c25651c6cf33101616df';
+String _$themeImageHash() => r'd32e3fd9fa76884a37629b2d067b97d332dfd917';
 
 /// See also [themeImage].
 @ProviderFor(themeImage)
@@ -266,7 +266,7 @@ class _ThemeImageProviderElement extends AutoDisposeProviderElement<ThemeImage>
 }
 
 String _$finampThemeFromImageHash() =>
-    r'2ed79ead4ee052c8961940b332757b997bdeba99';
+    r'9675ea9074b1e36131d82d2723706ed26419a213';
 
 abstract class _$FinampThemeFromImage
     extends BuildlessAutoDisposeNotifier<ColorScheme> {

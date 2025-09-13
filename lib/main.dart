@@ -96,11 +96,13 @@ import 'services/theme_mode_helper.dart';
 import 'setup_logging.dart';
 
 final _mainLog = Logger("Main()");
+late DateTime startTime;
 
 void main() async {
   // If the app has failed, this is set to true. If true, we don't attempt to run the main app since the error app has started.
   bool hasFailed = false;
   try {
+    startTime = DateTime.now();
     await setupLogging();
     await _setupEdgeToEdgeOverlayStyle();
     _mainLog.info("Setup edge-to-edge overlay");

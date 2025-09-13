@@ -886,13 +886,15 @@ class QueueService {
   /// If [next] is provided (and greater than 0), at most [next] QueueItems from Next Up and the regular queue will be returned
   /// If [previous] is provided (and greater than 0), at most [previous] QueueItems from previous tracks will be additionally returned.
   /// The length of the returned list may be less than the sum of [next] and [previous] if there are not enough items in the queue
-  /// The current track is *not* included
-  List<FinampQueueItem> peekQueue({int? next, int previous = 0}) {
+  List<FinampQueueItem> peekQueue({int? next, int previous = 0, bool current = false}) {
     List<FinampQueueItem> nextTracks = [];
     if (_queuePreviousTracks.isNotEmpty && previous > 0) {
       nextTracks.addAll(
         _queuePreviousTracks.sublist(max(0, _queuePreviousTracks.length - previous), _queuePreviousTracks.length),
       );
+    }
+    if (_currentTrack != null && current) {
+      nextTracks.add(_currentTrack!);
     }
     if (_queueNextUp.isNotEmpty) {
       if (next == null) {

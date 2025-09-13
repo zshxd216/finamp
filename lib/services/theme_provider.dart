@@ -39,13 +39,18 @@ class PlayerScreenTheme extends StatelessWidget {
           if (item == null) {
             return null;
           }
-          return ThemeInfo(item, largeThemeImage: true, useIsolate: false);
+          // Setting useIsolate to true provides negligible speedup for player images and induces lag.
+          return ThemeInfo(item, largeThemeImage: true, useIsolate: true);
         }),
       ],
       child: Consumer(
         builder: (context, ref, child) {
           // precache adjacent themes
-          final List<FinampQueueItem> precacheItems = GetIt.instance<QueueService>().peekQueue(next: 1, previous: 1);
+          final List<FinampQueueItem> precacheItems = GetIt.instance<QueueService>().peekQueue(
+            next: 2,
+            previous: 1,
+            current: true,
+          );
           for (final itemToPrecache in precacheItems) {
             BaseItemDto? base = itemToPrecache.baseItem;
             if (base != null) {
@@ -122,8 +127,9 @@ final Provider<ThemeImage> localImageProvider = Provider((ref) {
 
 final Provider<ColorScheme> localThemeProvider = Provider((ref) {
   var image = ref.watch(localImageProvider);
-  return ref.watch(finampThemeFromImageProvider(ThemeRequestFromImage(image.image, image.useIsolate)));
-}, dependencies: [localImageProvider]);
+  var info = ref.watch(localThemeInfoProvider);
+  return ref.watch(finampThemeFromImageProvider(ThemeRequestFromImage(image.image, info?.useIsolate ?? true)));
+}, dependencies: [localImageProvider, localThemeInfoProvider]);
 
 @riverpod
 ColorScheme finampTheme(Ref ref, ThemeInfo request) {
@@ -151,7 +157,7 @@ ThemeImage themeImage(Ref ref, ThemeInfo request) {
       image = ref.watch(albumImageProvider(AlbumImageRequest(item: item, maxHeight: 100, maxWidth: 100)));
     }
   }
-  return ThemeImage(image, item.blurHash, useIsolate: request.useIsolate);
+  return ThemeImage(image, item.blurHash);
 }
 
 @riverpod
@@ -163,21 +169,30 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       return getGrayTheme(brightness);
     }
     Future.sync(() async {
+      if (request.image == null) {
+        return getDefaultTheme(brightness);
+      }
+      /*return await ColorScheme.fromImageProvider(
+        provider: request.image!,
+        brightness: brightness,
+      );*/
       var image = await _fetchImage(request.image!);
       if (image == null) {
         return getDefaultTheme(brightness);
       }
-      var scheme = await _getColorSchemeForImage(image, brightness, request.useIsolate);
-      if (scheme == null) {
+      // TODO this calculation can take several seconds for very large images.  Scale before using or
+      // switch to ColorScheme.fromImageProvider, which has this built in.
+      final color = await _getColorForImage(image, request.useIsolate);
+      if (color == null) {
         return getDefaultTheme(brightness);
       }
-      return scheme;
+      return _getColorScheme(color, brightness);
     }).then((value) => state = value);
     return getGrayTheme(brightness);
   }
 
   Future<ImageInfo?> _fetchImage(ImageProvider image) {
-    ImageStream stream = image.resolve(const ImageConfiguration(devicePixelRatio: 1.0));
+    ImageStream stream = image.resolve(const ImageConfiguration(devicePixelRatio: 1.0, size: Size(5, 5)));
     ImageStreamListener? listener;
     Completer<ImageInfo?> completer = Completer();
 
@@ -203,8 +218,7 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
     return completer.future;
   }
 
-  Future<ColorScheme?> _getColorSchemeForImage(ImageInfo image, Brightness brightness, bool useIsolate) async {
-    // Use fromImage instead of fromImageProvider to better handle error case
+  Future<Color?> _getColorForImage(ImageInfo image, bool useIsolate) async {
     final PaletteGenerator palette;
     try {
       palette = await PaletteGenerator.fromImage(image.image, useIsolate: useIsolate);
@@ -215,11 +229,10 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       image.dispose();
     }
 
-    Color accent =
-        palette.vibrantColor?.color ?? palette.dominantColor?.color ?? const Color.fromARGB(255, 0, 164, 220);
+    return palette.vibrantColor?.color ?? palette.dominantColor?.color ?? const Color.fromARGB(255, 0, 164, 220);
+  }
 
-    themeProviderLogger.finest("Accent color: $accent");
-
+  ColorScheme _getColorScheme(Color accent, Brightness brightness) {
     final lighter = brightness == Brightness.dark;
 
     final background = Color.alphaBlend(
@@ -335,18 +348,19 @@ class ThemeRequestFromImage {
   }
 
   @override
+  String toString() => "ThemeRequestFromImage(image: $image useIsolate: $useIsolate)";
+
+  @override
   int get hashCode => image.hashCode;
 }
 
 class ThemeImage {
-  ThemeImage(this.image, this.blurHash, {this.useIsolate = true, this.usePLayerThemeWhileLoading = false});
-  const ThemeImage.empty() : image = null, blurHash = null, useIsolate = true, usePLayerThemeWhileLoading = false;
+  ThemeImage(this.image, this.blurHash, {this.usePLayerThemeWhileLoading = false});
+  const ThemeImage.empty() : image = null, blurHash = null, usePLayerThemeWhileLoading = false;
   // The background image to use
   final ImageProvider? image;
   // The blurHash associated with the image
   final String? blurHash;
-  // Whether to use an isolate for slower but less laggy theme calculations
-  final bool useIsolate;
 
   final bool usePLayerThemeWhileLoading;
 }

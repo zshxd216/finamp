@@ -90,10 +90,10 @@ class PlayerScreen extends ConsumerWidget {
       onTap: retryCallback,
       child: Scaffold(
         backgroundColor: Color.alphaBlend(
-          Theme.of(context).brightness == Brightness.dark
+          Theme.brightnessOf(context) == Brightness.dark
               ? IconTheme.of(context).color!.withOpacity(0.35)
               : IconTheme.of(context).color!.withOpacity(0.5),
-          Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
+          Theme.brightnessOf(context) == Brightness.dark ? Colors.black : Colors.white,
         ),
         // Required for sleep timer input
         resizeToAvoidBottomInset: false,
@@ -191,7 +191,7 @@ class _PlayerScreenContent extends ConsumerWidget {
               // this is needed to ensure the player screen stays in full screen mode WITHOUT having contrast issues in the status bar
               systemNavigationBarColor: Colors.transparent,
               systemStatusBarContrastEnforced: false,
-              statusBarIconBrightness: Theme.of(context).brightness == Brightness.dark
+              statusBarIconBrightness: Theme.brightnessOf(context) == Brightness.dark
                   ? Brightness.light
                   : Brightness.dark,
             ),
