@@ -377,6 +377,7 @@ class _LyricsViewState extends ConsumerState<LyricsView> with WidgetsBindingObse
                     ),
                   ),
                 ),
+                ),
                 if (_isSynchronizedLyrics)
                   Positioned(
                     bottom: 24,
@@ -734,7 +735,7 @@ class EnableAutoScrollButton extends StatelessWidget {
             icon: Icon(TablerIcons.arrow_bar_to_up, size: 28.0, color: Colors.white.withOpacity(0.9)),
             label: Text(
               AppLocalizations.of(context)!.enableAutoScroll,
-              style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14.0, fontWeight: FontWeight.w500),
+              style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14.0, fontWeight: FontWeight.normal),
             ),
           )
         : const SizedBox.shrink();
