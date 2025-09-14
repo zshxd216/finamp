@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,6 +44,7 @@ class _AudioServiceSettingsScreenState extends State<AudioServiceSettingsScreen>
           const LoadQueueOnStartupSelector(),
           const AutoReloadQueueToggle(),
           const ClearQueueOnStopToggle(),
+          const RadioModeDropdownListTile(),
         ],
       ),
     );
@@ -223,6 +225,29 @@ class ClearQueueOnStopToggle extends ConsumerWidget {
       subtitle: Text(AppLocalizations.of(context)!.clearQueueOnStopEventSubtitle),
       value: ref.watch(finampSettingsProvider.clearQueueOnStopEvent),
       onChanged: FinampSetters.setClearQueueOnStopEvent,
+    );
+  }
+}
+
+class RadioModeDropdownListTile extends ConsumerWidget {
+  const RadioModeDropdownListTile({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ListTile(
+      title: Text(AppLocalizations.of(context)!.radioModeTitle),
+      trailing: DropdownButton<RadioMode>(
+        value: ref.watch(finampSettingsProvider.radioMode),
+        items: RadioMode.values
+            .map(
+              (e) => DropdownMenuItem<RadioMode>(
+            value: e,
+            child: Text(AppLocalizations.of(context)!.radioModeOption(e.name)),
+          ),
+        )
+            .toList(),
+        onChanged: FinampSetters.setRadioMode.ifNonNull,
+      ),
     );
   }
 }

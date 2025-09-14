@@ -156,17 +156,29 @@ class QueueService {
     final queueMinimum = 5;
     final queueSize = _queueNextUp.length + _queue.length;
     if (queueSize < queueMinimum && _useRadio) {
-      final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
-      for (var i = queueSize; i < queueMinimum; i++) {
-        // Pick an item to add
-        int nextIndex = _radioRandom.nextInt(items.length);
-        await addToQueue(items: [items[nextIndex]],
-            source: QueueItemSource(type: QueueItemSourceType.radio,
-                name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
-                id: _order.originalSource.item!.id));
-        _queueServiceLogger.finer("Added ${items[nextIndex].name} to the queue for radio.");
-      }
+      final numSongs = queueMinimum - queueSize;
+      List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(FinampSettingsHelper.finampSettings.radioMode, numSongs);
+      await addToQueue(items: songs,
+          source: QueueItemSource(type: QueueItemSourceType.radio,
+              name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
+              id: _order.originalSource.item!.id));
+      _queueServiceLogger.finer("Added ${songs.map((song) => song.name).toList().join(", ")} to the queue for radio.");
     }
+  }
+
+  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(RadioMode radioMode, int numSongs) async {
+    List<jellyfin_models.BaseItemDto> itemsOut = [];
+    switch (radioMode) {
+      case RadioMode.random:
+        final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
+        for (var i = 0; i < numSongs; i++) {
+          // Pick an item to add
+          int nextIndex = _radioRandom.nextInt(items.length);
+          itemsOut.add(items[nextIndex]);
+        }
+        break;
+    }
+    return itemsOut;
   }
 
   void _queueFromConcatenatingAudioSource({bool logUpdate = true}) {

@@ -230,6 +230,7 @@ class DefaultSettings {
   static const rpcEnabled = false;
   static const rpcIcon = DiscordRpcIcon.transparent;
   static const preferAddingToFavoritesOverPlaylists = false;
+  static const radioMode = RadioMode.random;
 }
 
 @HiveType(typeId: 28)
@@ -750,6 +751,9 @@ class FinampSettings {
 
   @HiveField(126, defaultValue: DefaultSettings.preferAddingToFavoritesOverPlaylists)
   bool preferAddingToFavoritesOverPlaylists = DefaultSettings.preferAddingToFavoritesOverPlaylists;
+
+  @HiveField(127, defaultValue: DefaultSettings.radioMode)
+  RadioMode radioMode = DefaultSettings.radioMode;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
@@ -3486,4 +3490,10 @@ enum DiscordRpcIcon {
         return AppLocalizations.of(context)!.discordRPCIconWhiteTransparent;
     }
   }
+}
+
+@HiveType(typeId: 102)
+enum RadioMode {
+  @HiveField(0)
+  random
 }

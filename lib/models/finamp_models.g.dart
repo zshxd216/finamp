@@ -411,13 +411,16 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..sleepTimer = fields[116] as SleepTimer?
       ..autoExpandPlayerScreen = fields[125] == null
           ? false
-          : fields[125] as bool;
+          : fields[125] as bool
+      ..radioMode = fields[127] == null
+          ? RadioMode.random
+          : fields[127] as RadioMode;
   }
 
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(120)
+      ..writeByte(121)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -657,7 +660,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(125)
       ..write(obj.autoExpandPlayerScreen)
       ..writeByte(126)
-      ..write(obj.preferAddingToFavoritesOverPlaylists);
+      ..write(obj.preferAddingToFavoritesOverPlaylists)
+      ..writeByte(127)
+      ..write(obj.radioMode);
   }
 
   @override
@@ -2868,6 +2873,39 @@ class DiscordRpcIconAdapter extends TypeAdapter<DiscordRpcIcon> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DiscordRpcIconAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class RadioModeAdapter extends TypeAdapter<RadioMode> {
+  @override
+  final typeId = 102;
+
+  @override
+  RadioMode read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return RadioMode.random;
+      default:
+        return RadioMode.random;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, RadioMode obj) {
+    switch (obj) {
+      case RadioMode.random:
+        writer.writeByte(0);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RadioModeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

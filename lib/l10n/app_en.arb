@@ -2554,6 +2554,23 @@
   "@clearQueueOnStopEventSubtitle": {
     "description": "Subtitle for the setting that controls if OS stop commands clear the queue."
   },
+  "radioModeTitle": "Radio Mode",
+  "@radioModeTitle": {
+    "description": "Title for the setting that controls the radio mode/algorithm."
+  },
+  "radioModeSubtitle": "Sets the method that the radio feature uses to pick songs to add.",
+  "@radioModeSubtitle": {
+    "description": "Subtitle for the setting that controls the radio mode/algorithm."
+  },
+  "radioModeOption": "{option, select, random{Random} other{{option}} }",
+  "@radioModeOption": {
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    },
+    "description": "Options in radio mode/algorithm dropdown"
+  },
   "autoReloadPrompt": "Reload queue to apply new {type, select, network{network settings} transcoding{transcoding settings} other{settings}}",
   "@autoReloadPrompt": {
     "description": "Prompt shown when the queue needs to be reloaded after changing network settings",
