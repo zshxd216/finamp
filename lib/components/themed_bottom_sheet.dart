@@ -33,11 +33,11 @@ Future<void> showThemedBottomSheet({
 }) async {
   FeedbackHelper.feedback(FeedbackType.heavy);
   var ref = GetIt.instance<ProviderContainer>();
-  var themeInfo = ref.read(localThemeInfoProvider);
+  final localThemeImage = ref.read(localImageProvider);
   bool useDefaultTheme = false;
   ThemeImage? themeImage;
   // If we have a usable theme image for our item, propagate this information
-  if ((themeInfo?.largeThemeImage ?? false) && themeInfo?.item == item) {
+  if (localThemeImage.largeThemeImage && localThemeImage.request?.item == item) {
     themeImage = ref.read(localImageProvider);
   } else if (item == null) {
     useDefaultTheme = true;
@@ -71,7 +71,6 @@ Future<void> showThemedBottomSheet({
         overrides: [
           if (useDefaultTheme) localThemeProvider.overrideWithValue(getDefaultTheme(Theme.brightnessOf(context))),
           if (!useDefaultTheme && themeImage != null) localImageProvider.overrideWithValue(themeImage),
-          if (!useDefaultTheme && themeImage != null) localThemeInfoProvider.overrideWithValue(themeInfo),
           if (!useDefaultTheme && themeImage == null && item != null)
             localThemeInfoProvider.overrideWithValue(ThemeInfo(item, useIsolate: false)),
         ],

@@ -1334,6 +1334,7 @@ class DownloadStub {
       userTranscodingProfile: null,
       syncTranscodingProfile: transcodingProfile,
       fileTranscodingProfile: null,
+      themeColor: null,
     );
   }
 
@@ -1362,6 +1363,7 @@ class DownloadItem extends DownloadStub {
     required this.userTranscodingProfile,
     required this.syncTranscodingProfile,
     required this.fileTranscodingProfile,
+    required this.themeColor,
   }) : super._build() {
     assert(!(type == DownloadItemType.collection && baseItemType == BaseItemDtoType.playlist) || viewId == null);
   }
@@ -1404,6 +1406,10 @@ class DownloadItem extends DownloadStub {
   DownloadProfile? userTranscodingProfile;
   DownloadProfile? syncTranscodingProfile;
   DownloadProfile? fileTranscodingProfile;
+
+  /// The primary color of an image used for theming, stored as an ARGB32 int.
+  /// This should only be non-null for images with a blurhash id.
+  int? themeColor;
 
   @ignore
   DownloadLocation? get fileDownloadLocation =>
@@ -1499,6 +1505,7 @@ class DownloadItem extends DownloadStub {
       userTranscodingProfile: userTranscodingProfile,
       syncTranscodingProfile: syncTranscodingProfile,
       fileTranscodingProfile: fileTranscodingProfile,
+      themeColor: themeColor,
     );
   }
 }

@@ -11,7 +11,7 @@ part of 'theme_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$finampThemeHash() => r'7233b420a9c2a738d975c076d4870b16c1476018';
+String _$finampThemeHash() => r'abb984453c1aedf6014b3ce6308d4dd09e33cbba';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -149,7 +149,7 @@ class _FinampThemeProviderElement
   ThemeInfo get request => (origin as FinampThemeProvider).request;
 }
 
-String _$themeImageHash() => r'd32e3fd9fa76884a37629b2d067b97d332dfd917';
+String _$themeImageHash() => r'98d3edc872a1d07a044948a17e2ebabffc97c0e6';
 
 /// See also [themeImage].
 @ProviderFor(themeImage)
@@ -266,13 +266,13 @@ class _ThemeImageProviderElement extends AutoDisposeProviderElement<ThemeImage>
 }
 
 String _$finampThemeFromImageHash() =>
-    r'9675ea9074b1e36131d82d2723706ed26419a213';
+    r'ed36da8eca59020c61184f7cf671dec5494c4c85';
 
 abstract class _$FinampThemeFromImage
     extends BuildlessAutoDisposeNotifier<ColorScheme> {
-  late final ThemeRequestFromImage request;
+  late final ThemeImage theme;
 
-  ColorScheme build(ThemeRequestFromImage request);
+  ColorScheme build(ThemeImage theme);
 }
 
 /// See also [FinampThemeFromImage].
@@ -285,15 +285,15 @@ class FinampThemeFromImageFamily extends Family<ColorScheme> {
   const FinampThemeFromImageFamily();
 
   /// See also [FinampThemeFromImage].
-  FinampThemeFromImageProvider call(ThemeRequestFromImage request) {
-    return FinampThemeFromImageProvider(request);
+  FinampThemeFromImageProvider call(ThemeImage theme) {
+    return FinampThemeFromImageProvider(theme);
   }
 
   @override
   FinampThemeFromImageProvider getProviderOverride(
     covariant FinampThemeFromImageProvider provider,
   ) {
-    return call(provider.request);
+    return call(provider.theme);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -315,9 +315,9 @@ class FinampThemeFromImageFamily extends Family<ColorScheme> {
 class FinampThemeFromImageProvider
     extends AutoDisposeNotifierProviderImpl<FinampThemeFromImage, ColorScheme> {
   /// See also [FinampThemeFromImage].
-  FinampThemeFromImageProvider(ThemeRequestFromImage request)
+  FinampThemeFromImageProvider(ThemeImage theme)
     : this._internal(
-        () => FinampThemeFromImage()..request = request,
+        () => FinampThemeFromImage()..theme = theme,
         from: finampThemeFromImageProvider,
         name: r'finampThemeFromImageProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -326,7 +326,7 @@ class FinampThemeFromImageProvider
         dependencies: FinampThemeFromImageFamily._dependencies,
         allTransitiveDependencies:
             FinampThemeFromImageFamily._allTransitiveDependencies,
-        request: request,
+        theme: theme,
       );
 
   FinampThemeFromImageProvider._internal(
@@ -336,14 +336,14 @@ class FinampThemeFromImageProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.request,
+    required this.theme,
   }) : super.internal();
 
-  final ThemeRequestFromImage request;
+  final ThemeImage theme;
 
   @override
   ColorScheme runNotifierBuild(covariant FinampThemeFromImage notifier) {
-    return notifier.build(request);
+    return notifier.build(theme);
   }
 
   @override
@@ -351,13 +351,13 @@ class FinampThemeFromImageProvider
     return ProviderOverride(
       origin: this,
       override: FinampThemeFromImageProvider._internal(
-        () => create()..request = request,
+        () => create()..theme = theme,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        request: request,
+        theme: theme,
       ),
     );
   }
@@ -370,13 +370,13 @@ class FinampThemeFromImageProvider
 
   @override
   bool operator ==(Object other) {
-    return other is FinampThemeFromImageProvider && other.request == request;
+    return other is FinampThemeFromImageProvider && other.theme == theme;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, request.hashCode);
+    hash = _SystemHash.combine(hash, theme.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -385,8 +385,8 @@ class FinampThemeFromImageProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin FinampThemeFromImageRef on AutoDisposeNotifierProviderRef<ColorScheme> {
-  /// The parameter `request` of this provider.
-  ThemeRequestFromImage get request;
+  /// The parameter `theme` of this provider.
+  ThemeImage get theme;
 }
 
 class _FinampThemeFromImageProviderElement
@@ -396,8 +396,7 @@ class _FinampThemeFromImageProviderElement
   _FinampThemeFromImageProviderElement(super.provider);
 
   @override
-  ThemeRequestFromImage get request =>
-      (origin as FinampThemeFromImageProvider).request;
+  ThemeImage get theme => (origin as FinampThemeFromImageProvider).theme;
 }
 
 // ignore_for_file: type=lint

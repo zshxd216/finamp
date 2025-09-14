@@ -35,13 +35,13 @@ import 'blurred_player_screen_background.dart';
 const double _defaultToolbarHeight = 53.0;
 const int _defaultMaxToolbarLines = 2;
 
-class PlayerScreen extends ConsumerWidget {
+class PlayerScreen extends StatelessWidget {
   const PlayerScreen({super.key});
 
   static const routeName = "/nowplaying";
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final queueService = GetIt.instance<QueueService>();
 
     // close the player screen if the queue is empty

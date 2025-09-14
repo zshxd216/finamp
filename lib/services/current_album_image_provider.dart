@@ -37,7 +37,12 @@ final currentAlbumImageProvider = Provider<ThemeImage>((ref) {
   final currentTrack = ref.watch(currentTrackProvider).value?.baseItem;
   if (currentTrack != null) {
     final request = AlbumImageRequest(item: currentTrack);
-    return ThemeImage(ref.watch(albumImageProvider(request)), currentTrack.blurHash);
+    // Setting useIsolate to false provides negligible speedup for player images and induces lag, so use true.
+    return ThemeImage(
+      ref.watch(albumImageProvider(request)),
+      ThemeInfo(currentTrack, useIsolate: true),
+      largeThemeImage: true,
+    );
   }
   return ThemeImage.empty();
 });

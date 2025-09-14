@@ -93,8 +93,8 @@ class _AlbumImageState extends ConsumerState<AlbumImage> {
             // If the current themeing context has a usable image for this item,
             // use that instead of generating a new request
             if (ref.watch(
-              localThemeInfoProvider.select(
-                (request) => (request?.largeThemeImage ?? false) && request?.item == widget.item,
+              localImageProvider.select(
+                (localImage) => localImage.largeThemeImage && localImage.request?.item == widget.item,
               ),
             )) {
               listenable = localImageProvider;
@@ -123,7 +123,7 @@ class _AlbumImageState extends ConsumerState<AlbumImage> {
 
               listenable = albumImageProvider(
                 AlbumImageRequest(item: widget.item!, maxWidth: physicalWidth, maxHeight: physicalHeight),
-              ).select((value) => ThemeImage(value, widget.item?.blurHash));
+              ).select((value) => ThemeImage(value, ThemeInfo(widget.item!)));
             }
           }
 
@@ -221,7 +221,8 @@ class BareAlbumImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var ThemeImage(image: image, blurHash: blurHash) = ref.watch(imageListenable);
+    final ThemeImage(image: image, request: request) = ref.watch(imageListenable);
+    final blurHash = request?.item.blurHash;
     var localPlaceholder = placeholderBuilder;
     if (blurHash != null) {
       localPlaceholder ??= (_) => Image(
