@@ -155,7 +155,7 @@ class QueueService {
     // TODO: Add setting to control how full the queue should be.
     final queueMinimum = 5;
     final queueSize = _queueNextUp.length + _queue.length;
-    if (queueSize < queueMinimum && _useRadio) {
+    if (_currentTrack != null && queueSize < queueMinimum && _useRadio) {
       final numSongs = queueMinimum - queueSize;
       List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(FinampSettingsHelper.finampSettings.radioMode, numSongs);
       await addToQueue(items: songs,
