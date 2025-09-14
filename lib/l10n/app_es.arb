@@ -2496,7 +2496,7 @@
     "@logoutButtonSubtitle": {},
     "none": "Ninguno",
     "@none": {},
-    "createPlaylistFromCurrentQueue": "Guardar la cola como playlist",
+    "createPlaylistFromCurrentQueue": "Guardar la cola a una playlist",
     "@createPlaylistFromCurrentQueue": {
         "description": "Label for a button that creates a new playlist from the current queue."
     },
