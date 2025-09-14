@@ -1,317 +1,847 @@
 {
-  "internalExternalIpExplanation": "Αν θέλεις να έχεις πρόσβαση στον jellyfin διακομιστή σου εξ-αποστασεως, πρέπει να χρησιμοποιήσεις την εξωτερική Διεύθυνση IP.\n\nΑν ο διακομιστής βρίσκεται σε πύλη HTTP(80/443), δεν είναι απαραίτητος ο ορισμός πύλης. Αυτό είναι πιθανόν εφόσον ο διακομιστής σου βρίσκεται πίσω από reverse proxy.",
-  "@internalExternalIpExplanation": {
-    "description": "Extra info for which IP to use for remote access, and info on whether or not the user needs to specify a port."
-  },
-  "artists": "Καλλιτέχνες",
-  "@artists": {},
-  "next": "Επόμενο",
-  "@next": {},
-  "emptyServerUrl": "Η διεύθυνση διακομιστή δεν μπορεί να είναι κενή",
-  "@emptyServerUrl": {
-    "description": "Error message that shows when the user submits a login without a server URL"
-  },
-  "tracks": "Τραγούδια",
-  "@tracks": {},
-  "serverUrl": "Διεύθυνση διακομιστή",
-  "@serverUrl": {},
-  "downloads": "Λήψεις",
-  "@downloads": {},
-  "selectMusicLibraries": "Επέλεξε τις βιβλιοθήκες μουσικής σου",
-  "@selectMusicLibraries": {
-    "description": "App bar title for library select screen"
-  },
-  "albums": "Άλμπουμ",
-  "@albums": {},
-  "username": "Όνομα χρήστη",
-  "@username": {},
-  "password": "Συνθηματικό χρήστη",
-  "@password": {},
-  "logs": "Αρχείο καταγραφών",
-  "@logs": {},
-  "couldNotFindLibraries": "Δεν βρέθηκαν συλλογές.",
-  "@couldNotFindLibraries": {
-    "description": "Error message when the user does not have any libraries"
-  },
-  "unknownName": "Άγνωστη όνομα",
-  "@unknownName": {},
-  "genres": "Είδη",
-  "@genres": {},
-  "startMixNoTracksArtist": "Κράτησε πατημένο έναν καλλιτέχνη, προκειμένου να προστεθεί ή να αφαιρεθεί από τον κατασκευαστή μίξεων, προ-εκκινήσεως μίξης",
-  "@startMixNoTracksArtist": {
-    "description": "Snackbar message that shows when the user presses the instant mix button with no artists selected"
-  },
-  "playlists": "Λίστες αναπαραγωγής",
-  "@playlists": {},
-  "startMix": "Έναρξη μίξης",
-  "@startMix": {},
-  "startMixNoTracksAlbum": "Κράτησε πατημένο ένα άλμπουμ, προκειμένου να προστεθεί ή να αφαιρεθεί από τον κατασκευαστή μίξεων, προ-εκκινήσεως μίξης",
-  "@startMixNoTracksAlbum": {
-    "description": "Snackbar message that shows when the user presses the instant mix button with no albums selected"
-  },
-  "music": "Μουσική",
-  "@music": {},
-  "finamp": "Finamp",
-  "@finamp": {},
-  "communityRating": "Βαθμολογία κοινότητας",
-  "@communityRating": {},
-  "dlFailed": "{count} απέτυχαν",
-  "@dlFailed": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
+    "internalExternalIpExplanation": "Αν θέλετε να έχετε πρόσβαση στον Jellyfin διακομιστή σας απομακρυσμένα, θα πρέπει να χρησιμοποιήσετε τη δημόσια (εξωτερική) IP σας.\n\nΑν ο διακομιστής σας χρησιμοποιεί την προεπιλεγμένη port HTTP (80 ή 443) ή την προεπιλεγμένη port του Jellyfin (8096), δεν χρειάζεται να ορίσετε τη θύρα.\n\nΑν το URL είναι σωστό, θα εμφανιστούν παρακάτω κάποιες πληροφορίες για τον διακομιστή σας.",
+    "@internalExternalIpExplanation": {
+        "description": "Extra info for which IP to use for remote access, and info on whether or not the user needs to specify a port."
+    },
+    "artists": "Καλλιτέχνες",
+    "@artists": {},
+    "next": "Επόμενο",
+    "@next": {},
+    "emptyServerUrl": "Η διεύθυνση διακομιστή δεν μπορεί να είναι κενή",
+    "@emptyServerUrl": {
+        "description": "Error message that shows when the user submits a login without a server URL"
+    },
+    "tracks": "Τραγούδια",
+    "@tracks": {},
+    "serverUrl": "Διεύθυνση διακομιστή",
+    "@serverUrl": {},
+    "downloads": "Λήψεις",
+    "@downloads": {},
+    "selectMusicLibraries": "Επέλεξε τις βιβλιοθήκες μουσικής σου",
+    "@selectMusicLibraries": {
+        "description": "App bar title for library select screen"
+    },
+    "albums": "Άλμπουμ",
+    "@albums": {},
+    "username": "Όνομα χρήστη",
+    "@username": {},
+    "password": "Συνθηματικό χρήστη",
+    "@password": {},
+    "logs": "Αρχείο καταγραφών",
+    "@logs": {},
+    "couldNotFindLibraries": "Δεν βρέθηκαν συλλογές.",
+    "@couldNotFindLibraries": {
+        "description": "Error message when the user does not have any libraries"
+    },
+    "unknownName": "Άγνωστη όνομα",
+    "@unknownName": {},
+    "genres": "Είδη",
+    "@genres": {},
+    "startMixNoTracksArtist": "Κράτησε πατημένο έναν καλλιτέχνη, προκειμένου να προστεθεί ή να αφαιρεθεί από τον κατασκευαστή μίξεων, προ-εκκινήσεως μίξης",
+    "@startMixNoTracksArtist": {
+        "description": "Snackbar message that shows when the user presses the instant mix button with no artists selected"
+    },
+    "playlists": "Λίστες αναπαραγωγής",
+    "@playlists": {},
+    "startMix": "Έναρξη μίξης",
+    "@startMix": {},
+    "startMixNoTracksAlbum": "Κράτησε πατημένο ένα άλμπουμ, προκειμένου να προστεθεί ή να αφαιρεθεί από τον κατασκευαστή μίξεων, προ-εκκινήσεως μίξης",
+    "@startMixNoTracksAlbum": {
+        "description": "Snackbar message that shows when the user presses the instant mix button with no albums selected"
+    },
+    "music": "Μουσική",
+    "@music": {},
+    "finamp": "Finamp",
+    "@finamp": {},
+    "communityRating": "Βαθμολογία κοινότητας",
+    "@communityRating": {},
+    "dlFailed": "{count} απέτυχαν",
+    "@dlFailed": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "clear": "Εκκαθάριση",
+    "@clear": {},
+    "shuffleAll": "Τυχαία αναπαραγωγή",
+    "@shuffleAll": {},
+    "sortOrder": "Σειρά ταξινόμησης",
+    "@sortOrder": {},
+    "settings": "Ρυθμίσεις",
+    "@settings": {},
+    "offlineMode": "Λειτουργία εκτός σύνδεσης",
+    "@offlineMode": {},
+    "album": "Άλμπουμ",
+    "@album": {},
+    "budget": "Προϋπολογισμός",
+    "@budget": {},
+    "sortBy": "Ταξινόμηση κατά",
+    "@sortBy": {},
+    "criticRating": "Βαθμολογία κριτών",
+    "@criticRating": {},
+    "albumArtist": "Καλλιτέχνης άλμπουμ",
+    "@albumArtist": {},
+    "artist": "Καλλιτέχνης",
+    "@artist": {},
+    "dateAdded": "Ημερομηνία προσθήκης",
+    "@dateAdded": {},
+    "playCount": "Πλήθος αναπαραγωγών",
+    "@playCount": {},
+    "datePlayed": "Ημερομηνία τελευταίας αναπαραγωγής",
+    "@datePlayed": {},
+    "random": "Τυχαίο",
+    "@random": {},
+    "premiereDate": "Ημερομηνία κυκλοφορίας",
+    "@premiereDate": {},
+    "productionYear": "Χρονολογία παραγωγής",
+    "@productionYear": {},
+    "revenue": "Έσοδα",
+    "@revenue": {},
+    "downloadMissingImages": "Λήψη ελλείποντων εικόνων",
+    "@downloadMissingImages": {},
+    "name": "Όνομα",
+    "@name": {},
+    "downloadCount": "{count,plural, =1{{count} λήψη} other{{count} λήψεις}}",
+    "@downloadCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "dlComplete": "{count} ολοκληρώθηκαν",
+    "@dlComplete": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "failedToGetTrackFromDownloadId": "Απέτυχε η λήψη τραγουδιού από το download ID",
+    "@failedToGetTrackFromDownloadId": {},
+    "playlistUpdated": "Ανανεώθηκε το όνομα λίστας αναπαραγωγής.",
+    "@playlistUpdated": {},
+    "stackTrace": "Ιχνηλάτηση στοίβας",
+    "@stackTrace": {},
+    "downloadedMissingImages": "{count,plural, =0{δεν βρέθηκαν ελλειπείς εικόνες} =1{ελήφθησαν {count} ελλειπής εικόνες} other{ελήφθησαν {count} ελλειπής εικόνες}}",
+    "@downloadedMissingImages": {
+        "description": "Message that shows when the user downloads missing images",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "dlEnqueued": "{count} στην σειρά",
+    "@dlEnqueued": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "dlRunning": "{count} τρέχοντα",
+    "@dlRunning": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "error": "Σφάλμα",
+    "@error": {},
+    "shuffleButtonLabel": "Τυχαία αναπαραγωγή",
+    "@shuffleButtonLabel": {},
+    "errorScreenError": "Παρουσιάστηκε σφάλμα κατά την ανάκτηση της λίστας σφαλμάτων! Πιθανότατα σε αυτό το σημείο θα ήταν καλύτερο να δημιουργήσετε ένα issue στο GitHub και να διαγράψετε τα δεδομένα της εφαρμογής",
+    "@errorScreenError": {},
+    "discNumber": "Δίσκος {number}",
+    "@discNumber": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "playButtonLabel": "Αναπαραγωγή",
+    "@playButtonLabel": {},
+    "addDownloads": "Προσθήκη λήψεων",
+    "@addDownloads": {},
+    "logsCopied": "Αντιγράφηκαν οι καταγραφές.",
+    "@logsCopied": {},
+    "message": "Μύνημα",
+    "@message": {},
+    "required": "Απαιτούμενο",
+    "@required": {},
+    "downloadsQueued": "Λήψη αρχείων",
+    "@downloadsQueued": {},
+    "audioService": "Υπηρεσία ήχου",
+    "@audioService": {},
+    "trackCount": "{count,plural,=1{{count} τίτλος} other{{count} τίτλοι}}",
+    "@trackCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "downloadsDeleted": "Διαγράφτηκαν οι λήψεις.",
+    "@downloadsDeleted": {},
+    "updateButtonLabel": "Ανανέωση",
+    "@updateButtonLabel": {},
+    "transcoding": "Μετακωδικοποίηση",
+    "@transcoding": {},
+    "notAvailableInOfflineMode": "Μη διαθέσιμο σε λειτουργία εκτός σύνδεσης",
+    "@notAvailableInOfflineMode": {},
+    "logOut": "Αποσύνδεση",
+    "@logOut": {},
+    "areYouSure": "Είστε σίγουροι;",
+    "@areYouSure": {},
+    "location": "Τοποθεσία",
+    "@location": {},
+    "addButtonLabel": "Προσθήκη",
+    "@addButtonLabel": {},
+    "layoutAndTheme": "Διάταξη & Θέμα/Εμφάνιση",
+    "@layoutAndTheme": {},
+    "enableTranscodingSubtitle": "Μετακωδικοποιεί ροές μουσικής στην πλευρά του διακομιστή.",
+    "@enableTranscodingSubtitle": {},
+    "shareLogs": "Μοιραστείτε τις καταγραφές",
+    "@shareLogs": {},
+    "applicationLegalese": "Αδειοδοτημένο με το Mozilla Public License 2.0.\nΟ πηγαίος κώδικας είναι διαθέσιμος στο {sourceCodeLink}.",
+    "@applicationLegalese": {},
+    "downloadLocations": "Τοποθεσίες λήψεων",
+    "@downloadLocations": {},
+    "enableTranscoding": "Ενεργοποίηση μετακωδικοποίησης",
+    "@enableTranscoding": {},
+    "bitrate": "Bitrate",
+    "@bitrate": {},
+    "bitrateSubtitle": "Ένας υψηλότερος ρυθμός μετάδοσης δεδομένων (Bitrate) προσφέρει ήχο υψηλότερης ποιότητας, με κόστος μεγαλύτερου εύρους ζώνης. Δεν ισχύει για lossless κωδικοποιητές, π.χ. FLAC",
+    "@bitrateSubtitle": {},
+    "customLocation": "Προσαρμοσμένη θέση",
+    "@customLocation": {},
+    "customLocationsBuggy": "Οι προσαρμοσμένες τοποθεσίες μπορεί να παρουσιάζουν σοβαρά σφάλματα και δεν συνιστώνται στις περισσότερες περιπτώσεις. Τοποθεσίες κάτω από τον φάκελο 'Music' του συστήματος εμποδίζουν την αποθήκευση των εξωφύλλων άλμπουμ λόγω περιορισμών του λειτουργικού συστήματος.",
+    "@customLocationsBuggy": {},
+    "enterLowPriorityStateOnPause": "Είσοδος σε κατάσταση χαμηλής προτεραιότητας κατά την παύση",
+    "@enterLowPriorityStateOnPause": {},
+    "landscape": "Οριζόντιο",
+    "@landscape": {},
+    "gridCrossAxisCount": "{value} Πλήθος στοιχείων στον κάθετο άξονα του πλέγματος",
+    "@gridCrossAxisCount": {
+        "description": "List tile title for grid cross axis count. Value will either be the portrait or landscape key.",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "Portrait"
+            }
+        }
+    },
+    "appDirectory": "Φάκελος εφαρμογής",
+    "@appDirectory": {},
+    "addDownloadLocation": "Προσθήκη τοποθεσίας λήψεως",
+    "@addDownloadLocation": {},
+    "selectDirectory": "Επέλεξε θέση",
+    "@selectDirectory": {},
+    "unknownError": "Άγνωστο σφάλμα",
+    "@unknownError": {},
+    "directoryMustBeEmpty": "Η τοποθεσία πρέπει να είναι άδεια",
+    "@directoryMustBeEmpty": {},
+    "enterLowPriorityStateOnPauseSubtitle": "Επιτρέπει την απόρριψη της ειδοποίησης όταν η αναπαραγωγή είναι σε παύση. Επιτρέπει επίσης στο Android να τερματίσει την υπηρεσία κατά την παύση.",
+    "@enterLowPriorityStateOnPauseSubtitle": {},
+    "shuffleAllTrackCountSubtitle": "Αριθμός κομματιών που θα φορτωθούν όταν χρησιμοποιείται το κουμπί “Τυχαία αναπαραγωγή όλων” στην καρτέλα Κομμάτια ή στην οθόνη Είδη μουσικής.",
+    "@shuffleAllTrackCountSubtitle": {},
+    "viewTypeSubtitle": "Τύπος προβολής για την οθόνη μουσικής",
+    "@viewTypeSubtitle": {},
+    "list": "Λίστα",
+    "@list": {},
+    "pathReturnSlashErrorMessage": "Διαδρομές που επιστρέφουν \"/\" δεν μπορούν να χρησιμοποιηθούν",
+    "@pathReturnSlashErrorMessage": {},
+    "shuffleAllTrackCount": "Τυχαία αναπαραγωγή όλων των κομματιών",
+    "@shuffleAllTrackCount": {},
+    "viewType": "Τύπος προβολής",
+    "@viewType": {},
+    "grid": "Πλέγμα",
+    "@grid": {},
+    "portrait": "Κάθετο",
+    "@portrait": {},
+    "showTextOnGridView": "Εμφάνιση κειμένου στην προβολή πλέγματος",
+    "@showTextOnGridView": {},
+    "gridCrossAxisCountSubtitle": "Αριθμός κελιών πλέγματος ανά σειρά όταν {value}.",
+    "@gridCrossAxisCountSubtitle": {
+        "description": "List tile subtitle for grid cross axis count. Value will either be the portrait or landscape key.",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "landscape"
+            }
+        }
+    },
+    "theme": "Θέμα",
+    "@theme": {},
+    "system": "Σύστημα",
+    "@system": {},
+    "light": "Φωτεινό",
+    "@light": {},
+    "dark": "Σκοτεινό",
+    "@dark": {},
+    "tabs": "Καρτέλες",
+    "@tabs": {},
+    "cancelSleepTimer": "Ακύρωση χρονοδιακόπτη ύπνου;",
+    "@cancelSleepTimer": {},
+    "setSleepTimer": "Παύση αναπαραγωγής μετά από",
+    "@setSleepTimer": {},
+    "minutes": "Λεπτά",
+    "@minutes": {},
+    "sleepTimerTooltip": "Χρονοδιακόπτης Ύπνου",
+    "@sleepTimerTooltip": {},
+    "addToPlaylistTooltip": "Προσθήκη στην λίστα αναπαραγωγής",
+    "@addToPlaylistTooltip": {},
+    "newPlaylist": "Νέα Λίστα Αναπαραγωγής",
+    "@newPlaylist": {},
+    "addToPlaylistTitle": "Προσθήκη στην Λίστα Αναπαραγωγής",
+    "@addToPlaylistTitle": {},
+    "playlistCreated": "Η Λίστα Αναπαραγωγής δημιουργήθηκε.",
+    "@playlistCreated": {},
+    "removeFromPlaylistTooltip": "Αφαίρεση από την λίστα αναπαραγωγής",
+    "@removeFromPlaylistTooltip": {},
+    "removeFromPlaylistTitle": "Αφαίρεση από την Λίστα Αναπαραγωγής",
+    "@removeFromPlaylistTitle": {},
+    "createButtonLabel": "Δημιουργία",
+    "@createButtonLabel": {},
+    "invalidNumber": "Μη Έγκυρος Αριθμός",
+    "@invalidNumber": {},
+    "yesButtonLabel": "Ναί",
+    "@yesButtonLabel": {},
+    "noButtonLabel": "Όχι",
+    "@noButtonLabel": {},
+    "finampTagline": "Ένα πρόγραμμα αναπαραγωγής μουσικής Jellyfin ανοιχτού κώδικα",
+    "@finampTagline": {
+        "description": "Tagline / short description for the app"
+    },
+    "startupErrorTitle": "Κάτι πήγε λάθος στην εκκίνηση της εφαρμογής!",
+    "@startupErrorTitle": {
+        "description": "The title for the error screen that shows when startup fails."
+    },
+    "startupErrorCallToAction": "Παρακαλούμε δημιουργήστε ένα issue στο \"github.com/jmshrv/finamp\" με τα αρχεία καταγραφής (χρησιμοποιήστε το κουμπί παρακάτω) και ένα στιγμιότυπο οθόνης αυτής της σελίδας, ώστε να μπορέσουμε να το διορθώσουμε το συντομότερο δυνατό.",
+    "@startupErrorCallToAction": {
+        "description": "The subtitle / call to action for what to do after encountering a startup error"
+    },
+    "startupErrorWorkaround": "Ως λύση στο σφάλμα μπορείτε να διαγράψετε τα δεδομένα της εφαρμογής για να την επαναφέρετε. Να έχετε υπόψη ότι σε αυτή την περίπτωση θα διαγραφούν όλες οι ρυθμίσεις και οι λήψεις σας.",
+    "@startupErrorWorkaround": {
+        "description": "The subtitle for how to manually recover from a startup error"
+    },
+    "about": "Σχετικά με το Finamp",
+    "@about": {
+        "description": "Label for the about/info button on the settings screen"
+    },
+    "aboutContributionPrompt": "Φτιαγμένο από υπέροχους ανθρώπους στον ελεύθερο χρόνο τους.\nΜπορείς να είσαι κι εσύ ένας από αυτούς!",
+    "@aboutContributionPrompt": {
+        "description": "Text shown in the about screen, explaining that the app is made by volunteers and that the user could be one of them."
+    },
+    "aboutContributionLink": "Συνεισφέρετε στο Finamp στο GitHub:",
+    "@aboutContributionLink": {
+        "description": "Link to the Finamp GitHub repository, shown in the about screen."
+    },
+    "aboutReleaseNotes": "Διαβάστε τις σημειώσεις της τελευταίας έκδοσης:",
+    "@aboutReleaseNotes": {
+        "description": "Link to the release notes, shown in the about screen."
+    },
+    "aboutTranslations": "Βοηθήστε να μεταφραστεί το Finamp στη γλώσσα σας:",
+    "@aboutTranslations": {
+        "description": "Link to the translation project, shown in the about screen."
+    },
+    "aboutThanks": "Ευχαριστούμε που χρησιμοποιείτε το Finamp!",
+    "@aboutThanks": {
+        "description": "Thank you message shown in the about screen."
+    },
+    "loginFlowWelcomeHeading": "Καλωσόρισες στο {styledName}",
+    "@loginFlowWelcomeHeading": {
+        "description": "Greeting shown on the login screen.",
+        "placeholders": {
+            "styledName": {
+                "type": "String",
+                "example": "Finamp"
+            }
+        }
+    },
+    "loginFlowSlogan": "Η μουσική σας, όπως τη θέλετε.",
+    "@loginFlowSlogan": {
+        "description": "Slogan shown on the login screen."
+    },
+    "loginFlowGetStarted": "Ας ξεκινήσουμε!",
+    "@loginFlowGetStarted": {
+        "description": "Button label for the login/splash screen."
+    },
+    "viewLogs": "Δείτε τα αρχεία καταγραφής",
+    "@viewLogs": {
+        "description": "Label for button shown during the login process that allows the user to view the app logs"
+    },
+    "changeLanguage": "Άλλαξε Γλώσσα",
+    "@changeLanguage": {
+        "description": "Label for button shown during the login process that allows the user to change the app language"
+    },
+    "loginFlowServerSelectionHeading": "Συνδεθείτε στο Jellyfin",
+    "@loginFlowServerSelectionHeading": {
+        "description": "Heading for the server selection step during the login flow."
+    },
+    "back": "Πίσω",
+    "@back": {
+        "description": "Label for the back button."
+    },
+    "serverUrlHint": "π.χ. demo.jellyfin.org/stable",
+    "@serverUrlHint": {
+        "description": "Hint text for the server URL input field. Should be the address to an actual, public Jellyfin server."
+    },
+    "serverUrlInfoButtonTooltip": "Βοήθεια για το URL του διακομιστή",
+    "@serverUrlInfoButtonTooltip": {
+        "description": "Tooltip for the button that shows the extra info dialog for which IP to use for remote access, and info on whether or not the user needs to specify a port."
+    },
+    "connectingToServer": "Σύνδεση στον διακομιστή…",
+    "@connectingToServer": {
+        "description": "Text shown while the connection to the specified server is attempted"
+    },
+    "loginFlowLocalNetworkServers": "Διακομιστές στο τοπικό σας δίκτυο:",
+    "@loginFlowLocalNetworkServers": {
+        "description": "Heading for the list of servers on the local network, shown during the login flow. Should ideally have a colon at the end."
+    },
+    "loginFlowLocalNetworkServersScanningForServers": "Αναζήτηση για διακομιστές…",
+    "@loginFlowLocalNetworkServersScanningForServers": {
+        "description": "Text shown while servers are being discovered via UDP broadcasts"
+    },
+    "loginFlowAccountSelectionHeading": "Επέλεξε τον λογαριασμό σου",
+    "@loginFlowAccountSelectionHeading": {
+        "description": "Heading for the account selection step during the login flow."
+    },
+    "backToServerSelection": "Επιστροφή στην Επιλογή Διακομιστή",
+    "@backToServerSelection": {
+        "description": "Label for the button that takes the user back to the server selection step during the login flow."
+    },
+    "loginFlowNamelessUser": "Ανώνυμος Χρήστης",
+    "@loginFlowNamelessUser": {
+        "description": "Name for a user that doesn't have a name set on the server."
+    },
+    "loginFlowCustomUser": "Προσαρμοσμένος χρήστης",
+    "@loginFlowCustomUser": {
+        "description": "Label for a button that allows the user to enter a custom username/password, for example if their user account is hidden."
+    },
+    "loginFlowAuthenticationHeading": "Συνδεθείτε στο λογαριασμό σας",
+    "@loginFlowAuthenticationHeading": {
+        "description": "Heading for the authentication step during the login flow."
+    },
+    "backToAccountSelection": "Επιστροφή στην Επιλογή Λογαριασμού",
+    "@backToAccountSelection": {
+        "description": "Label for the button that takes the user back to the account selection step during the login flow."
+    },
+    "loginFlowQuickConnectPrompt": "Χρήση κωδικού Quick Connect",
+    "@loginFlowQuickConnectPrompt": {
+        "description": "Text shown above the quick connect code. The full message will be 'Use Quick Connect code {code}'. The code will be a 6-digit number. Ideally, 'Quick Connect' should be capitalized and translated exactly as it is in the Jellyfin web UI."
+    },
+    "loginFlowQuickConnectInstructions": "Ανοίξτε την εφαρμογή ή τον ιστότοπο Jellyfin, κάντε κλικ στο εικονίδιο χρήστη σας και επιλέξτε Quick Connect.",
+    "@loginFlowQuickConnectInstructions": {
+        "description": "Instructions for how and where to enter the Quick Connect code. Ideally, 'Quick Connect' should be capitalized and translated exactly as it is in the Jellyfin web UI."
+    },
+    "loginFlowQuickConnectDisabled": "Το Quick Connect είναι απενεργοποιημένο σε αυτόν τον διακομιστή.",
+    "@loginFlowQuickConnectDisabled": {
+        "description": "Warning that is shown during authentication if Quick Connect is disabled on the server."
+    },
+    "orDivider": "ή",
+    "@orDivider": {
+        "description": "Text that separates two different ways to log in. For example, after selecting a server during the login flow, the other can either use Quick Connect, *or* select an account from a list. The text is stylized by wrapping it in dashes: '- or -'."
+    },
+    "loginFlowSelectAUser": "Επέλεξε έναν χρήστη",
+    "@loginFlowSelectAUser": {
+        "description": "Heading for the list of users that the user can select from during the login flow."
+    },
+    "usernameHint": "Εισάγετε το όνομα χρήστη σας",
+    "@usernameHint": {
+        "description": "Hint text for the username input field."
+    },
+    "usernameValidationMissingUsername": "Παρακαλώ εισάγετε ένα όνομα χρήστη",
+    "@usernameValidationMissingUsername": {
+        "description": "Error message that shows when the user submits a login without a username"
+    },
+    "passwordHint": "Εισάγετε τον κωδικό σας",
+    "@passwordHint": {
+        "description": "Hint text for the password input field."
+    },
+    "login": "Σύνδεση",
+    "@login": {
+        "description": "Label for the login button."
+    },
+    "allLibraries": "Όλες οι βιβλιοθήκες",
+    "@allLibraries": {
+        "description": "All Libraries"
+    },
+    "appearsOnAlbums": "Συμμετέχει σε",
+    "@appearsOnAlbums": {},
+    "noGenres": "Καμία κατηγορία",
+    "@noGenres": {
+        "description": "Gets shown when there are no genres available for an album or artist"
+    },
+    "startMixNoTracksGenre": "Πατήστε παρατεταμένα ένα είδος μουσικής για να το προσθέσετε ή να το αφαιρέσετε από το εργαλείο δημιουργίας μίξης πριν ξεκινήσετε μια μίξη",
+    "@startMixNoTracksGenre": {
+        "description": "Snackbar message that shows when the user presses the instant mix button with no genres selected"
+    },
+    "favorite": "Αγαπημένο",
+    "@favorite": {},
+    "favorites": "Αγαπημένα",
+    "@favorites": {},
+    "onlineMode": "Λειτουργία με σύνδεση",
+    "@onlineMode": {},
+    "title": "Τίτλος",
+    "@title": {},
+    "albumArtists": "Καλλιτέχνες Άλμπουμ",
+    "@albumArtists": {},
+    "performingArtists": "Ερμηνευτές",
+    "@performingArtists": {},
+    "performingArtist": "Ερμηνευτής/τρια",
+    "@performingArtist": {},
+    "duration": "Διάρκεια",
+    "@duration": {},
+    "defaultOrder": "Προεπιλεγμένη σειρά",
+    "@defaultOrder": {
+        "description": "Default sorting order for playlists (server order)"
+    },
+    "adaptive": "Προσαρμοστικό",
+    "@adaptive": {},
+    "formattedRelativeTime": "{type, select, just_now {μόλις τώρα} minutes {{value} λεπτ. πριν} hours {{value} ώρ. πριν} yesterday {χθες} days {{value, plural, =1 {1 μέρα πριν} other {{value} μέρες πριν}}} other {value}}",
+    "@formattedRelativeTime": {
+        "description": "Returns a relative time string based on how long ago something happened. Used for various DateTime values such as Date Last Played and Date Added.",
+        "placeholders": {
+            "type": {
+                "type": "String",
+                "description": "The category of time passed: one of 'just_now', 'minutes', 'hours', 'yesterday', or 'days'."
+            },
+            "value": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "syncDownloadedPlaylists": "Συγχρονισμός ληφθέντων λιστών αναπαραγωγής",
+    "@syncDownloadedPlaylists": {},
+    "activeDownloads": "Ενεργές Λήψεις",
+    "@activeDownloads": {},
+    "downloadedCountUnified": "{trackCount, plural, =1 {{trackCount} κομμάτι} other {{trackCount} κομμάτια}}, {imageCount, plural, =1 {{imageCount} εικόνα} other {{imageCount} εικόνες}}\n{syncCount, plural, =1 {{syncCount} κόμβος συγχρονίζεται} other {{syncCount} κόμβοι συγχρονίζονται}}{repairing, plural, =0 {} other {\nΔιαδικασία επιδιόρθωσης σε εξέλιξη}}",
+    "@downloadedCountUnified": {
+        "description": "Display of downloaded track and image count on downloads screen.",
+        "placeholders": {
+            "trackCount": {
+                "type": "int"
+            },
+            "imageCount": {
+                "type": "int"
+            },
+            "syncCount": {
+                "type": "int"
+            },
+            "repairing": {
+                "type": "int"
+            }
+        }
+    },
+    "activeDownloadsTitle": "Ενεργές Λήψεις",
+    "@activeDownloadsTitle": {},
+    "noActiveDownloads": "Καμία ενεργή λήψη.",
+    "@noActiveDownloads": {},
+    "deleteDownloadsPrompt": "Είστε σίγουροι ότι θέλετε να διαγράψετε το {itemType, select, album {άλμπουμ} playlist {λίστα αναπαραγωγής} artist {καλλιτέχνη} genre {είδος μουσικής} track {κομμάτι} library {βιβλιοθήκη} other {στοιχείο}} '{itemName}' από αυτή τη συσκευή;",
+    "@deleteDownloadsPrompt": {
+        "placeholders": {
+            "itemName": {
+                "type": "String",
+                "example": "Abandon Ship"
+            },
+            "itemType": {
+                "type": "String",
+                "example": "album"
+            }
+        },
+        "description": "Confirmation prompt shown before deleting downloaded media from the local device, destructive action, doesn't affect the media on the server."
+    },
+    "deleteDownloadsConfirmButtonText": "Διαγραφή",
+    "@deleteDownloadsConfirmButtonText": {
+        "description": "Shown in the confirmation dialog for deleting downloaded media from the local device."
+    },
+    "specialDownloads": "Ειδικές λήψεις",
+    "@specialDownloads": {
+        "description": "Title for the special downloads section on the downloads screen."
+    },
+    "libraryDownloads": "Λήψεις βιβλιοθήκης",
+    "@libraryDownloads": {
+        "description": "Title for the library downloads section on the downloads screen."
+    },
+    "noItemsDownloaded": "Κανένα στοιχείο δεν έχει ληφθεί.",
+    "@noItemsDownloaded": {
+        "description": "Shown on the downloads screen for sections without any downloaded items."
+    },
+    "shuffleCountButton": "Τυχαία αναπαραγωγή ({count, plural, =1 {{count} κομμάτι} other {{count} κομμάτια}})",
+    "@shuffleCountButton": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "playbackActionPagePlay": "Αναπαραγωγή",
+    "@playbackActionPagePlay": {
+        "description": "Label for the playback action page that contains all actions related to playing in order"
+    },
+    "playbackActionPageShuffle": "Τυχαία Αναπαραγωγή",
+    "@playbackActionPageShuffle": {
+        "description": "Label for the playback action page that contains all actions related to playing shuffled"
+    },
+    "playbackActionPageShuffleAlbums": "Τυχαία Αναπαραγωγή άλμπουμ",
+    "@playbackActionPageShuffleAlbums": {
+        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
+    },
+    "offlineTrackCount": "{count, plural, =1 {{count} κομμάτι} other {{count} κομμάτια}}, {downloads} ληφθέντα",
+    "@offlineTrackCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "downloads": {
+                "type": "int"
+            }
+        }
+    },
+    "offlineTrackCountArtist": "{count, plural, =1 {{count} κομμάτι} other {{count} κομμάτια}} λήψη",
+    "@offlineTrackCountArtist": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "confirmDownloadStarted": "Η λήψη ξεκίνησε",
+    "@confirmDownloadStarted": {
+        "description": "A confirmation message that is shown after successfully adding an item to the download queue, before it starts being processed and enqueued for download"
+    },
+    "exportLogs": "Αποθήκευση αρχείων καταγραφής",
+    "@exportLogs": {},
+    "interactions": "Αλληλεπιδράσεις",
+    "@interactions": {},
+    "notAvailable": "Μη διαθέσημο",
+    "@notAvailable": {},
+    "logoutButtonSubtitle": "Η σύνδεση σε διαφορετικό διακομιστή θα διαγράψει τις υπάρχουσες λήψεις",
+    "@logoutButtonSubtitle": {},
+    "none": "Κανένα",
+    "@none": {},
+    "customizationSettingsTitle": "Εξατομίκευση",
+    "@customizationSettingsTitle": {
+        "description": "Title for the customization settings screen"
+    },
+    "playbackSpeedControlSetting": "Ορατότητα ταχύτητας αναπαραγωγής",
+    "@playbackSpeedControlSetting": {
+        "description": "Title of the visibility setting of the playback speed controls"
+    },
+    "playbackSpeedControlSettingSubtitle": "Αν οι έλεγχοι ταχύτητας αναπαραγωγής εμφανίζονται στο μενού της οθόνης αναπαραγωγής",
+    "@playbackSpeedControlSettingSubtitle": {
+        "description": "Subtitle for the playback speed visibility setting"
+    },
+    "playbackSpeedControlSettingDescription": "Αυτόματο:\nΤο Finamp προσπαθεί να αναγνωρίσει αν το κομμάτι που αναπαράγετε είναι podcast ή (μέρος) audiobook. Θεωρείται έτσι αν το κομμάτι διαρκεί πάνω από {trackDuration} λεπτά, αν το άλμπουμ του κομματιού είναι πάνω από {albumDuration} ώρες, ή αν έχει τουλάχιστον ένα από αυτά τα είδη: {genreList}.\nΟι έλεγχοι ταχύτητας αναπαραγωγής θα εμφανίζονται στο μενού της οθόνης αναπαραγωγής.\n\nΕμφανιζόμενο:\nΟι έλεγχοι ταχύτητας αναπαραγωγής εμφανίζονται πάντα στο μενού της οθόνης αναπαραγωγής.\n\nΚρυμμένο:\nΟι έλεγχοι ταχύτητας αναπαραγωγής στο μενού της οθόνης αναπαραγωγής είναι πάντα κρυφοί.",
+    "@playbackSpeedControlSettingDescription": {
+        "description": "Description for the dropdown that selects the replay gain mode, shown in a dialog that opens when the user presses the info icon next to the dropdown",
+        "placeholders": {
+            "trackDuration": {
+                "type": "int",
+                "example": "30"
+            },
+            "albumDuration": {
+                "type": "int",
+                "example": "3"
+            },
+            "genreList": {
+                "type": "String",
+                "example": "Podcast, Audiobook"
+            }
+        }
+    },
+    "automatic": "Αυτόματο",
+    "@automatic": {
+        "description": "Used as an option in the playback speed visibility settings"
+    },
+    "shown": "Εμφανιζόμενο",
+    "@shown": {
+        "description": "Used as an option in the playback speed visibility settings"
+    },
+    "hidden": "Κρυμμένο",
+    "@hidden": {
+        "description": "Used as an option in the playback speed visibility settings"
+    },
+    "speed": "Ταχύτητα",
+    "@speed": {
+        "description": "Used as a placeholder in the input of the playback speed menu"
+    },
+    "reset": "Επαναφορά",
+    "@reset": {
+        "description": "Used for buttons in the playback speed menu and the settings"
+    },
+    "apply": "Εφαρμογή",
+    "@apply": {
+        "description": "Used for a button in the playback speed menu"
+    },
+    "showTextOnGridViewSubtitle": "Εάν θα εμφανίζεται το κείμενο (τίτλος, καλλιτέχνης κ.λπ.) στην οθόνη μουσικής σε προβολή πλέγματος.",
+    "@showTextOnGridViewSubtitle": {},
+    "useCoverAsBackground": "Χρήση θολού εξωφύλλου ως φόντο",
+    "@useCoverAsBackground": {},
+    "useCoverAsBackgroundSubtitle": "Εάν θα χρησιμοποιείται θολωμένο εξώφυλλο άλμπουμ ως φόντο σε διάφορα μέρη της εφαρμογής.",
+    "@useCoverAsBackgroundSubtitle": {},
+    "playerScreenMinimumCoverPaddingEditorTitle": "Ελάχιστο περιθώριο εξωφύλλου άλμπουμ",
+    "@playerScreenMinimumCoverPaddingEditorTitle": {
+        "description": "Title for the editor that allows the user to set the minimum padding around the album cover on the player screen."
+    },
+    "playerScreenMinimumCoverPaddingEditorSubtitle": "Ελάχιστο περιθώριο γύρω από το εξώφυλλο άλμπουμ στην οθόνη αναπαραγωγής, σε % του πλάτους της οθόνης.",
+    "@playerScreenMinimumCoverPaddingEditorSubtitle": {
+        "description": "Subtitle for the editor that allows the user to set the minimum padding around the album cover on the player screen."
+    },
+    "hideTrackArtistsIfSameAsAlbumArtists": "Απόκρυψη ερμηνευτών κομματιών αν είναι ίδιοι με τους ερμηνευτές του άλμπουμ",
+    "@hideTrackArtistsIfSameAsAlbumArtists": {},
+    "hideTrackArtistsIfSameAsAlbumArtistsSubtitle": "Εάν θα εμφανίζονται οι ερμηνευτές κομματιών στην οθόνη άλμπουμ αν δεν διαφέρουν από τους ερμηνευτές του άλμπουμ.",
+    "@hideTrackArtistsIfSameAsAlbumArtistsSubtitle": {},
+    "playbackReporting": "Αναφορά αναπαραγωγής",
+    "@playbackReporting": {},
+    "seconds": "Δευτερόλεπτα",
+    "@seconds": {},
+    "hours": "Ώρες",
+    "@hours": {},
+    "noAlbum": "Κανένα Άλμουμ",
+    "@noAlbum": {},
+    "noItem": "Κανένα Αρχείο",
+    "@noItem": {},
+    "noArtist": "Κανένας Καλλιτέχνης",
+    "@noArtist": {},
+    "unknownArtist": "Άγνωστος Καλλιτέχνης",
+    "@unknownArtist": {},
+    "unknownAlbum": "Άγνωστο 'Αλπουμ",
+    "@unknownAlbum": {},
+    "playbackModeDirectPlaying": "Απευθείας αναπαραγωγή",
+    "@playbackModeDirectPlaying": {
+        "description": "Feature chip that is shown when tracks are being played directly from the server, without transcoding"
+    },
+    "playbackModeTranscoding": "Μετακωδικοποίηση",
+    "@playbackModeTranscoding": {
+        "description": "Feature chip that is shown when tracks are being transcoded by the server"
+    },
+    "kiloBitsPerSecondLabel": "{bitrate} kbps",
+    "@kiloBitsPerSecondLabel": {
+        "description": "Label for the bitrate of a track or for transcoding. The value will be the bitrate in kilobits per second.",
+        "placeholders": {
+            "bitrate": {
+                "type": "int",
+                "example": "320"
+            }
+        }
+    },
+    "playbackModeLocal": "Τοπική Αναπαραγωγή",
+    "@playbackModeLocal": {
+        "description": "Feature chip that is shown when tracks are being played from local downloads, without using the server"
+    },
+    "queue": "Ουρά",
+    "@queue": {},
+    "addToQueue": "Προσθήκη στην Ουρά",
+    "@addToQueue": {
+        "description": "Popup menu item title for adding an item to the end of the play queue."
+    },
+    "replaceQueue": "Αντικατάσταση Ουράς",
+    "@replaceQueue": {},
+    "instantMix": "Άμεσο Μίξ",
+    "@instantMix": {},
+    "goToAlbum": "Μετάβαση στο άλμπουμ",
+    "@goToAlbum": {},
+    "goToArtist": "Μετάβαση στον καλλιτέχνη",
+    "@goToArtist": {},
+    "goToGenre": "Μετάβαση στο είδος",
+    "@goToGenre": {},
+    "removeFavorite": "Αφαίρεση από τα Αγαπημένα",
+    "@removeFavorite": {},
+    "addFavorite": "Πρόσθεση στα Αγαπημένα",
+    "@addFavorite": {},
+    "confirmFavoriteAdded": "Αγαπημένο Προστέθηκε",
+    "@confirmFavoriteAdded": {},
+    "confirmFavoriteRemoved": "Αγαπημένο Αφαιρέθηκε",
+    "@confirmFavoriteRemoved": {},
+    "addedToQueue": "Προστέθηκε στην Ουρά.",
+    "@addedToQueue": {
+        "description": "Snackbar message that shows when the user successfully adds items to the end of the play queue."
+    },
+    "insertedIntoQueue": "Εισάχτηκε στην ουρά.",
+    "@insertedIntoQueue": {
+        "description": "Snackbar message that shows when the user successfully inserts items into the play queue at a location that is not necessarily the end."
+    },
+    "queueReplaced": "Η Ουρά Αντικαταστάθηκε.",
+    "@queueReplaced": {},
+    "confirmAddedToPlaylist": "Προστέθηκε στο playlist.",
+    "@confirmAddedToPlaylist": {
+        "description": "Snackbar message that shows when the user successfully adds items to a playlist."
+    },
+    "removedFromPlaylist": "Αφαιρέθηκε απο το playlist.",
+    "@removedFromPlaylist": {},
+    "startingInstantMix": "Ξεκινάει το άμεσο μίξ.",
+    "@startingInstantMix": {},
+    "anErrorHasOccured": "Παρουσιάστηκε ένα σφάλμα.",
+    "@anErrorHasOccured": {},
+    "autoSwitchItemCurationTypeTitle": "Αυτόματη εναλλαγή τρόπου παρουσίασης στοιχείων",
+    "@autoSwitchItemCurationTypeTitle": {},
+    "autoSwitchItemCurationTypeSubtitle": "Όταν είναι ενεργό, οι ενότητες στοιχείων στις οθόνες Καλλιτέχνη και Είδους αλλάζουν αυτόματα σε διαφορετικό τρόπο παρουσίασης, αν δεν υπάρχουν διαθέσιμα στοιχεία (π.χ. αν δεν υπάρχουν αγαπημένα για έναν συγκεκριμένο καλλιτέχνη).",
+    "@autoSwitchItemCurationTypeSubtitle": {},
+    "showArtistsTracksSection": "Εμφάνιση ενότητας κομματιών",
+    "@showArtistsTracksSection": {},
+    "showArtistsTracksSectionSubtitle": "Αν θα εμφανίζεται μια ενότητα με έως πέντε κομμάτια. Όταν είναι ενεργό, μπορείτε να επιλέξετε ανάμεσα σε Περισσότερο αναπαραγμένα, Αγαπημένα, Τυχαία, Τελευταίες κυκλοφορίες, Προστέθηκαν πρόσφατα και Πρόσφατα αναπαραγμένα κομμάτια.",
+    "@showArtistsTracksSectionSubtitle": {},
+    "disableGesture": "Απενεργοποίηση Χειρονομιών",
+    "@disableGesture": {},
+    "disableGestureSubtitle": "Αν θα γίνεται απενεργοποίηση των χειρονομιών.",
+    "@disableGestureSubtitle": {},
+    "showFastScroller": "Γρήγορη κύλιση",
+    "@showFastScroller": {},
+    "playerScreen": "Οθόνη αναπαραγωγής",
+    "@playerScreen": {
+        "description": "Name for the expanded player"
+    },
+    "timeFractionTooltip": "{currentTime} από {totalTime}",
+    "@timeFractionTooltip": {
+        "placeholders": {
+            "currentTime": {
+                "type": "String",
+                "example": "2 minutes 40 seconds"
+            },
+            "totalTime": {
+                "type": "String",
+                "example": "3 minutes 20 seconds"
+            }
+        },
+        "description": "Tooltip and accessibility label for the track progress. {currentTime} is the current position within the track, as a translated string like '2 minutes 40 seconds', and {totalTime} is the total duration of the track, also a translated string."
+    },
+    "trackCountTooltip": "Κομμάτι {currentTrackIndex} από {totalTrackCount}",
+    "@trackCountTooltip": {
+        "description": "Tooltip and accessibility label for the queue progress. {currentTrackIndex} and {totalTrackCount} are both numbers",
+        "placeholders": {
+            "currentTrackIndex": {
+                "type": "int",
+                "example": "10"
+            },
+            "totalTrackCount": {
+                "type": "int",
+                "example": "13"
+            }
+        }
+    },
+    "sleepTimerRemainingTime": "Αναστολή σε {time,plural,=1{<1 λεπτό} other{{time} λεπτά}}",
+    "@sleepTimerRemainingTime": {
+        "description": "Button label for sleep timer. {time} is the amount of minutes left.",
+        "placeholders": {
+            "time": {
+                "type": "int"
+            }
+        }
+    },
+    "addToMorePlaylistsTooltip": "Πρόσθεση σε περισσότερες λίστες αναπαραγωγής",
+    "@addToMorePlaylistsTooltip": {},
+    "addToMorePlaylistsTitle": "Πρόσθεση σε Περισσότερες Λίστες Αναπαραγωγής",
+    "@addToMorePlaylistsTitle": {},
+    "browsePlaylists": "Περιήγηση λιστών αναπαραγωγής",
+    "@browsePlaylists": {
+        "description": "Label for a button on the genre screen that brings you to a list of genre-filtered playlists."
     }
-  },
-  "clear": "Εκκαθάριση",
-  "@clear": {},
-  "shuffleAll": "Τυχαία αναπαραγωγή",
-  "@shuffleAll": {},
-  "sortOrder": "Σειρά ταξινόμησης",
-  "@sortOrder": {},
-  "settings": "Ρυθμίσεις",
-  "@settings": {},
-  "offlineMode": "Λειτουργία εκτός σύνδεσης",
-  "@offlineMode": {},
-  "album": "Άλμπουμ",
-  "@album": {},
-  "budget": "Προϋπολογισμός",
-  "@budget": {},
-  "sortBy": "Ταξινόμηση κατά",
-  "@sortBy": {},
-  "criticRating": "Βαθμολογία κριτών",
-  "@criticRating": {},
-  "albumArtist": "Καλλιτέχνης άλμπουμ",
-  "@albumArtist": {},
-  "artist": "Καλλιτέχνης",
-  "@artist": {},
-  "dateAdded": "Ημερομηνία προσθήκης",
-  "@dateAdded": {},
-  "playCount": "Πλήθος αναπαραγωγών",
-  "@playCount": {},
-  "datePlayed": "Ημερομηνία αναπαραγωγής",
-  "@datePlayed": {},
-  "random": "Τυχαίο",
-  "@random": {},
-  "premiereDate": "Ημερομηνία πρεμιέρας",
-  "@premiereDate": {},
-  "productionYear": "Χρονολογία παραγωγής",
-  "@productionYear": {},
-  "revenue": "Έσοδα",
-  "@revenue": {},
-  "downloadMissingImages": "Λήψη ελλείποντων εικόνων",
-  "@downloadMissingImages": {},
-  "name": "Όνομα",
-  "@name": {},
-  "downloadCount": "{count,plural, =1{{count} λήψη} other{{count} λήψεις}}",
-  "@downloadCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dlComplete": "{count} ολοκληρώθηκαν",
-  "@dlComplete": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "failedToGetTrackFromDownloadId": "Απέτυχε η λήψη τραγουδιού από το download ID",
-  "@failedToGetTrackFromDownloadId": {},
-  "playlistUpdated": "Ανανεώθηκε το όνομα λίστας αναπαραγωγής.",
-  "@playlistUpdated": {},
-  "stackTrace": "Stack Trace",
-  "@stackTrace": {},
-  "downloadedMissingImages": "{count,plural, =0{δεν βρέθηκαν ελλειπείς εικόνες} =1{ελήφθησαν {count} ελλειπής εικόνες} other{ελήφθησαν {count} ελλειπής εικόνες}}",
-  "@downloadedMissingImages": {
-    "description": "Message that shows when the user downloads missing images",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dlEnqueued": "{count} στην σειρά",
-  "@dlEnqueued": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dlRunning": "{count} τρέχοντα",
-  "@dlRunning": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "error": "Σφάλμα",
-  "@error": {},
-  "shuffleButtonLabel": "Τυχαία αναπαραγωγή",
-  "@shuffleButtonLabel": {},
-  "errorScreenError": "Προέκυψε σφάλμα κατά την λήψη λίστας σφαλμάτων! Σε αυτό το σημείο, καλό είναι να δημιουργήσεις issue στο GitHub και να διαγράψεις τα δεδομένα της εφαρμογής",
-  "@errorScreenError": {},
-  "discNumber": "Δίσκος {number}",
-  "@discNumber": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "playButtonLabel": "Αναπαραγωγή",
-  "@playButtonLabel": {},
-  "addDownloads": "Προσθήκη λήψεων",
-  "@addDownloads": {},
-  "logsCopied": "Αντιγράφηκαν οι καταγραφές.",
-  "@logsCopied": {},
-  "message": "Μύνημα",
-  "@message": {},
-  "required": "Απαραίτητο",
-  "@required": {},
-  "downloadsQueued": "Προστέθηκαν λήψεις.",
-  "@downloadsQueued": {},
-  "audioService": "Audio Service",
-  "@audioService": {},
-  "trackCount": "{count,plural,=1{{count} τίτλος} other{{count} τίτλοι}}",
-  "@trackCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "downloadsDeleted": "Διαγράφτηκαν οι λήψεις.",
-  "@downloadsDeleted": {},
-  "updateButtonLabel": "Ανανέωση",
-  "@updateButtonLabel": {},
-  "transcoding": "Μετακωδικοποίηση",
-  "@transcoding": {},
-  "notAvailableInOfflineMode": "Μη διαθέσιμο σε λειτουργία εκτός σύνδεσης",
-  "@notAvailableInOfflineMode": {},
-  "logOut": "Έξοδος",
-  "@logOut": {},
-  "areYouSure": "Είσαι σίγουρος?",
-  "@areYouSure": {},
-  "location": "Τοποθεσία",
-  "@location": {},
-  "addButtonLabel": "Προσθήκη",
-  "@addButtonLabel": {},
-  "layoutAndTheme": "Διάταξη καί εμφάνιση",
-  "@layoutAndTheme": {},
-  "enableTranscodingSubtitle": "μετακωδικοποιει την ροή μουσικής από την πλευρά του διακομιστή.",
-  "@enableTranscodingSubtitle": {},
-  "shareLogs": "Μοιραστείτε τις καταγραφές",
-  "@shareLogs": {},
-  "applicationLegalese": "Αδειοδοτηθηκε με την Άδεια Δημόσιας Χρήσης της Mozilla Public License2.0. Ο κώδικας πηγής διαθέσιμος στο:\n\ngithub.com/jmshrv/finamp",
-  "@applicationLegalese": {},
-  "downloadLocations": "Τοποθεσίες λήψεων",
-  "@downloadLocations": {},
-  "enableTranscoding": "Ενεργοποίηση μετακωδικοποίησης",
-  "@enableTranscoding": {},
-  "bitrate": "Bitrate",
-  "@bitrate": {},
-  "bitrateSubtitle": "Ο ψηλότερος bitrate προσφέρει υψηλότερης ποιότητας ήχο σε βάρος εύρους ζώνης.",
-  "@bitrateSubtitle": {},
-  "customLocation": "Εξατομικευμένη τοποθεσία",
-  "@customLocation": {},
-  "customLocationsBuggy": "Οι εξατομικευμένες τοποθεσίες έχουν αρκετά bugs λόγω θεμάτων αδειών.\nΣκέφτομαι τρόπους να φτιάξω τα προβλήμματα, όμως για τώρα δεν προτείνω την χρήση τους.",
-  "@customLocationsBuggy": {},
-  "enterLowPriorityStateOnPause": "Ενεργοποίηση χαμηλής-προτεραιοτητας κατάσταση κατά την παύση",
-  "@enterLowPriorityStateOnPause": {},
-  "landscape": "Οριζόντιο",
-  "@landscape": {},
-  "gridCrossAxisCount": "{value} πλήθος τεμνοντων αξόνων πλέγματος",
-  "@gridCrossAxisCount": {
-    "description": "List tile title for grid cross axis count. Value will either be the portrait or landscape key.",
-    "placeholders": {
-      "value": {
-        "type": "String",
-        "example": "Portrait"
-      }
-    }
-  },
-  "appDirectory": "Κατάλογος εφαρμογής",
-  "@appDirectory": {},
-  "addDownloadLocation": "Προσθήκη τοποθεσίας λήψεως",
-  "@addDownloadLocation": {},
-  "selectDirectory": "Επέλεξε κατάλογο",
-  "@selectDirectory": {},
-  "unknownError": "Άγνωστο σφάλμα",
-  "@unknownError": {},
-  "directoryMustBeEmpty": "Ο κατάλογος πρέπει να είναι άδειος",
-  "@directoryMustBeEmpty": {},
-  "enterLowPriorityStateOnPauseSubtitle": "Επιτρέπει την απόσβεση της ειδοποίησης κατά την παύση. Επίσης επιτρέπει στο σύστημα να \"σκοτώνει\" την υπηρεσία κατά την παύση.",
-  "@enterLowPriorityStateOnPauseSubtitle": {},
-  "shuffleAllTrackCountSubtitle": "Πλήθος τραγουδιών να φορτώσουν όταν χρησιμοποιείται το κουμπί τυχαίας αναπαραγωγής όλων.",
-  "@shuffleAllTrackCountSubtitle": {},
-  "viewTypeSubtitle": "Τρόπος προβολής για την οθόνη μουσικής",
-  "@viewTypeSubtitle": {},
-  "list": "Λίστα",
-  "@list": {},
-  "pathReturnSlashErrorMessage": "Μονοπάτια που επιστρέφουν \"/\" δεν μπορούν να χρησιμοποιηθούν",
-  "@pathReturnSlashErrorMessage": {},
-  "shuffleAllTrackCount": "Τυχαία αναπαραγωγή όλων των Πλήθων τραγουδιών",
-  "@shuffleAllTrackCount": {},
-  "viewType": "Τύπος προβολής",
-  "@viewType": {},
-  "grid": "Πλέγμα",
-  "@grid": {},
-  "portrait": "Κάθετο",
-  "@portrait": {},
-  "showTextOnGridView": "Εμφάνιση αναγραφων στην προβολή πλέγματος",
-  "@showTextOnGridView": {},
-  "gridCrossAxisCountSubtitle": "Πλήθος τετραγώνων πλέγματος ανά Πλειάδες{value}.",
-  "@gridCrossAxisCountSubtitle": {
-    "description": "List tile subtitle for grid cross axis count. Value will either be the portrait or landscape key.",
-    "placeholders": {
-      "value": {
-        "type": "String",
-        "example": "landscape"
-      }
-    }
-  },
-  "theme": "Θέμα",
-  "@theme": {},
-  "system": "Σύστημα",
-  "@system": {},
-  "light": "Φωτεινό",
-  "@light": {},
-  "dark": "Σκοτεινό",
-  "@dark": {},
-  "tabs": "Καρτέλες",
-  "@tabs": {},
-  "cancelSleepTimer": "Ακύρωση χρονοδιακόπτη ύπνου;",
-  "@cancelSleepTimer": {},
-  "setSleepTimer": "Ρύθμιση Χρονοδιακόπτη Ύπνου",
-  "@setSleepTimer": {},
-  "minutes": "Λεπτά",
-  "@minutes": {},
-  "sleepTimerTooltip": "Χρονοδιακόπτης Ύπνου",
-  "@sleepTimerTooltip": {},
-  "addToPlaylistTooltip": "Προσθήκη στην λίστα αναπαραγωγής",
-  "@addToPlaylistTooltip": {},
-  "newPlaylist": "Νέα Λίστα Αναπαραγωγής",
-  "@newPlaylist": {},
-  "addToPlaylistTitle": "Προσθήκη στην Λίστα Αναπαραγωγής",
-  "@addToPlaylistTitle": {},
-  "playlistCreated": "Η Λίστα Αναπαραγωγής δημιουργήθηκε.",
-  "@playlistCreated": {},
-  "removeFromPlaylistTooltip": "Αφαίρεση από την λίστα αναπαραγωγής",
-  "@removeFromPlaylistTooltip": {},
-  "removeFromPlaylistTitle": "Αφαίρεση από την Λίστα Αναπαραγωγής",
-  "@removeFromPlaylistTitle": {},
-  "createButtonLabel": "ΔΗΜΙΟΥΡΓΙΑ",
-  "@createButtonLabel": {},
-  "invalidNumber": "Μη Έγκυρος Αριθμός",
-  "@invalidNumber": {},
-  "yesButtonLabel": "ΝΑΙ",
-  "@yesButtonLabel": {},
-  "noButtonLabel": "ΟΧΙ",
-  "@noButtonLabel": {}
 }
