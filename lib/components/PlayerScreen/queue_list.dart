@@ -116,6 +116,7 @@ class _QueueListState extends State<QueueList> {
 
   @override
   Widget build(BuildContext context) {
+    var useRadio = _queueService.getUseRadio();
     _contents = <Widget>[
       // Previous Tracks
       StreamBuilder<bool>(
@@ -199,11 +200,15 @@ class _QueueListState extends State<QueueList> {
         sliver: QueueTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey),
       ),
       SliverToBoxAdapter(
-        child: Switch(
-            value: _queueService.getUseRadio(),
-            onChanged: (useRadio) => setState(() {
-              _queueService.setUseRadio(useRadio);
-            })
+        child: ListTile(
+          title: Text(AppLocalizations.of(context)!.usingRadioModeTitle(useRadio.toString())),
+          subtitle: Text(useRadio ? AppLocalizations.of(context)!.usingRadioModeSubtitle(FinampSettingsHelper.finampSettings.radioMode.name) : ""),
+          trailing: Switch(
+              value: _queueService.getUseRadio(),
+              onChanged: (useRadio) => setState(() {
+                _queueService.setUseRadio(useRadio);
+              })
+          ),
         )
       )
     ];

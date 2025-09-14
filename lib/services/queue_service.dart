@@ -157,7 +157,7 @@ class QueueService {
     final queueSize = _queueNextUp.length + _queue.length;
     if (_currentTrack != null && queueSize < queueMinimum && _useRadio) {
       final numSongs = queueMinimum - queueSize;
-      List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(FinampSettingsHelper.finampSettings.radioMode, numSongs);
+      List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(numSongs);
       await addToQueue(items: songs,
           source: QueueItemSource(type: QueueItemSourceType.radio,
               name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
@@ -166,9 +166,9 @@ class QueueService {
     }
   }
 
-  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(RadioMode radioMode, int numSongs) async {
+  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int numSongs) async {
     List<jellyfin_models.BaseItemDto> itemsOut = [];
-    switch (radioMode) {
+    switch (FinampSettingsHelper.finampSettings.radioMode) {
       case RadioMode.random:
         final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
         for (var i = 0; i < numSongs; i++) {
