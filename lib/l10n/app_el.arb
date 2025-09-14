@@ -755,7 +755,7 @@
     "@goToGenre": {},
     "removeFavorite": "Αφαίρεση από τα Αγαπημένα",
     "@removeFavorite": {},
-    "addFavorite": "Πρόσθεση στα Αγαπημένα",
+    "addFavorite": "Προσθήκη στα Αγαπημένα",
     "@addFavorite": {},
     "confirmFavoriteAdded": "Αγαπημένο Προστέθηκε",
     "@confirmFavoriteAdded": {},
@@ -771,11 +771,11 @@
     },
     "queueReplaced": "Η Ουρά Αντικαταστάθηκε.",
     "@queueReplaced": {},
-    "confirmAddedToPlaylist": "Προστέθηκε στο playlist.",
+    "confirmAddedToPlaylist": "Προστέθηκε στην λίστα αναπαραγωγής.",
     "@confirmAddedToPlaylist": {
         "description": "Snackbar message that shows when the user successfully adds items to a playlist."
     },
-    "removedFromPlaylist": "Αφαιρέθηκε απο το playlist.",
+    "removedFromPlaylist": "Αφαιρέθηκε απο την λίστα αναπαραγωγής.",
     "@removedFromPlaylist": {},
     "startingInstantMix": "Ξεκινάει το άμεσο μίξ.",
     "@startingInstantMix": {},
@@ -843,5 +843,322 @@
     "browsePlaylists": "Περιήγηση λιστών αναπαραγωγής",
     "@browsePlaylists": {
         "description": "Label for a button on the genre screen that brings you to a list of genre-filtered playlists."
+    },
+    "responseError": "{error} Κωδικός κατάστασης {statusCode}.",
+    "@responseError": {
+        "placeholders": {
+            "error": {
+                "type": "String",
+                "example": "Forbidden"
+            },
+            "statusCode": {
+                "type": "int",
+                "example": "403"
+            }
+        }
+    },
+    "responseError401": "{error} Κωδικός κατάστασης {statusCode}. Αυτό πιθανώς σημαίνει ότι χρησιμοποιήσατε λάθος όνομα χρήστη/κωδικό πρόσβασης ή ότι δεν είστε πλέον συνδεδεμένοι.",
+    "@responseError401": {
+        "placeholders": {
+            "error": {
+                "type": "String",
+                "example": "Unauthorized"
+            },
+            "statusCode": {
+                "type": "int",
+                "example": "401"
+            }
+        }
+    },
+    "removeFromMix": "Aφαίρεση Από το Μίξ",
+    "@removeFromMix": {},
+    "addToMix": "Προσθήκη στο Μίξ",
+    "@addToMix": {},
+    "redownloadedItems": "{count,plural, =0{Δεν απαιτούνται επαναλήψεις λήψης.} =1{Επανελήφθη {count} στοιχείο} other{Επανελήφθησαν {count} στοιχεία}}",
+    "@redownloadedItems": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "bufferDuration": "Διάρκεια Buffer",
+    "@bufferDuration": {},
+    "bufferDurationSubtitle": "Η μέγιστη διάρκεια που πρέπει να αποθηκευτεί προσωρινά, σε δευτερόλεπτα. Απαιτείται επανεκκίνηση.",
+    "@bufferDurationSubtitle": {},
+    "bufferDisableSizeConstraintsTitle": "Μην περιορίζετε το μέγεθος του buffer",
+    "@bufferDisableSizeConstraintsTitle": {},
+    "bufferDisableSizeConstraintsSubtitle": "Απενεργοποιεί τους περιορισμούς μεγέθους του buffer ('Buffer Size'). Το buffer θα φορτώνεται πάντα στη ρυθμισμένη διάρκεια ('Buffer Duration'), ακόμα και για πολύ μεγάλα αρχεία. Μπορεί να προκαλέσει κρασαρίσματα. Απαιτείται επανεκκίνηση.",
+    "@bufferDisableSizeConstraintsSubtitle": {},
+    "bufferSizeTitle": "Μέγεθος Buffer",
+    "@bufferSizeTitle": {},
+    "bufferSizeSubtitle": "Το μέγιστο μέγεθος του buffer σε MB. Απαιτείται επανεκκίνηση",
+    "@bufferSizeSubtitle": {},
+    "language": "Γλώσσα",
+    "@language": {},
+    "skipToPreviousTrackButtonTooltip": "Μετάβαση στην αρχή ή στο προηγούμενο κομμάτι",
+    "@skipToPreviousTrackButtonTooltip": {
+        "description": "Tooltip for the button that skips to the beginning of the current track or to the previous track"
+    },
+    "skipToNextTrackButtonTooltip": "Μετάβαση στο επόμενο κομμάτι",
+    "@skipToNextTrackButtonTooltip": {
+        "description": "Tooltip for the button that skips to the next track"
+    },
+    "togglePlaybackButtonTooltip": "Εναλλαγή αναπαραγωγής",
+    "@togglePlaybackButtonTooltip": {
+        "description": "Tooltip for the button that toggles playback"
+    },
+    "previousTracks": "Προηγούμενα κομμάτια",
+    "@previousTracks": {
+        "description": "Description in the queue panel for the list of tracks that come before the current track in the queue. The tracks might not actually have been played (e.g. if the user skipped ahead to a specific track)."
+    },
+    "nextUp": "Eπόμενα",
+    "@nextUp": {
+        "description": "Description in the queue panel for the list of tracks were manually added to be played after the current track. This should be capitalized (if applicable) to be more recognizable throughout the UI"
+    },
+    "clearNextUp": "Εκκαθάριση Επόμενων",
+    "@clearNextUp": {
+        "description": "Label for the action that deletes all tracks added to Next Up"
+    },
+    "stopAndClearQueue": "Διακοπή αναπαραγωγής και εκκαθάριση ουράς",
+    "@stopAndClearQueue": {
+        "description": "Label for a button that stops playback and removes all tracks from the queue."
+    },
+    "createPlaylistFromCurrentQueue": "Αποθήκευση Ουράς στην Λ. Αναπαραγωγής",
+    "@createPlaylistFromCurrentQueue": {
+        "description": "Label for a button that adds the current queue to an existing or new playlist."
+    },
+    "playingFrom": "Αναπαραγωγή από",
+    "@playingFrom": {
+        "description": "Prefix shown before the name of the main queue source, like the album or playlist that was used to start playback. Example: \"Playing from {My Nice Playlist}\""
+    },
+    "playNext": "Αναπαραγωγή αμέσως μετά",
+    "@playNext": {
+        "description": "Used for adding a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "addToNextUp": "Προσθήκη στα επόμενα",
+    "@addToNextUp": {
+        "description": "Used for adding a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
+    },
+    "shuffleNext": "Τυχαία επόμενο",
+    "@shuffleNext": {
+        "description": "Used for shuffling a list (album, playlist, etc.) to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "shuffleToNextUp": "Τυχαία στην ουρά Επόμενα",
+    "@shuffleToNextUp": {
+        "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
+    },
+    "shuffleToQueue": "Τυχαία στην Ουρά",
+    "@shuffleToQueue": {
+        "description": "Used for shuffling a list (album, playlist, etc.) to the end of the regular queue, to play after all prior tracks from the queue have played"
+    },
+    "confirmPlayNext": "{type, select, track{Το κομμάτι} album{Το άλμπουμ} artist{Ο καλλιτέχνης} playlist{Η λίστα αναπαραγωγής} genre{Το είδος} other{Το στοιχείο}} προστέθηκε στα Επόμενα για αναπαραγωγή",
+    "@confirmPlayNext": {
+        "description": "A confirmation message that is shown after successfully adding a track to the front of the \"Next Up\" queue",
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmAddToNextUp": "Προστέθηκε {type, select, track{το κομμάτι} album{το άλμπουμ} artist{ο καλλιτέχνης} playlist{η λίστα αναπαραγωγής} genre{το είδος} disc{ο δίσκος} other{το στοιχείο}} στα Επόμενα",
+    "@confirmAddToNextUp": {
+        "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmAddToQueue": "Προστέθηκε {type, select, track{το κομμάτι} album{το άλμπουμ} artist{ο καλλιτέχνης} playlist{η λίστα αναπαραγωγής} genre{το είδος} disc{ο δίσκος} other{το στοιχείο}} στην ουρά",
+    "@confirmAddToQueue": {
+        "description": "A confirmation message that is shown after successfully adding a track to the end of the regular queue",
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "placeholderSource": "Κάπου",
+    "@placeholderSource": {
+        "description": "Placeholder text used when the source of the current track/queue is unknown"
+    },
+    "playbackHistory": "Ιστορικό Αναπαραγωγής",
+    "@playbackHistory": {
+        "description": "Title for the playback history screen, where the user can see a list of recently played tracks, sorted by "
+    },
+    "yourLikes": "Τα αγαπημένα σου",
+    "@yourLikes": {
+        "description": "Title for the queue source when the user is playing their liked tracks"
+    },
+    "mix": "{mixSource} - Μίξη",
+    "@mix": {
+        "description": "Suffix added to a queue source when playing a mix. Example: \"Never Gonna Give You Up - Mix\"",
+        "placeholders": {
+            "mixSource": {
+                "type": "String",
+                "example": "Never Gonna Give You Up"
+            }
+        }
+    },
+    "savedQueue": "Αποθηκευμένη ουρά",
+    "@savedQueue": {
+        "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
+    },
+    "shuffleAllQueueSource": "ΑΝΑΚΑΤΕΜΑ ΟΛΩΝ",
+    "@shuffleAllQueueSource": {
+        "description": "Title for the queue source when the user is shuffling all tracks. Should be capitalized (if applicable) to be more recognizable throughout the UI"
+    },
+    "playbackOrderLinearButtonLabel": "Παίζοντας στην σειρά",
+    "@playbackOrderLinearButtonLabel": {
+        "description": "Label for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in linear/in-order mode"
+    },
+    "playbackOrderLinearButtonTooltip": "Παίζοντας στην σειρά. Πατήστε για ανακάτεμα.",
+    "@playbackOrderLinearButtonTooltip": {
+        "description": "Tooltip for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in linear/in-order mode"
+    },
+    "playbackOrderShuffledButtonLabel": "Παίζοντας ανακατεμένα",
+    "@playbackOrderShuffledButtonLabel": {
+        "description": "Label for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in shuffle mode"
+    },
+    "playbackOrderShuffledButtonTooltip": "Παίζοντας ανακατεμένα. Πατήστε για να παίξετε με σειρά.",
+    "@playbackOrderShuffledButtonTooltip": {
+        "description": "Tooltip for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in shuffle mode"
+    },
+    "playbackSpeedButtonLabel": "Παίζοντας σε x{speed} ταχύτητα",
+    "@playbackSpeedButtonLabel": {
+        "description": "Label for the button that toggles visibility. of the playback speed menu, {speed} is the current playback speed.",
+        "placeholders": {
+            "speed": {
+                "type": "double"
+            }
+        }
+    },
+    "playbackSpeedFeatureText": "x{speed} ταχύτητα",
+    "@playbackSpeedFeatureText": {
+        "description": "Label for the feature chip that is shown if the playback speed is different from x1, {speed} is the current playback speed.",
+        "placeholders": {
+            "speed": {
+                "type": "double"
+            }
+        }
+    },
+    "currentVolumeFeatureText": "{volume}% ένταση",
+    "@currentVolumeFeatureText": {
+        "description": "Label for the feature chip that is shown if the volume is not 100%",
+        "placeholders": {
+            "volume": {
+                "type": "int",
+                "description": "The current volume level, in percent"
+            }
+        }
+    },
+    "playbackSpeedDecreaseLabel": "Μείωσε την ταχύτητα αναπαραγωγής",
+    "@playbackSpeedDecreaseLabel": {
+        "description": "Label for the button in the speed menu that decreases the playback speed."
+    },
+    "playbackSpeedIncreaseLabel": "Άυξησε την ταχύτητα αναπαραγωγής",
+    "@playbackSpeedIncreaseLabel": {
+        "description": "Label for the button in the speed menu that increases the playback speed."
+    },
+    "loopModeNoneButtonLabel": "Χωρίς επανάληψη",
+    "@loopModeNoneButtonLabel": {
+        "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop off mode"
+    },
+    "loopModeOneButtonLabel": "Επανάληψη του κομματιού",
+    "@loopModeOneButtonLabel": {
+        "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop one mode"
+    },
+    "loopModeAllButtonLabel": "Επανάληψη όλων",
+    "@loopModeAllButtonLabel": {
+        "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop all mode"
+    },
+    "queuesScreen": "Επαναφορά προγούμενης αναπαραγωγής",
+    "@queuesScreen": {
+        "description": "Title for the screen where older now playing queues can be restored"
+    },
+    "queueRestoreButtonLabel": "Επαναφορά αυτής της ουράς",
+    "@queueRestoreButtonLabel": {
+        "description": "Button to restore archived now playing queue, overwriting current queue"
+    },
+    "queueRestoreTitle": "Αποθηκεύτηκε {date}",
+    "@queueRestoreTitle": {
+        "description": "Description of when a saved queue was saved",
+        "placeholders": {
+            "date": {
+                "type": "DateTime",
+                "format": "yyy-MM-dd hh:mm",
+                "isCustomDateFormat": "true"
+            }
+        }
+    },
+    "queueRestoreSubtitle1": "Παίζει: {track}",
+    "@queueRestoreSubtitle1": {
+        "description": "Description of playing track in a saved queue",
+        "placeholders": {
+            "track": {
+                "type": "String"
+            }
+        }
+    },
+    "queueLoadingMessage": "Γίνεται επαναφορά ουράς…",
+    "@queueLoadingMessage": {
+        "description": "Message displayed on now-playing bar when a saved queue is loading."
+    },
+    "queueRetryMessage": "Αποτυχία επαναφοράς ουράς. Δοκιμή ξανά;",
+    "@queueRetryMessage": {
+        "description": "Message displayed on now-playing bar when all items in a saved queue fail to load."
+    },
+    "autoloadLastQueueOnStartup": "Αυτόματη επαναφορά τελευταίας ουράς",
+    "@autoloadLastQueueOnStartup": {
+        "description": "Setting to restore last queue on startup"
+    },
+    "autoloadLastQueueOnStartupSubtitle": "Κατά την εκκίνηση, να γίνεται προσπάθεια επαναφοράς της τελευταίας ουράς.",
+    "@autoloadLastQueueOnStartupSubtitle": {
+        "description": "Description of the setting to restore last queue on startup"
+    },
+    "reportQueueToServer": "Αναφορά τρέχουσας ουράς στον διακομιστή;",
+    "@reportQueueToServer": {
+        "description": "Label for the setting that toggles reporting of the current queue to the Jellyfin server"
+    },
+    "reportQueueToServerSubtitle": "Όταν είναι ενεργοποιημένο, το Finamp θα στέλνει την τρέχουσα ουρά στον διακομιστή. Αυτό μπορεί να βελτιώσει τον απομακρυσμένο έλεγχο και να επιτρέψει την επαναφορά της ουράς από τον διακομιστή. Πάντα ενεργοποιημένο αν είναι ενεργοποιημένη η λειτουργία «Play On».",
+    "@reportQueueToServerSubtitle": {
+        "description": "Description of the setting that toggles reporting of the current queue to the Jellyfin server"
+    },
+    "periodicPlaybackSessionUpdateFrequency": "Συχνότητα ενημέρωσης συνεδρίας αναπαραγωγής",
+    "@periodicPlaybackSessionUpdateFrequency": {
+        "description": "Label for the setting that controls how frequently (in seconds) the current playback session is reported to the Jellyfin server"
+    },
+    "periodicPlaybackSessionUpdateFrequencySubtitle": "Πόσο συχνά να αποστέλλεται η τρέχουσα κατάσταση αναπαραγωγής στον διακομιστή, σε δευτερόλεπτα. Η τιμή θα πρέπει να είναι μικρότερη από 5 λεπτά (300 δευτερόλεπτα), για να αποτραπεί η λήξη της συνεδρίας.",
+    "@periodicPlaybackSessionUpdateFrequencySubtitle": {
+        "description": "Description of the setting that controls how frequently (in seconds) the current playback session is reported to the Jellyfin server"
+    },
+    "periodicPlaybackSessionUpdateFrequencyDetails": "Αν ο διακομιστής Jellyfin δεν έχει λάβει καμία ενημέρωση από κάποιον πελάτη τα τελευταία 5 λεπτά, υποθέτει ότι η αναπαραγωγή έχει ολοκληρωθεί. Αυτό σημαίνει ότι για κομμάτια μεγαλύτερα των 5 λεπτών, η αναπαραγωγή μπορεί να αναφερθεί λανθασμένα ως ολοκληρωμένη, μειώνοντας την ακρίβεια των δεδομένων αναφοράς αναπαραγωγής.",
+    "@periodicPlaybackSessionUpdateFrequencyDetails": {
+        "description": "Additional details for the setting that controls how frequently (in seconds) the current playback session is reported to the Jellyfin server"
+    },
+    "playOnStaleDelay": "Χρονικό όριο συνεδρίας «Play On»",
+    "@playOnStaleDelay": {
+        "description": "Label for the setting that controls how long a PlayOn remote session is considered active"
+    },
+    "playOnStaleDelaySubtitle": "Πόσο διαρκεί μια απομακρυσμένη συνεδρία «Play On» ως ενεργή μετά τη λήψη εντολής. Όταν θεωρείται ενεργή, η αναπαραγωγή αναφέρεται πιο συχνά, γεγονός που μπορεί να αυξήσει την κατανάλωση εύρους ζώνης (Bandwidth).",
+    "@playOnStaleDelaySubtitle": {
+        "description": "Description of the setting that controls how long a PlayOn remote session is considered active"
+    },
+    "enablePlayonTitle": "Ενεργοποίηση υποστήριξης «Play On»",
+    "@enablePlayonTitle": {
+        "description": "Label for the setting to enable Jellyfin's 'Play On' feature (remote control)"
+    },
+    "enablePlayonSubtitle": "Ενεργοποιεί τη λειτουργία «Play On» του Jellyfin (απομακρυσμένος έλεγχος του Finamp από άλλον πελάτη). Απενεργοποιήστε το αν ο reverse proxy ή ο διακομιστής σας δεν υποστηρίζει websockets.",
+    "@enablePlayonSubtitle": {
+        "description": "Description of the setting to enable Jellyfin's 'Play On' feature (remote control)"
+    },
+    "playOnReconnectionDelay": "Καθυστέρηση επανασύνδεσης συνεδρίας «Play On»",
+    "@playOnReconnectionDelay": {
+        "description": "Label for the setting that controls the reconnection attempts frequency of a disconnected PlayOn session"
+    },
+    "playOnReconnectionDelaySubtitle": "Ρυθμίζει την καθυστέρηση μεταξύ των προσπαθειών επανασύνδεσης στο websocket του PlayOn όταν διακοπεί η σύνδεση (σε δευτερόλεπτα). Μικρότερη καθυστέρηση αυξάνει τη χρήση εύρους ζώνης (Bandwidth).",
+    "@playOnReconnectionDelaySubtitle": {
+        "description": "Description of the setting that controls the reconnection attempts frequency of a disconnected PlayOn session"
     }
 }
