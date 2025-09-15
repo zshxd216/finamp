@@ -303,11 +303,11 @@
     "@budget": {},
     "dateAdded": "Data on s'afegí",
     "@dateAdded": {},
-    "datePlayed": "Data on es reproduí",
+    "datePlayed": "Data d'última reproducció",
     "@datePlayed": {},
     "playCount": "Recompte de reproduccions",
     "@playCount": {},
-    "premiereDate": "Data d'estrena",
+    "premiereDate": "Data de sortida",
     "@premiereDate": {},
     "downloadedMissingImages": "{count,plural, =0{No s'han trobat imatges mancants} =1{Descarregades {count} imatges mancants} other{Descarregades {count} imatges mancants}}",
     "@downloadedMissingImages": {
@@ -371,7 +371,7 @@
             }
         }
     },
-    "downloadsQueued": "Descàrrega preparada, descarregant fitxers",
+    "downloadsQueued": "Descarregant fitxers",
     "@downloadsQueued": {},
     "logsCopied": "Registres copiats.",
     "@logsCopied": {},
@@ -1080,5 +1080,43 @@
     "playbackActionPagePlay": "Reproduir",
     "@playbackActionPagePlay": {
         "description": "Label for the playback action page that contains all actions related to playing in order"
+    },
+    "formattedRelativeTime": "{type, select, just_now{just ara} minutes{fa {value} minuts} hours{fa {value} hores} yesterday{ahir} days{{value, plural, =1{fa 1 dia} other{fa {value} dies}}} other{value}}",
+    "@formattedRelativeTime": {
+        "description": "Returns a relative time string based on how long ago something happened. Used for various DateTime values such as Date Last Played and Date Added.",
+        "placeholders": {
+            "type": {
+                "type": "String",
+                "description": "The category of time passed: one of 'just_now', 'minutes', 'hours', 'yesterday', or 'days'."
+            },
+            "value": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "shuffleCountButton": "Barreja ({count,plural,=1{{count} Cançó} other{{count} Cançons}})",
+    "@shuffleCountButton": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "playbackActionPageShuffle": "Barreja",
+    "@playbackActionPageShuffle": {
+        "description": "Label for the playback action page that contains all actions related to playing shuffled"
+    },
+    "playbackActionPageShuffleAlbums": "Barreja Àlbums",
+    "@playbackActionPageShuffleAlbums": {
+        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
+    },
+    "editItemTitle": "Edit {itemType, select, playlist{Llista de Reproducció} other{}}",
+    "@editItemTitle": {
+        "placeholders": {
+            "itemType": {
+                "type": "String"
+            }
+        }
     }
 }
