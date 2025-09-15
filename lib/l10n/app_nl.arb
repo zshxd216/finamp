@@ -1844,5 +1844,35 @@
         "description": "Default sorting order for playlists (server order)"
     },
     "adaptive": "Aanpassend",
-    "@adaptive": {}
+    "@adaptive": {},
+    "formattedRelativeTime": "{type, select, just_now{zojuist} minutes{{value} min geleden} hours{{value} uur geleden} yesterday{gisteren} days{{value, plural, =1{1 dag geleden} other{{value} dagen geleden}}} other{value}}",
+    "@formattedRelativeTime": {
+        "description": "Returns a relative time string based on how long ago something happened. Used for various DateTime values such as Date Last Played and Date Added.",
+        "placeholders": {
+            "type": {
+                "type": "String",
+                "description": "The category of time passed: one of 'just_now', 'minutes', 'hours', 'yesterday', or 'days'."
+            },
+            "value": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "shuffleCountButton": "Shuffle ({count,plural,=1{{count} Nummer} other{{count} Nummers}})",
+    "@shuffleCountButton": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "playbackActionPagePlay": "Play",
+    "@playbackActionPagePlay": {
+        "description": "Label for the playback action page that contains all actions related to playing in order"
+    },
+    "playbackActionPageShuffle": "Shuffle",
+    "@playbackActionPageShuffle": {
+        "description": "Label for the playback action page that contains all actions related to playing shuffled"
+    }
 }
