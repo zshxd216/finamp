@@ -3499,5 +3499,7 @@ enum DiscordRpcIcon {
 @HiveType(typeId: 102)
 enum RadioMode {
   @HiveField(0)
-  random
+  shuffle,
+  @HiveField(1)
+  random;
 }

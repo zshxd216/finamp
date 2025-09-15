@@ -2888,17 +2888,21 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
   RadioMode read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
+        return RadioMode.shuffle;
+      case 1:
         return RadioMode.random;
       default:
-        return RadioMode.random;
+        return RadioMode.shuffle;
     }
   }
 
   @override
   void write(BinaryWriter writer, RadioMode obj) {
     switch (obj) {
-      case RadioMode.random:
+      case RadioMode.shuffle:
         writer.writeByte(0);
+      case RadioMode.random:
+        writer.writeByte(1);
     }
   }
 

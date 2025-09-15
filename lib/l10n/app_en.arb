@@ -2562,7 +2562,7 @@
   "@radioModeSubtitle": {
     "description": "Subtitle for the setting that controls the radio mode/algorithm."
   },
-  "radioModeOption": "{option, select, random{Random} other{{option}} }",
+  "radioModeOption": "{option, select, shuffle{Shuffle} random{Random} other{{option}} }",
   "@radioModeOption": {
     "placeholders": {
       "option": {
@@ -2575,7 +2575,7 @@
   "@usingRadioModeTitle": {
     "description": "Title displayed in the queue to show if radio mode is enabled."
   },
-  "usingRadioModeSubtitle": "Adding more tracks {state, select, random{randomly} other{not used}}",
+  "usingRadioModeSubtitle": " {state, select, shuffle{Adding tracks like an infinite shuffle} random{Adding more tracks randomly} other{not used}}",
   "@usingRadioModeSubtitle": {
     "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
   },
