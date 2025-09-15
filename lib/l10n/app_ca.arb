@@ -389,7 +389,7 @@
     "@areYouSure": {},
     "enableTranscoding": "Habilitar codificació",
     "@enableTranscoding": {},
-    "bitrateSubtitle": "Una taxa de bits més alta dona una millor qualitat d'àudio a canvi d'una major amplada de banda.",
+    "bitrateSubtitle": "Una taxa de bits més alta dona una millor qualitat d'àudio a canvi d'una major amplada de banda. No aplica a còdecs sense pèrdua, per exemple FLAC",
     "@bitrateSubtitle": {},
     "appDirectory": "Directori de l'aplicació",
     "@appDirectory": {},
@@ -397,7 +397,7 @@
     "@addDownloadLocation": {},
     "shuffleAllTrackCount": "Recompte Total de Pistes Barrejades",
     "@shuffleAllTrackCount": {},
-    "shuffleAllTrackCountSubtitle": "Quantitat de cançons que es carreguen quan s'utilitza el botó barrejador de cançons.",
+    "shuffleAllTrackCountSubtitle": "Quantitat de cançons que es carreguen quan s'utilitza el botó barrejador de cançons o de gènere.",
     "@shuffleAllTrackCountSubtitle": {},
     "playbackSpeedControlSetting": "Visualització de la Velocitat de Reproducció",
     "@playbackSpeedControlSetting": {
@@ -1118,5 +1118,15 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "exportLogs": "Guarda Registres",
+    "@exportLogs": {},
+    "playbackReporting": "Reportar informació de reproducció",
+    "@playbackReporting": {},
+    "notAvailable": "No disponible",
+    "@notAvailable": {},
+    "logoutButtonSubtitle": "Accedir a un servidor diferent esborrara descarregues existents",
+    "@logoutButtonSubtitle": {},
+    "none": "Cap",
+    "@none": {}
 }
