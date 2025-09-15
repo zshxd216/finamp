@@ -231,6 +231,7 @@ class DefaultSettings {
   static const rpcIcon = DiscordRpcIcon.transparent;
   static const preferAddingToFavoritesOverPlaylists = false;
   static const radioMode = RadioMode.random;
+  static const useRadio = true;
 }
 
 @HiveType(typeId: 28)
@@ -754,6 +755,9 @@ class FinampSettings {
 
   @HiveField(127, defaultValue: DefaultSettings.radioMode)
   RadioMode radioMode = DefaultSettings.radioMode;
+
+  @HiveField(128, defaultValue: DefaultSettings.useRadio)
+  bool useRadio = DefaultSettings.useRadio;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(

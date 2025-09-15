@@ -414,13 +414,14 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
           : fields[125] as bool
       ..radioMode = fields[127] == null
           ? RadioMode.random
-          : fields[127] as RadioMode;
+          : fields[127] as RadioMode
+      ..useRadio = fields[128] == null ? true : fields[128] as bool;
   }
 
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(121)
+      ..writeByte(122)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -662,7 +663,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(126)
       ..write(obj.preferAddingToFavoritesOverPlaylists)
       ..writeByte(127)
-      ..write(obj.radioMode);
+      ..write(obj.radioMode)
+      ..writeByte(128)
+      ..write(obj.useRadio);
   }
 
   @override

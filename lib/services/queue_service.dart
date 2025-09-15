@@ -106,6 +106,8 @@ class QueueService {
     _shuffleOrder = NextUpShuffleOrder(queueService: this);
     _queueAudioSource = ConcatenatingAudioSource(children: [], shuffleOrder: _shuffleOrder);
 
+    _useRadio = finampSettings.useRadio;
+
     _audioHandler.playbackState.listen((event) async {
       // int indexDifference = (event.currentIndex ?? 0) - _queueAudioSourceIndex;
 
@@ -924,6 +926,7 @@ class QueueService {
 
   void setUseRadio(bool useRadio) {
     _useRadio = useRadio;
+    FinampSetters.setUseRadio(useRadio);
   }
 
   /// Returns the entire queue (Next Up + regular queue)
