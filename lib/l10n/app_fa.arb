@@ -457,7 +457,7 @@
     "@noButtonLabel": {},
     "yesButtonLabel": "آره",
     "@yesButtonLabel": {},
-    "setSleepTimer": "تنظیم زمان‌سنج خواب",
+    "setSleepTimer": "توقف پخش بعد از",
     "@setSleepTimer": {},
     "hours": "ساعت",
     "@hours": {},
@@ -865,7 +865,7 @@
     "@tracksFormerNextUp": {
         "description": "Title for the queue source for tracks that were once added to the queue via the \"Next Up\" feature, but have since been played"
     },
-    "savedQueue": "صف ذخیره شد",
+    "savedQueue": "صف ذخیره شده",
     "@savedQueue": {
         "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
     },
@@ -922,7 +922,7 @@
             }
         }
     },
-    "queueLoadingMessage": "در حال بازگردانی صف...",
+    "queueLoadingMessage": "در حال بازگردانی صف…",
     "@queueLoadingMessage": {
         "description": "Message displayed on now-playing bar when a saved queue is loading."
     },
@@ -1020,7 +1020,7 @@
     "@queueRetryMessage": {
         "description": "Message displayed on now-playing bar when all items in a saved queue fail to load."
     },
-    "queueRestoreButtonLabel": "بازگردانی",
+    "queueRestoreButtonLabel": "بازگردانی این صف",
     "@queueRestoreButtonLabel": {
         "description": "Button to restore archived now playing queue, overwriting current queue"
     },
@@ -1028,7 +1028,7 @@
     "@shuffleToNextUp": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
-    "confirmAddToNextUp": "{type, select, track{قطعه} album{آلبوم} artist{هنرمند} playlist{فهرست پخش} genre{ژانر} other{آیتم}} به موارد بعدی افزوده شد",
+    "confirmAddToNextUp": "{type, select, track{قطعه} album{آلبوم} artist{هنرمند} playlist{فهرست پخش} genre{ژانر} disc{دیسک} other{آیتم}} به موارد بعدی افزوده شد",
     "@confirmAddToNextUp": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
         "placeholders": {
@@ -1071,7 +1071,7 @@
             }
         }
     },
-    "confirmAddToQueue": "{type, select, track{قطعه} album{آلبوم} artist{هنرمند} playlist{فهرست پخش} genre{ژانر} other{آیتم}} به صف افزوده شد",
+    "confirmAddToQueue": "{type, select, track{قطعه} album{آلبوم} artist{هنرمند} playlist{فهرست پخش} genre{ژانر} disc{دیسک} other{آیتم}} به صف افزوده شد",
     "@confirmAddToQueue": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the regular queue",
         "placeholders": {
@@ -1088,7 +1088,7 @@
     "@loopModeNoneButtonLabel": {
         "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop off mode"
     },
-    "playingFromType": "در حال پخش از {source, select, album{آلبوم} playlist{فهرست پخش} trackMix{میکس قطعه} artistMix{میکس هنرمند} albumMix{میکس آلبوم} genreMix{میکس ژانر} favorites{مورد علاقه‌ها} allTracks{همه‌ی قطعه‌ها} filteredList{قطعه‌ها} genre{ژانر} artist{هنرمند} track{قطعه} nextUpAlbum{آلبوم در «مورد بعدی»} nextUpPlaylist{فهرست پخش در «مورد بعدی»} nextUpArtist{هنرمند در «مورد بعدی»} other{}}",
+    "playingFromType": "در حال پخش از {source, select, album{آلبوم} playlist{فهرست پخش} trackMix{میکس قطعه} artistMix{میکس هنرمند} albumMix{میکس آلبوم} genreMix{میکس ژانر} favorites{مورد علاقه‌ها} allTracks{همه‌ی قطعه‌ها} filteredList{قطعه‌ها} genre{ژانر} artist{هنرمند} track{قطعه} nextUpAlbum{آلبوم در «مورد بعدی»} nextUpPlaylist{فهرست پخش در «مورد بعدی»} nextUpArtist{هنرمند در «مورد بعدی»} nextUpGenre{ژانر در «مورد بعدی»} other{}}",
     "@playingFromType": {
         "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
         "placeholders": {
@@ -1115,7 +1115,7 @@
     },
     "showUncensoredLogMessage": "این رخداد شامل اطلاعات ورود شماست. نمایش داده شود؟",
     "@showUncensoredLogMessage": {},
-    "reportQueueToServerSubtitle": "اگر فعال شود، فین‌امپ صف کنونی را به سرور می‌فرستد. اکنون کاربرد خاصی برای این وجود ندارد و فقط شدآمد (traffic) شبکه را افزایش می‌دهد.",
+    "reportQueueToServerSubtitle": "اگر فعال شود، فین‌امپ صف کنونی را به سرور می‌فرستد. این می‌تواند کنترل از راه دور را بهبود بخشد و امکان بازیابی صف در سمت سرور را فراهم کند. اگر ویژگی «پخش روی» فعال باشد، این گزینه همیشه فعال است.",
     "@reportQueueToServerSubtitle": {
         "description": "Description of the setting that toggles reporting of the current queue to the Jellyfin server"
     },
@@ -1943,5 +1943,54 @@
     "none": "هیچ",
     "@none": {},
     "autoSwitchItemCurationTypeTitle": "تعویض خودکار نوع مرتب سازی آیتم",
-    "@autoSwitchItemCurationTypeTitle": {}
+    "@autoSwitchItemCurationTypeTitle": {},
+    "autoSwitchItemCurationTypeSubtitle": "وقتی فعال باشد، بخش‌های آیتم در صفحه‌های هنرمند و ژانر به‌طور خودکار به نوع دیگری از دسته‌بندی تغییر می‌کنند اگر هیچ آیتمی موجود نباشد (برای مثال، در صورتی که هیچ مورد علاقه‌ای برای یک هنرمند خاص وجود نداشته باشد).",
+    "@autoSwitchItemCurationTypeSubtitle": {},
+    "showArtistsTracksSection": "نمایش بخش قطعه‌ها",
+    "@showArtistsTracksSection": {},
+    "showArtistsTracksSectionSubtitle": "اینکه یک قسمت با بیشینه‌ی پنج قطعه نمایش داده شود. وقتی فعال باشد، می‌توانید بین بیشترین پخش شده، مورد علاقه، تصادفی، واپسین عرضه‌ها، اخیراً افزوده شده و قطعه‌های اخیراً پخش شده انتخاب کنید.",
+    "@showArtistsTracksSectionSubtitle": {},
+    "sleepTimerRemainingTracks": "به خواب رفتن {time,plural,=1{بعد از این قطعه} other{در {time} قطعه}}",
+    "@sleepTimerRemainingTracks": {
+        "description": "Button label for sleep timer. {time} is the amount of minutes left.",
+        "placeholders": {
+            "time": {
+                "type": "int"
+            }
+        }
+    },
+    "browsePlaylists": "مرور فهرست‌پخش‌ها",
+    "@browsePlaylists": {
+        "description": "Label for a button on the genre screen that brings you to a list of genre-filtered playlists."
+    },
+    "removeFavorite": "حذف مورد علاقه",
+    "@removeFavorite": {},
+    "addFavorite": "افزودن مورد علاقه",
+    "@addFavorite": {},
+    "stopAndClearQueue": "توقف پخش و خالی کردن صف",
+    "@stopAndClearQueue": {
+        "description": "Label for a button that stops playback and removes all tracks from the queue."
+    },
+    "createPlaylistFromCurrentQueue": "ذخیره صف در فهرست پخش",
+    "@createPlaylistFromCurrentQueue": {
+        "description": "Label for a button that adds the current queue to an existing or new playlist."
+    },
+    "currentVolumeFeatureText": "{volume}% حجم",
+    "@currentVolumeFeatureText": {
+        "description": "Label for the feature chip that is shown if the volume is not 100%",
+        "placeholders": {
+            "volume": {
+                "type": "int",
+                "description": "The current volume level, in percent"
+            }
+        }
+    },
+    "playOnStaleDelay": "زمان پایان نشست «پخش روی»",
+    "@playOnStaleDelay": {
+        "description": "Label for the setting that controls how long a PlayOn remote session is considered active"
+    },
+    "playOnStaleDelaySubtitle": "مدت زمانی که یک نشست «پخش روی» از راه دور پس از دریافت فرمان فعال در نظر گرفته می‌شود. هنگام فعال بودن، وضعیت پخش با دفعات بیشتری گزارش می‌شود که می‌تواند باعث افزایش مصرف پهنای‌باند شود.",
+    "@playOnStaleDelaySubtitle": {
+        "description": "Description of the setting that controls how long a PlayOn remote session is considered active"
+    }
 }
