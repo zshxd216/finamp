@@ -65,7 +65,7 @@
     },
     "clear": "Εκκαθάριση",
     "@clear": {},
-    "shuffleAll": "Τυχαία αναπαραγωγή",
+    "shuffleAll": "Τυχαία αναπαραγωγή όλων",
     "@shuffleAll": {},
     "sortOrder": "Σειρά ταξινόμησης",
     "@sortOrder": {},
@@ -87,7 +87,7 @@
     "@artist": {},
     "dateAdded": "Ημερομηνία προσθήκης",
     "@dateAdded": {},
-    "playCount": "Πλήθος αναπαραγωγών",
+    "playCount": "Αριθμός αναπαραγωγών",
     "@playCount": {},
     "datePlayed": "Ημερομηνία τελευταίας αναπαραγωγής",
     "@datePlayed": {},
@@ -121,7 +121,7 @@
     },
     "failedToGetTrackFromDownloadId": "Απέτυχε η λήψη τραγουδιού από το download ID",
     "@failedToGetTrackFromDownloadId": {},
-    "playlistUpdated": "Ανανεώθηκε το όνομα λίστας αναπαραγωγής.",
+    "playlistUpdated": "H Λίστα Αναπαραγωγής ενημερώθηκε.",
     "@playlistUpdated": {},
     "stackTrace": "Ιχνηλάτηση στοίβας",
     "@stackTrace": {},
@@ -188,7 +188,7 @@
     },
     "downloadsDeleted": "Διαγράφτηκαν οι λήψεις.",
     "@downloadsDeleted": {},
-    "updateButtonLabel": "Ανανέωση",
+    "updateButtonLabel": "Ενημέρωση",
     "@updateButtonLabel": {},
     "transcoding": "Μετακωδικοποίηση",
     "@transcoding": {},
@@ -302,9 +302,9 @@
     "@addToPlaylistTitle": {},
     "playlistCreated": "Η Λίστα Αναπαραγωγής δημιουργήθηκε.",
     "@playlistCreated": {},
-    "removeFromPlaylistTooltip": "Αφαίρεση από την λίστα αναπαραγωγής",
+    "removeFromPlaylistTooltip": "Αφαίρεση από αυτή την λίστα αναπαραγωγής",
     "@removeFromPlaylistTooltip": {},
-    "removeFromPlaylistTitle": "Αφαίρεση από την Λίστα Αναπαραγωγής",
+    "removeFromPlaylistTitle": "Αφαίρεση Από Αυτή Την Λίστα Αναπαραγωγής",
     "@removeFromPlaylistTitle": {},
     "createButtonLabel": "Δημιουργία",
     "@createButtonLabel": {},
@@ -793,7 +793,7 @@
     "@disableGesture": {},
     "disableGestureSubtitle": "Αν θα γίνεται απενεργοποίηση των χειρονομιών.",
     "@disableGestureSubtitle": {},
-    "showFastScroller": "Γρήγορη κύλιση",
+    "showFastScroller": "Εμφάνηση εργαλίου γρήγορης κύλισης",
     "@showFastScroller": {},
     "playerScreen": "Οθόνη αναπαραγωγής",
     "@playerScreen": {
@@ -1160,5 +1160,311 @@
     "playOnReconnectionDelaySubtitle": "Ρυθμίζει την καθυστέρηση μεταξύ των προσπαθειών επανασύνδεσης στο websocket του PlayOn όταν διακοπεί η σύνδεση (σε δευτερόλεπτα). Μικρότερη καθυστέρηση αυξάνει τη χρήση εύρους ζώνης (Bandwidth).",
     "@playOnReconnectionDelaySubtitle": {
         "description": "Description of the setting that controls the reconnection attempts frequency of a disconnected PlayOn session"
+    },
+    "editItemTitle": "Επεξεργασία {itemType, select, playlist{Λίστα αναπαραγωγής} other{}}",
+    "@editItemTitle": {
+        "placeholders": {
+            "itemType": {
+                "type": "String"
+            }
+        }
+    },
+    "queueRestoreSubtitle2": "{count,plural,=1{1 Τραγούδι} other{{count} Τραγούδια}}, {remaining} Μη αναπαραχθέντα",
+    "@queueRestoreSubtitle2": {
+        "description": "Description of length of a saved queue",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "remaining": {
+                "type": "int"
+            }
+        }
+    },
+    "playingFromType": "Αναπαραγωγή από {source, select, album{Άλμπουμ} playlist{Λίστα αναπαραγωγής} trackMix{Μείξη τραγουδιών} artistMix{Μείξη καλλιτέχνη} albumMix{Μείξη άλμπουμ} genreMix{Μείξη είδους} favorites{Αγαπημένα} allTracks{Όλα τα τραγούδια} filteredList{Τραγούδια} genre{Είδος} artist{Καλλιτέχνης} track{Τραγούδι} nextUpAlbum{Άλμπουμ στο Επόμενο} nextUpPlaylist{Λίστα αναπαραγωγής στο Επόμενο} nextUpArtist{Καλλιτέχνης στο Επόμενο} nextUpGenre{Είδος στο Επόμενο} remoteClient{Απομακρυσμένος Πελάτης} other{}}",
+    "@playingFromType": {
+        "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmShuffleNext": "Θα ανακατέψει στη συνέχεια",
+    "@confirmShuffleNext": {
+        "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the front of the \"Next Up\" queue"
+    },
+    "shareOfflineListens": "Κοινοποίηση μη αποσταλ. αναπαραγ.",
+    "@shareOfflineListens": {
+        "description": "Button for exporting the JSON file containing any playback events that couldn't be submitted to the server, either because offline mode was enabled or the connection failed"
+    },
+    "topTracks": "Τοπ Κομμάτια",
+    "@topTracks": {},
+    "topAlbums": "Τοπ Άλμπουμ",
+    "@topAlbums": {},
+    "topArtists": "Τοπ Καλλιτέχνες",
+    "@topArtists": {},
+    "recentlyAddedTracks": "Πρόσφατα Προστιθέμενα Κομμάτια",
+    "@recentlyAddedTracks": {
+        "description": "Label for the artist section that shows tracks that were recently added to the library, sorted by the date they were added."
+    },
+    "recentlyAddedAlbums": "Πρόσφατα Προστιθέμενα 'Αλμπουμ",
+    "@recentlyAddedAlbums": {
+        "description": "Label for the genre section that shows albums that were recently added to the library, sorted by the date they were added."
+    },
+    "recentlyAddedArtists": "Πρόσφατα Προστιθέμενοι Καλλιτέχνες",
+    "@recentlyAddedArtists": {
+        "description": "Label for the genre section that shows artists that were recently added to the library, sorted by the date they were added."
+    },
+    "latestTracks": "Τελευταία Τραγούδια",
+    "@latestTracks": {},
+    "latestAlbums": "Τελευταία Άλπουμ",
+    "@latestAlbums": {},
+    "latestArtists": "Τελευταίοι Καλλιτέχνες",
+    "@latestArtists": {},
+    "recentlyPlayedTracks": "Πρόσφατα Αναπαραγμένα Κομμάτια",
+    "@recentlyPlayedTracks": {},
+    "recentlyPlayedAlbums": "Πρόσφατα Αναπαραγμένα Άλμπουμ",
+    "@recentlyPlayedAlbums": {},
+    "recentlyPlayedArtists": "Πρόσφατα Αναπαραγμένοι Καλλιτέχνες",
+    "@recentlyPlayedArtists": {},
+    "favoriteTracks": "Αγαπημένα Κομμάτια",
+    "@favoriteTracks": {},
+    "favoriteAlbums": "Αγαπημένα Άλμπουμ",
+    "@favoriteAlbums": {},
+    "favoriteArtists": "Αγαπημένοι Καλλιτέχνες",
+    "@favoriteArtists": {},
+    "randomTracks": "Κομμάτια (Τυχαίες Επιλογές)",
+    "@randomTracks": {},
+    "randomAlbums": "Άλμπουμ (Τυχαίες Επιλογές)",
+    "@randomAlbums": {},
+    "randomArtists": "Καλλιτέχνες (Τυχαίες Επιλογές)",
+    "@randomArtists": {},
+    "mostPlayed": "Πιο αναπαραγμένα",
+    "@mostPlayed": {},
+    "randomFavoritesFirst": "Τυχαία (Αγαπημένα Πρώτα)",
+    "@randomFavoritesFirst": {},
+    "recentlyAdded": "Προστέθηκαν Πρόσφατα",
+    "@recentlyAdded": {},
+    "recentlyPlayed": "Πρόσφατα Αναπαράχτηκαν",
+    "@recentlyPlayed": {},
+    "latestReleases": "Τελευταίες Κυκλοφορίες",
+    "@latestReleases": {},
+    "itemSectionsOrder": "Σειρά Ενοτήτων Αντικειμένων",
+    "@itemSectionsOrder": {
+        "description": "Label for the setting that controls the order of item sections on the screens."
+    },
+    "unknown": "Άγνωστο",
+    "@unknown": {},
+    "itemSectionsOrderSubtitle": "Ελέγχει τη σειρά των ενοτήτων αντικειμένων.",
+    "@itemSectionsOrderSubtitle": {
+        "description": "Description of the setting that controls the order of item sections on the screens."
+    },
+    "genreItemSectionFilterChipOrderTitle": "Σειρά Φίλτρων Ενοτήτων Αντικειμένων",
+    "@genreItemSectionFilterChipOrderTitle": {
+        "description": "Label for the setting that controls the order of item sections filter chips."
+    },
+    "genreFilterArtistScreens": "Φιλτράρισμα Καλλιτεχνών",
+    "@genreFilterArtistScreens": {
+        "description": "Label for the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
+    },
+    "genreFilterArtistScreensSubtitle": "Όταν είναι ενεργοποιημένο, οι Καλλιτέχνες (προσπελασμένοι μέσω ενός είδους) θα εμφανίζουν μόνο τραγούδια και άλμπουμ που ταιριάζουν με το είδος που περιηγείστε αυτή τη στιγμή. (Μπορείτε πάντα να αφαιρέσετε χειροκίνητα το φίλτρο είδους για να δείτε όλα τα τραγούδια και άλμπουμ.)",
+    "@genreFilterArtistScreensSubtitle": {
+        "description": "Description of the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
+    },
+    "genreFilterPlaylistScreens": "Φιλτράρισμα Λιστών Αναπαραγωγής",
+    "@genreFilterPlaylistScreens": {
+        "description": "Label for the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
+    },
+    "genreFilterPlaylistScreensSubtitle": "Όταν είναι ενεργοποιημένο, οι Λίστες Αναπαραγωγής (προσπελασμένες μέσω ενός είδους) θα εμφανίζουν μόνο τραγούδια που ταιριάζουν με το είδος που περιηγείστε αυτή τη στιγμή. (Μπορείτε πάντα να αφαιρέσετε χειροκίνητα το φίλτρο είδους για να δείτε όλα τα τραγούδια.)",
+    "@genreFilterPlaylistScreensSubtitle": {
+        "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
+    },
+    "genreListsInheritSorting": "Κληρονομικότητα Ταξινόμησης Πλήρων Λιστών",
+    "@genreListsInheritSorting": {
+        "description": "Label for the setting that controls if a See All Genre Lists should inherit the Genre Sorting and Filtering."
+    },
+    "genreListsInheritSortingSubtitle": "Όταν είναι ενεργοποιημένο, οι λίστες \"Δείτε Όλα\" θα κληρονομήσουν την ταξινόμηση και το φιλτράρισμα από την οθόνη Είδους. Αν είναι απενεργοποιημένο, θα χρησιμοποιούνται οι ρυθμίσεις από την αντίστοιχη καρτέλα της βιβλιοθήκης. Πατώντας στους αριθμούς στην κορυφή της οθόνης Είδους ή το κουμπί \"Περιήγηση Λιστών Αναπαραγωγής\" θα ανοίγει πάντα μια πλήρη λίστα με τις ρυθμίσεις ταξινόμησης της καρτέλας της βιβλιοθήκης.",
+    "@genreListsInheritSortingSubtitle": {
+        "description": "Description of the setting that controls if a See All Genre Lists should inherit the Genre Sorting and Filtering."
+    },
+    "curatedItemsMostPlayedOfflineTooltip": "Μη διαθέσιμο στην Λειτουργία Εκτός Σύνδεσης.",
+    "@curatedItemsMostPlayedOfflineTooltip": {
+        "description": "Tooltip for Most Played on Curated Items in Offline Mode."
+    },
+    "albumCount": "{count,plural,=1{{count} Άλμπουμ} other{{count} Άλμπουμ}}",
+    "@albumCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "playCountValue": "{playCount,plural,=1{{playCount} Αναπαραγωγή} other{{playCount} Αναπαραγωγές}}",
+    "@playCountValue": {
+        "placeholders": {
+            "playCount": {
+                "type": "int",
+                "example": "12"
+            }
+        }
+    },
+    "confirm": "Επιβεβαίωση",
+    "@confirm": {},
+    "close": "Κλείσιμο",
+    "@close": {},
+    "showUncensoredLogMessage": "Αυτό το αρχείο καταγραφής περιέχει τα στοιχεία σύνδεσής σας. Να εμφανιστεί;",
+    "@showUncensoredLogMessage": {},
+    "resetTabs": "Επαναφορά Καρτελών",
+    "@resetTabs": {},
+    "resetToDefaults": "Επαναφορά στις προεπιλογές",
+    "@resetToDefaults": {},
+    "noMusicLibrariesTitle": "Καμία Βιβλιοθήκη Μουσικής",
+    "@noMusicLibrariesTitle": {
+        "description": "Title for message that shows on the views screen when no music libraries could be found."
+    },
+    "noMusicLibrariesBody": "Το Finamp δεν μπόρεσε να βρει καμία βιβλιοθήκη μουσικής. Βεβαιωθείτε ότι ο διακομιστής Jellyfin περιέχει τουλάχιστον μία βιβλιοθήκη με τον τύπο περιεχομένου ορισμένο σε \"Music/Μουσική\".",
+    "@noMusicLibrariesBody": {},
+    "refresh": "Ανανέωση",
+    "@refresh": {},
+    "moreInfo": "Περισσότερες Πληροφορίες",
+    "@moreInfo": {},
+    "volumeNormalizationSettingsTitle": "Ισοστάθμιση Έντασης",
+    "@volumeNormalizationSettingsTitle": {
+        "description": "Title for the replay gain settings screen"
+    },
+    "playbackReportingSettingsTitle": "Αναφορά Αναπαραγωγής & Play On",
+    "@playbackReportingSettingsTitle": {
+        "description": "Title for the playback reporting settings screen"
+    },
+    "volumeNormalizationSwitchTitle": "Ενεργοποίηση Ισοστάθμισης Έντασης",
+    "@volumeNormalizationSwitchTitle": {
+        "description": "Title for the switch that toggles replay gain"
+    },
+    "volumeNormalizationSwitchSubtitle": "Χρησιμοποιεί τις τιμές ενίσχυσης για να ισοσταθμίσει την ένταση των κομματιών (\"Replay Gain\")",
+    "@volumeNormalizationSwitchSubtitle": {
+        "description": "Subtitle for the switch that toggles replay gain"
+    },
+    "volumeNormalizationModeSelectorTitle": "Τρόπος Ισοστάθμισης Έντασης",
+    "@volumeNormalizationModeSelectorTitle": {
+        "description": "Title for the dropdown that selects the replay gain mode"
+    },
+    "volumeNormalizationModeSelectorSubtitle": "Πότε και με ποιον τρόπο να γίνεται η Ισοστάθμιση Έντασης",
+    "@volumeNormalizationModeSelectorSubtitle": {
+        "description": "Subtitle for the dropdown that selects the replay gain mode"
+    },
+    "volumeNormalizationModeSelectorDescription": "Δυναμικό (Dynamic):\nΌταν αναπαράγονται διαδοχικά πολλά κομμάτια από το ίδιο άλμπουμ, χρησιμοποιείται η ενίσχυση άλμπουμ (δηλαδή όταν παίζεται ένα άλμπουμ ή κομμάτια από το ίδιο άλμπουμ σε λίστα αναπαραγωγής). Σε διαφορετική περίπτωση, χρησιμοποιείται η ενίσχυση κομματιού.\n\nΜε βάση το κομμάτι (Track-based):\nΗ ενίσχυση κομματιού χρησιμοποιείται πάντα, ανεξάρτητα από το αν παίζει ένα άλμπουμ ή όχι.\n\nΜε βάση το άλμπουμ (Album-based):\nΗ ενίσχυση άλμπουμ χρησιμοποιείται πάντα, αλλά αν δεν είναι διαθέσιμη (π.χ. για singles), χρησιμοποιείται η ενίσχυση κομματιού.\n\nΜόνο άλμπουμ (Albums Only):\nΗ ισοστάθμιση έντασης εφαρμόζεται μόνο κατά την αναπαραγωγή άλμπουμ (χρησιμοποιώντας την ενίσχυση άλμπουμ) και όχι για μεμονωμένα κομμάτια.",
+    "@volumeNormalizationModeSelectorDescription": {
+        "description": "Description for the dropdown that selects the replay gain mode, shown in a dialog that opens when the user presses the info icon next to the dropdown"
+    },
+    "volumeNormalizationModeHybrid": "Δυναμικό",
+    "@volumeNormalizationModeHybrid": {
+        "description": "'Dynamic' option for the replay gain mode dropdown. In dynamic mode, the track gain is used for regular playback, but if an album is playing (either because it's the main playback queue source, or because it was added to the queue at some point), or successive tracks from a same album are in the queue, the album gain is used instead."
+    },
+    "volumeNormalizationModeTrackBased": "Με βάση το κομμάτι",
+    "@volumeNormalizationModeTrackBased": {
+        "description": "'Track-based' option for the replay gain mode dropdown. In track-based mode, the track gain is always used, regardless of whether an album is playing or not."
+    },
+    "volumeNormalizationModeAlbumBased": "Με βάση το άλμπουμ",
+    "@volumeNormalizationModeAlbumBased": {
+        "description": "'Album-based' option for the replay gain mode dropdown. In album-based mode, the album gain is always used, regardless of whether an album is playing or not."
+    },
+    "volumeNormalizationModeAlbumOnly": "Μόνο άλμπουμ",
+    "@volumeNormalizationModeAlbumOnly": {
+        "description": "'Only for Albums' option for the replay gain mode dropdown. In albums-only mode, Volume Normalization is only applied while playing albums (using the album gain), but not for individual tracks."
+    },
+    "volumeNormalizationIOSBaseGainEditorTitle": "Βασική Τιμή Ενίσχυσης",
+    "@volumeNormalizationIOSBaseGainEditorTitle": {
+        "description": "Title for the input that sets the replay gain base gain on iOS and other non-Android platforms"
+    },
+    "numberAsDecibel": "{value} dB",
+    "@numberAsDecibel": {
+        "description": "Label for a number that represents a decibel value. The value will be the decibel value.",
+        "placeholders": {
+            "value": {
+                "type": "double",
+                "example": "-9.6"
+            }
+        }
+    },
+    "downloadItem": "Λήψη",
+    "@downloadItem": {
+        "description": "Option to download item in long-press menu."
+    },
+    "repairComplete": "Η επιδιόρθωση λήψεων ολοκληρώθηκε.",
+    "@repairComplete": {
+        "description": "Message displayed after download repair completes."
+    },
+    "syncComplete": "Όλες οι λήψεις συγχρονίστηκαν ξανά.",
+    "@syncComplete": {
+        "description": "Message displayed after download sync completes."
+    },
+    "syncDownloads": "Συγχρονισμός και λήψη ελλιπών αντικειμένων.",
+    "@syncDownloads": {
+        "description": "Tooltip for downloads sync button."
+    },
+    "repairDownloads": "Επιδιόρθωση ληφθέντων αρχείων ή μεταδεδομένων.",
+    "@repairDownloads": {
+        "description": "Tooltip for downloads repair button."
+    },
+    "requireWifiForDownloads": "Απαίτηση WiFi όταν γίνεται λήψη.",
+    "@requireWifiForDownloads": {
+        "description": "Description of setting for only performing downloads while on wifi"
+    },
+    "accessibility": "Προσβασιμότητα",
+    "@accessibility": {
+        "description": "Title for the accessibility settings screen"
+    },
+    "serverSharingMenuButtonTitle": "Κοινοποίηση Διακομιστή",
+    "@serverSharingMenuButtonTitle": {
+        "description": "Title for the button in the drawer that opens the server sharing menu"
+    },
+    "serverSharingMenuConfirmationDialogText": "Είστε σίγουροι ότι θέλετε να ενεργοποιήσετε την κοινή χρήση διακομιστή ενώ βρίσκεστε σε Λειτουργία Εκτός Σύνδεσης; Αυτό θα κάνει το Finamp να στείλει δεδομένα μέσω τοπικού δικτύου.",
+    "@serverSharingMenuConfirmationDialogText": {
+        "description": "Dialog text shown when enabling server sharing while offline mode is enabled"
+    },
+    "serverSharingMenuConfirmationDialogConfirmationButtonLabel": "Επιβεβαίωση και Ενεργοποίηση",
+    "@serverSharingMenuConfirmationDialogConfirmationButtonLabel": {
+        "description": "Positive action label for the dialog shown when enabling server sharing while offline mode is enabled"
+    },
+    "serverSharingMenuControlTitleSharingEnabled": "Μοιράζοντας τον Διακομιστή",
+    "@serverSharingMenuControlTitleSharingEnabled": {
+        "description": "Title of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned on"
+    },
+    "serverSharingMenuControlSubtitleSharingDisabled": "Πατήστε για κοινοποίηση",
+    "@serverSharingMenuControlSubtitleSharingDisabled": {
+        "description": "Subtitle of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned off"
+    },
+    "serverSharingMenuControlTitleSharingDisabled": "Δεν μοιράζεται",
+    "@serverSharingMenuControlTitleSharingDisabled": {
+        "description": "Title of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned off"
+    },
+    "serverSharingMenuControlSubtitleSharingEnabled": "Πατήστε για σταμάτημα",
+    "@serverSharingMenuControlSubtitleSharingEnabled": {
+        "description": "Subtitle of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned on"
+    },
+    "serverSharingMenuDescription": "Η κοινή χρήση της διεύθυνσης του διακομιστή σας μπορεί να είναι χρήσιμη για τη ρύθμιση νέων πελατών που δεν βρίσκονται στο ίδιο τοπικό δίκτυο με τον διακομιστή Jellyfin, π.χ. τηλεοράσεις σε ξενοδοχεία, ο υπολογιστής σας στη δουλειά ή ένας νέος πελάτης στο κινητό σας ενώ είστε εν κινήσει.",
+    "@serverSharingMenuDescription": {
+        "description": "Description text shown in the server sharing menu, right below the controls"
+    },
+    "serverSharingMenuDetails": "Λειτουργεί ακούγοντας αιτήματα ανίχνευσης διακομιστή από άλλους πελάτες στο τοπικό δίκτυο και απαντώντας σε αυτά τα αιτήματα με τη διαμορφωμένη διεύθυνση του διακομιστή Jellyfin σας.\nΕάν έχετε διαμορφώσει τόσο μια τοπική όσο και μια δημόσια διεύθυνση, το Finamp θα παρέχει και τις δύο στον πελάτη που ζητά την πληροφορία.",
+    "@serverSharingMenuDetails": {
+        "description": "Description text shown in the server sharing menu, below the description"
+    },
+    "quickConnectAuthorizationMenuButtonTitle": "Εξουσιοδότηση Quick Connect",
+    "@quickConnectAuthorizationMenuButtonTitle": {
+        "description": "Title for the button in the drawer that opens the quick connect authorization menu"
+    },
+    "quickConnectAuthorizationMenuPrompt": "Εισάγετε κωδικό Quick Connect",
+    "@quickConnectAuthorizationMenuPrompt": {
+        "description": "Title for the button in server sharing menu that opens the quick connect authorization menu"
+    },
+    "autoOfflineOptionNetwork": "Τοπικό Δίκτυο",
+    "@autoOfflineOptionNetwork": {
+        "description": "This is shown when the autoOffline feature is set to \"local Network\", this means offline mode will be automatically enabled when no wifi or ethernet connection is active"
+    },
+    "networkSettingsTitle": "Δίκτυο",
+    "@networkSettingsTitle": {
+        "description": "Title for the network settings screen"
     }
 }
