@@ -386,6 +386,8 @@ class QueueListTile extends StatelessWidget {
   final void Function(bool playable) onTap;
   final VoidCallback? onRemoveFromList;
 
+  static const double height = 70.0;
+
   const QueueListTile({
     super.key,
     required this.item,

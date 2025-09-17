@@ -37,7 +37,7 @@ class PaddedCustomScrollview extends CustomScrollView {
   List<Widget> buildSlivers(BuildContext context) {
     final MediaQueryData? mediaQuery = MediaQuery.maybeOf(context);
     if (mediaQuery == null) {
-      return slivers;
+      return [...slivers, SliverPadding(padding: EdgeInsets.only(bottom: bottomPadding))];
     }
 
     // Strip bottom MediaQuery padding because it is being added by this widget.
