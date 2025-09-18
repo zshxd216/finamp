@@ -10,12 +10,7 @@ import '../album_image.dart';
 /// Card content for AlbumItem. You probably shouldn't use this widget directly,
 /// use AlbumItem instead.
 class ArtistItemCard extends StatelessWidget {
-  const ArtistItemCard({
-    super.key,
-    required this.item,
-    this.onTap,
-    this.addSettingsListener = false,
-  });
+  const ArtistItemCard({super.key, required this.item, this.onTap, this.addSettingsListener = false});
 
   final BaseItemDto item;
   final void Function()? onTap;
@@ -32,23 +27,19 @@ class ArtistItemCard extends StatelessWidget {
             Positioned.fill(
               child: Material(
                 color: Colors.transparent,
-                child: InkWell(
-                  onTap: onTap,
-                ),
+                child: InkWell(onTap: onTap),
               ),
-            )
+            ),
           ],
         ),
-        const SizedBox(
-          height: 4,
-        ),
+        const SizedBox(height: 4),
         addSettingsListener
             ? // We need this ValueListenableBuilder to react to changes to
-            // showTextOnGridView. When shown in a MusicScreen, this widget
-            // would refresh anyway since MusicScreen also listens to
-            // FinampSettings, but there may be cases where this widget is used
-            // elsewhere.
-            ValueListenableBuilder<Box<FinampSettings>>(
+              // showTextOnGridView. When shown in a MusicScreen, this widget
+              // would refresh anyway since MusicScreen also listens to
+              // FinampSettings, but there may be cases where this widget is used
+              // elsewhere.
+              ValueListenableBuilder<Box<FinampSettings>>(
                 valueListenable: FinampSettingsHelper.finampSettingsListener,
                 builder: (_, box, __) {
                   if (box.get("FinampSettings")!.showTextOnGridView) {
@@ -61,17 +52,15 @@ class ArtistItemCard extends StatelessWidget {
                 },
               )
             : FinampSettingsHelper.finampSettings.showTextOnGridView
-                ? _ArtistItemCardText(item: item)
-                : const SizedBox.shrink(),
+            ? _ArtistItemCardText(item: item)
+            : const SizedBox.shrink(),
       ],
     );
   }
 }
 
 class _ArtistItemCardText extends StatelessWidget {
-  const _ArtistItemCardText({
-    required this.item,
-  });
+  const _ArtistItemCardText({required this.item});
 
   final BaseItemDto item;
 
@@ -83,10 +72,7 @@ class _ArtistItemCardText extends StatelessWidget {
         item.name ?? "Unknown Name",
         overflow: TextOverflow.ellipsis,
         maxLines: 3,
-        style: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(fontWeight: FontWeight.w500),
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500),
       ),
     );
   }

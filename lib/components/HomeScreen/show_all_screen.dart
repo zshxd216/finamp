@@ -35,10 +35,7 @@ import '../new_page_progress_indicator.dart';
 final musicScreenRefreshStream = StreamController<void>.broadcast();
 
 class ShowAllScreen extends ConsumerStatefulWidget {
-  const ShowAllScreen({
-    super.key,
-    this.refresh,
-  });
+  const ShowAllScreen({super.key, this.refresh});
 
   final MusicRefreshCallback? refresh;
 
@@ -50,16 +47,17 @@ class ShowAllScreen extends ConsumerStatefulWidget {
 
 // We use AutomaticKeepAliveClientMixin so that the view keeps its position after the tab is changed.
 // https://stackoverflow.com/questions/49439047/how-to-preserve-widget-states-in-flutter-when-navigating-using-bottomnavigation
-class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
-    with AutomaticKeepAliveClientMixin<ShowAllScreen> {
+class _ShowAllScreenState extends ConsumerState<ShowAllScreen> with AutomaticKeepAliveClientMixin<ShowAllScreen> {
   // tabs on the music screen should be kept alive
   @override
   bool get wantKeepAlive => true;
 
   static const _pageSize = 100;
 
-  final PagingController<int, BaseItemDto> _pagingController =
-      PagingController(firstPageKey: 0, invisibleItemsThreshold: 70);
+  final PagingController<int, BaseItemDto> _pagingController = PagingController(
+    firstPageKey: 0,
+    invisibleItemsThreshold: 70,
+  );
 
   Future<List<BaseItemDto>>? offlineSortedItems;
 
@@ -82,16 +80,13 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    sectionInfo =
-        ModalRoute.of(context)!.settings.arguments as HomeScreenSectionInfo;
+    sectionInfo = ModalRoute.of(context)!.settings.arguments as HomeScreenSectionInfo;
     final itemsProviderInstance = loadHomeSectionItemsProvider(
       sectionInfo: sectionInfo,
       startIndex: 0,
       limit: homeScreenSectionItemLimit,
     );
-    final prefetchedItems = ref.exists(itemsProviderInstance)
-        ? ref.read(itemsProviderInstance).value
-        : null;
+    final prefetchedItems = ref.exists(itemsProviderInstance) ? ref.read(itemsProviderInstance).value : null;
     if (prefetchedItems != null && _pagingController.nextPageKey != null) {
       if (prefetchedItems.length < homeScreenSectionItemLimit) {
         _pagingController.appendLastPage(prefetchedItems);
@@ -113,11 +108,9 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
     int localRefreshCount = refreshCount;
     try {
       final sortOrder = SortOrder.ascending.toString();
-      final newItems = await ref.watch(loadHomeSectionItemsProvider(
-        sectionInfo: sectionInfo,
-        startIndex: pageKey,
-        limit: _pageSize,
-      ).future);
+      final newItems = await ref.watch(
+        loadHomeSectionItemsProvider(sectionInfo: sectionInfo, startIndex: pageKey, limit: _pageSize).future,
+      );
       if (newItems == null) {
         return;
       }
@@ -144,16 +137,14 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
       _getPage(pageKey);
     });
     controller = AutoScrollController(
-        suggestedRowHeight: 72,
-        viewportBoundaryGetter: () =>
-            Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
-        axis: Axis.vertical);
-    _musicScreenRefreshStreamSubscription =
-        musicScreenRefreshStream.stream.listen((_) {
+      suggestedRowHeight: 72,
+      viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+      axis: Axis.vertical,
+    );
+    _musicScreenRefreshStreamSubscription = musicScreenRefreshStream.stream.listen((_) {
       _refresh();
     });
-    _downloadsRefreshStreamSubscription =
-        downloadsHelper.offlineDeletesStream.listen((event) {
+    _downloadsRefreshStreamSubscription = downloadsHelper.offlineDeletesStream.listen((event) {
       _refresh();
     });
     super.initState();
@@ -205,17 +196,13 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
         children: [
           Text(
             AppLocalizations.of(context)!.emptyFilteredListTitle,
-            style: TextStyle(
-              fontSize: 24,
-            ),
+            style: TextStyle(fontSize: 24),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context)!.emptyFilteredListSubtitle,
-            style: TextStyle(
-              fontSize: 16,
-            ),
+            style: TextStyle(fontSize: 16),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -224,10 +211,9 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
             text: AppLocalizations.of(context)!.resetFiltersButton,
             onPressed: () {
               FinampSetters.setOnlyShowFavorites(DefaultSettings.onlyShowFavorites);
-              FinampSetters.setOnlyShowFullyDownloaded(
-                  DefaultSettings.onlyShowFullyDownloaded);
+              FinampSetters.setOnlyShowFullyDownloaded(DefaultSettings.onlyShowFullyDownloaded);
             },
-          )
+          ),
         ],
       ),
     );
@@ -243,13 +229,11 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
             key: ValueKey(index),
             controller: controller,
             index: index,
-            child: ItemCollectionWrapper(item: item, isGrid: false)
+            child: ItemCollectionWrapper(item: item, isGrid: false),
           );
         },
-        firstPageProgressIndicatorBuilder: (_) =>
-            const FirstPageProgressIndicator(),
-        newPageProgressIndicatorBuilder: (_) =>
-            const NewPageProgressIndicator(),
+        firstPageProgressIndicatorBuilder: (_) => const FirstPageProgressIndicator(),
+        newPageProgressIndicatorBuilder: (_) => const NewPageProgressIndicator(),
         noItemsFoundIndicatorBuilder: (_) => emptyListIndicator,
       ),
       separatorBuilder: (context, index) => const SizedBox.shrink(),
@@ -259,29 +243,20 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
-            // this is needed to ensure the player screen stays in full screen mode WITHOUT having contrast issues in the status bar
-            systemNavigationBarColor: Colors.transparent,
-            systemStatusBarContrastEnforced: false,
-            statusBarIconBrightness:
-                Theme.of(context).brightness == Brightness.dark
-                    ? Brightness.light
-                    : Brightness.dark),
+          // this is needed to ensure the player screen stays in full screen mode WITHOUT having contrast issues in the status bar
+          systemNavigationBarColor: Colors.transparent,
+          systemStatusBarContrastEnforced: false,
+          statusBarIconBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+        ),
         elevation: 0,
-        scrolledUnderElevation:
-            0.0, // disable tint/shadow when content is scrolled under the app bar
+        scrolledUnderElevation: 0.0, // disable tint/shadow when content is scrolled under the app bar
         centerTitle: true,
         toolbarHeight: 53,
         title: Text(sectionInfo.type.toLocalisedString(context)),
-        leading: FinampAppBarButton(
-          onPressed: () => Navigator.of(context).pop(),
-          dismissDirection: AxisDirection.left,
-        ),
+        leading: FinampAppBarButton(onPressed: () => Navigator.of(context).pop(), dismissDirection: AxisDirection.left),
         actions: [],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async => _refresh(),
-        child: content,
-      ),
+      body: RefreshIndicator(onRefresh: () async => _refresh(), child: content),
       bottomSheet: const NowPlayingBar(),
       bottomNavigationBar: const FinampNavigationBar(),
     );
@@ -294,9 +269,7 @@ class MusicRefreshCallback {
 }
 
 class SliverGridDelegateWithFixedSizeTiles extends SliverGridDelegate {
-  SliverGridDelegateWithFixedSizeTiles({
-    required this.gridTileSize,
-  });
+  SliverGridDelegateWithFixedSizeTiles({required this.gridTileSize});
 
   final double gridTileSize;
 
@@ -306,8 +279,7 @@ class SliverGridDelegateWithFixedSizeTiles extends SliverGridDelegate {
     // Ensure a minimum count of 1, can be zero and result in an infinite extent
     // below when the window size is 0.
     crossAxisCount = max(1, crossAxisCount);
-    final double crossAxisSpacing =
-        (constraints.crossAxisExtent / crossAxisCount);
+    final double crossAxisSpacing = (constraints.crossAxisExtent / crossAxisCount);
     return SliverGridRegularTileLayout(
       crossAxisCount: crossAxisCount,
       mainAxisStride: gridTileSize,
@@ -324,23 +296,18 @@ class SliverGridDelegateWithFixedSizeTiles extends SliverGridDelegate {
   }
 }
 
-class _DeferredLoadingAlwaysScrollableScrollPhysics
-    extends AlwaysScrollableScrollPhysics {
-  const _DeferredLoadingAlwaysScrollableScrollPhysics(
-      {super.parent, required this.tabState});
+class _DeferredLoadingAlwaysScrollableScrollPhysics extends AlwaysScrollableScrollPhysics {
+  const _DeferredLoadingAlwaysScrollableScrollPhysics({super.parent, required this.tabState});
 
   final _ShowAllScreenState tabState;
 
   @override
-  _DeferredLoadingAlwaysScrollableScrollPhysics applyTo(
-      ScrollPhysics? ancestor) {
-    return _DeferredLoadingAlwaysScrollableScrollPhysics(
-        parent: buildParent(ancestor), tabState: tabState);
+  _DeferredLoadingAlwaysScrollableScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return _DeferredLoadingAlwaysScrollableScrollPhysics(parent: buildParent(ancestor), tabState: tabState);
   }
 
   @override
-  bool recommendDeferredLoading(
-      double velocity, ScrollMetrics metrics, BuildContext context) {
+  bool recommendDeferredLoading(double velocity, ScrollMetrics metrics, BuildContext context) {
     return super.recommendDeferredLoading(velocity, metrics, context);
   }
 }

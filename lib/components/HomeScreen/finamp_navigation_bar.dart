@@ -43,11 +43,7 @@ class FinampNavigationBar extends ConsumerWidget {
               fontWeight: FontWeight.w600,
             ),
             WidgetState.any: TextStyle(
-              color: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .color!
-                  .withOpacity(0.75),
+              color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
               fontSize: 12,
               fontWeight: FontWeight.w400,
             ),
@@ -56,45 +52,36 @@ class FinampNavigationBar extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.only(top: 18.0),
               child: NavigationDestination(
-                icon: Icon(TablerIcons.home,
-                    weight: 1.0,
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .color!
-                        .withOpacity(0.75)),
-                selectedIcon: Icon(TablerIcons.home,
-                    weight: 1.5, color: Theme.of(context).colorScheme.primary),
+                icon: Icon(
+                  TablerIcons.home,
+                  weight: 1.0,
+                  color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
+                ),
+                selectedIcon: Icon(TablerIcons.home, weight: 1.5, color: Theme.of(context).colorScheme.primary),
                 label: 'Home',
               ),
             ),
             Padding(
               padding: EdgeInsets.only(top: 18.0),
               child: NavigationDestination(
-                icon: Icon(TablerIcons.search,
-                    weight: 1.0,
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .color!
-                        .withOpacity(0.75)),
-                selectedIcon: Icon(TablerIcons.search,
-                    weight: 1.5, color: Theme.of(context).colorScheme.primary),
+                icon: Icon(
+                  TablerIcons.search,
+                  weight: 1.0,
+                  color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
+                ),
+                selectedIcon: Icon(TablerIcons.search, weight: 1.5, color: Theme.of(context).colorScheme.primary),
                 label: 'Search',
               ),
             ),
             Padding(
               padding: EdgeInsets.only(top: 18.0),
               child: NavigationDestination(
-                icon: Icon(TablerIcons.books,
-                    weight: 1.0,
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .color!
-                        .withOpacity(0.75)),
-                selectedIcon: Icon(TablerIcons.books,
-                    weight: 1.5, color: Theme.of(context).colorScheme.primary),
+                icon: Icon(
+                  TablerIcons.books,
+                  weight: 1.0,
+                  color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
+                ),
+                selectedIcon: Icon(TablerIcons.books, weight: 1.5, color: Theme.of(context).colorScheme.primary),
                 label: 'Library',
               ),
             ),
@@ -107,16 +94,13 @@ class FinampNavigationBar extends ConsumerWidget {
             // Navigate to the corresponding screen based on the index
             switch (index) {
               case 0:
-                Navigator.restorablePushNamedAndRemoveUntil(
-                    context, HomeScreen.routeName, (route) => false);
+                Navigator.restorablePushNamedAndRemoveUntil(context, HomeScreen.routeName, (route) => false);
                 break;
               case 1:
-                Navigator.restorablePushNamedAndRemoveUntil(
-                    context, MusicScreen.routeName, (route) => false);
+                Navigator.restorablePushNamedAndRemoveUntil(context, MusicScreen.routeName, (route) => false);
                 break;
               case 2:
-                Navigator.restorablePushNamedAndRemoveUntil(
-                    context, MusicScreen.routeName, (route) => false);
+                Navigator.restorablePushNamedAndRemoveUntil(context, MusicScreen.routeName, (route) => false);
                 break;
             }
           },

@@ -136,12 +136,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                 ],
               ),
               const SizedBox(height: 24),
-              _buildSection(
-                HomeScreenSectionInfo(
-                  type: HomeScreenSectionType.collection,
-                  itemId: BaseItemId(""),
-                ),
-              ),
+              _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.collection, itemId: BaseItemId(""))),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.listenAgain)),
               const SizedBox(height: 8),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.newlyAdded)),

@@ -20,7 +20,6 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:logging/logging.dart';
 
-
 final _homeScreenLogger = Logger("HomeScreen");
 
 void postLaunchHook(WidgetRef ref) async {
@@ -45,8 +44,7 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStateMixin {
   final _audioServiceHelper = GetIt.instance<AudioServiceHelper>();
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
   final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
@@ -64,10 +62,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    FinampUser? currentUser =
-        ref.watch(FinampUserHelper.finampCurrentUserProvider).value;
-    FinampSettings finampSettings = ref.watch(finampSettingsProvider).value ??
-        FinampSettingsHelper.finampSettings;
+    FinampUser? currentUser = ref.watch(FinampUserHelper.finampCurrentUserProvider).value;
+    FinampSettings finampSettings = ref.watch(finampSettingsProvider).value ?? FinampSettingsHelper.finampSettings;
 
     return PopScope(
       canPop: true,
@@ -75,8 +71,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       child: Scaffold(
         extendBody: true,
         extendBodyBehindAppBar: true,
-        resizeToAvoidBottomInset:
-            false, //TODO set this to true for the search screen
+        resizeToAvoidBottomInset: false, //TODO set this to true for the search screen
         bottomSheet: NowPlayingBar(),
         appBar: FinampHomeScreenHeader(),
         bottomNavigationBar: const FinampNavigationBar(),

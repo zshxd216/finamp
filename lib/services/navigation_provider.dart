@@ -18,6 +18,4 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
   }
 }
 
-final navigationProvider = StateNotifierProvider<NavigationNotifier, NavigationState>(
-  (ref) => NavigationNotifier(),
-);
+final navigationProvider = StateNotifierProvider<NavigationNotifier, NavigationState>((ref) => NavigationNotifier());

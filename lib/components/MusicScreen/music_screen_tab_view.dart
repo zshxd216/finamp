@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:finamp/components/Buttons/cta_medium.dart';
+import 'package:finamp/components/MusicScreen/item_collection_card.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:flutter/material.dart';
@@ -522,15 +523,25 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
               newPageProgressIndicatorBuilder: (_) => const NewPageProgressIndicator(),
               noItemsFoundIndicatorBuilder: (_) => emptyListIndicator,
             ),
-            gridDelegate: FinampSettingsHelper.finampSettings.useFixedSizeGridTiles
-                ? SliverGridDelegateWithFixedSizeTiles(
-                    gridTileSize: FinampSettingsHelper.finampSettings.fixedGridTileSize.toDouble(),
-                  )
-                : SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: MediaQuery.orientationOf(context) == Orientation.landscape
-                        ? FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountLandscape
-                        : FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountPortrait,
-                  ),
+            //FIXME re-implement fixed size grid tiles
+            // gridDelegate: FinampSettingsHelper.finampSettings.useFixedSizeGridTiles
+            //     ? SliverGridDelegateWithFixedSizeTiles(
+            //         gridTileSize: FinampSettingsHelper.finampSettings.fixedGridTileSize.toDouble(),
+            //       )
+            //     : SliverGridDelegateWithFixedCrossAxisCount(
+            //         crossAxisCount: MediaQuery.orientationOf(context) == Orientation.landscape
+            //             ? FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountLandscape
+            //             : FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountPortrait,
+            //       ),
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: calculateItemCollectionCardWidth(context),
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio:
+                  (calculateItemCollectionCardWidth(context) / calculateItemCollectionCardHeight(context) * 10.0)
+                      .floorToDouble() /
+                  10.0,
+            ),
           );
 
     var showFastScroller = ref.watch(finampSettingsProvider.showFastScroller);
@@ -574,9 +585,9 @@ class SliverGridDelegateWithFixedSizeTiles extends SliverGridDelegate {
     final double crossAxisSpacing = (constraints.crossAxisExtent / crossAxisCount);
     return SliverGridRegularTileLayout(
       crossAxisCount: crossAxisCount,
-      mainAxisStride: gridTileSize,
+      mainAxisStride: gridTileSize * 1.2,
       crossAxisStride: crossAxisSpacing,
-      childMainAxisExtent: gridTileSize,
+      childMainAxisExtent: gridTileSize * 1.2,
       childCrossAxisExtent: gridTileSize,
       reverseCrossAxis: axisDirectionIsReversed(constraints.crossAxisDirection),
     );

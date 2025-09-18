@@ -18,23 +18,13 @@ class AutoListItem extends ConsumerWidget {
     final BaseItemDtoType itemType = BaseItemDtoType.fromItem(baseItem);
     switch (itemType) {
       case BaseItemDtoType.album:
-        listItem = ItemCollectionCard(
-          key: ValueKey(baseItem.id),
-          item: baseItem,
-        );
+        listItem = ItemCollectionCard(key: ValueKey(baseItem.id), item: baseItem);
         break;
       case BaseItemDtoType.playlist:
-        listItem = ItemCollectionCard(
-          key: ValueKey(baseItem.id),
-          item: baseItem,
-        );
+        listItem = ItemCollectionCard(key: ValueKey(baseItem.id), item: baseItem);
         break;
       case BaseItemDtoType.artist:
-        listItem = ArtistItem(
-          key: ValueKey(baseItem.id),
-          artist: baseItem,
-          isGrid: false,
-        );
+        listItem = ArtistItem(key: ValueKey(baseItem.id), artist: baseItem, isGrid: false);
         break;
       case BaseItemDtoType.track:
         listItem = TrackListTile(
@@ -47,10 +37,7 @@ class AutoListItem extends ConsumerWidget {
         );
         break;
       case BaseItemDtoType.genre:
-        listItem = ItemCollectionCard(
-          key: ValueKey(baseItem.id),
-          item: baseItem,
-        );
+        listItem = ItemCollectionCard(key: ValueKey(baseItem.id), item: baseItem);
         break;
       default:
         listItem = SizedBox.shrink();

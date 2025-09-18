@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../models/jellyfin_models.dart';
 import '../../services/finamp_settings_helper.dart';
@@ -47,10 +48,10 @@ class ItemCollectionCard extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: _itemCollectionCardSpacing, width: 1),
-          ref.watch(finampSettingsProvider.showTextOnGridView)
-              ? _ItemCollectionCardText(item: item, parentType: parentType)
-              : const SizedBox.shrink(),
+          if (ref.watch(finampSettingsProvider.showTextOnGridView)) ...[
+            const SizedBox(height: _itemCollectionCardSpacing, width: 1),
+            _ItemCollectionCardText(item: item, parentType: parentType),
+          ],
         ],
       ),
     );
@@ -107,11 +108,11 @@ double calculateItemCollectionCardWidth(BuildContext context) {
 }
 
 double calculateItemCollectionCardHeight(BuildContext context) {
-  return _itemCollectionCardCoverSize +
-      _itemCollectionCardSpacing +
-      calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 4);
+  return _itemCollectionCardCoverSize + calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 4);
 }
 
 double calculateTextHeight({required TextStyle style, required int lines}) {
-  return (style.height ?? 1.0) * (style.fontSize ?? 16) * lines;
+  return (GetIt.instance<ProviderContainer>().read(finampSettingsProvider.showTextOnGridView)
+      ? _itemCollectionCardSpacing + (style.height ?? 1.0) * (style.fontSize ?? 16) * lines
+      : 0);
 }
