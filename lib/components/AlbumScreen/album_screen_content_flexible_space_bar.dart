@@ -1,15 +1,9 @@
+import 'package:finamp/components/AlbumScreen/item_info.dart';
+import 'package:finamp/components/album_image.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
-import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
-import 'package:finamp/services/finamp_settings_helper.dart';
-import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
-
-import '../../models/jellyfin_models.dart';
-import '../../services/audio_service_helper.dart';
-import '../album_image.dart';
-import 'item_info.dart';
 
 enum AlbumMenuItems {
   addFavorite,
@@ -28,14 +22,12 @@ class AlbumScreenContentFlexibleSpaceBar extends ConsumerWidget {
   const AlbumScreenContentFlexibleSpaceBar({
     super.key,
     required this.parentItem,
-    required this.isPlaylist,
     required this.items,
     this.genreFilter,
     this.updateGenreFilter,
   });
 
   final BaseItemDto parentItem;
-  final bool isPlaylist;
   final List<BaseItemDto> items;
   final BaseItemDto? genreFilter;
   final void Function(BaseItemDto?)? updateGenreFilter;

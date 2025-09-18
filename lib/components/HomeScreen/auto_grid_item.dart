@@ -17,15 +17,6 @@ class AutoGridItem extends ConsumerWidget {
 
     final BaseItemDtoType itemType = BaseItemDtoType.fromItem(baseItem);
     switch (itemType) {
-      case BaseItemDtoType.album:
-        gridItem = ItemCollectionCard(key: ValueKey(baseItem.id), item: baseItem);
-        break;
-      case BaseItemDtoType.playlist:
-        gridItem = ItemCollectionCard(key: ValueKey(baseItem.id), item: baseItem);
-        break;
-      case BaseItemDtoType.artist:
-        gridItem = ArtistItem(key: ValueKey(baseItem.id), artist: baseItem, isGrid: true);
-        break;
       case BaseItemDtoType.track:
         gridItem = TrackListTile(
           key: ValueKey(baseItem.id),
@@ -36,6 +27,11 @@ class AutoGridItem extends ConsumerWidget {
           allowDismiss: false,
         );
         break;
+      case BaseItemDtoType.artist:
+        gridItem = ArtistItem(key: ValueKey(baseItem.id), artist: baseItem, isGrid: true);
+        break;
+      case BaseItemDtoType.album:
+      case BaseItemDtoType.playlist:
       case BaseItemDtoType.genre:
         gridItem = ItemCollectionCard(key: ValueKey(baseItem.id), item: baseItem);
         break;

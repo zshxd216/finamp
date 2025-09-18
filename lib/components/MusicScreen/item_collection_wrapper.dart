@@ -29,7 +29,6 @@ class ItemCollectionWrapper extends ConsumerStatefulWidget {
   const ItemCollectionWrapper({
     super.key,
     required this.item,
-    required this.isPlaylist,
     this.parentType,
     this.onTap,
     this.isGrid = false,
@@ -45,9 +44,6 @@ class ItemCollectionWrapper extends ConsumerStatefulWidget {
   /// The parent type of the item. Used to change onTap functionality for stuff
   /// like artists.
   final String? parentType;
-
-  /// Used to differentiate between albums and playlists, since they use the same internal logic and widgets
-  final bool isPlaylist;
 
   /// A custom onTap can be provided to override the default value, which is to
   /// open the item's album/artist/genre/playlist screen.
@@ -92,30 +88,41 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
     super.initState();
     mutableItem = widget.item;
 
-    // this is jank lol
     onTap =
         widget.onTap ??
         () {
-          if (mutableItem.type == "MusicArtist") {
-            final artistGenreFilter = ref.watch(finampSettingsProvider.genreFilterArtistScreens);
-            Navigator.of(context).push(
-              MaterialPageRoute<ArtistScreen>(
-                builder: (_) =>
-                    ArtistScreen(widgetArtist: mutableItem, genreFilter: artistGenreFilter ? widget.genreFilter : null),
-              ),
-            );
-          } else if (mutableItem.type == "MusicGenre") {
-            Navigator.of(context).pushNamed(GenreScreen.routeName, arguments: mutableItem);
-          } else if (mutableItem.type == "Playlist") {
-            final playlistGenreFilter = ref.watch(finampSettingsProvider.genreFilterPlaylists);
-            Navigator.of(context).push(
-              MaterialPageRoute<AlbumScreen>(
-                builder: (_) =>
-                    AlbumScreen(parent: mutableItem, genreFilter: playlistGenreFilter ? widget.genreFilter : null),
-              ),
-            );
-          } else {
-            Navigator.of(context).pushNamed(AlbumScreen.routeName, arguments: mutableItem);
+          switch (BaseItemDtoType.fromItem(mutableItem)) {
+            case BaseItemDtoType.track:
+              showModalTrackMenu(context: context, item: mutableItem);
+              break;
+            case BaseItemDtoType.artist:
+              Navigator.of(context).push(
+                MaterialPageRoute<ArtistScreen>(
+                  builder: (_) => ArtistScreen(
+                    widgetArtist: mutableItem,
+                    genreFilter: (ref.watch(finampSettingsProvider.genreFilterArtistScreens))
+                        ? widget.genreFilter
+                        : null,
+                  ),
+                ),
+              );
+              break;
+            case BaseItemDtoType.genre:
+              Navigator.of(context).pushNamed(GenreScreen.routeName, arguments: mutableItem);
+              break;
+            case BaseItemDtoType.playlist:
+              Navigator.of(context).push(
+                MaterialPageRoute<AlbumScreen>(
+                  builder: (_) => AlbumScreen(
+                    parent: mutableItem,
+                    genreFilter: (ref.watch(finampSettingsProvider.genreFilterPlaylists)) ? widget.genreFilter : null,
+                  ),
+                ),
+              );
+              break;
+            default:
+              Navigator.of(context).pushNamed(AlbumScreen.routeName, arguments: mutableItem);
+              return;
           }
         };
   }
@@ -124,26 +131,23 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
   Widget build(BuildContext context) {
     local = AppLocalizations.of(context)!;
 
-    return Padding(
-      padding: widget.isGrid ? Theme.of(context).cardTheme.margin ?? const EdgeInsets.all(4.0) : EdgeInsets.zero,
-      child: GestureDetector(
-        onTapDown: (_) {
-          // Begin precalculating theme for menu
-          ref.listenManual(finampThemeProvider(ThemeInfo(widget.item)), (_, __) {});
-        },
-        onLongPressStart: (details) => openItemMenu(context: context, item: widget.item),
-        onSecondaryTapDown: (details) => openItemMenu(context: context, item: widget.item),
-        child: widget.isGrid
-            ? ItemCollectionCard(item: mutableItem, onTap: onTap, parentType: widget.parentType)
-            : ItemCollectionListTile(
-                item: mutableItem,
-                onTap: onTap,
-                parentType: widget.parentType,
-                albumShowsYearAndDurationInstead: widget.albumShowsYearAndDurationInstead,
-                adaptiveAdditionalInfoSortBy: widget.adaptiveAdditionalInfoSortBy,
-                showFavoriteIconOnlyWhenFilterDisabled: widget.showFavoriteIconOnlyWhenFilterDisabled,
-              ),
-      ),
+    return GestureDetector(
+      onTapDown: (_) {
+        // Begin precalculating theme for menu
+        ref.listenManual(finampThemeProvider(ThemeInfo(widget.item)), (_, __) {});
+      },
+      onLongPressStart: (details) => openItemMenu(context: context, item: widget.item),
+      onSecondaryTapDown: (details) => openItemMenu(context: context, item: widget.item),
+      child: widget.isGrid
+          ? ItemCollectionCard(item: mutableItem, onTap: onTap, parentType: widget.parentType)
+          : ItemCollectionListTile(
+              item: mutableItem,
+              onTap: onTap,
+              parentType: widget.parentType,
+              albumShowsYearAndDurationInstead: widget.albumShowsYearAndDurationInstead,
+              adaptiveAdditionalInfoSortBy: widget.adaptiveAdditionalInfoSortBy,
+              showFavoriteIconOnlyWhenFilterDisabled: widget.showFavoriteIconOnlyWhenFilterDisabled,
+            ),
     );
   }
 }

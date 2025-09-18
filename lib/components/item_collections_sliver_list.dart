@@ -1,10 +1,9 @@
 import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../models/jellyfin_models.dart';
 
 class CollectionsSliverList extends ConsumerWidget {
   const CollectionsSliverList({
@@ -32,7 +31,6 @@ class CollectionsSliverList extends ConsumerWidget {
         return ItemCollectionWrapper(
           key: ValueKey(item.id),
           item: item,
-          isPlaylist: false,
           genreFilter: (itemType == BaseItemDtoType.artist && filterArtistScreens) ? genreFilter : null,
           albumShowsYearAndDurationInstead: albumShowsYearAndDurationInstead,
           adaptiveAdditionalInfoSortBy: adaptiveAdditionalInfoSortBy,

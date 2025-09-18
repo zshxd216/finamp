@@ -5,6 +5,7 @@ import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/components/HomeScreen/auto_list_item.dart';
 import 'package:finamp/components/HomeScreen/finamp_navigation_bar.dart';
 import 'package:finamp/components/HomeScreen/home_screen_content.dart';
+import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/finamp_app_bar_button.dart';
 import 'package:finamp/components/now_playing_bar.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
@@ -75,7 +76,8 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
   int refreshCount = 0;
   int fullyLoadedRefresh = -1;
 
-  late final HomeScreenSectionInfo sectionInfo;
+  late HomeScreenSectionInfo sectionInfo;
+  late List<BaseItemDto> prefetchedItems;
 
   @override
   void didChangeDependencies() {
@@ -90,8 +92,12 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
     final prefetchedItems = ref.exists(itemsProviderInstance)
         ? ref.read(itemsProviderInstance).value
         : null;
-    if (prefetchedItems != null) {
-      _pagingController.appendPage(prefetchedItems, prefetchedItems.length);
+    if (prefetchedItems != null && _pagingController.nextPageKey != null) {
+      if (prefetchedItems.length < homeScreenSectionItemLimit) {
+        _pagingController.appendLastPage(prefetchedItems);
+      } else {
+        _pagingController.appendPage(prefetchedItems, prefetchedItems.length);
+      }
     }
   }
 
@@ -168,6 +174,7 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
     // This makes refreshing actually work in error cases
     _pagingController.value = PagingState(nextPageKey: 0, itemList: []);
     _pagingController.refresh();
+    didChangeDependencies();
   }
 
   @override
@@ -236,9 +243,7 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen>
             key: ValueKey(index),
             controller: controller,
             index: index,
-            child: AutoListItem(
-              baseItem: item,
-            ),
+            child: ItemCollectionWrapper(item: item, isGrid: false)
           );
         },
         firstPageProgressIndicatorBuilder: (_) =>

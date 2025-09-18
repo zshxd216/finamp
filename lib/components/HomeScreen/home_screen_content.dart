@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/HomeScreen/auto_grid_item.dart';
 import 'package:finamp/components/HomeScreen/show_all_button.dart';
 import 'package:finamp/components/HomeScreen/show_all_screen.dart';
+import 'package:finamp/components/MusicScreen/item_collection_card.dart';
+import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -25,7 +29,7 @@ import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 part 'home_screen_content.g.dart';
 
 final _homeScreenLogger = Logger("HomeScreen");
-const homeScreenSectionItemLimit = 10;
+const homeScreenSectionItemLimit = 20;
 
 class HomeScreenContent extends ConsumerStatefulWidget {
   const HomeScreenContent({super.key});
@@ -132,7 +136,12 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                 ],
               ),
               const SizedBox(height: 24),
-              _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.collection, itemId: BaseItemId(""))),
+              _buildSection(
+                HomeScreenSectionInfo(
+                  type: HomeScreenSectionType.collection,
+                  itemId: BaseItemId(""),
+                ),
+              ),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.listenAgain)),
               const SizedBox(height: 8),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.newlyAdded)),
@@ -181,7 +190,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
               ),
             ),
             const SizedBox(height: 8),
-            _buildHorizontalList(items),
+            Flexible(flex: 0, child: _buildHorizontalList(items)),
           ],
         );
       },
@@ -194,17 +203,18 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
         null => _buildHorizontalSkeletonLoader(),
         [] => const Center(child: Text("No items available.", maxLines: 1)),
         _ => SizedBox(
-          height: 190,
+          height: calculateItemCollectionCardHeight(context),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: value.length,
             itemBuilder: (context, index) {
               final BaseItemDto item = value[index];
-              return AutoGridItem(baseItem: item);
+              return ItemCollectionWrapper(item: item, isGrid: true);
             },
-            separatorBuilder: (context, index) => const SizedBox(width: 8),
+            separatorBuilder: (context, index) => const SizedBox(width: 8, height: 1),
           ),
         ),
+        // _ => _buildHorizontalSkeletonLoader(),
       },
       AsyncError(:final error) => () {
         _homeScreenLogger.severe("Error loading items: $error");
@@ -216,7 +226,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
 
   Widget _buildHorizontalSkeletonLoader() {
     return SizedBox(
-      height: 190,
+      height: calculateItemCollectionCardHeight(context),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: 5, // Show 5 skeleton items
@@ -225,21 +235,27 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 120,
-                height: 120,
+                width: calculateItemCollectionCardWidth(context),
+                height: calculateItemCollectionCardWidth(context),
                 decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
               ),
-              SizedBox(height: 4 + 5),
-              Container(
-                width: 120,
-                height: 10,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+              SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                child: Container(
+                  width: calculateItemCollectionCardWidth(context) * Random().nextDouble().clamp(0.2, 0.9),
+                  height: calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 1) - 4,
+                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
+                ),
               ),
-              SizedBox(height: 4 + 5),
-              Container(
-                width: 50,
-                height: 10,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+              SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                child: Container(
+                  width: calculateItemCollectionCardWidth(context) * Random().nextDouble().clamp(0.2, 0.9),
+                  height: calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 1) - 4,
+                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
+                ),
               ),
             ],
           );

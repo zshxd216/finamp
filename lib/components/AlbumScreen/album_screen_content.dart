@@ -74,7 +74,9 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
         ? SortBy.defaultOrder
         : playlistSortBySetting;
 
-    final tracksAsync = (widget.parent.type == "Playlist")
+    final parentIsPlaylist = BaseItemDtoType.fromItem(widget.parent) == BaseItemDtoType.playlist;
+
+    final tracksAsync = parentIsPlaylist
         ? ref.watch(getSortedPlaylistTracksProvider(widget.parent, genreFilter: currentGenreFilter))
         : ref.watch(getAlbumOrPlaylistTracksProvider(widget.parent));
     final (allTracks, playableTracks) = tracksAsync.valueOrNull ?? (null, null);
@@ -102,9 +104,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
     List<List<BaseItemDto>> childrenPerDisc = [];
     // if not in playlist, try splitting up tracks by disc numbers
     // if first track has a disc number, let's assume the rest has it too
-    if (widget.parent.type != "Playlist" &&
-        displayChildren.isNotEmpty &&
-        displayChildren[0].parentIndexNumber != null) {
+    if (!parentIsPlaylist && displayChildren.isNotEmpty && displayChildren[0].parentIndexNumber != null) {
       int? lastDiscNumber;
       for (var child in displayChildren) {
         if (child.parentIndexNumber != null && child.parentIndexNumber != lastDiscNumber) {
@@ -120,14 +120,12 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
         SliverLayoutBuilder(
           builder: (context, constraints) {
             final actions = [
-              if (widget.parent.type == "Playlist" &&
+              if (parentIsPlaylist &&
                   !ref.watch(finampSettingsProvider.isOffline) &&
                   ref.watch(canEditPlaylistProvider(widget.parent)))
                 PlaylistEditButton(playlist: widget.parent),
-              if (widget.parent.type == "Playlist")
-                SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
-              if (widget.parent.type == "Playlist")
-                SortByMenuButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
+              if (parentIsPlaylist) SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
+              if (parentIsPlaylist) SortByMenuButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
               FavoriteButton(item: widget.parent),
               if (!isLoading)
                 DownloadButton(
@@ -147,9 +145,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
             ];
 
             return SliverAppBar(
-              title: (widget.parent.type != "Playlist")
-                  ? Text(widget.parent.name ?? AppLocalizations.of(context)!.unknownName)
-                  : null,
+              title: (!parentIsPlaylist) ? Text(widget.parent.name ?? AppLocalizations.of(context)!.unknownName) : null,
               expandedHeight: kToolbarHeight + 125 + 18 + 100,
               // collapsedHeight: kToolbarHeight + 125 + 80,
               pinned: true,
@@ -157,7 +153,6 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
               titleSpacing: 0,
               flexibleSpace: AlbumScreenContentFlexibleSpaceBar(
                 parentItem: widget.parent,
-                isPlaylist: widget.parent.type == "Playlist",
                 items: queueChildren,
                 genreFilter: currentGenreFilter,
                 updateGenreFilter: updateGenreFilter,
@@ -261,8 +256,8 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
                 childrenForQueue: queueChildren,
                 parent: widget.parent,
                 onRemoveFromList: onDelete,
-                adaptiveAdditionalInfoSortBy: (widget.parent.type == "Playlist") ? playlistSortBy : null,
-                forceAlbumArtists: (widget.parent.type == "Playlist" && playlistSortBy == SortBy.albumArtist),
+                adaptiveAdditionalInfoSortBy: (parentIsPlaylist) ? playlistSortBy : null,
+                forceAlbumArtists: (parentIsPlaylist && playlistSortBy == SortBy.albumArtist),
               ),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 16.0)),
@@ -273,8 +268,8 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
             childrenForQueue: queueChildren,
             parent: widget.parent,
             onRemoveFromList: onDelete,
-            adaptiveAdditionalInfoSortBy: (widget.parent.type == "Playlist") ? playlistSortBy : null,
-            forceAlbumArtists: (widget.parent.type == "Playlist" && playlistSortBy == SortBy.albumArtist),
+            adaptiveAdditionalInfoSortBy: (parentIsPlaylist) ? playlistSortBy : null,
+            forceAlbumArtists: (parentIsPlaylist && playlistSortBy == SortBy.albumArtist),
           )
         else
           SliverFillRemaining(child: Center(child: CircularProgressIndicator.adaptive())),
@@ -370,7 +365,7 @@ class _TracksSliverListState extends ConsumerState<TracksSliverList> {
               widget.onRemoveFromList!(item);
             }
           },
-          isInPlaylist: widget.parent.type == "Playlist",
+          isInPlaylist: BaseItemDtoType.fromItem(widget.parent) == BaseItemDtoType.playlist,
           isOnArtistScreen: widget.isOnArtistScreen,
           isOnGenreScreen: widget.isOnGenreScreen,
           forceAlbumArtists: widget.forceAlbumArtists,

@@ -6,6 +6,9 @@ import '../../services/finamp_settings_helper.dart';
 import '../../services/generate_subtitle.dart';
 import '../album_image.dart';
 
+const double _itemCollectionCardCoverSize = 120;
+const double _itemCollectionCardSpacing = 4;
+
 /// Card content for ItemCollection. You probably shouldn't use this widget directly,
 /// use CollectionItem instead.
 class ItemCollectionCard extends ConsumerWidget {
@@ -17,22 +20,34 @@ class ItemCollectionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ClipRRect(
-      borderRadius: AlbumImage.defaultBorderRadius,
+    return Container(
+      constraints: const BoxConstraints(maxWidth: _itemCollectionCardCoverSize),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(borderRadius: AlbumImage.defaultBorderRadius),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Stack(
-            children: [
-              AlbumImage(item: item),
-              Positioned.fill(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(onTap: onTap),
+          AspectRatio(
+            aspectRatio: 1, // Square aspect ratio for album art
+            child: Card(
+              margin: EdgeInsets.zero,
+              child: ClipRRect(
+                borderRadius: AlbumImage.defaultBorderRadius,
+                child: Stack(
+                  children: [
+                    AlbumImage(item: item),
+                    Positioned.fill(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(onTap: onTap),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: _itemCollectionCardSpacing, width: 1),
           ref.watch(finampSettingsProvider.showTextOnGridView)
               ? _ItemCollectionCardText(item: item, parentType: parentType)
               : const SizedBox.shrink(),
@@ -57,10 +72,10 @@ class _ItemCollectionCardText extends ConsumerWidget {
       artistType: ref.watch(finampSettingsProvider.defaultArtistType),
     );
 
-    return Align(
-      alignment: Alignment.bottomCenter,
+    return SizedBox(
+      height: calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 4),
       child: Align(
-        alignment: Alignment.bottomLeft,
+        alignment: Alignment.topLeft,
         child: Wrap(
           // Runs must be horizontal to constrain child width.  Use large
           // spacing to force subtitle to wrap to next run
@@ -84,4 +99,19 @@ class _ItemCollectionCardText extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// This might calculate the width base on the device width in the future, or something similar
+double calculateItemCollectionCardWidth(BuildContext context) {
+  return _itemCollectionCardCoverSize;
+}
+
+double calculateItemCollectionCardHeight(BuildContext context) {
+  return _itemCollectionCardCoverSize +
+      _itemCollectionCardSpacing +
+      calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 4);
+}
+
+double calculateTextHeight({required TextStyle style, required int lines}) {
+  return (style.height ?? 1.0) * (style.fontSize ?? 16) * lines;
 }
