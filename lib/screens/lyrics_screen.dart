@@ -313,6 +313,8 @@ class _LyricsViewState extends ConsumerState<LyricsView> with WidgetsBindingObse
             child: Stack(
               children: [
                 LyricsListMask(
+                    child:ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                   child: ListView.builder(
                     controller: autoScrollController,
                     itemCount: lyricLines.length,
@@ -379,6 +381,7 @@ class _LyricsViewState extends ConsumerState<LyricsView> with WidgetsBindingObse
                     },
                   ),
                 ),
+                ),
                 if (_isSynchronizedLyrics)
                   Positioned(
                     bottom: 24,
@@ -434,13 +437,13 @@ class _LyricLine extends ConsumerWidget {
       text: line.text ?? "<missing lyric line>",
       style: TextStyle(
         color: lowlightLine ? Colors.grey : Theme.of(context).textTheme.bodyLarge!.color,
-        fontWeight: lowlightLine || !isSynchronized ? FontWeight.normal : FontWeight.w500,
+        fontWeight: lowlightLine || !isSynchronized ? FontWeight.normal : FontWeight.normal,
         // Keep text width consistent across the different weights
-        letterSpacing: lowlightLine || !isSynchronized ? 0.02 : -0.4,
+        letterSpacing: lowlightLine || !isSynchronized ? -0.4 : -0.4,
         fontSize:
             lyricsFontSizeToSize(finampSettings?.lyricsFontSize ?? LyricsFontSize.medium) *
-            (isSynchronized ? 1.0 : 0.75),
-        height: 1.25,
+            (isSynchronized ? 1 : 1),
+        height: 1,
       ),
     );
 
@@ -500,13 +503,13 @@ class _LyricLine extends ConsumerWidget {
                           ),
                           baseStyle: TextStyle(
                             color: lowlightLine ? Colors.grey : Theme.of(context).textTheme.bodyLarge!.color,
-                            fontWeight: lowlightLine || !isSynchronized ? FontWeight.normal : FontWeight.w500,
+                            fontWeight: lowlightLine || !isSynchronized ? FontWeight.normal : FontWeight.normal,
                             // Keep text width consistent across the different weights
-                            letterSpacing: lowlightLine || !isSynchronized ? 0.02 : -0.4,
+                            letterSpacing: lowlightLine || !isSynchronized ? -0.4 : -0.4,
                             fontSize:
                                 lyricsFontSizeToSize(finampSettings?.lyricsFontSize ?? LyricsFontSize.medium) *
-                                (isSynchronized ? 1.0 : 0.75),
-                            height: 1.25,
+                                (isSynchronized ? 0.75 : 0.75),
+                            height: 1,
                           ),
                         ),
                       ),
@@ -792,7 +795,7 @@ class EnableAutoScrollButton extends StatelessWidget {
             icon: Icon(TablerIcons.arrow_bar_to_up, size: 28.0, color: Colors.white.withOpacity(0.9)),
             label: Text(
               AppLocalizations.of(context)!.enableAutoScroll,
-              style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14.0, fontWeight: FontWeight.w500),
+              style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14.0, fontWeight: FontWeight.normal),
             ),
           )
         : const SizedBox.shrink();

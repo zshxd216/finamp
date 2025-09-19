@@ -1097,9 +1097,9 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
-  static void setRadioMode(RadioMode newRadioMode) {
+  static void setPreviousTracksExpaned(bool newPreviousTracksExpaned) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
-    finampSettingsTemp.radioMode = newRadioMode;
+    finampSettingsTemp.previousTracksExpaned = newPreviousTracksExpaned;
     Hive.box<FinampSettings>(
       "FinampSettings",
     ).put("FinampSettings", finampSettingsTemp);
@@ -1108,6 +1108,14 @@ extension FinampSetters on FinampSettingsHelper {
   static void setUseRadio(bool newUseRadio) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.useRadio = newUseRadio;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setRadioMode(RadioMode newRadioMode) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.radioMode = newRadioMode;
     Hive.box<FinampSettings>(
       "FinampSettings",
     ).put("FinampSettings", finampSettingsTemp);
@@ -1499,10 +1507,12 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select(
         (value) => value.requireValue.preferAddingToFavoritesOverPlaylists,
       );
-  ProviderListenable<RadioMode> get radioMode =>
-      finampSettingsProvider.select((value) => value.requireValue.radioMode);
+  ProviderListenable<bool> get previousTracksExpaned => finampSettingsProvider
+      .select((value) => value.requireValue.previousTracksExpaned);
   ProviderListenable<bool> get useRadio =>
       finampSettingsProvider.select((value) => value.requireValue.useRadio);
+  ProviderListenable<RadioMode> get radioMode =>
+      finampSettingsProvider.select((value) => value.requireValue.radioMode);
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(
         (value) => value.requireValue.downloadTranscodingProfile,

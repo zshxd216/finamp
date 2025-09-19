@@ -403,6 +403,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         preferAddingToFavoritesOverPlaylists: fields[126] == null
             ? false
             : fields[126] as bool,
+        previousTracksExpaned: fields[127] == null
+            ? false
+            : fields[127] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -412,16 +415,16 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..autoExpandPlayerScreen = fields[125] == null
           ? false
           : fields[125] as bool
-      ..radioMode = fields[127] == null
+      ..useRadio = fields[128] == null ? true : fields[128] as bool
+      ..radioMode = fields[129] == null
           ? RadioMode.random
-          : fields[127] as RadioMode
-      ..useRadio = fields[128] == null ? true : fields[128] as bool;
+          : fields[129] as RadioMode;
   }
 
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(122)
+      ..writeByte(123)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -663,9 +666,11 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(126)
       ..write(obj.preferAddingToFavoritesOverPlaylists)
       ..writeByte(127)
-      ..write(obj.radioMode)
+      ..write(obj.previousTracksExpaned)
       ..writeByte(128)
-      ..write(obj.useRadio);
+      ..write(obj.useRadio)
+      ..writeByte(129)
+      ..write(obj.radioMode);
   }
 
   @override

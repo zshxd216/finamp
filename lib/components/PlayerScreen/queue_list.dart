@@ -87,7 +87,6 @@ class _QueueListState extends State<QueueList> {
   double _currentTrackScroll = 0;
 
   late List<Widget> _contents;
-  BehaviorSubject<bool> isRecentTracksExpanded = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -116,13 +115,19 @@ class _QueueListState extends State<QueueList> {
 
   @override
   Widget build(BuildContext context) {
+    if (GetIt.instance<ProviderContainer>().read(finampSettingsProvider.previousTracksExpaned)) {
+      Future.delayed(Duration(milliseconds: 150), () {
+        scrollToKey(key: widget.previousTracksHeaderKey, duration: Duration(milliseconds: 150), context: context);
+      });
+    }
+
     var useRadio = _queueService.getUseRadio();
+
     _contents = <Widget>[
       // Previous Tracks
-      StreamBuilder<bool>(
-        stream: isRecentTracksExpanded,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data!) {
+      Consumer(
+        builder: (context, ref, child) {
+          if (ref.watch(finampSettingsProvider.previousTracksExpaned)) {
             return PreviousTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey);
           } else {
             return const SliverToBoxAdapter();
@@ -132,12 +137,13 @@ class _QueueListState extends State<QueueList> {
       SliverPersistentHeader(
         key: widget.previousTracksHeaderKey,
         delegate: PreviousTracksSectionHeader(
-          isRecentTracksExpanded: isRecentTracksExpanded,
           previousTracksHeaderKey: widget.previousTracksHeaderKey,
           onTap: () {
             final oldBottomOffset = widget.scrollController.position.extentAfter;
-            late StreamSubscription subscription;
-            subscription = isRecentTracksExpanded.stream.listen((expanded) {
+            ProviderSubscription? subscription;
+            subscription = GetIt.instance<ProviderContainer>().listen<bool>(
+              finampSettingsProvider.previousTracksExpaned,
+              (_, expanded) {
               final previousTracks = _queueService.getQueue().previousTracks;
               // a random delay isn't a great solution, but I'm not sure how to do this properly
               Future.delayed(Duration(milliseconds: expanded ? 5 : 50), () {
@@ -148,9 +154,11 @@ class _QueueListState extends State<QueueList> {
                       (previousTracks.isNotEmpty ? 100.0 : 0.0),
                 );
               });
-              subscription.cancel();
+                subscription?.close();
             });
-            isRecentTracksExpanded.add(!isRecentTracksExpanded.value);
+            FinampSetters.setPreviousTracksExpaned(
+              !GetIt.instance<ProviderContainer>().read(finampSettingsProvider.previousTracksExpaned),
+            );
           },
         ),
       ),
@@ -1110,11 +1118,9 @@ class PreviousTracksSectionHeader extends SliverPersistentHeaderDelegate {
   final double height;
   final VoidCallback? onTap;
   final GlobalKey previousTracksHeaderKey;
-  final BehaviorSubject<bool> isRecentTracksExpanded;
 
   PreviousTracksSectionHeader({
     required this.previousTracksHeaderKey,
-    required this.isRecentTracksExpanded,
     // this.controls = false,
     this.onTap,
     this.height = 50.0,
@@ -1144,22 +1150,14 @@ class PreviousTracksSectionHeader extends SliverPersistentHeaderDelegate {
               child: Text(AppLocalizations.of(context)!.previousTracks),
             ),
             const SizedBox(width: 4.0),
-            StreamBuilder<bool>(
-              stream: isRecentTracksExpanded,
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data!) {
-                  return Icon(
-                    TablerIcons.chevron_up,
-                    size: 28.0,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                  );
-                } else {
-                  return Icon(
-                    TablerIcons.chevron_down,
-                    size: 28.0,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                  );
-                }
+            Consumer(
+              builder: (context, ref, child) {
+                final isExpanded = ref.watch(finampSettingsProvider.previousTracksExpaned);
+                return Icon(
+                  isExpanded ? TablerIcons.chevron_up : TablerIcons.chevron_down,
+                  size: 28.0,
+                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                );
               },
             ),
           ],

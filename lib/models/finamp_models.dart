@@ -230,6 +230,7 @@ class DefaultSettings {
   static const rpcEnabled = false;
   static const rpcIcon = DiscordRpcIcon.transparent;
   static const preferAddingToFavoritesOverPlaylists = false;
+  static const previousTracksExpaned = false;
   static const radioMode = RadioMode.random;
   static const useRadio = true;
 }
@@ -357,6 +358,7 @@ class FinampSettings {
     this.rpcEnabled = DefaultSettings.rpcEnabled,
     this.rpcIcon = DefaultSettings.rpcIcon,
     this.preferAddingToFavoritesOverPlaylists = DefaultSettings.preferAddingToFavoritesOverPlaylists,
+    this.previousTracksExpaned = DefaultSettings.previousTracksExpaned,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -753,11 +755,14 @@ class FinampSettings {
   @HiveField(126, defaultValue: DefaultSettings.preferAddingToFavoritesOverPlaylists)
   bool preferAddingToFavoritesOverPlaylists = DefaultSettings.preferAddingToFavoritesOverPlaylists;
 
-  @HiveField(127, defaultValue: DefaultSettings.radioMode)
-  RadioMode radioMode = DefaultSettings.radioMode;
+  @HiveField(127, defaultValue: DefaultSettings.previousTracksExpaned)
+  bool previousTracksExpaned = DefaultSettings.previousTracksExpaned;
 
   @HiveField(128, defaultValue: DefaultSettings.useRadio)
   bool useRadio = DefaultSettings.useRadio;
+
+  @HiveField(129, defaultValue: DefaultSettings.radioMode)
+  RadioMode radioMode = DefaultSettings.radioMode;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
