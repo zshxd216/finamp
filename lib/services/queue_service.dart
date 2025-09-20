@@ -9,7 +9,11 @@ import 'package:finamp/gen/assets.gen.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
+import 'package:finamp/services/album_image_provider.dart';
+import 'package:finamp/services/current_album_image_provider.dart';
 import 'package:finamp/services/playback_history_service.dart';
+import 'package:finamp/services/theme_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
@@ -43,6 +47,7 @@ class QueueService {
   final _downloadsService = GetIt.instance<DownloadsService>();
   final _queueServiceLogger = Logger("QueueService");
   final _queuesBox = Hive.box<FinampStorableQueueInfo>("Queues");
+  final _providers = GetIt.instance<ProviderContainer>();
 
   // internal state
 
@@ -137,6 +142,12 @@ class QueueService {
       }
     });
 
+    // Schedule for after queue service is registered
+    Future.microtask(() {
+      // Keep currentAlbumImageProvider alive to provide precaching
+      _providers.listen(currentAlbumImageProvider, (_, _) {});
+    });
+
     // register callbacks
     // _audioHandler.setQueueCallbacks(
     //   nextTrackCallback: _applyNextTrack,
@@ -144,6 +155,8 @@ class QueueService {
     //   skipToIndexCallback: _applySkipToTrackByOffset,
     // );
   }
+
+  ProviderSubscription<FinampAlbumImage>? _latestAlbumImage;
 
   void _queueFromConcatenatingAudioSource({bool logUpdate = true}) {
     final playbackHistoryService = GetIt.instance<PlaybackHistoryService>();
@@ -238,7 +251,36 @@ class QueueService {
 
     refreshQueueStream();
     _currentTrackStream.add(_currentTrack);
-    _audioHandler.mediaItem.add(_currentTrack?.item);
+    var currentMediaItem = _currentTrack?.item;
+    if (currentMediaItem != null) {
+      final item = jellyfin_models.BaseItemDto.fromJson(currentMediaItem.extras!["itemJson"] as Map<String, dynamic>);
+      final artRequest = AlbumImageRequest(item: item);
+
+      void updateMediaItem(FinampAlbumImage latest, bool force) async {
+        var artUri = latest.uri;
+        if (artUri == null) {
+          // replace with placeholder art
+          final applicationSupportDirectory = await getApplicationSupportDirectory();
+          artUri = Uri.file(path_helper.join(applicationSupportDirectory.absolute.path, Assets.images.albumWhite.path));
+        }
+        // player images should always be either the placeholder image, downloaded images, or loaded from the image cache.
+        assert(artUri.scheme == "file");
+        // use content provider for handling media art on Android
+        if (Platform.isAndroid) {
+          artUri = Uri(scheme: "content", host: contentProviderPackageName, path: artUri.path);
+        }
+        if (!force && _audioHandler.mediaItem.valueOrNull?.id != currentMediaItem?.id) return;
+        currentMediaItem = currentMediaItem?.copyWith(artUri: artUri);
+        _audioHandler.mediaItem.add(currentMediaItem);
+      }
+
+      _latestAlbumImage?.close();
+      _latestAlbumImage = _providers.listen(
+        albumImageProvider(artRequest),
+        (_, latest) => updateMediaItem(latest, false),
+      );
+      updateMediaItem(_providers.read(albumImageProvider(artRequest)), true);
+    }
     _audioHandler.queue.add(
       _queuePreviousTracks
           .followedBy(_currentTrack != null ? [_currentTrack!] : [])
@@ -352,15 +394,19 @@ class QueueService {
       if (!FinampSettingsHelper.finampSettings.isOffline &&
           info.source?.type == QueueItemSourceType.playlist &&
           info.source?.item != null) {
-        var itemList =
-            await _jellyfinApiHelper.getItems(
-              parentItem: info.source!.item!,
-              sortBy: "ParentIndexNumber,IndexNumber,SortName",
-              includeItemTypes: "Audio",
-            ) ??
-            [];
-        for (var d2 in itemList) {
-          idMap[d2.id] = d2;
+        try {
+          var itemList =
+              await _jellyfinApiHelper.getItems(
+                parentItem: info.source!.item!,
+                sortBy: "ParentIndexNumber,IndexNumber,SortName",
+                includeItemTypes: "Audio",
+              ) ??
+              [];
+          for (var d2 in itemList) {
+            idMap[d2.id] = d2;
+          }
+        } catch (e) {
+          _queueServiceLogger.warning("Error loading queue source playlist, continuing anyway.  Error: $e");
         }
       }
 
@@ -1087,7 +1133,6 @@ class QueueService {
     bool isItemPlayable = isPlayable?.call(item: item) ?? true;
     DownloadItem? downloadedTrack;
     DownloadStub? downloadedCollection;
-    DownloadItem? downloadedImage;
 
     if (item.type == "Audio") {
       downloadedTrack = _downloadsService.getTrackDownload(item: item);
@@ -1100,62 +1145,12 @@ class QueueService {
       }
     }
 
-    try {
-      downloadedImage = _downloadsService.getImageDownload(item: item);
-    } catch (e) {
-      _queueServiceLogger.warning(
-        "Couldn't get the offline image for track '${item.name}' because it's not downloaded or missing a blurhash",
-      );
-    }
-
-    Uri? artUri;
-
-    // replace with content uri or jellyfin api uri
-    if (downloadedImage != null) {
-      artUri = downloadedImage.file?.uri;
-    } else if (!FinampSettingsHelper.finampSettings.isOffline) {
-      artUri = _jellyfinApiHelper.getImageUrl(item: item);
-      // try to get image file (Android Automotive needs this)
-      if (artUri != null) {
-        try {
-          final fileInfo = await AudioService.cacheManager.getFileFromCache(item.id.raw);
-          if (fileInfo != null) {
-            artUri = fileInfo.file.uri;
-          }
-        } catch (e) {
-          _queueServiceLogger.severe("Error setting new media artwork uri for item: ${item.id} name: ${item.name}", e);
-        }
-      }
-    }
-
-    // use content provider for handling media art on Android
-    if (Platform.isAndroid) {
-      // replace with placeholder art
-      if (artUri == null) {
-        final applicationSupportDirectory = await getApplicationSupportDirectory();
-        artUri = Uri(
-          scheme: "content",
-          host: contentProviderPackageName,
-          path: path_helper.join(applicationSupportDirectory.absolute.path, Assets.images.albumWhite.path),
-        );
-      } else {
-        // store the origin in fragment since it should be unused
-        artUri = Uri(
-          scheme: "content",
-          host: contentProviderPackageName,
-          path: artUri.path,
-          fragment: ["http", "https"].contains(artUri.scheme) ? artUri.origin : null,
-        );
-      }
-    }
-
     return MediaItem(
       id: itemId?.toString() ?? uuid.v4(),
       playable:
           isItemPlayable, // this dictates whether clicking on an item will try to play it or browse it in media browsers like Android Auto
       album: item.album,
       artist: item.artists?.join(", ") ?? item.albumArtist,
-      artUri: artUri,
       title: item.name ?? "unknown",
       extras: {
         "itemJson": item.toJson(setOffline: false),

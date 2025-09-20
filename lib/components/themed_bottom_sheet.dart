@@ -35,9 +35,9 @@ Future<void> showThemedBottomSheet({
   var ref = GetIt.instance<ProviderContainer>();
   final localThemeImage = ref.read(localImageProvider);
   bool useDefaultTheme = false;
-  ThemeImage? themeImage;
+  FinampImage? themeImage;
   // If we have a usable theme image for our item, propagate this information
-  if (localThemeImage.largeThemeImage && localThemeImage.request?.item == item) {
+  if (localThemeImage.fullQuality && localThemeImage.item == item) {
     themeImage = ref.read(localImageProvider);
   } else if (item == null) {
     useDefaultTheme = true;

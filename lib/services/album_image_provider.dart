@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:file/file.dart' as cache;
 import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/services/theme_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
@@ -15,14 +19,18 @@ import 'jellyfin_api_helper.dart';
 
 final albumImageProviderLogger = Logger("AlbumImageProvider");
 
+final _imageCache = DefaultCacheManager();
+
 class AlbumImageRequest {
-  const AlbumImageRequest({required this.item, this.maxWidth, this.maxHeight}) : super();
+  const AlbumImageRequest({required this.item, this.maxWidth, this.maxHeight});
 
   final BaseItemDto item;
 
   final int? maxWidth;
 
   final int? maxHeight;
+
+  bool get fullQuality => maxWidth == null && maxHeight == null;
 
   @override
   bool operator ==(Object other) {
@@ -37,75 +45,131 @@ class AlbumImageRequest {
 }
 
 final Map<String?, AlbumImageRequest> albumRequestsCache = {};
+// This caches mappings between cache keys and files on the player screen, to avoid the async delay of checking if
+// the cached file actually exists when transitioning between non-precached items with identical images.  In the unlikely
+// event a cache file is deleted in the same session it is created, a broken image symbol will display until the provider
+// finishes re-caching the image
+final Map<String?, File> _playerImageCache = {};
 
-final AutoDisposeProviderFamily<ImageProvider?, AlbumImageRequest> albumImageProvider = Provider.autoDispose
-    .family<ImageProvider?, AlbumImageRequest>((ref, request) {
-      String? requestCacheKey = request.item.blurHash ?? request.item.imageId;
+const _infiniteHeight = 999999;
 
-      if (albumRequestsCache.containsKey(requestCacheKey)) {
-        if ((request.maxHeight ?? 999999) > (albumRequestsCache[requestCacheKey]!.maxHeight ?? 999999)) {
-          albumRequestsCache[requestCacheKey] = request;
-        }
-      } else {
-        albumRequestsCache[requestCacheKey] = request;
+final AutoDisposeProviderFamily<FinampAlbumImage, AlbumImageRequest>
+albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageRequest>((ref, request) {
+  String? requestCacheKey = request.item.blurHash ?? request.item.imageId;
+  // We currently only support square image requests
+  assert(request.maxWidth == request.maxHeight);
+  if (albumRequestsCache.containsKey(requestCacheKey)) {
+    final cacheRequestHeight = albumRequestsCache[requestCacheKey]!.maxHeight;
+    if ((request.maxHeight ?? _infiniteHeight) > (cacheRequestHeight ?? _infiniteHeight)) {
+      albumRequestsCache[requestCacheKey] = request;
+    }
+  } else {
+    albumRequestsCache[requestCacheKey] = request;
+  }
+  ref.onDispose(() {
+    if (albumRequestsCache.containsKey(requestCacheKey)) {
+      if (albumRequestsCache[requestCacheKey] == request) {
+        albumRequestsCache.remove(requestCacheKey);
       }
-      ref.onDispose(() {
-        if (albumRequestsCache.containsKey(requestCacheKey)) {
-          if (albumRequestsCache[requestCacheKey] == request) {
-            albumRequestsCache.remove(requestCacheKey);
-          }
-        }
+    }
+  });
+
+  if (request.item.imageId == null) {
+    return FinampAlbumImage(null, request, null, fullQuality: true);
+  }
+
+  final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final isardownloader = GetIt.instance<DownloadsService>();
+
+  DownloadItem? downloadedImage = isardownloader.getImageDownload(item: request.item);
+
+  if (downloadedImage?.file == null) {
+    if (ref.watch(finampSettingsProvider.isOffline)) {
+      return FinampAlbumImage(null, request, null, fullQuality: true);
+    }
+
+    // TODO maybe we can reuse cached player images or existing sufficiently larger image requests instead of fetching from server
+
+    Uri? imageUrl;
+
+    if (request.fullQuality) {
+      imageUrl = jellyfinApiHelper.getImageUrl(item: request.item, quality: null, format: null);
+    } else {
+      imageUrl = jellyfinApiHelper.getImageUrl(
+        item: request.item,
+        maxWidth: request.maxWidth,
+        maxHeight: request.maxHeight,
+      );
+    }
+
+    if (imageUrl == null) {
+      return FinampAlbumImage(null, request, null, fullQuality: true);
+    }
+
+    String key;
+    if (request.item.blurHash != null) {
+      key = request.item.blurHash! + request.maxWidth.toString() + request.maxHeight.toString();
+    } else {
+      key = request.item.imageId! + request.maxWidth.toString() + request.maxHeight.toString();
+    }
+
+    FinampAlbumImage imageFromFile(File file) {
+      return FinampAlbumImage(FileImage(file, scale: 0.25), request, Uri.file(file.path), fullQuality: true);
+    }
+
+    if (request.fullQuality) {
+      // If we want full quality player images, retrieve them via the image cache instead of linking directly.
+      // In most cases, the initial null value will only be seen by the precache logic.
+      Future.sync(() async {
+        final imageFile = await _imageCache.getSingleFile(imageUrl.toString(), key: key);
+        _playerImageCache[key] = imageFile;
+        ref.state = imageFromFile(imageFile);
       });
-
-      if (request.item.imageId == null) {
-        return null;
+      if (_playerImageCache.containsKey(key)) {
+        return imageFromFile(_playerImageCache[key]!);
+      } else {
+        return FinampAlbumImage(null, request, null, fullQuality: true);
       }
-
-      final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
-      final isardownloader = GetIt.instance<DownloadsService>();
-
-      DownloadItem? downloadedImage = isardownloader.getImageDownload(item: request.item);
-
-      if (downloadedImage?.file == null) {
-        if (ref.watch(finampSettingsProvider.isOffline)) {
-          return null;
-        }
-
-        Uri? imageUrl = jellyfinApiHelper.getImageUrl(
-          item: request.item,
-          maxWidth: request.maxWidth,
-          maxHeight: request.maxHeight,
-        );
-
-        if (imageUrl == null) {
-          return null;
-        }
-
-        String? key;
-        if (request.item.blurHash != null) {
-          key = request.item.blurHash! + request.maxWidth.toString() + request.maxHeight.toString();
-        }
-        // Allow drawing albums up to 4X intrinsic size by setting scale
-        return CachedImage(NetworkImage(imageUrl.toString(), scale: 0.25), key);
-      }
-
-      // downloads are already de-dupped by blurHash and do not need CachedImage
+    } else {
+      /*Future.sync(() async {
+              final cacheInfo = await _imageCache.getFileFromCache(key);
+              if (cacheInfo != null && cacheInfo.validTill.isAfter(DateTime.now())) {
+                final smallImage=ResizeImage(
+                  FileImage(cacheInfo.file, scale: 0.25),
+                  width: request.maxWidth! * 2,
+                  height: request.maxHeight! * 2,
+                  policy: ResizeImagePolicy.fit,
+                );
+                ref.state = FinampAlbumImage(
+                  smallImage,
+                  request,
+                  Uri.file(cacheInfo.file.path),
+                  fullQuality: true,
+                );
+              }
+          });*/
       // Allow drawing albums up to 4X intrinsic size by setting scale
-      ImageProvider out = FileImage(downloadedImage!.file!, scale: 0.25);
-      if (request.maxWidth != null && request.maxHeight != null) {
-        // Limit memory cached image size to twice displayed size
-        // This helps keep cache usage by fileImages in check
-        // Caching smaller at 2X size results in blurriness comparable to
-        // NetworkImages fetched with display size
-        out = ResizeImage(
-          out,
-          width: request.maxWidth! * 2,
-          height: request.maxHeight! * 2,
-          policy: ResizeImagePolicy.fit,
-        );
-      }
-      return out;
-    });
+      return FinampAlbumImage(
+        CachedImage(NetworkImage(imageUrl.toString(), scale: 0.25), key),
+        request,
+        imageUrl,
+        fullQuality: request.fullQuality,
+      );
+    }
+  }
+
+  // downloads are already de-dupped by blurHash and do not need CachedImage
+  // Allow drawing albums up to 4X intrinsic size by setting scale
+  ImageProvider out = FileImage(downloadedImage!.file!, scale: 0.25);
+  if (!request.fullQuality) {
+    // Limit memory cached image size to twice displayed size
+    // This helps keep cache usage by fileImages in check
+    // Caching smaller at 2X size results in blurriness comparable to
+    // NetworkImages fetched with display size
+    out = ResizeImage(out, width: request.maxWidth! * 2, height: request.maxHeight! * 2, policy: ResizeImagePolicy.fit);
+  }
+  return FinampAlbumImage(out, request, Uri.file(downloadedImage.file!.path), fullQuality: request.fullQuality);
+});
 
 class CachedImage extends ImageProvider<CachedImage> {
   CachedImage(ImageProvider base, this.cacheKey) : _base = base;
@@ -151,4 +215,78 @@ class CachedImage extends ImageProvider<CachedImage> {
 
   @override
   String toString() => 'CachedImage("$location", scale: ${scale.toStringAsFixed(1)})';
+}
+
+/// This cache implementation does nothing but throw errors.  It is fed to audio service, which should not try to use
+/// it due to our player image caching logic.  audio service cannot deduplicate images by blurhash, so we should
+/// avoid feeding it network images directly.
+class StubImageCache implements BaseCacheManager {
+  @override
+  Future<void> dispose() {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Future<FileInfo> downloadFile(String url, {String? key, Map<String, String>? authHeaders, bool force = false}) {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Future<void> emptyCache() {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Stream<FileInfo> getFile(String url, {String? key, Map<String, String>? headers}) {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Future<FileInfo?> getFileFromCache(String key, {bool ignoreMemCache = false}) {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Future<FileInfo?> getFileFromMemory(String key) {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Stream<FileResponse> getFileStream(String url, {String? key, Map<String, String>? headers, bool? withProgress}) {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Future<cache.File> getSingleFile(String url, {String? key, Map<String, String>? headers}) {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Future<cache.File> putFile(
+    String url,
+    Uint8List fileBytes, {
+    String? key,
+    String? eTag,
+    Duration maxAge = const Duration(days: 30),
+    String fileExtension = 'file',
+  }) {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Future<cache.File> putFileStream(
+    String url,
+    Stream<List<int>> source, {
+    String? key,
+    String? eTag,
+    Duration maxAge = const Duration(days: 30),
+    String fileExtension = 'file',
+  }) {
+    throw UnsupportedError("This cache should not be used");
+  }
+
+  @override
+  Future<void> removeFile(String key) {
+    throw UnsupportedError("This cache should not be used");
+  }
 }

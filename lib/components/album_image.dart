@@ -39,7 +39,7 @@ class AlbumImage extends ConsumerStatefulWidget {
   /// The item to get an image for.
   final BaseItemDto? item;
 
-  final ProviderListenable<ThemeImage>? imageListenable;
+  final ProviderListenable<FinampImage>? imageListenable;
 
   final BorderRadius? borderRadius;
 
@@ -93,9 +93,7 @@ class _AlbumImageState extends ConsumerState<AlbumImage> {
             // If the current themeing context has a usable image for this item,
             // use that instead of generating a new request
             if (ref.watch(
-              localImageProvider.select(
-                (localImage) => localImage.largeThemeImage && localImage.request?.item == widget.item,
-              ),
+              localImageProvider.select((localImage) => localImage.fullQuality && localImage.item == widget.item),
             )) {
               listenable = localImageProvider;
             } else {
@@ -123,7 +121,7 @@ class _AlbumImageState extends ConsumerState<AlbumImage> {
 
               listenable = albumImageProvider(
                 AlbumImageRequest(item: widget.item!, maxWidth: physicalWidth, maxHeight: physicalHeight),
-              ).select((value) => ThemeImage(value, ThemeInfo(widget.item!)));
+              );
             }
           }
 
@@ -205,7 +203,7 @@ class BareAlbumImage extends ConsumerWidget {
     required this.onZoomRoute,
   });
 
-  final ProviderListenable<ThemeImage> imageListenable;
+  final ProviderListenable<FinampImage> imageListenable;
   final WidgetBuilder? placeholderBuilder;
   final OctoErrorBuilder errorBuilder;
   final ImageProviderCallback? imageProviderCallback;
@@ -221,8 +219,8 @@ class BareAlbumImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ThemeImage(image: image, request: request) = ref.watch(imageListenable);
-    final blurHash = request?.item.blurHash;
+    final FinampImage(image: image, item: item) = ref.watch(imageListenable);
+    final blurHash = item?.blurHash;
     var localPlaceholder = placeholderBuilder;
     if (blurHash != null) {
       localPlaceholder ??= (_) => Image(

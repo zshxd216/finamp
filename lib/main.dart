@@ -25,6 +25,7 @@ import 'package:finamp/screens/playback_history_screen.dart';
 import 'package:finamp/screens/playback_reporting_settings_screen.dart';
 import 'package:finamp/screens/player_settings_screen.dart';
 import 'package:finamp/screens/queue_restore_screen.dart';
+import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/android_auto_helper.dart';
 import 'package:finamp/services/audio_service_smtc.dart';
 import 'package:finamp/services/data_source_service.dart';
@@ -379,8 +380,8 @@ Future<void> _setupPlaybackServices() async {
       androidNotificationIcon: "mipmap/white",
       androidNotificationChannelId: "com.unicornsonlsd.finamp.audio",
       // notificationColor: TODO use the theme color for older versions of Android,
-      // Preloading art does not work on android due to use of content:// scheme.
-      preloadArtwork: !Platform.isAndroid,
+      // We will handle preloading artwork ourselves
+      preloadArtwork: false,
       androidBrowsableRootExtras: <String, dynamic>{
         // support showing search button on Android Auto as well as alternative search results on the player screen after voice search
         "android.media.browse.SEARCH_SUPPORTED": true,
@@ -391,6 +392,7 @@ Future<void> _setupPlaybackServices() async {
             FinampSettingsHelper.finampSettings.contentViewType == ContentViewType.list ? 1 : 2,
       },
     ),
+    cacheManager: StubImageCache(),
   );
 
   GetIt.instance.registerSingleton<MusicPlayerBackgroundTask>(audioHandler);

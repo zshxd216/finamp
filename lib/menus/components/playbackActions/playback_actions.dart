@@ -75,13 +75,12 @@ class PlayPlaybackAction extends ConsumerWidget {
       icon: TablerIcons.player_play,
       label: AppLocalizations.of(context)!.playButtonLabel,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.startPlayback(
           items: await loadChildTracks(item: item),
           source: QueueItemSource.fromPlayableItem(item),
           order: FinampPlaybackOrder.linear,
         );
-
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -103,6 +102,7 @@ class PlayNextPlaybackAction extends ConsumerWidget {
         icon: TablerIcons.corner_right_down,
         label: AppLocalizations.of(context)!.playNext,
         onPressed: () async {
+          Navigator.pop(context);
           await queueService.addNext(
             items: await loadChildTracks(item: item),
             source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
@@ -112,7 +112,6 @@ class PlayNextPlaybackAction extends ConsumerWidget {
             (scaffold) => AppLocalizations.of(scaffold)!.confirmPlayNext(BaseItemDtoType.fromPlayableItem(item).name),
             isConfirmation: true,
           );
-          Navigator.pop(context);
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -133,6 +132,7 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
       icon: TablerIcons.corner_right_down_double,
       label: AppLocalizations.of(context)!.addToNextUp,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.addToNextUp(
           items: await loadChildTracks(item: item),
           source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
@@ -142,7 +142,6 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmAddToNextUp(BaseItemDtoType.fromPlayableItem(item).name),
           isConfirmation: true,
         );
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -161,6 +160,7 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
       icon: TablerIcons.playlist,
       label: AppLocalizations.of(context)!.addToQueue,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.addToQueue(
           items: await loadChildTracks(item: item),
           source: QueueItemSource.fromPlayableItem(item),
@@ -170,7 +170,6 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmAddToQueue(BaseItemDtoType.fromPlayableItem(item).name),
           isConfirmation: true,
         );
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -189,13 +188,12 @@ class ShufflePlaybackAction extends ConsumerWidget {
       icon: TablerIcons.arrows_shuffle,
       label: AppLocalizations.of(context)!.shuffleButtonLabel,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.startPlayback(
           items: await loadChildTracks(item: item),
           source: QueueItemSource.fromPlayableItem(item),
           order: FinampPlaybackOrder.shuffled,
         );
-
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -217,6 +215,7 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
         icon: TablerIcons.corner_right_down,
         label: AppLocalizations.of(context)!.shuffleNext,
         onPressed: () async {
+          Navigator.pop(context);
           await queueService.addNext(
             items: await loadChildTracks(item: item),
             source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
@@ -224,7 +223,6 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
           );
 
           GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
-          Navigator.pop(context);
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -245,6 +243,7 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
       icon: TablerIcons.corner_right_down_double,
       label: AppLocalizations.of(context)!.shuffleToNextUp,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.addToNextUp(
           items: await loadChildTracks(item: item),
           source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
@@ -255,7 +254,6 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
           isConfirmation: true,
         );
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -274,6 +272,7 @@ class ShuffleToQueuePlaybackAction extends ConsumerWidget {
       icon: TablerIcons.playlist,
       label: AppLocalizations.of(context)!.shuffleToQueue,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.addToQueue(
           items: await loadChildTracks(item: item),
           source: QueueItemSource.fromPlayableItem(item),
@@ -284,7 +283,6 @@ class ShuffleToQueuePlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToQueue,
           isConfirmation: true,
         );
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -303,6 +301,7 @@ class ShuffleAlbumsAction extends ConsumerWidget {
       icon: TablerIcons.arrows_shuffle,
       label: AppLocalizations.of(context)!.shuffleAlbums,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.startPlayback(
           items: groupItems(
             items: await loadChildTracks(item: baseItem),
@@ -311,8 +310,6 @@ class ShuffleAlbumsAction extends ConsumerWidget {
           ),
           source: QueueItemSource.fromBaseItem(baseItem, type: QueueItemSourceType.nextUpAlbum),
         );
-
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -334,6 +331,7 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
         icon: TablerIcons.corner_right_down,
         label: AppLocalizations.of(context)!.shuffleAlbumsNext,
         onPressed: () async {
+          Navigator.pop(context);
           await queueService.addNext(
             items: groupItems(
               items: await loadChildTracks(item: baseItem),
@@ -344,7 +342,6 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
           );
 
           GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
-          Navigator.pop(context);
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -365,6 +362,7 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
       icon: TablerIcons.corner_right_down_double,
       label: AppLocalizations.of(context)!.shuffleAlbumsToNextUp,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.addToNextUp(
           items: groupItems(
             items: await loadChildTracks(item: baseItem),
@@ -378,7 +376,6 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
           isConfirmation: true,
         );
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -397,6 +394,7 @@ class ShuffleAlbumsToQueuePlaybackAction extends ConsumerWidget {
       icon: TablerIcons.playlist,
       label: AppLocalizations.of(context)!.shuffleAlbumsToQueue,
       onPressed: () async {
+        Navigator.pop(context);
         await queueService.addToQueue(
           items: groupItems(
             items: await loadChildTracks(item: baseItem),
@@ -410,7 +408,6 @@ class ShuffleAlbumsToQueuePlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToQueue,
           isConfirmation: true,
         );
-        Navigator.pop(context);
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );

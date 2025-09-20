@@ -19,8 +19,9 @@ class BlurredPlayerScreenBackground extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ThemeImage(image: imageProvider, request: request) = ref.watch(localImageProvider);
-    final localBlurhash = request?.item.blurHash;
+    final finampImage = ref.watch(localImageProvider);
+    final localBlurhash = finampImage.item?.blurHash;
+    final imageProvider = finampImage.image;
 
     var overlayColor = Theme.brightnessOf(context) == Brightness.dark
         ? Colors.black.withOpacity(ui.clampDouble(0.675 * opacityFactor, 0.0, 1.0))

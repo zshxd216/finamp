@@ -149,14 +149,14 @@ class _FinampThemeProviderElement
   ThemeInfo get request => (origin as FinampThemeProvider).request;
 }
 
-String _$themeImageHash() => r'98d3edc872a1d07a044948a17e2ebabffc97c0e6';
+String _$themeImageHash() => r'278c78e938802c8d0e09bc392f2166eddeadcb25';
 
 /// See also [themeImage].
 @ProviderFor(themeImage)
 const themeImageProvider = ThemeImageFamily();
 
 /// See also [themeImage].
-class ThemeImageFamily extends Family<ThemeImage> {
+class ThemeImageFamily extends Family<FinampThemeImage> {
   /// See also [themeImage].
   const ThemeImageFamily();
 
@@ -188,7 +188,7 @@ class ThemeImageFamily extends Family<ThemeImage> {
 }
 
 /// See also [themeImage].
-class ThemeImageProvider extends AutoDisposeProvider<ThemeImage> {
+class ThemeImageProvider extends AutoDisposeProvider<FinampThemeImage> {
   /// See also [themeImage].
   ThemeImageProvider(ThemeInfo request)
     : this._internal(
@@ -216,7 +216,9 @@ class ThemeImageProvider extends AutoDisposeProvider<ThemeImage> {
   final ThemeInfo request;
 
   @override
-  Override overrideWith(ThemeImage Function(ThemeImageRef provider) create) {
+  Override overrideWith(
+    FinampThemeImage Function(ThemeImageRef provider) create,
+  ) {
     return ProviderOverride(
       origin: this,
       override: ThemeImageProvider._internal(
@@ -232,7 +234,7 @@ class ThemeImageProvider extends AutoDisposeProvider<ThemeImage> {
   }
 
   @override
-  AutoDisposeProviderElement<ThemeImage> createElement() {
+  AutoDisposeProviderElement<FinampThemeImage> createElement() {
     return _ThemeImageProviderElement(this);
   }
 
@@ -252,12 +254,13 @@ class ThemeImageProvider extends AutoDisposeProvider<ThemeImage> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin ThemeImageRef on AutoDisposeProviderRef<ThemeImage> {
+mixin ThemeImageRef on AutoDisposeProviderRef<FinampThemeImage> {
   /// The parameter `request` of this provider.
   ThemeInfo get request;
 }
 
-class _ThemeImageProviderElement extends AutoDisposeProviderElement<ThemeImage>
+class _ThemeImageProviderElement
+    extends AutoDisposeProviderElement<FinampThemeImage>
     with ThemeImageRef {
   _ThemeImageProviderElement(super.provider);
 
@@ -266,13 +269,13 @@ class _ThemeImageProviderElement extends AutoDisposeProviderElement<ThemeImage>
 }
 
 String _$finampThemeFromImageHash() =>
-    r'ed36da8eca59020c61184f7cf671dec5494c4c85';
+    r'e40168a56b4d61dc3d5f285159b48f4799055d3d';
 
 abstract class _$FinampThemeFromImage
     extends BuildlessAutoDisposeNotifier<ColorScheme> {
-  late final ThemeImage theme;
+  late final ThemeColorRequest theme;
 
-  ColorScheme build(ThemeImage theme);
+  ColorScheme build(ThemeColorRequest theme);
 }
 
 /// See also [FinampThemeFromImage].
@@ -285,7 +288,7 @@ class FinampThemeFromImageFamily extends Family<ColorScheme> {
   const FinampThemeFromImageFamily();
 
   /// See also [FinampThemeFromImage].
-  FinampThemeFromImageProvider call(ThemeImage theme) {
+  FinampThemeFromImageProvider call(ThemeColorRequest theme) {
     return FinampThemeFromImageProvider(theme);
   }
 
@@ -315,7 +318,7 @@ class FinampThemeFromImageFamily extends Family<ColorScheme> {
 class FinampThemeFromImageProvider
     extends AutoDisposeNotifierProviderImpl<FinampThemeFromImage, ColorScheme> {
   /// See also [FinampThemeFromImage].
-  FinampThemeFromImageProvider(ThemeImage theme)
+  FinampThemeFromImageProvider(ThemeColorRequest theme)
     : this._internal(
         () => FinampThemeFromImage()..theme = theme,
         from: finampThemeFromImageProvider,
@@ -339,7 +342,7 @@ class FinampThemeFromImageProvider
     required this.theme,
   }) : super.internal();
 
-  final ThemeImage theme;
+  final ThemeColorRequest theme;
 
   @override
   ColorScheme runNotifierBuild(covariant FinampThemeFromImage notifier) {
@@ -386,7 +389,7 @@ class FinampThemeFromImageProvider
 // ignore: unused_element
 mixin FinampThemeFromImageRef on AutoDisposeNotifierProviderRef<ColorScheme> {
   /// The parameter `theme` of this provider.
-  ThemeImage get theme;
+  ThemeColorRequest get theme;
 }
 
 class _FinampThemeFromImageProviderElement
@@ -396,7 +399,7 @@ class _FinampThemeFromImageProviderElement
   _FinampThemeFromImageProviderElement(super.provider);
 
   @override
-  ThemeImage get theme => (origin as FinampThemeFromImageProvider).theme;
+  ThemeColorRequest get theme => (origin as FinampThemeFromImageProvider).theme;
 }
 
 // ignore_for_file: type=lint

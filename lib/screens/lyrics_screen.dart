@@ -459,9 +459,7 @@ class _LyricLine extends ConsumerWidget {
                     return Text(
                       "${Duration(microseconds: line.startMicros).inMinutes}:${(Duration(microseconds: line.startMicros).inSeconds % 60).toString().padLeft(2, '0')}",
                       style: TextStyle(
-                        color: isSynchronized && value != lineNumber
-                            ? Colors.grey
-                            : Theme.of(context).textTheme.bodyLarge!.color,
+                        color: isSynchronized && value != lineNumber ? lowlightStyle.color : unSyncedStyle.color,
                         fontSize: 16,
                       ),
                     );

@@ -115,54 +115,57 @@ class ItemTheme extends StatelessWidget {
 /// The local ThemeInfo request.  Do not read this directly, use [localImageProvider].
 final Provider<ThemeInfo?> localThemeInfoProvider = Provider((ref) => null, dependencies: const []);
 
-final Provider<ThemeImage> localImageProvider = Provider((ref) {
+final Provider<FinampImage> localImageProvider = Provider((ref) {
   var item = ref.watch(localThemeInfoProvider);
   if (item == null) {
-    return ThemeImage.empty();
+    return FinampImage.empty();
   }
   return ref.watch(themeImageProvider(item));
 }, dependencies: [localThemeInfoProvider]);
 
 final Provider<ColorScheme> localThemeProvider = Provider((ref) {
   var image = ref.watch(localImageProvider);
-  return ref.watch(finampThemeFromImageProvider(image));
+  if (image is FinampThemeImage) {
+    return ref.watch(finampThemeFromImageProvider(image.colorRequest));
+  }
+  return getGrayTheme(ref.watch(brightnessProvider));
 }, dependencies: [localImageProvider]);
 
 @riverpod
 ColorScheme finampTheme(Ref ref, ThemeInfo request) {
   var image = ref.watch(themeImageProvider(request));
-  return ref.watch(finampThemeFromImageProvider(image));
+  return ref.watch(finampThemeFromImageProvider(image.colorRequest));
 }
 
 @riverpod
-ThemeImage themeImage(Ref ref, ThemeInfo request) {
+FinampThemeImage themeImage(Ref ref, ThemeInfo request) {
   var item = request.item;
-  ImageProvider? image;
   String? cacheKey = request.item.blurHash ?? request.item.imageId;
-  bool isLarge = false;
   // If useLargeImage, we are doing theme pre-caching for the player and should always use the full-size image,
   // even if no-one else is currently using it.
   if (request.useLargeImage) {
-    image = ref.watch(albumImageProvider(AlbumImageRequest(item: item)));
-    isLarge = true;
+    final albumImage = ref.watch(albumImageProvider(AlbumImageRequest(item: item)));
+    assert(albumImage.fullQuality);
+    return FinampThemeImage(albumImage.image, request, fullQuality: albumImage.fullQuality);
   }
   // Re-use an existing request if possible to hit the image cache
   else if (albumRequestsCache.containsKey(cacheKey)) {
     if (albumRequestsCache[cacheKey] == null) {
-      return ThemeImage.empty();
+      return FinampThemeImage(null, request, fullQuality: true);
     }
-    image = ref.watch(albumImageProvider(albumRequestsCache[cacheKey]!));
-    isLarge = albumRequestsCache[cacheKey]!.maxWidth == null && albumRequestsCache[cacheKey]!.maxHeight == null;
+    final albumImage = ref.watch(albumImageProvider(albumRequestsCache[cacheKey]!));
+    return FinampThemeImage(albumImage.image, request, fullQuality: albumImage.fullQuality);
   } else {
+    ImageProvider? image;
     // Use blurhash if possible, otherwise fetch 100x100
     if (item.blurHash != null) {
       image = BlurHashImage(item.blurHash!);
     } else if (item.imageId != null) {
       // ignore: avoid_manual_providers_as_generated_provider_dependency
-      image = ref.watch(albumImageProvider(AlbumImageRequest(item: item, maxHeight: 100, maxWidth: 100)));
+      image = ref.watch(albumImageProvider(AlbumImageRequest(item: item, maxHeight: 100, maxWidth: 100))).image;
     }
+    return FinampThemeImage(image, request, fullQuality: false);
   }
-  return ThemeImage(image, request, largeThemeImage: isLarge);
 }
 
 @riverpod
@@ -170,12 +173,12 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
   final _downloadService = GetIt.instance<DownloadsService>();
 
   @override
-  ColorScheme build(ThemeImage theme) {
+  ColorScheme build(ThemeColorRequest theme) {
     var brightness = ref.watch(brightnessProvider);
-    if (theme.image == null || theme.request == null) {
+    if (theme.image == null) {
       return getGrayTheme(brightness);
     }
-    final (isDownloaded, downloadedColor) = _downloadService.getImageTheme(theme.request!.item.blurHash);
+    final (isDownloaded, downloadedColor) = _downloadService.getImageTheme(theme.blurHash);
     if (downloadedColor != null) {
       return _getColorScheme(downloadedColor, brightness);
     }
@@ -192,13 +195,13 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       }
       // TODO this calculation can take several seconds for very large images.  Scale before using or
       // switch to ColorScheme.fromImageProvider, which has this built in.
-      final color = await _getColorForImage(image, theme.request!.useIsolate);
+      final color = await _getColorForImage(image, theme.useIsolate);
       if (color == null) {
         return getDefaultTheme(brightness);
       }
       // If image is downloaded but no theme is cached, and we are using the full size player image, attempt to cache value.
-      if (isDownloaded && theme.largeThemeImage) {
-        _downloadService.setImageTheme(theme.request!.item.blurHash, color);
+      if (isDownloaded && theme.fullQuality) {
+        _downloadService.setImageTheme(theme.blurHash, color);
       }
       return _getColorScheme(color, brightness);
     }).then((value) => state = value);
@@ -341,39 +344,85 @@ class ThemeInfo {
 
   @override
   bool operator ==(Object other) {
-    return other is ThemeInfo && other._imageCode == _imageCode;
+    return other is ThemeInfo && other._imageCode == _imageCode && other.useLargeImage == useLargeImage;
   }
 
   @override
-  int get hashCode => _imageCode.hashCode;
+  int get hashCode => Object.hash(_imageCode, useLargeImage);
 
   String? get _imageCode => item.blurHash ?? item.imageId;
 }
 
 @immutable
-class ThemeImage {
-  const ThemeImage(this.image, ThemeInfo this.request, {this.largeThemeImage = false});
-  const ThemeImage.empty() : image = null, request = null, largeThemeImage = false;
+class FinampImage {
+  const FinampImage.empty() : image = null, fullQuality = false;
+  const FinampImage(this.image, {this.fullQuality = false});
 
   /// The imageProvider associated with [request]
   final ImageProvider? image;
 
-  /// The theme request.  Should only be null for empty themeImages.
-  final ThemeInfo? request;
-
   /// Whether we have the full-size imageProvider usable in any scenario, or a rescaled version.
-  final bool largeThemeImage;
+  final bool fullQuality;
+
+  BaseItemDto? get item => null;
 
   @override
   bool operator ==(Object other) {
-    return other is ThemeImage && other.image == image && other.request == request;
+    return other is FinampImage && other.image == image && other.item == item;
   }
 
   @override
-  String toString() => "ThemeImage(image: $image item: ${request?.item.name} isLarge: $largeThemeImage)";
+  String toString() => "FinampImage(image: $image item: ${item?.name} fullQuality: $fullQuality)";
 
   @override
-  int get hashCode => Object.hash(image, request);
+  int get hashCode => Object.hash(image, item);
+}
+
+@immutable
+class FinampThemeImage extends FinampImage {
+  const FinampThemeImage(super.image, this.themeRequest, {required super.fullQuality});
+
+  final ThemeInfo themeRequest;
+
+  ThemeColorRequest get colorRequest => ThemeColorRequest(image, item.blurHash, themeRequest.useIsolate, fullQuality);
+
+  @override
+  BaseItemDto get item => themeRequest.item;
+}
+
+@immutable
+class FinampAlbumImage extends FinampImage {
+  const FinampAlbumImage(super.image, this.albumRequest, this.uri, {required super.fullQuality});
+
+  final AlbumImageRequest albumRequest;
+
+  final Uri? uri;
+
+  @override
+  BaseItemDto get item => albumRequest.item;
+}
+
+@immutable
+/// A request to calculate a theme color.  This is separate from [FinampThemeImage] as this does not consider
+/// BaseItemDto.id when determining duplicates.
+class ThemeColorRequest {
+  const ThemeColorRequest(this.image, this.blurHash, this.useIsolate, this.fullQuality);
+
+  final ImageProvider? image;
+
+  final String? blurHash;
+
+  final bool useIsolate;
+
+  final bool fullQuality;
+
+  @override
+  bool operator ==(Object other) {
+    return other is ThemeColorRequest && other.image == image && other.blurHash == blurHash;
+  }
+
+  @override
+  int get hashCode => Object.hash(image, blurHash);
 }
 
 _ThemeTransitionCalculator? _calculator;

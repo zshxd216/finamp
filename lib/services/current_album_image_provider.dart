@@ -2,7 +2,6 @@ import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:finamp/services/theme_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11,7 +10,7 @@ import 'album_image_provider.dart';
 /// Provider to handle syncing up the current playing item's image provider.
 /// Used on the player screen to sync up loading the blurred background.
 /// Use ListenableImage as output to allow directly overriding localImageProvider
-final currentAlbumImageProvider = Provider<ThemeImage>((ref) {
+final currentAlbumImageProvider = Provider<FinampImage>((ref) {
   final List<FinampQueueItem> precacheItems = GetIt.instance<QueueService>().peekQueue(
     next: 3,
     previous: 1,
@@ -21,16 +20,9 @@ final currentAlbumImageProvider = Provider<ThemeImage>((ref) {
     BaseItemDto? base = itemToPrecache.baseItem;
     if (base != null) {
       final request = AlbumImageRequest(item: base);
-      var image = ref.watch(albumImageProvider(request));
-      if (image != null) {
-        // Cache the returned image
-        var stream = image.resolve(const ImageConfiguration(devicePixelRatio: 1.0));
-        var listener = ImageStreamListener((image, synchronousCall) {});
-        ref.onDispose(() {
-          stream.removeListener(listener);
-        });
-        stream.addListener(listener);
-      }
+      // full quality player images are cached immediately upon albumImageProvider creation, so we don't need to
+      // resolve the provider like we would to initiate caching with a NetworkImage
+      ref.listen(albumImageProvider(request), (_, _) {});
     }
   }
 
@@ -38,13 +30,11 @@ final currentAlbumImageProvider = Provider<ThemeImage>((ref) {
   if (currentTrack != null) {
     final request = AlbumImageRequest(item: currentTrack);
     // Setting useIsolate to false provides negligible speedup for player images and induces lag, so use true.
-    return ThemeImage(
-      ref.watch(albumImageProvider(request)),
-      ThemeInfo(currentTrack, useIsolate: true),
-      largeThemeImage: true,
-    );
+    final albumImage = ref.watch(albumImageProvider(request));
+    assert(albumImage.fullQuality);
+    return FinampThemeImage(albumImage.image, ThemeInfo(currentTrack, useIsolate: true), fullQuality: true);
   }
-  return ThemeImage.empty();
+  return FinampImage.empty();
 });
 
 final currentTrackProvider = StreamProvider((_) => GetIt.instance<QueueService>().getCurrentTrackStream());
