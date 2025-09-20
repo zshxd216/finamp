@@ -84,8 +84,6 @@ class AudioServiceSMTC extends AudioServicePlatform {
 
   @override
   Future<void> setMediaItem(SetMediaItemRequest request) async {
-    // Note - smtc_windows does not accept file:// URIs.  Only network images
-    // are currently supported.
     var artURI = request.mediaItem.artUri;
     await smtc.updateMetadata(
       MusicMetadata(

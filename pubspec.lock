@@ -1515,10 +1515,11 @@ packages:
   smtc_windows:
     dependency: "direct main"
     description:
-      name: smtc_windows
-      sha256: dee279b0ddf663c4c729a88bca4e57fb4861aa1b3d01e230bdbf1277b8bfe664
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/smtc_windows"
+      ref: "7ece49cc16a459aaa0718ed23458802533daef37"
+      resolved-ref: "7ece49cc16a459aaa0718ed23458802533daef37"
+      url: "https://github.com/Komodo5197/frb_plugins.git"
+    source: git
     version: "1.1.0"
   source_gen:
     dependency: "direct main"

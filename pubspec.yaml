@@ -41,7 +41,12 @@ dependencies:
       url: https://github.com/Komodo5197/media-kit.git
       ref: bfbcea1976093311d6b0ab6bc004a0cc7cd25811
       path: libs/windows/media_kit_libs_windows_audio
-  smtc_windows: ^1.0.0
+  smtc_windows:
+    git:
+      url: https://github.com/Komodo5197/frb_plugins.git
+      ref: 7ece49cc16a459aaa0718ed23458802533daef37
+      path: packages/smtc_windows/
+
   audio_service: ^0.18.17
   audio_service_mpris: ^0.2.0
   audio_service_platform_interface: ^0.1.1
