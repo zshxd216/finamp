@@ -59,7 +59,7 @@
     },
     "settings": "設定",
     "@settings": {},
-    "offlineMode": "オフライン・モード",
+    "offlineMode": "オフラインモード",
     "@offlineMode": {},
     "sortOrder": "並び順",
     "@sortOrder": {},
@@ -67,7 +67,7 @@
     "@album": {},
     "sortBy": "並び基準",
     "@sortBy": {},
-    "albumArtist": "アルバム・アーティスト",
+    "albumArtist": "アルバムアーティスト",
     "@albumArtist": {},
     "artist": "アーティスト",
     "@artist": {},
@@ -161,7 +161,7 @@
     "@transcoding": {},
     "layoutAndTheme": "レイアウト&テーマ",
     "@layoutAndTheme": {},
-    "notAvailableInOfflineMode": "オフライン・モードでは無効",
+    "notAvailableInOfflineMode": "オフラインモードでは無効",
     "@notAvailableInOfflineMode": {},
     "downloadLocations": "ダウンロード場所",
     "@downloadLocations": {},
@@ -209,7 +209,7 @@
     "@system": {},
     "disableGesture": "ジェスチャーを無効",
     "@disableGesture": {},
-    "light": "明るい",
+    "light": "ライト",
     "@light": {},
     "disableGestureSubtitle": "ジェスチャーを無効にするか。",
     "@disableGestureSubtitle": {},
@@ -221,7 +221,7 @@
     "@sleepTimerTooltip": {},
     "addToPlaylistTooltip": "プレイリストに追加",
     "@addToPlaylistTooltip": {},
-    "dark": "暗い",
+    "dark": "ダーク",
     "@dark": {},
     "cancelSleepTimer": "スリープ・タイマーをキャンセルしますか?",
     "@cancelSleepTimer": {},
@@ -1354,5 +1354,118 @@
     "serverSharingMenuDetails": "これは、ローカルネットワーク上の他のクライアントからのサーバー探索リクエストを受信し、それに対して設定済みの Jellyfin サーバーのアドレスで応答することで動作します。\nローカルアドレスとパブリックアドレスの両方が設定されている場合、フィンアンプはリクエスト元のクライアントに両方を提供します。",
     "@serverSharingMenuDetails": {
         "description": "Description text shown in the server sharing menu, below the description"
-    }
+    },
+    "autoOfflineOptionNetwork": "ローカルネットワーク",
+    "@autoOfflineOptionNetwork": {
+        "description": "This is shown when the autoOffline feature is set to \"local Network\", this means offline mode will be automatically enabled when no wifi or ethernet connection is active"
+    },
+    "quickConnectAuthorizationMenuButtonTitle": "クイックコネクトを許可",
+    "@quickConnectAuthorizationMenuButtonTitle": {
+        "description": "Title for the button in the drawer that opens the quick connect authorization menu"
+    },
+    "quickConnectAuthorizationMenuPrompt": "クイックコネクトコードを入力",
+    "@quickConnectAuthorizationMenuPrompt": {
+        "description": "Title for the button in server sharing menu that opens the quick connect authorization menu"
+    },
+    "quickConnectAuthorizationMenuTitle": "クイックコネクトのリクエストを許可",
+    "@quickConnectAuthorizationMenuTitle": {
+        "description": "Title for the quick connect authorization menu that allows the user to authorize a quick connect request from another device"
+    },
+    "quickConnectAuthorizationMenuStateTitleSuccess": "承認に成功しました",
+    "@quickConnectAuthorizationMenuStateTitleSuccess": {
+        "description": "Title for the quick connect authorization menu state info (above the input field) when the authorization was successful"
+    },
+    "quickConnectAuthorizationMenuDescription": "クイックコネクトを使って他の Jellyfin クライアントにサインインするには、上の欄に6桁のコードを入力または貼り付けてください。入力後、そのクライアントのサインインが承認され、Finamp で使用しているのと同じアカウントでログインされます。",
+    "@quickConnectAuthorizationMenuDescription": {
+        "description": "Description for the quick connect authorization menu, shown at the bottom"
+    },
+    "quickConnectAuthorizationMenuStateSubtitleIdle": "下の欄にコードを入力または貼り付けてください",
+    "@quickConnectAuthorizationMenuStateSubtitleIdle": {
+        "description": "Subtitle for the quick connect authorization menu state info (above the input field) while the code hasn't been submitted yet"
+    },
+    "quickConnectAuthorizationMenuInputLabel": "クイックコネクトコード",
+    "@quickConnectAuthorizationMenuInputLabel": {
+        "description": "Label for the quick connect code input, shown below the input field"
+    },
+    "quickConnectAuthorizationMenuStateTitleProcessing": "リクエストを承認しています",
+    "@quickConnectAuthorizationMenuStateTitleProcessing": {
+        "description": "Title for the quick connect authorization menu state info (above the input field) while a request is being processed"
+    },
+    "quickConnectAuthorizationMenuStateTitleFailed": "クイックコネクトコードが無効です",
+    "@quickConnectAuthorizationMenuStateTitleFailed": {
+        "description": "Title for the quick connect authorization menu state info (above the input field) when the authorization was unsuccessful"
+    },
+    "quickConnectAuthorizationMenuStateSubtitleFailed": "コードを確認して、もう一度お試しください",
+    "@quickConnectAuthorizationMenuStateSubtitleFailed": {
+        "description": "Subtitle for the quick connect authorization menu state info (above the input field) when the authorization was unsuccessful"
+    },
+    "accessibility": "アクセシビリティ",
+    "@accessibility": {
+        "description": "Title for the accessibility settings screen"
+    },
+    "useHighContrastColorsTitle": "高コントラストカラーを使用",
+    "@useHighContrastColorsTitle": {
+        "description": "Title for the setting that controls if high contrast colors are used throughout the app"
+    },
+    "useHighContrastColorsSubtitle": "高コントラストの動的色を使用して視認性を高めます。",
+    "@useHighContrastColorsSubtitle": {
+        "description": "Subtitle for the setting that controls if high contrast colors are used throughout the app"
+    },
+    "randomTracks": "ランダム（曲）",
+    "@randomTracks": {},
+    "randomAlbums": "ランダム（アルバム）",
+    "@randomAlbums": {},
+    "randomArtists": "ランダム（アーティスト）",
+    "@randomArtists": {},
+    "mostPlayed": "再生回数が多い",
+    "@mostPlayed": {},
+    "randomFavoritesFirst": "ランダム（お気に入り優先）",
+    "@randomFavoritesFirst": {},
+    "recentlyAdded": "最近追加した",
+    "@recentlyAdded": {},
+    "recentlyPlayed": "最近再生した",
+    "@recentlyPlayed": {},
+    "latestReleases": "最新リリース",
+    "@latestReleases": {},
+    "itemSectionsOrder": "項目セクションの順序",
+    "@itemSectionsOrder": {
+        "description": "Label for the setting that controls the order of item sections on the screens."
+    },
+    "unknown": "不明",
+    "@unknown": {},
+    "itemSectionsOrderSubtitle": "項目セクションの表示順序を設定する。",
+    "@itemSectionsOrderSubtitle": {
+        "description": "Description of the setting that controls the order of item sections on the screens."
+    },
+    "playCountValue": "{playCount,plural,=1{{playCount} 回再生} other{{playCount} 回再生}}",
+    "@playCountValue": {
+        "placeholders": {
+            "playCount": {
+                "type": "int",
+                "example": "12"
+            }
+        }
+    },
+    "curatedItemsMostPlayedOfflineTooltip": "オフラインモードでは利用できません。",
+    "@curatedItemsMostPlayedOfflineTooltip": {
+        "description": "Tooltip for Most Played on Curated Items in Offline Mode."
+    },
+    "autoOfflineOptionUnreachable": "接続不可",
+    "@autoOfflineOptionUnreachable": {
+        "description": "This is shown when the autoOffline feature is set to Unreachable, this means offline mode will be automatically enabled when - after a network change - the server cant be pinged"
+    },
+    "autoOfflineOptionOff": "無効",
+    "@autoOfflineOptionOff": {
+        "description": "This is shown when the autoOffline feature is turned off and has no effects"
+    },
+    "autoOfflineOptionDisconnected": "切断",
+    "@autoOfflineOptionDisconnected": {
+        "description": "This is shown when the autoOffline feature is set to Disconnected, this means offline mode will be automatically enabled when either wifi, ethernet or cellular is active"
+    },
+    "autoOfflineSettingDescription": "自動でオフラインモードを有効化します\n無効：自動でオフラインモードを有効化しません。バッテリー節約になる場合があります\nローカルネットワーク：Wi-Fi またはイーサネットに接続されていない場合にオフラインモードを有効化します\n切断：ネットワークに接続されていない場合にオフラインモードを有効化します\n接続不可：ネットワーク切り替え後にサーバーに Ping できない場合、自動でオフラインモードを有効化します\nオフラインモードは手動で有効化することも可能です。手動で有効化すると、自動設定は一時停止し、オフラインモードを手動で解除するまで継続します",
+    "@autoOfflineSettingDescription": {
+        "description": "Setting description. Make sure the Mode names match the translations."
+    },
+    "autoOfflineSettingTitle": "自動オフラインモード",
+    "@autoOfflineSettingTitle": {}
 }
