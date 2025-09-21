@@ -1,5 +1,8 @@
 Foreground (Android)
 convert -trim -gravity center -background none -resize 2160x2160 -extent 4320x4320 icon_foreground.svg icon_foreground.png
 
+Monochrome (Android)
+convert  icon_foreground.png -alpha on -channel RGB -fill white -colorize 100% +channel icon_monochrome.png
+
 Combined (iOS)
 convert -trim -gravity center -background "#000B25" -resize 3240x3240 -extent 4320x4320 icon_foreground.svg icon_combined.png
