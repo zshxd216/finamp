@@ -2571,7 +2571,7 @@
     },
     "description": "Options in radio mode/algorithm dropdown"
   },
-  "usingRadioModeTitle": "{state, select, true{} false{Not } other{not used}}Using Radio Mode",
+  "usingRadioModeTitle": "Radio {state, select, true{Enabled} false{Disabled} other{not used}}",
   "@usingRadioModeTitle": {
     "description": "Title displayed in the queue to show if radio mode is enabled."
   },

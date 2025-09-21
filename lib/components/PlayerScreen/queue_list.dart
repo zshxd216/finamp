@@ -7,6 +7,7 @@ import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/print_duration.dart';
+import 'package:finamp/components/toggleable_list_tile.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
 import 'package:finamp/menus/track_menu.dart';
@@ -207,16 +208,28 @@ class _QueueListState extends State<QueueList> {
         ),
         sliver: QueueTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey),
       ),
+      // Radio mode
       SliverToBoxAdapter(
-        child: ListTile(
-          title: Text(AppLocalizations.of(context)!.usingRadioModeTitle(useRadio.toString())),
-          subtitle: Text(useRadio ? AppLocalizations.of(context)!.usingRadioModeSubtitle(FinampSettingsHelper.finampSettings.radioMode.name) : ""),
-          trailing: Switch(
-              value: _queueService.getUseRadio(),
-              onChanged: (useRadio) => setState(() {
-                _queueService.setUseRadio(useRadio);
-              })
+        child: ToggleableListTile(
+          title: AppLocalizations.of(context)!.usingRadioModeTitle(useRadio.toString()),
+          subtitle: useRadio ? AppLocalizations.of(context)!.usingRadioModeSubtitle(FinampSettingsHelper.finampSettings.radioMode.name) : "",
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 8.0),
+            child: const Icon(TablerIcons.radio, size: 36.0),
           ),
+          state: _queueService.getUseRadio(),
+          onToggle: (val) async {
+            // TODO: Put menu to choose radio mode here
+          },
+            trailing: Switch.adaptive(
+              value: _queueService.getUseRadio(),
+              onChanged: (val) {
+                setState(() {
+                  _queueService.setUseRadio(val);
+                });
+              },
+              padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: -8.0),
+            )
         )
       )
     ];

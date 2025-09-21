@@ -158,8 +158,8 @@ class QueueService {
     final queueMinimum = 5;
     final queueSize = _queueNextUp.length + _queue.length;
     if (_currentTrack != null && queueSize < queueMinimum && _useRadio) {
-      final numSongs = queueMinimum - queueSize;
-      List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(numSongs);
+      final minNumSongs = queueMinimum - queueSize;
+      List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(minNumSongs);
       await addToQueue(items: songs,
           source: QueueItemSource(type: QueueItemSourceType.radio,
               name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
@@ -168,7 +168,7 @@ class QueueService {
     }
   }
 
-  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int numSongs) async {
+  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int minNumSongs) async {
     List<jellyfin_models.BaseItemDto> itemsOut = [];
     switch (FinampSettingsHelper.finampSettings.radioMode) {
       case RadioMode.shuffle:
@@ -185,7 +185,7 @@ class QueueService {
         // Items in the currently playing source
         final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
         final numItems = items.length;
-        for (var i = 0; i < numSongs; i++) {
+        for (var i = 0; i < minNumSongs; i++) {
           final fullIterations = (fullQueue.length / numItems).toInt();
           // Gets the list of songs already played or enqueued this iteration
           var currentIteration = fullQueue.sublist(fullIterations * numItems, fullQueue.length);
@@ -211,7 +211,7 @@ class QueueService {
         break;
       case RadioMode.random:
         final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
-        for (var i = 0; i < numSongs; i++) {
+        for (var i = 0; i < minNumSongs; i++) {
           // Pick an item to add
           int nextIndex = _radioRandom.nextInt(items.length);
           itemsOut.add(items[nextIndex]);
