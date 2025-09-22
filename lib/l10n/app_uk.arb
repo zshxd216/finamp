@@ -430,7 +430,7 @@
     "@about": {
         "description": "Label for the about/info button on the settings screen"
     },
-    "finampTagline": "Відкритий відтворювач музики Jellyfin",
+    "finampTagline": "Музичний плеєр Jellyfin з відкритим кодом",
     "@finampTagline": {
         "description": "Tagline / short description for the app"
     },
@@ -446,7 +446,7 @@
     "@aboutTranslations": {
         "description": "Link to the translation project, shown in the about screen."
     },
-    "loginFlowSlogan": "Ваша музика, така, яку ви бажаєте.",
+    "loginFlowSlogan": "Ваша музика, так, як ви хочете.",
     "@loginFlowSlogan": {
         "description": "Slogan shown on the login screen."
     },
@@ -458,7 +458,7 @@
     "@changeLanguage": {
         "description": "Label for button shown during the login process that allows the user to change the app language"
     },
-    "loginFlowServerSelectionHeading": "Під'єднати до Jellyfin",
+    "loginFlowServerSelectionHeading": "Під'єднатися до Jellyfin",
     "@loginFlowServerSelectionHeading": {
         "description": "Heading for the server selection step during the login flow."
     },
@@ -1997,7 +1997,7 @@
     "@outputMenuButtonTitle": {
         "description": "Button title for opening the output menu/panel"
     },
-    "outputMenuVolumeSectionTitle": "Обсяг",
+    "outputMenuVolumeSectionTitle": "Гучність",
     "@outputMenuVolumeSectionTitle": {
         "description": "Title for the volume section in the output menu"
     },
