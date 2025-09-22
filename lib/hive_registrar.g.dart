@@ -25,6 +25,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(DeviceInfoAdapter());
     registerAdapter(DeviceProfileAdapter());
     registerAdapter(DirectPlayProfileAdapter());
+    registerAdapter(DiscordRpcIconAdapter());
     registerAdapter(DownloadLocationAdapter());
     registerAdapter(DownloadLocationTypeAdapter());
     registerAdapter(DownloadedImageAdapter());
@@ -51,6 +52,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(KeepScreenOnOptionAdapter());
     registerAdapter(LyricDtoAdapter());
     registerAdapter(LyricLineAdapter());
+    registerAdapter(LyricLineCueAdapter());
     registerAdapter(LyricMetadataAdapter());
     registerAdapter(LyricsAlignmentAdapter());
     registerAdapter(LyricsFontSizeAdapter());
@@ -84,6 +86,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(SortOrderAdapter());
     registerAdapter(SubtitleProfileAdapter());
     registerAdapter(TabContentTypeAdapter());
+    registerAdapter(TileAdditionalInfoTypeAdapter());
     registerAdapter(TranscodeDownloadsSettingAdapter());
     registerAdapter(TranscodingProfileAdapter());
     registerAdapter(UserConfigurationAdapter());
@@ -114,6 +117,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(DeviceInfoAdapter());
     registerAdapter(DeviceProfileAdapter());
     registerAdapter(DirectPlayProfileAdapter());
+    registerAdapter(DiscordRpcIconAdapter());
     registerAdapter(DownloadLocationAdapter());
     registerAdapter(DownloadLocationTypeAdapter());
     registerAdapter(DownloadedImageAdapter());
@@ -140,6 +144,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(KeepScreenOnOptionAdapter());
     registerAdapter(LyricDtoAdapter());
     registerAdapter(LyricLineAdapter());
+    registerAdapter(LyricLineCueAdapter());
     registerAdapter(LyricMetadataAdapter());
     registerAdapter(LyricsAlignmentAdapter());
     registerAdapter(LyricsFontSizeAdapter());
@@ -173,6 +178,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(SortOrderAdapter());
     registerAdapter(SubtitleProfileAdapter());
     registerAdapter(TabContentTypeAdapter());
+    registerAdapter(TileAdditionalInfoTypeAdapter());
     registerAdapter(TranscodeDownloadsSettingAdapter());
     registerAdapter(TranscodingProfileAdapter());
     registerAdapter(UserConfigurationAdapter());

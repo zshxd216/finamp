@@ -63,6 +63,7 @@ class FinampSettingsHelper {
     finampSettingsTemp.showStopButtonOnMediaNotification = DefaultSettings.showStopButtonOnMediaNotification;
     finampSettingsTemp.showSeekControlsOnMediaNotification = DefaultSettings.showSeekControlsOnMediaNotification;
     finampSettingsTemp.oneLineMarqueeTextButton = DefaultSettings.oneLineMarqueeTextButton;
+    finampSettingsTemp.tileAdditionalInfoType = DefaultSettings.tileAdditionalInfoType;
 
     Hive.box<FinampSettings>("FinampSettings").put("FinampSettings", finampSettingsTemp);
   }
@@ -192,6 +193,8 @@ class FinampSettingsHelper {
     FinampSetters.setAudioFadeInDuration(DefaultSettings.audioFadeInDuration);
     FinampSetters.setAudioFadeOutDuration(DefaultSettings.audioFadeOutDuration);
     FinampSetters.setPlayOnReconnectionDelay(DefaultSettings.playOnReconnectionDelay);
+    FinampSetters.setRpcEnabled(DefaultSettings.rpcEnabled);
+    FinampSetters.setRpcIcon(DefaultSettings.rpcIcon);
   }
 
   static void resetNormalizationSettings() {
@@ -213,9 +216,8 @@ class FinampSettingsHelper {
     finampSettingsTemp.itemSwipeActionRightToLeft = DefaultSettings.itemSwipeActionRightToLeft;
     finampSettingsTemp.startInstantMixForIndividualTracks = DefaultSettings.startInstantMixForIndividualTracks;
     finampSettingsTemp.applyFilterOnGenreChipTap = DefaultSettings.applyFilterOnGenreChipTap;
+    FinampSetters.setAutoExpandPlayerScreen(DefaultSettings.autoExpandPlayerScreen);
     FinampSetters.setShowFastScroller(DefaultSettings.showFastScroller);
-    FinampSetters.setDisableGesture(DefaultSettings.disableGesture);
-    FinampSetters.setEnableVibration(DefaultSettings.enableVibration);
     FinampSetters.setKeepScreenOnOption(DefaultSettings.keepScreenOnOption);
     FinampSetters.setKeepScreenOnWhilePluggedIn(DefaultSettings.keepScreenOnWhilePluggedIn);
 
@@ -231,13 +233,19 @@ class FinampSettingsHelper {
     FinampSetters.setAutoOffline(DefaultSettings.autoOffline);
   }
 
+  static void resetAccessibilitySettings() {
+    FinampSetters.setUseHighContrastColors(DefaultSettings.useHighContrastColors);
+    FinampSetters.setDisableGesture(DefaultSettings.disableGesture);
+    FinampSetters.setEnableVibration(DefaultSettings.enableVibration);
+  }
+
   static void resetAllSettings() {
     resetTranscodingSettings();
     resetDownloadSettings();
     resetAudioServiceSettings();
     resetNormalizationSettings();
     resetInteractionsSettings();
-
+    resetPlaybackReportingSettings();
     resetLayoutSettings();
     resetCustomizationSettings();
     resetPlayerScreenSettings();

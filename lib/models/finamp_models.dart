@@ -123,6 +123,7 @@ class DefaultSettings {
   static const showArtistsTracksSection = true;
   static const disableGesture = false;
   static const showFastScroller = true;
+  static const autoExpandPlayerScreen = false;
   static const bufferDisableSizeConstraints = false;
   static const bufferDurationSeconds = 600;
   static const bufferSizeMegabytes = 50;
@@ -218,6 +219,16 @@ class DefaultSettings {
   static const playlistTracksSortOrder = SortOrder.ascending;
   static const genreFilterPlaylists = false;
   static const clearQueueOnStopEvent = false;
+  static const useHighContrastColors = false;
+  static const tileAdditionalInfoType = {
+    TabContentType.tracks: TileAdditionalInfoType.adaptive,
+    TabContentType.albums: TileAdditionalInfoType.adaptive,
+    TabContentType.artists: TileAdditionalInfoType.adaptive,
+    TabContentType.playlists: TileAdditionalInfoType.adaptive,
+    TabContentType.genres: TileAdditionalInfoType.adaptive,
+  };
+  static const rpcEnabled = false;
+  static const rpcIcon = DiscordRpcIcon.transparent;
 }
 
 @HiveType(typeId: 28)
@@ -336,6 +347,12 @@ class FinampSettings {
     this.playlistTracksSortOrder = DefaultSettings.playlistTracksSortOrder,
     this.genreFilterPlaylists = DefaultSettings.genreFilterPlaylists,
     this.clearQueueOnStopEvent = DefaultSettings.clearQueueOnStopEvent,
+    this.useHighContrastColors = DefaultSettings.useHighContrastColors,
+    // !!! Don't touch this default value, it's supposed to be hard coded to run the migration only once
+    this.hasCompletedDownloadsFileOwnerMigration = true,
+    this.tileAdditionalInfoType = DefaultSettings.tileAdditionalInfoType,
+    this.rpcEnabled = DefaultSettings.rpcEnabled,
+    this.rpcIcon = DefaultSettings.rpcIcon,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -395,9 +412,7 @@ class FinampSettings {
   // @HiveField(14, defaultValue: DefaultSettings.sleepTimerSeconds) //!!! don't reuse this hive ID!
 
   @HiveField(15, defaultValue: <String, DownloadLocation>{})
-  @SettingsHelperIgnore(
-    "Collections like array and maps are treated as immutable by Riverpod, so we need to manually select/watch the specific properties we care about.",
-  )
+  @SettingsHelperIgnore("This map is read and modified in an unusual way, so helper methods are defined manually.")
   Map<String, DownloadLocation> downloadLocationsMap;
 
   /// Whether or not to use blurred cover art as background on player screen.
@@ -709,6 +724,27 @@ class FinampSettings {
 
   @HiveField(119, defaultValue: DefaultSettings.syncPlaybackSpeedAndPitch)
   bool syncPlaybackSpeedAndPitch;
+
+  @HiveField(120, defaultValue: DefaultSettings.useHighContrastColors)
+  bool useHighContrastColors;
+
+  // !!! Don't touch this default value, it's supposed to be hard coded to run the migration only once
+  // Whether the downloads file owner migration has been completed.
+  @HiveField(121, defaultValue: false)
+  bool hasCompletedDownloadsFileOwnerMigration;
+
+  @HiveField(122, defaultValue: DefaultSettings.tileAdditionalInfoType)
+  @SettingsHelperMap("tabContentType", "tileAdditionalInfoType")
+  Map<TabContentType, TileAdditionalInfoType> tileAdditionalInfoType;
+
+  @HiveField(123, defaultValue: DefaultSettings.rpcEnabled)
+  bool rpcEnabled;
+
+  @HiveField(124, defaultValue: DefaultSettings.rpcIcon)
+  DiscordRpcIcon rpcIcon;
+
+  @HiveField(125, defaultValue: DefaultSettings.autoExpandPlayerScreen)
+  bool autoExpandPlayerScreen = DefaultSettings.autoExpandPlayerScreen;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
@@ -1781,7 +1817,7 @@ enum QueueItemQueueType {
 
 @HiveType(typeId: 54)
 class QueueItemSource {
-  QueueItemSource.rawId({
+  const QueueItemSource.rawId({
     required this.type,
     required this.name,
     required this.id,
@@ -1834,19 +1870,19 @@ class QueueItemSource {
   }) : id = id.raw;
 
   @HiveField(0)
-  QueueItemSourceType type;
+  final QueueItemSourceType type;
 
   @HiveField(1)
-  QueueItemSourceName name;
+  final QueueItemSourceName name;
 
   @HiveField(2)
-  String id;
+  final String id;
 
   @HiveField(3)
-  BaseItemDto? item;
+  final BaseItemDto? item;
 
   @HiveField(4)
-  double? contextNormalizationGain;
+  final double? contextNormalizationGain;
 }
 
 @HiveType(typeId: 55)
@@ -2068,6 +2104,21 @@ class FinampHistoryItem {
 
   @HiveField(2)
   DateTime? endTime;
+
+  /// The duration of the play session (up until the current moment if still playing)
+  Duration? get playDuration {
+    return (endTime == null ? startTime.difference(DateTime.now()) : endTime!.difference(startTime)).abs();
+  }
+
+  /// The percentage of the item that has been played (up until the current moment if still playing)
+  /// This shows the listened duration, not the "played" duration. so skipping ahead does not increase the play percentage
+  double? get playPercentage {
+    final totalDuration = item.baseItem?.runTimeTicksDuration() ?? item.item.duration;
+    if (totalDuration == null) {
+      return null;
+    }
+    return (playDuration!.inMicroseconds / totalDuration.inMicroseconds).clamp(0.0, 1.0);
+  }
 }
 
 @HiveType(typeId: 61)
@@ -2080,9 +2131,10 @@ class FinampStorableQueueInfo {
     required this.queue,
     required this.creation,
     required this.source,
+    required this.order,
   });
 
-  FinampStorableQueueInfo.fromQueueInfo(FinampQueueInfo info, int? seek)
+  FinampStorableQueueInfo.fromQueueInfo(FinampQueueInfo info, int? seek, this.order)
     : previousTracks = info.previousTracks.map<BaseItemId>((track) => track.baseItemId).toList(),
       currentTrack = info.currentTrack?.baseItemId,
       currentTrackSeek = seek,
@@ -2113,9 +2165,12 @@ class FinampStorableQueueInfo {
   @HiveField(6)
   QueueItemSource? source;
 
+  @HiveField(7)
+  FinampPlaybackOrder? order;
+
   @override
   String toString() {
-    return "previous:$previousTracks current:$currentTrack seek:$currentTrackSeek next:$nextUp queue:$queue";
+    return "previous:$previousTracks current:$currentTrack seek:$currentTrackSeek next:$nextUp queue:$queue order:$order";
   }
 
   int get trackCount {
@@ -2153,6 +2208,9 @@ enum VolumeNormalizationMode {
   /// Only normalize if playing albums
   @HiveField(2)
   albumOnly,
+
+  @HiveField(3)
+  albumBased,
 }
 
 @HiveType(typeId: 64)
@@ -3267,4 +3325,137 @@ enum SleepTimerType {
 
   @HiveField(1)
   tracks,
+}
+
+@HiveType(typeId: 100)
+enum TileAdditionalInfoType {
+  @HiveField(0)
+  adaptive,
+  @HiveField(1)
+  dateAdded,
+  @HiveField(2)
+  dateReleased,
+  @HiveField(3)
+  duration,
+  @HiveField(4)
+  playCount,
+  @HiveField(5)
+  dateLastPlayed,
+  @HiveField(6)
+  none;
+
+  /// Human-readable version of this enum.
+  @override
+  @Deprecated("Use toLocalisedString when possible")
+  String toString() => _humanReadableName(this);
+
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableName(TileAdditionalInfoType additionalInfoType) {
+    switch (additionalInfoType) {
+      case TileAdditionalInfoType.adaptive:
+        return "Adaptive";
+      case TileAdditionalInfoType.dateAdded:
+        return "Date Added";
+      case TileAdditionalInfoType.dateReleased:
+        return "Release Date";
+      case TileAdditionalInfoType.duration:
+        return "Duration";
+      case TileAdditionalInfoType.playCount:
+        return "Play Count";
+      case TileAdditionalInfoType.dateLastPlayed:
+        return "Date Last Played";
+      case TileAdditionalInfoType.none:
+        return "None";
+    }
+  }
+
+  String _humanReadableLocalisedName(TileAdditionalInfoType additionalInfoType, BuildContext context) {
+    switch (additionalInfoType) {
+      case TileAdditionalInfoType.adaptive:
+        return AppLocalizations.of(context)!.adaptive;
+      case TileAdditionalInfoType.dateAdded:
+        return AppLocalizations.of(context)!.dateAdded;
+      case TileAdditionalInfoType.dateReleased:
+        return AppLocalizations.of(context)!.premiereDate;
+      case TileAdditionalInfoType.duration:
+        return AppLocalizations.of(context)!.duration;
+      case TileAdditionalInfoType.playCount:
+        return AppLocalizations.of(context)!.playCount;
+      case TileAdditionalInfoType.dateLastPlayed:
+        return AppLocalizations.of(context)!.datePlayed;
+      case TileAdditionalInfoType.none:
+        return AppLocalizations.of(context)!.none;
+    }
+  }
+}
+
+@HiveType(typeId: 101)
+enum DiscordRpcIcon {
+  @HiveField(0)
+  black,
+  @HiveField(1)
+  dark,
+  @HiveField(2)
+  light,
+  @HiveField(3)
+  transparent,
+  @HiveField(4)
+  transparentWhite,
+  @HiveField(5)
+  jellyfinTransparent;
+
+  @override
+  String toString() {
+    switch (this) {
+      case dark:
+        return "dark";
+      case black:
+        return "black";
+      case light:
+        return "light";
+      case transparent:
+        return "transparent";
+      case transparentWhite:
+        return "transparent-white";
+      case jellyfinTransparent:
+        return "jellyfin-transparent";
+    }
+  }
+
+  String toImage() {
+    switch (this) {
+      case dark:
+        return "assets/icon/icon_combined.png";
+      case black:
+        return "assets/icon/icon_square_bg-black.png";
+      case light:
+        return "assets/icon/icon_square_bg-white.png";
+      case transparent:
+        return "images/finamp_cropped.png";
+      case transparentWhite:
+        return "assets/icon/icon_white_noborder.png";
+      case jellyfinTransparent:
+        return "images/jellyfin-icon-transparent.png"; // missing
+    }
+  }
+
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableLocalisedName(DiscordRpcIcon icon, BuildContext context) {
+    switch (icon) {
+      case dark:
+        return AppLocalizations.of(context)!.discordRPCIconDark;
+      case black:
+        return AppLocalizations.of(context)!.discordRPCIconBlack;
+      case light:
+        return AppLocalizations.of(context)!.discordRPCIconLight;
+      case jellyfinTransparent:
+        return AppLocalizations.of(context)!.discordRPCIconJFTransparent;
+      case transparent:
+        return AppLocalizations.of(context)!.discordRPCIconTransparent;
+      case transparentWhite:
+        return AppLocalizations.of(context)!.discordRPCIconWhiteTransparent;
+    }
+  }
 }

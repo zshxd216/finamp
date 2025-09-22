@@ -1,3 +1,5 @@
+import 'package:finamp/components/InteractionSettingsScreen/FastScrollSelector.dart';
+import 'package:finamp/components/InteractionSettingsScreen/auto_expand_player_screen.dart';
 import 'package:finamp/components/InteractionSettingsScreen/item_swipe_action_dropdown_list_tile.dart';
 import 'package:finamp/components/InteractionSettingsScreen/keep_screen_on_dropdown_list_tile.dart';
 import 'package:finamp/components/InteractionSettingsScreen/keep_screen_on_while_charging_selector.dart';
@@ -6,10 +8,6 @@ import 'package:finamp/screens/layout_settings_screen.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../components/InteractionSettingsScreen/FastScrollSelector.dart';
-import '../components/InteractionSettingsScreen/disable_gestures.dart';
-import '../components/InteractionSettingsScreen/disable_vibration.dart';
 
 class InteractionSettingsScreen extends StatefulWidget {
   const InteractionSettingsScreen({super.key});
@@ -39,9 +37,8 @@ class _InteractionSettingsScreenState extends State<InteractionSettingsScreen> {
           ApplyFilterOnGenreChipTapSwitch(),
           AutoSwitchItemCurationTypeToggle(),
           FastScrollSelector(),
+          AutoExpandPlayerScreenSelector(),
           ShowDeleteFromServerOptionToggle(),
-          DisableGestureSelector(),
-          DisableVibrationSelector(),
           KeepScreenOnDropdownListTile(),
           KeepScreenOnWhilePluggedInSelector(),
         ],

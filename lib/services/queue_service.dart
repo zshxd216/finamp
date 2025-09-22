@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:finamp/components/global_snackbar.dart';
+import 'package:finamp/components/now_playing_bar.dart';
 import 'package:finamp/gen/assets.gen.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -29,6 +30,12 @@ import 'music_player_background_task.dart';
 class QueueService {
   /// Used to build content:// URIs that are handled by Finamp's built-in content provider.
   static final contentProviderPackageName = "com.unicornsonlsd.finamp";
+
+  static const savedQueueSource = QueueItemSource.rawId(
+    type: QueueItemSourceType.unknown,
+    name: QueueItemSourceName(type: QueueItemSourceNameType.savedQueue),
+    id: "savedqueue",
+  );
 
   final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final _audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
@@ -263,6 +270,7 @@ class QueueService {
     FinampStorableQueueInfo info = FinampStorableQueueInfo.fromQueueInfo(
       getQueue(),
       withPosition ? _audioHandler.playbackPosition.inMilliseconds : null,
+      playbackOrder,
     );
     _queuesBox.put("latest", info);
     return info;
@@ -326,13 +334,11 @@ class QueueService {
     }
     _queueServiceLogger.finest("Loading stored queue: $info");
 
-    // After loading queue, do not begin overwriting latest until the user modifies
-    // the queue or begins playback.  This prevents saving unused queues that
-    // had loading errors or were immediately overwritten.
-    SavedQueueState? finalState = SavedQueueState.pendingSave;
+    SavedQueueState? finalState = SavedQueueState.failed;
     try {
       _savedQueueState = SavedQueueState.loading;
       if (info.trackCount == 0) {
+        finalState = SavedQueueState.pendingSave;
         return;
       }
       refreshQueueStream();
@@ -392,16 +398,13 @@ class QueueService {
 
       if (loadedTracks > 0) {
         await _replaceWholeQueue(
+          isRestoredQueue: true,
           itemList: items["previous"]! + items["current"]! + items["queue"]!,
           initialIndex: items["current"]!.isNotEmpty || items["queue"]!.isNotEmpty ? items["previous"]!.length : 0,
+          // Always restore queues as linear to prevent them being reshuffled while restoring
+          order: FinampPlaybackOrder.linear,
           beginPlaying: isReload && (_audioHandler.playbackState.valueOrNull?.playing ?? false),
-          source:
-              info.source ??
-              QueueItemSource.rawId(
-                type: QueueItemSourceType.unknown,
-                name: const QueueItemSourceName(type: QueueItemSourceNameType.savedQueue),
-                id: "savedqueue",
-              ),
+          source: info.source ?? savedQueueSource,
         );
 
         Future<void> seekFuture = Future.value();
@@ -413,15 +416,22 @@ class QueueService {
         await seekFuture;
       }
       _queueServiceLogger.info("Loaded saved queue.");
-      if (loadedTracks == 0 && info.trackCount > 0) {
-        finalState = SavedQueueState.failed;
-        _failedSavedQueue = info;
-      } else if (droppedTracks > 0) {
-        GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.queueRestoreError(droppedTracks));
+      if (loadedTracks > 0 || info.trackCount == 0) {
+        // After loading queue, do not begin overwriting latest until the user modifies
+        // the queue or begins playback.  This prevents saving unused queues that
+        // had loading errors or were immediately overwritten.
+        finalState = SavedQueueState.pendingSave;
+
+        if (droppedTracks > 0) {
+          GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.queueRestoreError(droppedTracks));
+        }
       }
     } finally {
       if (finalState != null) {
         _savedQueueState = finalState;
+      }
+      if (finalState == SavedQueueState.failed) {
+        _failedSavedQueue = info;
       }
       refreshQueueStream();
       await Future<void>.delayed(const Duration(seconds: 1)).then((_) {
@@ -438,30 +448,6 @@ class QueueService {
   }) async {
     // _initialQueue = list; // save original PlaybackList for looping/restarting and meta info
 
-    if (items.isEmpty) {
-      _queueServiceLogger.warning("Cannot start playback of empty queue! Source: $source");
-      return;
-    }
-
-    // Native shuffle is not currently implemented on desktop.  Perform manually.
-    if (!(Platform.isAndroid || Platform.isIOS) && order == FinampPlaybackOrder.shuffled) {
-      List<jellyfin_models.BaseItemDto> clonedItems = List.from(items);
-      clonedItems.shuffle();
-      items = clonedItems;
-      order = FinampPlaybackOrder.linear;
-    }
-
-    if (startingIndex == null) {
-      if (order == FinampPlaybackOrder.shuffled) {
-        startingIndex = Random().nextInt(items.length);
-      } else {
-        startingIndex = 0;
-      }
-    }
-
-    archiveSavedQueue();
-    _savedQueueState = SavedQueueState.saving;
-
     await _replaceWholeQueue(itemList: items, source: source, order: order, initialIndex: startingIndex);
     _queueServiceLogger.info(
       "Started playing '${GlobalSnackbar.materialAppScaffoldKey.currentContext != null ? source.name.getLocalized(GlobalSnackbar.materialAppScaffoldKey.currentContext!) : source.name.type}' (${source.type}) in order $order from index $startingIndex",
@@ -474,15 +460,45 @@ class QueueService {
   Future<void> _replaceWholeQueue({
     required List<jellyfin_models.BaseItemDto> itemList,
     required QueueItemSource source,
-    required int initialIndex,
+    int? initialIndex,
     FinampPlaybackOrder? order,
     bool beginPlaying = true,
+    bool isRestoredQueue = false,
   }) async {
     try {
+      if (itemList.isEmpty) {
+        _queueServiceLogger.warning("Cannot start playback of empty queue! Source: $source");
+        return;
+      }
+
+      order ??= FinampPlaybackOrder.linear;
+
+      // Native shuffle is not currently implemented on mediakit backend.  Perform manually.
+      if ((Platform.isLinux || Platform.isWindows) && order == FinampPlaybackOrder.shuffled) {
+        List<jellyfin_models.BaseItemDto> clonedItems = List.from(itemList);
+        clonedItems.shuffle();
+        itemList = clonedItems;
+        order = FinampPlaybackOrder.linear;
+      }
+
+      if (initialIndex == null) {
+        if (order == FinampPlaybackOrder.shuffled) {
+          initialIndex = Random().nextInt(itemList.length);
+        } else {
+          initialIndex = 0;
+        }
+      }
+
       if (initialIndex >= itemList.length) {
         return Future.error("initialIndex is bigger than the itemList! ($initialIndex > ${itemList.length})");
       }
+
       _queueServiceLogger.finest("Replacing whole queue with ${itemList.length} items.");
+
+      if (!isRestoredQueue) {
+        archiveSavedQueue();
+        _savedQueueState = SavedQueueState.saving;
+      }
 
       _queue.clear(); // empty queue
       _queuePreviousTracks.clear();
@@ -498,12 +514,12 @@ class QueueService {
         try {
           MediaItem mediaItem = await generateMediaItem(
             item,
-            contextNormalizationGain: source.contextNormalizationGain,
+            contextNormalizationGain: isRestoredQueue ? null : source.contextNormalizationGain,
           );
           newItems.add(
             FinampQueueItem(
               item: mediaItem,
-              source: source,
+              source: isRestoredQueue ? savedQueueSource : source,
               type: i == 0 ? QueueItemQueueType.currentTrack : QueueItemQueueType.queue,
             ),
           );
@@ -536,6 +552,14 @@ class QueueService {
 
       await _audioHandler.initializeAudioSource(_queueAudioSource, preload: true);
 
+      //!!! keep this roughly here so the player screen opens to the correct track, but doesn't seem laggy
+      if (beginPlaying) {
+        // only open the player screen if we actually start playing, otherwise it would open after startup + queue restore
+        if (FinampSettingsHelper.finampSettings.autoExpandPlayerScreen) {
+          unawaited(NowPlayingBar.openPlayerScreen(GlobalSnackbar.materialAppNavigatorKey.currentContext!));
+        }
+      }
+
       newShuffledOrder = List.from(_queueAudioSource.shuffleIndices);
 
       _order = FinampQueueOrder(
@@ -548,10 +572,7 @@ class QueueService {
       _queueServiceLogger.fine("Order items length: ${_order.items.length}");
 
       // set playback order to trigger shuffle if necessary (fixes indices being wrong when starting with shuffle enabled)
-
-      if (order != null) {
-        playbackOrder = order;
-      }
+      playbackOrder = order;
 
       // _queueStream.add(getQueue());
       _queueFromConcatenatingAudioSource();
@@ -618,10 +639,15 @@ class QueueService {
     return;
   }
 
-  Future<void> addToQueue({required List<jellyfin_models.BaseItemDto> items, QueueItemSource? source}) async {
+  Future<void> addToQueue({
+    required List<jellyfin_models.BaseItemDto> items,
+    QueueItemSource? source,
+    FinampPlaybackOrder? order,
+  }) async {
     if (_queueAudioSource.length == 0) {
       return _replaceWholeQueue(
         itemList: items,
+        order: order,
         source:
             source ??
             QueueItemSource.rawId(
@@ -630,7 +656,6 @@ class QueueService {
               id: "queue",
               item: null,
             ),
-        initialIndex: 0,
         beginPlaying: false,
       );
     }
@@ -638,6 +663,11 @@ class QueueService {
     try {
       if (_savedQueueState == SavedQueueState.pendingSave) {
         _savedQueueState = SavedQueueState.saving;
+      }
+      if (order == FinampPlaybackOrder.shuffled) {
+        List<jellyfin_models.BaseItemDto> clonedItems = List.from(items);
+        clonedItems.shuffle();
+        items = clonedItems;
       }
       List<FinampQueueItem> queueItems = [];
       for (final item in items) {
@@ -664,7 +694,11 @@ class QueueService {
     }
   }
 
-  Future<void> addNext({required List<jellyfin_models.BaseItemDto> items, QueueItemSource? source}) async {
+  Future<void> addNext({
+    required List<jellyfin_models.BaseItemDto> items,
+    QueueItemSource? source,
+    FinampPlaybackOrder? order,
+  }) async {
     if (_queueAudioSource.length == 0) {
       return _replaceWholeQueue(
         itemList: items,
@@ -676,14 +710,19 @@ class QueueService {
               id: "queue",
               item: null,
             ),
-        initialIndex: 0,
         beginPlaying: false,
+        order: order,
       );
     }
 
     try {
       if (_savedQueueState == SavedQueueState.pendingSave) {
         _savedQueueState = SavedQueueState.saving;
+      }
+      if (order == FinampPlaybackOrder.shuffled) {
+        List<jellyfin_models.BaseItemDto> clonedItems = List.from(items);
+        clonedItems.shuffle();
+        items = clonedItems;
       }
       List<FinampQueueItem> queueItems = [];
       for (final item in items) {
@@ -719,7 +758,11 @@ class QueueService {
     }
   }
 
-  Future<void> addToNextUp({required List<jellyfin_models.BaseItemDto> items, QueueItemSource? source}) async {
+  Future<void> addToNextUp({
+    required List<jellyfin_models.BaseItemDto> items,
+    QueueItemSource? source,
+    FinampPlaybackOrder? order,
+  }) async {
     if (_queueAudioSource.length == 0) {
       return _replaceWholeQueue(
         itemList: items,
@@ -731,14 +774,19 @@ class QueueService {
               id: "queue",
               item: null,
             ),
-        initialIndex: 0,
         beginPlaying: false,
+        order: order,
       );
     }
 
     try {
       if (_savedQueueState == SavedQueueState.pendingSave) {
         _savedQueueState = SavedQueueState.saving;
+      }
+      if (order == FinampPlaybackOrder.shuffled) {
+        List<jellyfin_models.BaseItemDto> clonedItems = List.from(items);
+        clonedItems.shuffle();
+        items = clonedItems;
       }
       List<FinampQueueItem> queueItems = [];
       for (final item in items) {
@@ -927,7 +975,8 @@ class QueueService {
   FinampLoopMode get loopMode => _loopMode;
 
   set playbackOrder(FinampPlaybackOrder order) {
-    if (!Platform.isAndroid && !Platform.isIOS && order != FinampPlaybackOrder.linear) {
+    // Native shuffle is not currently implemented on mediakit backend.
+    if ((Platform.isLinux || Platform.isWindows) && order != FinampPlaybackOrder.linear) {
       GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.desktopShuffleWarning);
       order = FinampPlaybackOrder.linear;
     }
@@ -1334,5 +1383,16 @@ class NextUpShuffleOrder extends ShuffleOrder {
   @override
   void clear() {
     indices.clear();
+  }
+}
+
+extension SequentialTracks on FinampQueueInfo {
+  bool isCurrentlyPlayingTracksFromSameAlbum() {
+    final currentTrackAlbum = currentTrack?.baseItem?.parentId;
+    if (currentTrackAlbum == null) return false;
+    final previousTrackAlbum = previousTracks.lastOrNull?.baseItem?.parentId;
+    final nextTrackAlbum = (nextUp.firstOrNull ?? queue.firstOrNull)?.baseItem?.parentId;
+
+    return previousTrackAlbum == currentTrackAlbum || currentTrackAlbum == nextTrackAlbum;
   }
 }

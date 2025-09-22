@@ -12,43 +12,6 @@ import 'jellyfin_api_helper.dart';
 
 final metadataProviderLogger = Logger("MetadataProvider");
 
-class MetadataRequest {
-  const MetadataRequest({
-    required this.item,
-    this.queueItem,
-    this.includeLyrics = false,
-    this.includeAnimatedCover = false,
-    this.includeVerticalBackgroundVideo = false,
-    this.checkIfSpeedControlNeeded = false,
-  }) : super();
-
-  final BaseItemDto item;
-  final FinampQueueItem? queueItem;
-
-  final bool includeLyrics;
-
-  /// Requries the Animated Cover plugin
-  final bool includeAnimatedCover;
-
-  /// Requries the Animated Cover plugin
-  final bool includeVerticalBackgroundVideo;
-  final bool checkIfSpeedControlNeeded;
-
-  @override
-  bool operator ==(Object other) {
-    return other is MetadataRequest &&
-        other.includeLyrics == includeLyrics &&
-        other.checkIfSpeedControlNeeded == checkIfSpeedControlNeeded &&
-        other.includeAnimatedCover == includeAnimatedCover &&
-        other.includeVerticalBackgroundVideo == includeVerticalBackgroundVideo &&
-        other.item.id == item.id &&
-        other.queueItem?.id == queueItem?.id;
-  }
-
-  @override
-  int get hashCode => Object.hash(item.id, queueItem?.id, includeLyrics, checkIfSpeedControlNeeded);
-}
-
 /// A storage container for metadata about a track.  The codec information will reflect
 /// the downloaded file if appropriate, even for transcoded downloads.  Online
 /// transcoding will not be reflected.
@@ -65,6 +28,7 @@ class MetadataProvider {
   File? verticalBackgroundVideoFile;
   bool isDownloaded;
   bool qualifiesForPlaybackSpeedControl;
+  double? parentNormalizationGain;
 
   MetadataProvider({
     required this.mediaSourceInfo,
@@ -76,32 +40,38 @@ class MetadataProvider {
     this.isDownloaded = false,
     this.qualifiesForPlaybackSpeedControl = false,
     BaseItemDto? item,
+    this.parentNormalizationGain,
   }) : _item = item;
 
   bool get hasLyrics => mediaSourceInfo.mediaStreams.any((e) => e.type == "Lyric");
+
+  bool get includeAnimatedCover => true;
+  bool get includeVerticalBackgroundVideo => true;
 
   // Store reference to the item to check metadata
   final BaseItemDto? _item;
 }
 
-final AutoDisposeFutureProviderFamily<MetadataProvider?, MetadataRequest>
-metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, MetadataRequest>((ref, request) async {
-  // watch settings to trigger re-fetching metadata when offline mode changes
-  ref.watch(finampSettingsProvider.isOffline);
+final AutoDisposeFutureProviderFamily<MetadataProvider?, BaseItemDto>
+metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, BaseItemDto>((ref, item) async {
+  Future<BaseItemDto?>? parentFuture;
+  if (item.parentId != null) {
+    parentFuture = ref.watch(albumProvider(item.parentId!).future);
+  }
 
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final downloadsService = GetIt.instance<DownloadsService>();
 
-  metadataProviderLogger.fine("Fetching metadata for '${request.item.name}' (${request.item.id})");
+  metadataProviderLogger.fine("Fetching metadata for '${item.name}' (${item.id})");
 
   MediaSourceInfo? playbackInfo;
   MediaSourceInfo? localPlaybackInfo;
 
-  final downloadStub = await downloadsService.getTrackInfo(id: request.item.id);
+  final downloadStub = await downloadsService.getTrackInfo(id: item.id);
   if (downloadStub != null) {
     final downloadItem = await ref.watch(downloadsService.itemProvider(downloadStub).future);
     if (downloadItem != null && downloadItem.state.isComplete) {
-      metadataProviderLogger.fine("Got offline metadata for '${request.item.name}'");
+      metadataProviderLogger.fine("Got offline metadata for '${item.name}'");
       var profile = downloadItem.fileTranscodingProfile;
       // We could explicitly get a mediaSource of type Default, but just grabbing
       // the first seems to generally work?
@@ -147,17 +117,17 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, Metadata
 
   //!!! only use offline metadata if the app is in offline mode
   // Finamp should always use the server metadata when online, if possible
-  if (FinampSettingsHelper.finampSettings.isOffline) {
+  if (ref.watch(finampSettingsProvider.isOffline)) {
     playbackInfo = localPlaybackInfo;
   } else {
     // fetch from server in online mode
     metadataProviderLogger.fine(
-      "Fetching metadata for '${request.item.name}' (${request.item.id}) from server due to missing attributes",
+      "Fetching metadata for '${item.name}' (${item.id}) from server due to missing attributes",
     );
     try {
-      playbackInfo = (await jellyfinApiHelper.getPlaybackInfo(request.item.id))?.first;
+      playbackInfo = (await jellyfinApiHelper.getPlaybackInfo(item.id))?.first;
     } catch (e) {
-      metadataProviderLogger.severe("Failed to fetch metadata for '${request.item.name}' (${request.item.id})", e);
+      metadataProviderLogger.severe("Failed to fetch metadata for '${item.name}' (${item.id})", e);
       return null;
     }
 
@@ -175,75 +145,61 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, Metadata
   }
 
   if (playbackInfo == null) {
-    metadataProviderLogger.warning("Couldn't load metadata for '${request.item.name}' (${request.item.id})");
+    metadataProviderLogger.warning("Couldn't load metadata for '${item.name}' (${item.id})");
     return null;
+  }
+
+  BaseItemDto? parent;
+  if (parentFuture != null) {
+    parent = await parentFuture;
   }
 
   final metadata = MetadataProvider(
     mediaSourceInfo: playbackInfo,
     isDownloaded: localPlaybackInfo != null,
-    item: request.item,
+    parentNormalizationGain: parent?.normalizationGain,
   );
 
-  // check if item qualifies for having playback speed control available
-  if (request.checkIfSpeedControlNeeded) {
-    for (final genre in request.item.genres ?? []) {
-      if (MetadataProvider.speedControlGenres.contains(genre.toLowerCase())) {
-        metadata.qualifiesForPlaybackSpeedControl = true;
-        break;
-      }
-    }
-    if (!metadata.qualifiesForPlaybackSpeedControl &&
-        (metadata.mediaSourceInfo.runTimeTicks ?? 0) >
-            MetadataProvider.speedControlLongTrackDuration.inMicroseconds * 10) {
-      // we might want playback speed control for long tracks (like podcasts or audiobook chapters)
+  for (final genre in item.genres ?? []) {
+    if (MetadataProvider.speedControlGenres.contains(genre.toLowerCase())) {
       metadata.qualifiesForPlaybackSpeedControl = true;
-    } else {
-      // check if "album" is long enough to qualify for playback speed control
-      if (request.item.parentId != null) {
-        if (FinampSettingsHelper.finampSettings.isOffline) {
-          final parent = await downloadsService.getCollectionInfo(id: request.item.parentId);
-          if ((parent?.baseItem?.runTimeTicks ?? 0) >
-              MetadataProvider.speedControlLongAlbumDuration.inMicroseconds * 10) {
-            metadata.qualifiesForPlaybackSpeedControl = true;
-          }
-        } else {
-          try {
-            final parent = await jellyfinApiHelper.getItemById(request.item.parentId!);
-            if ((parent.runTimeTicks ?? 0) > MetadataProvider.speedControlLongAlbumDuration.inMicroseconds * 10) {
-              metadata.qualifiesForPlaybackSpeedControl = true;
-            }
-          } catch (e) {
-            metadataProviderLogger.warning(
-              "Failed to check if '${request.item.name}' (${request.item.id}) qualifies for playback speed controls",
-              e,
-            );
-          }
-        }
-      }
+      break;
     }
   }
+  if (!metadata.qualifiesForPlaybackSpeedControl &&
+      (metadata.mediaSourceInfo.runTimeTicks ?? 0) >
+          MetadataProvider.speedControlLongTrackDuration.inMicroseconds * 10) {
+    // we might want playback speed control for long tracks (like podcasts or audiobook chapters)
+    metadata.qualifiesForPlaybackSpeedControl = true;
+  }
 
-  if (request.includeLyrics && metadata.hasLyrics) {
+  // check if item qualifies for having playback speed control available
+  if (!metadata.qualifiesForPlaybackSpeedControl &&
+      parent != null &&
+      (parent.runTimeTicks ?? 0) > MetadataProvider.speedControlLongAlbumDuration.inMicroseconds * 10) {
+    metadata.qualifiesForPlaybackSpeedControl = true;
+  }
+
+  if (metadata.hasLyrics) {
     //!!! only use offline metadata if the app is in offline mode
     // Finamp should always use the server metadata when online, if possible
-    if (FinampSettingsHelper.finampSettings.isOffline) {
+    if (ref.watch(finampSettingsProvider.isOffline)) {
       DownloadedLyrics? downloadedLyrics;
-      downloadedLyrics = await downloadsService.getLyricsDownload(baseItem: request.item);
+      downloadedLyrics = await downloadsService.getLyricsDownload(baseItem: item);
       if (downloadedLyrics != null) {
         metadata.lyrics = downloadedLyrics.lyricDto;
-        metadataProviderLogger.fine("Got offline lyrics for '${request.item.name}'");
+        metadataProviderLogger.fine("Got offline lyrics for '${item.name}'");
       } else {
-        metadataProviderLogger.fine("No offline lyrics for '${request.item.name}'");
+        metadataProviderLogger.fine("No offline lyrics for '${item.name}'");
       }
     } else {
-      metadataProviderLogger.fine("Fetching lyrics for '${request.item.name}' (${request.item.id})");
+      metadataProviderLogger.fine("Fetching lyrics for '${item.name}' (${item.id})");
       try {
-        final lyrics = await jellyfinApiHelper.getLyrics(itemId: request.item.id);
+        final lyrics = await jellyfinApiHelper.getLyrics(itemId: item.id);
         metadata.lyrics = lyrics;
       } catch (e) {
         metadataProviderLogger.warning(
-          "Failed to fetch lyrics for '${request.item.name}' (${request.item.id}). Metadata might be stale",
+          "Failed to fetch lyrics for '${item.name}' (${item.id}). Metadata might be stale",
           e,
         );
       }
@@ -253,33 +209,33 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, Metadata
   /// Adds animated cover to metadata
   ///
   /// Requires the Animated Covers Plugin
-  if (request.includeAnimatedCover) {
+  if (metadata.includeAnimatedCover) {
     //!!! only use offline metadata if the app is in offline mode
     // Finamp should always use the server metadata when online, if possible
     if (FinampSettingsHelper.finampSettings.isOffline) {
-      DownloadItem? downloadedAnimatedCover = downloadsService.getAnimatedCoverDownload(item: request.item);
+      DownloadItem? downloadedAnimatedCover = downloadsService.getAnimatedCoverDownload(item: item);
       if (downloadedAnimatedCover?.file != null) {
         metadata.animatedCoverFile = downloadedAnimatedCover!.file;
-        metadataProviderLogger.fine("Got offline animated cover for '${request.item.name}'");
+        metadataProviderLogger.fine("Got offline animated cover for '${item.name}'");
       } else {
-        metadataProviderLogger.fine("No offline animated cover for '${request.item.name}'");
+        metadataProviderLogger.fine("No offline animated cover for '${item.name}'");
       }
     } else {
-      metadataProviderLogger.fine("Fetching animated cover for '${request.item.name}' (${request.item.id})");
+      metadataProviderLogger.fine("Fetching animated cover for '${item.name}' (${item.id})");
       try {
         // In online mode, trigger download if not already downloaded for future offline use
-        DownloadItem? downloadedAnimatedCover = downloadsService.getAnimatedCoverDownload(item: request.item);
+        DownloadItem? downloadedAnimatedCover = downloadsService.getAnimatedCoverDownload(item: item);
         if (downloadedAnimatedCover?.file != null) {
           metadata.animatedCoverFile = downloadedAnimatedCover!.file;
-          metadataProviderLogger.fine("Using cached animated cover for '${request.item.name}'");
+          metadataProviderLogger.fine("Using cached animated cover for '${item.name}'");
         } else {
           // File not cached, but we can still provide the URL for online streaming
           // The downloads service will handle background caching if configured
-          metadataProviderLogger.fine("Animated cover not cached for '${request.item.name}', using online streaming");
+          metadataProviderLogger.fine("Animated cover not cached for '${item.name}', using online streaming");
         }
       } catch (e) {
         metadataProviderLogger.warning(
-          "Failed to fetch animated cover for '${request.item.name}' (${request.item.id}). Metadata might be stale",
+          "Failed to fetch animated cover for '${item.name}' (${item.id}). Metadata might be stale",
           e,
         );
       }
@@ -289,35 +245,35 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, Metadata
   /// Adds vertical background video to metadata
   ///
   /// Requires the Animated Covers Plugin
-  if (request.includeVerticalBackgroundVideo) {
+  if (metadata.includeVerticalBackgroundVideo) {
     //!!! only use offline metadata if the app is in offline mode
     // Finamp should always use the server metadata when online, if possible
     if (FinampSettingsHelper.finampSettings.isOffline) {
-      DownloadItem? downloadedVerticalVideo = downloadsService.getVerticalBackgroundVideoDownload(item: request.item);
+      DownloadItem? downloadedVerticalVideo = downloadsService.getVerticalBackgroundVideoDownload(item: item);
       if (downloadedVerticalVideo?.file != null) {
         metadata.verticalBackgroundVideoFile = downloadedVerticalVideo!.file;
-        metadataProviderLogger.fine("Got offline vertical background video for '${request.item.name}'");
+        metadataProviderLogger.fine("Got offline vertical background video for '${item.name}'");
       } else {
-        metadataProviderLogger.fine("No offline vertical background video for '${request.item.name}'");
+        metadataProviderLogger.fine("No offline vertical background video for '${item.name}'");
       }
     } else {
-      metadataProviderLogger.fine("Fetching vertical background video for '${request.item.name}' (${request.item.id})");
+      metadataProviderLogger.fine("Fetching vertical background video for '${item.name}' (${item.id})");
       try {
         // In online mode, trigger download if not already downloaded for future offline use
-        DownloadItem? downloadedVerticalVideo = downloadsService.getVerticalBackgroundVideoDownload(item: request.item);
+        DownloadItem? downloadedVerticalVideo = downloadsService.getVerticalBackgroundVideoDownload(item: item);
         if (downloadedVerticalVideo?.file != null) {
           metadata.verticalBackgroundVideoFile = downloadedVerticalVideo!.file;
-          metadataProviderLogger.fine("Using cached vertical background video for '${request.item.name}'");
+          metadataProviderLogger.fine("Using cached vertical background video for '${item.name}'");
         } else {
           // File not cached, but we can still provide the URL for online streaming
           // The downloads service will handle background caching if configured
           metadataProviderLogger.fine(
-            "Vertical background video not cached for '${request.item.name}', using online streaming",
+            "Vertical background video not cached for '${item.name}', using online streaming",
           );
         }
       } catch (e) {
         metadataProviderLogger.warning(
-          "Failed to fetch vertical background video for '${request.item.name}' (${request.item.id}). Metadata might be stale",
+          "Failed to fetch vertical background video for '${item.name}' (${item.id}). Metadata might be stale",
           e,
         );
       }
@@ -325,8 +281,32 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, Metadata
   }
 
   metadataProviderLogger.fine(
-    "Fetched metadata for '${request.item.name}' (${request.item.id}): lyrics=${metadata.lyrics != null}, animatedCover=${metadata.animatedCoverFile != null}, verticalVideo=${metadata.verticalBackgroundVideoFile != null}",
+    "Fetched metadata for '${item.name}' (${item.id}): lyrics=${metadata.lyrics != null}, animatedCover=${metadata.animatedCoverFile != null}, verticalVideo=${metadata.verticalBackgroundVideoFile != null}",
   );
 
   return metadata;
 });
+
+final AutoDisposeFutureProviderFamily<BaseItemDto?, BaseItemId> albumProvider = FutureProvider.autoDispose
+    .family<BaseItemDto?, BaseItemId>((ref, parentId) async {
+      final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+      final downloadsService = GetIt.instance<DownloadsService>();
+
+      if (ref.watch(finampSettingsProvider.isOffline)) {
+        final parentInfo = await downloadsService.getCollectionInfo(id: parentId);
+        if (parentInfo == null) {
+          metadataProviderLogger.warning("Couldn't find parent collection '$parentId' in offline mode");
+        } else if (parentInfo.baseItem == null) {
+          metadataProviderLogger.warning("Offline metadata for '$parentId' does not include jellyfin BaseItemDto");
+        } else {
+          return parentInfo.baseItem;
+        }
+      } else {
+        try {
+          return await jellyfinApiHelper.getItemById(parentId);
+        } catch (e) {
+          metadataProviderLogger.warning("Failed to get parent item '$parentId'", e);
+        }
+      }
+      return null;
+    });

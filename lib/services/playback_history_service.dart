@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:finamp/services/discord_rpc.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/playon_service.dart';
 import 'package:finamp/services/queue_service.dart';
@@ -249,6 +250,19 @@ class PlaybackHistoryService {
     final groupedHistoryMap = <DateTime, List<FinampHistoryItem>>{};
 
     for (var element in _history) {
+      // ignore "skipped" tracks
+      if (
+      // not still playing
+      element.endTime != null &&
+          !(
+          // played less than 30 seconds
+          (element.playDuration ?? Duration.zero) >= const Duration(seconds: 30) ||
+              // played less than 20% of the track duration
+              (element.playPercentage ?? 0.0) >=
+                  0.2)) {
+        continue;
+      }
+
       final date = dateTimeConstructor(element);
 
       if (groupedHistoryMap.containsKey(date)) {
@@ -371,6 +385,7 @@ class PlaybackHistoryService {
         // don't log start event to offline listen log helper, as only stop events are logged
       }
     }
+    await DiscordRpc.updateRPC();
   }
 
   /// Report track changes to the Jellyfin Server if the user is not offline.
@@ -440,6 +455,7 @@ class PlaybackHistoryService {
         _playbackHistoryServiceLogger.warning(e);
         await _offlineListenLogHelper.logOfflineListen(_currentTrack!.item.item);
       }
+      await DiscordRpc.updateRPC();
     }
   }
 
@@ -461,6 +477,7 @@ class PlaybackHistoryService {
       } catch (e) {
         _playbackHistoryServiceLogger.warning(e);
       }
+      await DiscordRpc.updateRPC();
     }
   }
 

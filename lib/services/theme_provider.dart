@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:finamp/at_contrast.dart';
 import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -13,21 +14,11 @@ import 'package:logging/logging.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../models/finamp_models.dart';
 import '../models/jellyfin_models.dart';
 import 'widget_bindings_observer_provider.dart';
 
 part 'theme_provider.g.dart';
-
-class ThemeImage {
-  ThemeImage(this.image, this.blurHash, {this.useIsolate = true});
-  const ThemeImage.empty() : image = null, blurHash = null, useIsolate = true;
-  // The background image to use
-  final ImageProvider? image;
-  // The blurHash associated with the image
-  final String? blurHash;
-  // Whether to use an isolate for slower but less laggy theme calculations
-  final bool useIsolate;
-}
 
 final themeProviderLogger = Logger("ThemeProvider");
 
@@ -48,11 +39,19 @@ class PlayerScreenTheme extends StatelessWidget {
           if (item == null) {
             return null;
           }
-          return ThemeInfo(item, largeThemeImage: true);
+          return ThemeInfo(item, largeThemeImage: true, useIsolate: false);
         }),
       ],
       child: Consumer(
         builder: (context, ref, child) {
+          // precache adjacent themes
+          final List<FinampQueueItem> precacheItems = GetIt.instance<QueueService>().peekQueue(next: 1, previous: 1);
+          for (final itemToPrecache in precacheItems) {
+            BaseItemDto? base = itemToPrecache.baseItem;
+            if (base != null) {
+              ref.listen(finampThemeProvider(ThemeInfo(base)), (_, __) {});
+            }
+          }
           var theme = Theme.of(context).copyWith(
             colorScheme: ref.watch(localThemeProvider),
             iconTheme: Theme.of(context).iconTheme.copyWith(color: ref.watch(localThemeProvider).primary),
@@ -61,7 +60,7 @@ class PlayerScreenTheme extends StatelessWidget {
             theme = themeOverride!(theme);
           }
           return AnimatedTheme(
-            duration: themeTransitionDuration ?? getThemeTransitionDuration(context),
+            duration: getThemeTransitionDuration(context, themeTransitionDuration),
             data: theme,
             child: child!,
           );
@@ -100,7 +99,7 @@ class ItemTheme extends StatelessWidget {
             theme = themeOverride!(theme);
           }
           return AnimatedTheme(
-            duration: themeTransitionDuration ?? getThemeTransitionDuration(context),
+            duration: getThemeTransitionDuration(context, themeTransitionDuration),
             data: theme,
             child: child!,
           );
@@ -148,6 +147,7 @@ ThemeImage themeImage(Ref ref, ThemeInfo request) {
     if (item.blurHash != null) {
       image = BlurHashImage(item.blurHash!);
     } else if (item.imageId != null) {
+      // ignore: avoid_manual_providers_as_generated_provider_dependency
       image = ref.watch(albumImageProvider(AlbumImageRequest(item: item, maxHeight: 100, maxWidth: 100)));
     }
   }
@@ -160,7 +160,7 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
   ColorScheme build(ThemeRequestFromImage request) {
     var brightness = ref.watch(brightnessProvider);
     if (request.image == null) {
-      return getGreyTheme(brightness);
+      return getGrayTheme(brightness);
     }
     Future.sync(() async {
       var image = await _fetchImage(request.image!);
@@ -173,7 +173,7 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       }
       return scheme;
     }).then((value) => state = value);
-    return getGreyTheme(brightness);
+    return getGrayTheme(brightness);
   }
 
   Future<ImageInfo?> _fetchImage(ImageProvider image) {
@@ -227,7 +227,11 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       accent,
     );
 
-    accent = accent.atContrast(4.5, background, lighter);
+    accent = accent.atContrast(
+      ref.watch(finampSettingsProvider.useHighContrastColors) ? 8.0 : 4.5,
+      background,
+      lighter,
+    );
     return ColorScheme.fromSwatch(
       primarySwatch: generateMaterialColor(accent),
       accentColor: accent,
@@ -237,10 +241,21 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
   }
 }
 
-ColorScheme getGreyTheme(Brightness brightness) {
+ColorScheme getGrayTheme(Brightness brightness) {
+  final grayForDarkTheme = const Color.fromARGB(255, 133, 133, 133);
+  final grayForLightTheme = const Color.fromARGB(255, 61, 61, 61);
+
   Color accent = brightness == Brightness.dark
-      ? const Color.fromARGB(255, 133, 133, 133)
-      : const Color.fromARGB(255, 61, 61, 61);
+      ? grayForDarkTheme.atContrast(
+          FinampSettingsHelper.finampSettings.useHighContrastColors ? 8.0 : 4.5,
+          Color.alphaBlend(Colors.black.withOpacity(0.675), grayForDarkTheme),
+          true,
+        )
+      : grayForLightTheme.atContrast(
+          FinampSettingsHelper.finampSettings.useHighContrastColors ? 8.0 : 4.5,
+          Color.alphaBlend(Colors.white.withOpacity(0.675), grayForLightTheme),
+          true,
+        );
 
   return ColorScheme.fromSwatch(
     primarySwatch: generateMaterialColor(accent),
@@ -323,10 +338,23 @@ class ThemeRequestFromImage {
   int get hashCode => image.hashCode;
 }
 
+class ThemeImage {
+  ThemeImage(this.image, this.blurHash, {this.useIsolate = true, this.usePLayerThemeWhileLoading = false});
+  const ThemeImage.empty() : image = null, blurHash = null, useIsolate = true, usePLayerThemeWhileLoading = false;
+  // The background image to use
+  final ImageProvider? image;
+  // The blurHash associated with the image
+  final String? blurHash;
+  // Whether to use an isolate for slower but less laggy theme calculations
+  final bool useIsolate;
+
+  final bool usePLayerThemeWhileLoading;
+}
+
 _ThemeTransitionCalculator? _calculator;
 
-Duration getThemeTransitionDuration(BuildContext context) =>
-    (_calculator ??= _ThemeTransitionCalculator()).getThemeTransitionDuration(context);
+Duration getThemeTransitionDuration(BuildContext context, Duration? duration) =>
+    (_calculator ??= _ThemeTransitionCalculator()).getThemeTransitionDuration(context, duration);
 
 /// Skip track change transition animations if app or route is in background
 class _ThemeTransitionCalculator {
@@ -347,10 +375,12 @@ class _ThemeTransitionCalculator {
 
   bool _skipAllTransitions = false;
 
-  Duration getThemeTransitionDuration(BuildContext context) {
+  Duration getThemeTransitionDuration(BuildContext context, Duration? duration) {
     if (_skipAllTransitions || MediaQuery.of(context).disableAnimations) {
       return Duration.zero;
     }
-    return context.mounted ? const Duration(milliseconds: 1000) : Duration.zero;
+    return (context.mounted && (ModalRoute.isCurrentOf(context) ?? true))
+        ? duration ?? const Duration(milliseconds: 1000)
+        : Duration.zero;
   }
 }
