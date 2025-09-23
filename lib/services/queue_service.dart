@@ -12,7 +12,6 @@ import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
 import 'package:finamp/services/playback_history_service.dart';
-import 'package:finamp/services/theme_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
@@ -156,7 +155,7 @@ class QueueService {
     // );
   }
 
-  ProviderSubscription<FinampAlbumImage>? _latestAlbumImage;
+  ProviderSubscription<AlbumImageInfo>? _latestAlbumImage;
 
   void _queueFromConcatenatingAudioSource({bool logUpdate = true}) {
     final playbackHistoryService = GetIt.instance<PlaybackHistoryService>();
@@ -256,7 +255,7 @@ class QueueService {
       final item = jellyfin_models.BaseItemDto.fromJson(currentMediaItem.extras!["itemJson"] as Map<String, dynamic>);
       final artRequest = AlbumImageRequest(item: item);
 
-      void updateMediaItem(FinampAlbumImage latest, bool force) async {
+      void updateMediaItem(AlbumImageInfo latest, bool force) async {
         var artUri = latest.uri;
         if (artUri == null) {
           // replace with placeholder art

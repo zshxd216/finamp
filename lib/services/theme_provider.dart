@@ -146,25 +146,27 @@ FinampThemeImage themeImage(Ref ref, ThemeInfo request) {
   if (request.useLargeImage) {
     final albumImage = ref.watch(albumImageProvider(AlbumImageRequest(item: item)));
     assert(albumImage.fullQuality);
-    return FinampThemeImage(albumImage.image, request, fullQuality: albumImage.fullQuality);
+    return albumImage.asTheme(request);
   }
   // Re-use an existing request if possible to hit the image cache
   else if (albumRequestsCache.containsKey(cacheKey)) {
     if (albumRequestsCache[cacheKey] == null) {
-      return FinampThemeImage(null, request, fullQuality: true);
+      return FinampThemeImage.empty(request);
     }
     final albumImage = ref.watch(albumImageProvider(albumRequestsCache[cacheKey]!));
-    return FinampThemeImage(albumImage.image, request, fullQuality: albumImage.fullQuality);
+    return albumImage.asTheme(request);
   } else {
-    ImageProvider? image;
     // Use blurhash if possible, otherwise fetch 100x100
     if (item.blurHash != null) {
-      image = BlurHashImage(item.blurHash!);
+      final image = BlurHashImage(item.blurHash!);
+      return FinampThemeImage(image, request, fullQuality: false);
     } else if (item.imageId != null) {
       // ignore: avoid_manual_providers_as_generated_provider_dependency
-      image = ref.watch(albumImageProvider(AlbumImageRequest(item: item, maxHeight: 100, maxWidth: 100))).image;
+      final albumImage = ref.watch(albumImageProvider(AlbumImageRequest(item: item, maxHeight: 100, maxWidth: 100)));
+      return albumImage.asTheme(request);
+    } else {
+      return FinampThemeImage.empty(request);
     }
-    return FinampThemeImage(image, request, fullQuality: false);
   }
 }
 
@@ -202,6 +204,10 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       // If image is downloaded but no theme is cached, and we are using the full size player image, attempt to cache value.
       if (isDownloaded && theme.fullQuality) {
         _downloadService.setImageTheme(theme.blurHash, color);
+      }
+      if (theme.fullQuality) {
+        // Keep cached player themes until app closure, as they can take several seconds to calculate
+        ref.keepAlive();
       }
       return _getColorScheme(color, brightness);
     }).then((value) => state = value);
@@ -381,6 +387,7 @@ class FinampImage {
 @immutable
 class FinampThemeImage extends FinampImage {
   const FinampThemeImage(super.image, this.themeRequest, {required super.fullQuality});
+  const FinampThemeImage.empty(this.themeRequest) : super(null, fullQuality: true);
 
   final ThemeInfo themeRequest;
 
@@ -388,18 +395,6 @@ class FinampThemeImage extends FinampImage {
 
   @override
   BaseItemDto get item => themeRequest.item;
-}
-
-@immutable
-class FinampAlbumImage extends FinampImage {
-  const FinampAlbumImage(super.image, this.albumRequest, this.uri, {required super.fullQuality});
-
-  final AlbumImageRequest albumRequest;
-
-  final Uri? uri;
-
-  @override
-  BaseItemDto get item => albumRequest.item;
 }
 
 @immutable

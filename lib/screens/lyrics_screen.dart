@@ -5,6 +5,7 @@ import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/components/PlayerScreen/player_screen_appbar_title.dart';
 import 'package:finamp/extensions/string.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/main.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/current_track_metadata_provider.dart';
@@ -310,70 +311,85 @@ class _LyricsViewState extends ConsumerState<LyricsView> with WidgetsBindingObse
             padding: const EdgeInsets.only(left: 20.0, right: 12.0),
             child: Stack(
               children: [
-                LyricsListMask(
+                // Manually build scrollbar above lyricsListMask
+                Scrollbar(
+                  controller: autoScrollController,
+                  // Use notificationPredicate from LyricsScrollBehavior
+                  notificationPredicate: (notification) {
+                    if (notification.depth != 0) return false;
+                    if (autoScrollController.isAutoScrolling) {
+                      if (notification is ScrollUpdateNotification && notification.scrollDelta == null) {
+                        return true;
+                      }
+                      return false;
+                    }
+                    return true;
+                  },
                   child: ScrollConfiguration(
-                    behavior: const LyricsScrollBehavior(),
-                    child: ListView.builder(
-                      controller: autoScrollController,
-                      itemCount: lyricLines.length + 2,
-                      itemBuilder: (context, rawIndex) {
-                        if (rawIndex == 0) {
-                          // build header
-                          return AutoScrollTag(
-                            key: const ValueKey(-1),
-                            controller: autoScrollController,
-                            index: -1,
-                            child: ref.watch(finampSettingsProvider.showLyricsScreenAlbumPrelude)
-                                ? SizedBox(
-                                    height: constraints.maxHeight * 0.65,
-                                    child: Center(
-                                      child: SizedBox(
-                                        height: constraints.maxHeight * 0.55,
-                                        child: const PlayerScreenAlbumImage(),
+                    behavior: const FinampScrollBehavior(scrollbars: false),
+                    child: LyricsListMask(
+                      child: ListView.builder(
+                        controller: autoScrollController,
+                        itemCount: lyricLines.length + 2,
+                        itemBuilder: (context, rawIndex) {
+                          if (rawIndex == 0) {
+                            // build header
+                            return AutoScrollTag(
+                              key: const ValueKey(-1),
+                              controller: autoScrollController,
+                              index: -1,
+                              child: ref.watch(finampSettingsProvider.showLyricsScreenAlbumPrelude)
+                                  ? SizedBox(
+                                      height: constraints.maxHeight * 0.65,
+                                      child: Center(
+                                        child: SizedBox(
+                                          height: constraints.maxHeight * 0.55,
+                                          child: const PlayerScreenAlbumImage(),
+                                        ),
                                       ),
+                                    )
+                                  : SizedBox(height: constraints.maxHeight * 0.2),
+                            );
+                          } else if (rawIndex == lyricLines.length + 1) {
+                            // build footer
+                            return SizedBox(height: constraints.maxHeight * 0.2);
+                          } else {
+                            final index = rawIndex - 1;
+                            final line = lyricLines[index];
+                            return AutoScrollTag(
+                              key: ValueKey(index),
+                              controller: autoScrollController,
+                              index: index,
+                              child: _LyricLine(
+                                lineNumber: index,
+                                line: line,
+                                onTap: () async {
+                                  // Seek to the start of the line + 1 millisecond to account for player inaccuracy
+                                  await GetIt.instance<MusicPlayerBackgroundTask>().seek(
+                                    Duration(microseconds: line.startMicros + 1000),
+                                  );
+                                  setState(() {
+                                    isAutoScrollEnabled = true;
+                                  });
+                                  if (!context.mounted) return;
+                                  unawaited(
+                                    autoScrollController.scrollToIndex(
+                                      index,
+                                      preferPosition: AutoScrollPosition.middle,
+                                      duration: MediaQuery.disableAnimationsOf(context)
+                                          ? const Duration(
+                                              milliseconds: 1,
+                                            ) // there's an assertion in the library forbidding a duration of 0, so we use 1ms instead to get instant scrolling
+                                          : const Duration(milliseconds: 500),
                                     ),
-                                  )
-                                : SizedBox(height: constraints.maxHeight * 0.2),
-                          );
-                        } else if (rawIndex == lyricLines.length + 1) {
-                          // build footer
-                          return SizedBox(height: constraints.maxHeight * 0.2);
-                        } else {
-                          final index = rawIndex - 1;
-                          final line = lyricLines[index];
-                          return AutoScrollTag(
-                            key: ValueKey(index),
-                            controller: autoScrollController,
-                            index: index,
-                            child: _LyricLine(
-                              lineNumber: index,
-                              line: line,
-                              onTap: () async {
-                                // Seek to the start of the line + 1 millisecond to account for player inaccuracy
-                                await GetIt.instance<MusicPlayerBackgroundTask>().seek(
-                                  Duration(microseconds: line.startMicros + 1000),
-                                );
-                                setState(() {
-                                  isAutoScrollEnabled = true;
-                                });
-                                if (!context.mounted) return;
-                                unawaited(
-                                  autoScrollController.scrollToIndex(
-                                    index,
-                                    preferPosition: AutoScrollPosition.middle,
-                                    duration: MediaQuery.disableAnimationsOf(context)
-                                        ? const Duration(
-                                            milliseconds: 1,
-                                          ) // there's an assertion in the library forbidding a duration of 0, so we use 1ms instead to get instant scrolling
-                                        : const Duration(milliseconds: 500),
-                                  ),
-                                );
-                              },
-                              currentLineNumberNotifier: currentLineNotifier,
-                            ),
-                          );
-                        }
-                      },
+                                  );
+                                },
+                                currentLineNumberNotifier: currentLineNotifier,
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ),

@@ -53,8 +53,8 @@ final Map<String?, File> _playerImageCache = {};
 
 const _infiniteHeight = 999999;
 
-final AutoDisposeProviderFamily<FinampAlbumImage, AlbumImageRequest>
-albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageRequest>((ref, request) {
+final AutoDisposeProviderFamily<AlbumImageInfo, AlbumImageRequest>
+albumImageProvider = Provider.autoDispose.family<AlbumImageInfo, AlbumImageRequest>((ref, request) {
   String? requestCacheKey = request.item.blurHash ?? request.item.imageId;
   // We currently only support square image requests
   assert(request.maxWidth == request.maxHeight);
@@ -75,7 +75,7 @@ albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageReq
   });
 
   if (request.item.imageId == null) {
-    return FinampAlbumImage(null, request, null, fullQuality: true);
+    return AlbumImageInfo.empty(request);
   }
 
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
@@ -85,7 +85,7 @@ albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageReq
 
   if (downloadedImage?.file == null) {
     if (ref.watch(finampSettingsProvider.isOffline)) {
-      return FinampAlbumImage(null, request, null, fullQuality: true);
+      return AlbumImageInfo.empty(request);
     }
 
     // TODO maybe we can reuse cached player images or existing sufficiently larger image requests instead of fetching from server
@@ -103,7 +103,7 @@ albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageReq
     }
 
     if (imageUrl == null) {
-      return FinampAlbumImage(null, request, null, fullQuality: true);
+      return AlbumImageInfo.empty(request);
     }
 
     String key;
@@ -113,8 +113,8 @@ albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageReq
       key = request.item.imageId! + request.maxWidth.toString() + request.maxHeight.toString();
     }
 
-    FinampAlbumImage imageFromFile(File file) {
-      return FinampAlbumImage(FileImage(file, scale: 0.25), request, Uri.file(file.path), fullQuality: true);
+    AlbumImageInfo imageFromFile(File file) {
+      return AlbumImageInfo(FileImage(file, scale: 0.25), request, Uri.file(file.path), fullQuality: true);
     }
 
     if (request.fullQuality) {
@@ -128,7 +128,8 @@ albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageReq
       if (_playerImageCache.containsKey(key)) {
         return imageFromFile(_playerImageCache[key]!);
       } else {
-        return FinampAlbumImage(null, request, null, fullQuality: true);
+        // Temporary result for the frame or so the cache loads
+        return AlbumImageInfo(null, request, null, fullQuality: true);
       }
     } else {
       /*Future.sync(() async {
@@ -149,7 +150,7 @@ albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageReq
               }
           });*/
       // Allow drawing albums up to 4X intrinsic size by setting scale
-      return FinampAlbumImage(
+      return AlbumImageInfo(
         CachedImage(NetworkImage(imageUrl.toString(), scale: 0.25), key),
         request,
         imageUrl,
@@ -168,7 +169,7 @@ albumImageProvider = Provider.autoDispose.family<FinampAlbumImage, AlbumImageReq
     // NetworkImages fetched with display size
     out = ResizeImage(out, width: request.maxWidth! * 2, height: request.maxHeight! * 2, policy: ResizeImagePolicy.fit);
   }
-  return FinampAlbumImage(out, request, Uri.file(downloadedImage.file!.path), fullQuality: request.fullQuality);
+  return AlbumImageInfo(out, request, Uri.file(downloadedImage.file!.path), fullQuality: request.fullQuality);
 });
 
 class CachedImage extends ImageProvider<CachedImage> {
@@ -215,6 +216,22 @@ class CachedImage extends ImageProvider<CachedImage> {
 
   @override
   String toString() => 'CachedImage("$location", scale: ${scale.toStringAsFixed(1)})';
+}
+
+@immutable
+class AlbumImageInfo extends FinampImage {
+  const AlbumImageInfo(super.image, this.albumRequest, this.uri, {required super.fullQuality});
+
+  const AlbumImageInfo.empty(this.albumRequest) : uri = null, super(null, fullQuality: true);
+
+  final AlbumImageRequest albumRequest;
+
+  final Uri? uri;
+
+  FinampThemeImage asTheme(ThemeInfo themeRequest) => FinampThemeImage(image, themeRequest, fullQuality: fullQuality);
+
+  @override
+  BaseItemDto get item => albumRequest.item;
 }
 
 /// This cache implementation does nothing but throw errors.  It is fed to audio service, which should not try to use
