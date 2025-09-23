@@ -154,9 +154,7 @@ class _ServerSharingMenuControlsState extends ConsumerState<ServerSharingMenuCon
               confirmButtonText: AppLocalizations.of(
                 context,
               )!.serverSharingMenuConfirmationDialogConfirmationButtonLabel,
-              abortButtonText: MaterialLocalizations.of(context).cancelButtonLabel,
               onConfirmed: () => setServerSharing(true),
-              onAborted: () {},
             ),
           );
         } else {

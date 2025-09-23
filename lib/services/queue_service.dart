@@ -11,8 +11,6 @@ import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
-import 'package:finamp/services/current_track_metadata_provider.dart';
-import 'package:finamp/services/metadata_provider.dart';
 import 'package:finamp/services/playback_history_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';

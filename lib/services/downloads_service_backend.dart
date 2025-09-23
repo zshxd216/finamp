@@ -358,7 +358,7 @@ class IsarTaskQueue implements TaskQueue {
                 }
               });
             } catch (e) {
-              _enqueueLog.severe("Error creating download task for ${task.name}.");
+              _enqueueLog.severe("Error creating download task for ${task.name}: $e.", e);
               _isar.writeTxnSync(() {
                 _downloadsService.updateItemState(task, DownloadItemState.failed);
               });
@@ -1518,7 +1518,7 @@ class DownloadsSyncService {
 
   /// Removes unsafe characters from file names.  Used by [_downloadTrack] and
   /// [_downloadImage] for human readable download locations.
-  String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp(r'[/?<>\:*|\.\\"]'), "_");
+  String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp(r'[/?<>:*|.\\"]'), "_");
 
   /// Prepares for downloading of a given track by filling in the path information
   /// and media sources, and marking item as enqueued in isar.
@@ -1542,7 +1542,7 @@ class DownloadsSyncService {
 
     // Container must be accurate because unknown container names break iOS playback
     String? container = downloadItem.syncTranscodingProfile?.codec.container ?? mediaSources?.firstOrNull?.container;
-    String extension = container == null ? "" : ".$container";
+    String extension = container == null ? "" : ".${_filesystemSafe(container)}";
 
     String fileName;
     String subDirectory;
@@ -1550,9 +1550,15 @@ class DownloadsSyncService {
       if (mediaSources == null) {
         _syncLogger.warning("Media source info for ${item.id} returned null, filename may be weird.");
       }
-      subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
+      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() == "finamp") {
+        subDirectory = _filesystemSafe(item.albumArtist) ?? '';
+      } else {
+        subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
+      }
+
       // We use a regex to filter out bad characters from track/album names.
-      fileName = _filesystemSafe("${item.album} - ${item.indexNumber ?? 0} - ${item.name}$extension")!;
+      final baseFilename = _filesystemSafe("${item.album} - ${item.indexNumber ?? 0} - ${item.name}");
+      fileName = "$baseFilename$extension";
     } else {
       fileName = "${item.id}$extension";
       subDirectory = FINAMP_BASE_DOWNLOAD_DIRECTORY;
@@ -1616,7 +1622,11 @@ class DownloadsSyncService {
 
     String subDirectory;
     if (downloadLocation.useHumanReadableNames) {
-      subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
+      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() == "finamp") {
+        subDirectory = _filesystemSafe(item.albumArtist) ?? '';
+      } else {
+        subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
+      }
     } else {
       subDirectory = "images";
     }

@@ -2243,6 +2243,10 @@
   "@emptyTopTracksList": {
     "description": "Message shown as a placeholder when the top tracks list for an artist is empty"
   },
+  "emptyAlbum": "No tracks.",
+  "@emptyAlbum": {
+    "description": "Message shown as a placeholder when an album or playlist is empty."
+  },
   "emptyFilteredListTitle": "No items found",
   "@emptyFilteredListTitle": {
     "description": "Message shown when a list of items is filtered and no items match the filter"
@@ -2772,5 +2776,17 @@
   "dragToReorder": "Drag to Reorder",
   "@dragToReorder": {
     "description": "Label shown on drag handles of track list  tiles in the queue list"
+  },
+  "addDownloadLocationsErrorPrompt": "Writing to selected directory failed.  You should modify permissions or choose another location.",
+  "@addDownloadLocationsErrorPrompt": {
+    "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+  },
+  "androidImageErrorPrompt": "WARNING: We are unable to write images to the android Music folder due to OS restrictions.  You should choose another location.",
+  "@androidImageErrorPrompt": {
+    "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+  },
+  "addDownloadLocationsErrorButton": "Add anyway",
+  "@addDownloadLocationsErrorButton": {
+    "description": "Label shown on button for adding a download location we suspect to be buggy"
   }
 }
