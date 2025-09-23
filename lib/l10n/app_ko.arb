@@ -961,7 +961,7 @@
     "@shuffleToNextUp": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
-    "confirmAddToNextUp": "넥스트 업에 추가됨 : {type, select, track{Track} album{album} artist{artist} playlist{playlist} genre{genre} other{item}}",
+    "confirmAddToNextUp": "넥스트 업에 추가됨 : {type, select, track{곡} album{앨범} artist{아티스트} playlist{플레이리스트} genre{장르} disc{디스크} other{아이템}}",
     "@confirmAddToNextUp": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
         "placeholders": {
@@ -981,7 +981,7 @@
     },
     "bufferSizeTitle": "버퍼 크기",
     "@bufferSizeTitle": {},
-    "confirmAddToQueue": "대기열에 {type, select, track{곡} album{앨범} artist{아티스트} playlist{플레이리스트} genre{장르} other{아이템}} 추가됨",
+    "confirmAddToQueue": "대기열에 {type, select, track{곡} album{앨범} artist{아티스트} playlist{플레이리스트} genre{장르} disc{디스크} other{아이템}} 추가됨",
     "@confirmAddToQueue": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the regular queue",
         "placeholders": {
