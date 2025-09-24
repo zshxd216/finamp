@@ -238,7 +238,7 @@ class QueueService {
       _currentTrack = null;
       _audioHandler.playbackState.add(
         PlaybackState(
-          processingState: AudioProcessingState.completed,
+          processingState: AudioProcessingState.idle,
           playing: false,
           queueIndex: 0,
           updatePosition: Duration.zero,
@@ -279,7 +279,7 @@ class QueueService {
         (_, latest) => updateMediaItem(latest, false),
       );
       updateMediaItem(_providers.read(albumImageProvider(artRequest)), true);
-    }
+    } else {}
     _audioHandler.queue.add(
       _queuePreviousTracks
           .followedBy(_currentTrack != null ? [_currentTrack!] : [])

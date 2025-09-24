@@ -7,6 +7,7 @@ import '../components/DownloadsScreen/downloaded_items_list.dart';
 import '../components/DownloadsScreen/downloads_overview.dart';
 import '../components/DownloadsScreen/repair_downloads_button.dart';
 import '../components/DownloadsScreen/sync_downloads_button.dart';
+import '../components/global_snackbar.dart';
 import '../components/padded_custom_scrollview.dart';
 
 class DownloadsScreen extends StatelessWidget {
@@ -52,4 +53,28 @@ class DownloadsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+void showSyncWarningSnackbar() {
+  GlobalSnackbar.message(
+    (scaffold) => AppLocalizations.of(scaffold)!.syncFailedWarningShort,
+    action: (context) => SnackBarAction(
+      label: MaterialLocalizations.of(context).moreButtonTooltip,
+      onPressed: () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(AppLocalizations.of(context)!.syncFailedWarningShort),
+          content: Text(AppLocalizations.of(context)!.syncFailedWarningLong),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).popAndPushNamed(DownloadsScreen.routeName);
+              },
+              child: Text(AppLocalizations.of(context)!.openDownloads),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }

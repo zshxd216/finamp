@@ -18,6 +18,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/finamp_models.dart';
 import '../models/jellyfin_models.dart';
+import '../screens/downloads_screen.dart';
 import 'finamp_settings_helper.dart';
 import 'finamp_user_helper.dart';
 import 'jellyfin_api_helper.dart';
@@ -666,6 +667,7 @@ class DownloadsSyncService {
   final Set<int> _requireCompleted = {};
   final Set<int> _infoCompleted = {};
   Completer<void>? _callbacksComplete;
+  int _failedSyncs = 0;
 
   final int _batchSize = 10;
 
@@ -704,9 +706,13 @@ class DownloadsSyncService {
       _metadataCache = {};
       _childCache = {};
       _callbacksComplete = Completer();
+      _failedSyncs = 0;
       unawaited(_advanceQueue());
       await _callbacksComplete!.future;
       _syncLogger.info("All syncs complete.");
+      if (_failedSyncs > 0) {
+        showSyncWarningSnackbar();
+      }
     } finally {
       _callbacksComplete = null;
     }
@@ -767,6 +773,7 @@ class DownloadsSyncService {
                   _isar.writeTxnSync(() {
                     _downloadsService.updateItemState(item, DownloadItemState.syncFailed);
                   });
+                  _failedSyncs++;
                   rethrow;
                 } else {
                   _syncLogger.finest("Sync of ${item.name} failed with error $e, retrying", e);
@@ -908,6 +915,7 @@ class DownloadsSyncService {
         } else {
           if (newBaseItem == null) {
             _syncLogger.warning("No item found on server for id ${parent.id}, ${parent.name}.");
+            throw "Item ${parent.id}, ${parent.name} missing from server";
           }
         }
       }

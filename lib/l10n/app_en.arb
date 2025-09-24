@@ -2788,5 +2788,21 @@
   "addDownloadLocationsErrorButton": "Add anyway",
   "@addDownloadLocationsErrorButton": {
     "description": "Label shown on button for adding a download location we suspect to be buggy"
+  },
+  "syncFailedWarningShort": "Warning: Failed to synchronize some downloads with server.",
+  "@syncFailedWarningShort": {
+    "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+  },
+  "syncFailedWarningLong": "Some downloads failed to synchronize with the server.  The matching server item was likely deleted.  The failed download should be deleted to clean up the outdated files.",
+  "@syncFailedWarningLong": {
+    "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+  },
+  "openDownloads": "Open Downloads",
+  "@openDownloads": {
+    "description": "Label on a button to open the downloads screen after a sync fails."
+  },
+  "syncingFailed": "Sync failed.  This download has likely been removed from the server, and should be deleted.",
+  "@syncingFailed": {
+    "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
   }
 }

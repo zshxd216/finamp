@@ -491,8 +491,10 @@ class _TransparentRightSwipeDetectorState extends State<TransparentRightSwipeDet
     final finalOffset = details.globalPosition;
     final initialOffset = _initialSwipeOffset;
     if (initialOffset != null) {
-      final offsetDifference = initialOffset.dx - finalOffset.dx;
-      if (offsetDifference < -100.0) {
+      final horizontalOffset = initialOffset.dx - finalOffset.dx;
+      final verticalOffset = initialOffset.dy - finalOffset.dy;
+      // Only trigger if swipe angle primarily horizontal
+      if (horizontalOffset < -100.0 && horizontalOffset.abs() > verticalOffset.abs() * 1.5) {
         _initialSwipeOffset = null;
         widget.action();
       }

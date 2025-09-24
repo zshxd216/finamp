@@ -16,9 +16,10 @@ class ItemFileSize extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isarDownloader = GetIt.instance<DownloadsService>();
-    var downloadingText = AppLocalizations.of(context)!.activeDownloadSize;
-    var deletingText = AppLocalizations.of(context)!.missingDownloadSize;
-    var syncingText = AppLocalizations.of(context)!.syncingDownloadSize;
+    final downloadingText = AppLocalizations.of(context)!.activeDownloadSize;
+    final deletingText = AppLocalizations.of(context)!.missingDownloadSize;
+    final syncingText = AppLocalizations.of(context)!.syncingDownloadSize;
+    final syncFailedText = AppLocalizations.of(context)!.syncingFailed;
     Future<String> sizeText = ref.watch(isarDownloader.itemProvider(stub).future).then((item) {
       switch (item?.state) {
         case DownloadItemState.notDownloaded:
@@ -28,7 +29,7 @@ class ItemFileSize extends ConsumerWidget {
             return Future.value(syncingText);
           }
         case DownloadItemState.syncFailed:
-          return Future.value(syncingText);
+          return Future.value("!!!$syncFailedText");
         case DownloadItemState.failed:
         case DownloadItemState.complete:
         case DownloadItemState.needsRedownloadComplete:
@@ -45,19 +46,21 @@ class ItemFileSize extends ConsumerWidget {
             return isarDownloader
                 .getFileSize(item)
                 .then(
-                  (value) => AppLocalizations.of(context)!.downloadInfo(
-                    bitrate,
-                    codec.toUpperCase(),
-                    FileSize.getSize(value),
-                    // only show name if there is more than one location
-                    (FinampSettingsHelper.finampSettings.downloadLocationsMap.length > 1
-                            ? FinampSettingsHelper
-                                  .finampSettings
-                                  .downloadLocationsMap[item.fileDownloadLocation?.id]
-                                  ?.name
-                            : null) ??
-                        "null",
-                  ),
+                  (value) => context.mounted
+                      ? AppLocalizations.of(context)!.downloadInfo(
+                          bitrate,
+                          codec.toUpperCase(),
+                          FileSize.getSize(value),
+                          // only show name if there is more than one location
+                          (FinampSettingsHelper.finampSettings.downloadLocationsMap.length > 1
+                                  ? FinampSettingsHelper
+                                        .finampSettings
+                                        .downloadLocationsMap[item.fileDownloadLocation?.id]
+                                        ?.name
+                                  : null) ??
+                              "null",
+                        )
+                      : "null",
                 );
           } else {
             var profile = item.userTranscodingProfile ?? item.syncTranscodingProfile;
@@ -69,19 +72,21 @@ class ItemFileSize extends ConsumerWidget {
             return isarDownloader
                 .getFileSize(item)
                 .then(
-                  (value) => AppLocalizations.of(context)!.collectionDownloadInfo(
-                    profile?.bitrateKbps ?? "null",
-                    codec.toUpperCase(),
-                    FileSize.getSize(value),
-                    // only show name if there is more than one location
-                    (FinampSettingsHelper.finampSettings.downloadLocationsMap.length > 1
-                            ? FinampSettingsHelper
-                                  .finampSettings
-                                  .downloadLocationsMap[item.syncDownloadLocation?.id]
-                                  ?.name
-                            : null) ??
-                        "null",
-                  ),
+                  (value) => context.mounted
+                      ? AppLocalizations.of(context)!.collectionDownloadInfo(
+                          profile?.bitrateKbps ?? "null",
+                          codec.toUpperCase(),
+                          FileSize.getSize(value),
+                          // only show name if there is more than one location
+                          (FinampSettingsHelper.finampSettings.downloadLocationsMap.length > 1
+                                  ? FinampSettingsHelper
+                                        .finampSettings
+                                        .downloadLocationsMap[item.syncDownloadLocation?.id]
+                                        ?.name
+                                  : null) ??
+                              "null",
+                        )
+                      : "null",
                 );
           }
         case DownloadItemState.downloading:
@@ -96,7 +101,11 @@ class ItemFileSize extends ConsumerWidget {
       future: sizeText,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return Text(snapshot.data!);
+          if (snapshot.data!.startsWith("!!!")) {
+            return Text(snapshot.data!.substring(3), style: TextStyle(color: Colors.red));
+          } else {
+            return Text(snapshot.data!);
+          }
         }
         return const Text("");
       },
