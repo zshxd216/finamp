@@ -181,6 +181,7 @@ class FinampSettingsHelper {
     FinampSetters.setAutoloadLastQueueOnStartup(DefaultSettings.autoLoadLastQueueOnStartup);
     FinampSetters.setAutoReloadQueue(DefaultSettings.autoReloadQueue);
     FinampSetters.setClearQueueOnStopEvent(DefaultSettings.clearQueueOnStopEvent);
+    FinampSetters.setAutoplayRestoredQueue(DefaultSettings.autoplayRestoredQueue);
   }
 
   static void resetPlaybackReportingSettings() {

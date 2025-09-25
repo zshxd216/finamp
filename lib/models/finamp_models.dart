@@ -231,6 +231,7 @@ class DefaultSettings {
   static const rpcIcon = DiscordRpcIcon.transparent;
   static const preferAddingToFavoritesOverPlaylists = false;
   static const previousTracksExpaned = false;
+  static const autoplayRestoredQueue = false;
 }
 
 @HiveType(typeId: 28)
@@ -357,6 +358,7 @@ class FinampSettings {
     this.rpcIcon = DefaultSettings.rpcIcon,
     this.preferAddingToFavoritesOverPlaylists = DefaultSettings.preferAddingToFavoritesOverPlaylists,
     this.previousTracksExpaned = DefaultSettings.previousTracksExpaned,
+    this.autoplayRestoredQueue = DefaultSettings.autoplayRestoredQueue,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -755,6 +757,9 @@ class FinampSettings {
 
   @HiveField(127, defaultValue: DefaultSettings.previousTracksExpaned)
   bool previousTracksExpaned = DefaultSettings.previousTracksExpaned;
+
+  @HiveField(128, defaultValue: DefaultSettings.autoplayRestoredQueue)
+  bool autoplayRestoredQueue = DefaultSettings.autoplayRestoredQueue;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(

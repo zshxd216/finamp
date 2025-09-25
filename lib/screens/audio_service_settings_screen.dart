@@ -41,6 +41,7 @@ class _AudioServiceSettingsScreenState extends State<AudioServiceSettingsScreen>
           const BufferDurationListTile(),
           const BufferDisableSizeConstraintsSelector(),
           const LoadQueueOnStartupSelector(),
+          const AutoplayRestoredQueueToggle(),
           const AutoReloadQueueToggle(),
           const ClearQueueOnStopToggle(),
         ],
@@ -209,6 +210,20 @@ class AutoReloadQueueToggle extends ConsumerWidget {
       subtitle: Text(AppLocalizations.of(context)!.autoReloadQueueSubtitle),
       value: ref.watch(finampSettingsProvider.autoReloadQueue),
       onChanged: FinampSetters.setAutoReloadQueue,
+    );
+  }
+}
+
+class AutoplayRestoredQueueToggle extends ConsumerWidget {
+  const AutoplayRestoredQueueToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.autoplayRestoredQueueTitle),
+      subtitle: Text(AppLocalizations.of(context)!.autoplayRestoredQueueSubtitle),
+      value: ref.watch(finampSettingsProvider.autoplayRestoredQueue),
+      onChanged: FinampSetters.setAutoplayRestoredQueue,
     );
   }
 }

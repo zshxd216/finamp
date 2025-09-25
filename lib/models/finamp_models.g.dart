@@ -406,6 +406,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         previousTracksExpaned: fields[127] == null
             ? false
             : fields[127] as bool,
+        autoplayRestoredQueue: fields[128] == null
+            ? false
+            : fields[128] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -420,7 +423,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(121)
+      ..writeByte(122)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -662,7 +665,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(126)
       ..write(obj.preferAddingToFavoritesOverPlaylists)
       ..writeByte(127)
-      ..write(obj.previousTracksExpaned);
+      ..write(obj.previousTracksExpaned)
+      ..writeByte(128)
+      ..write(obj.autoplayRestoredQueue);
   }
 
   @override

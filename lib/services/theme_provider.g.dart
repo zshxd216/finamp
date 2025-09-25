@@ -11,7 +11,7 @@ part of 'theme_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$finampThemeHash() => r'abb984453c1aedf6014b3ce6308d4dd09e33cbba';
+String _$finampThemeHash() => r'1065d27efdcdb93cc700ae0c8ecf3245fabd3371';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -149,7 +149,7 @@ class _FinampThemeProviderElement
   ThemeInfo get request => (origin as FinampThemeProvider).request;
 }
 
-String _$themeImageHash() => r'278c78e938802c8d0e09bc392f2166eddeadcb25';
+String _$themeImageHash() => r'4c14e6d1ad29267d4a93be3de5caf69e158bda5e';
 
 /// See also [themeImage].
 @ProviderFor(themeImage)
@@ -269,7 +269,7 @@ class _ThemeImageProviderElement
 }
 
 String _$finampThemeFromImageHash() =>
-    r'e40168a56b4d61dc3d5f285159b48f4799055d3d';
+    r'b201ab94d21c87f90f599d77608c9565dda86047';
 
 abstract class _$FinampThemeFromImage
     extends BuildlessAutoDisposeNotifier<ColorScheme> {

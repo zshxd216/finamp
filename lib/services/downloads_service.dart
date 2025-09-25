@@ -79,6 +79,9 @@ class DownloadsService {
   /// Causes the downloads queue to stop processing new items
   bool get allowDownloads => allowSyncs && !syncBuffer.isRunning;
 
+  /// Marks whether we have encountered an image with a missing blurhash
+  bool serverMissingBlurhash = false;
+
   //
   // Providers
   //
@@ -1573,6 +1576,9 @@ class DownloadsService {
     String? imageId = blurHash ?? item!.blurHash ?? item!.imageId;
     if (imageId == null) {
       return null;
+    }
+    if (item != null && item.blurHash == null) {
+      serverMissingBlurhash = true;
     }
     return _getDownloadByID(imageId, DownloadItemType.image);
   }

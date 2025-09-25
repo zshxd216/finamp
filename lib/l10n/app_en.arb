@@ -2804,5 +2804,17 @@
   "syncingFailed": "Sync failed.  This download has likely been removed from the server, and should be deleted.",
   "@syncingFailed": {
     "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+  },
+  "autoplayRestoredQueueTitle": "Automatically Play Restored Queues",
+  "@autoplayRestoredQueueTitle": {
+    "description": "Title for the setting that controls if restored queues automatically play."
+  },
+  "autoplayRestoredQueueSubtitle": "Queues restored automatically on startup or via the queue restore screen will begin playing automatically.  Queues which fail to restore all tracks will never autoplay, regardless of this setting.",
+  "@autoplayRestoredQueueSubtitle": {
+    "description": "Subtitle for the setting that controls if restored queues automatically play."
+  },
+  "missingBlurhashWarning": "Warning: The Jellyfin server appears to be misconfigured and is not calculating blurhashes.  This prevents Finamp from de-duplicating image downloads.  Please correct the server and run a downloads repair.",
+  "@missingBlurhashWarning": {
+    "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
   }
 }

@@ -1105,6 +1105,14 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setAutoplayRestoredQueue(bool newAutoplayRestoredQueue) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.autoplayRestoredQueue = newAutoplayRestoredQueue;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1493,6 +1501,8 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       );
   ProviderListenable<bool> get previousTracksExpaned => finampSettingsProvider
       .select((value) => value.requireValue.previousTracksExpaned);
+  ProviderListenable<bool> get autoplayRestoredQueue => finampSettingsProvider
+      .select((value) => value.requireValue.autoplayRestoredQueue);
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(
         (value) => value.requireValue.downloadTranscodingProfile,
