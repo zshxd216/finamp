@@ -110,6 +110,17 @@ class IsarPersistentStorage implements PersistentStorage {
   }
 }
 
+class MissingServerItemException implements Exception {
+  MissingServerItemException(this.item);
+
+  final DownloadStub item;
+
+  @override
+  String toString() {
+    return "MissingServerItemException(id: ${item.id}, name:${item.name})";
+  }
+}
+
 /// A wrapper for storing various types of download related data in isar as JSON.
 /// Do not confuse the id of this type with the ids that the content types have.
 /// They will not match.
@@ -667,7 +678,7 @@ class DownloadsSyncService {
   final Set<int> _requireCompleted = {};
   final Set<int> _infoCompleted = {};
   Completer<void>? _callbacksComplete;
-  int _failedSyncs = 0;
+  int _missingItemExceptions = 0;
 
   final int _batchSize = 10;
 
@@ -706,11 +717,11 @@ class DownloadsSyncService {
       _metadataCache = {};
       _childCache = {};
       _callbacksComplete = Completer();
-      _failedSyncs = 0;
+      _missingItemExceptions = 0;
       unawaited(_advanceQueue());
       await _callbacksComplete!.future;
       _syncLogger.info("All syncs complete.");
-      if (_failedSyncs > 0) {
+      if (_missingItemExceptions > 0) {
         showSyncWarningSnackbar();
       }
     } finally {
@@ -773,8 +784,11 @@ class DownloadsSyncService {
                   _isar.writeTxnSync(() {
                     _downloadsService.updateItemState(item, DownloadItemState.syncFailed);
                   });
-                  _failedSyncs++;
-                  rethrow;
+                  if (e is MissingServerItemException) {
+                    _missingItemExceptions++;
+                  } else {
+                    rethrow;
+                  }
                 } else {
                   _syncLogger.finest("Sync of ${item.name} failed with error $e, retrying", e);
                   _requireCompleted.remove(sync.stubIsarId);
@@ -914,8 +928,8 @@ class DownloadsSyncService {
           }
         } else {
           if (newBaseItem == null) {
-            _syncLogger.warning("No item found on server for id ${parent.id}, ${parent.name}.");
-            throw "Item ${parent.id}, ${parent.name} missing from server";
+            _syncLogger.warning("Could not fetch BaseItemDto ${parent.name} from server.");
+            throw MissingServerItemException(parent);
           }
         }
       }
@@ -1321,11 +1335,16 @@ class DownloadsSyncService {
       }
       return childStubs;
     } catch (e) {
-      // Retries should try connecting again instead of re-using error
-      unawaited(_childCache.remove(item.id.raw));
-      itemFetch.completeError(e);
-      _downloadsService.incrementConnectionErrors();
-      rethrow;
+      if (e is Response && e.statusCode == 404) {
+        _syncLogger.warning("Got 404 while fetching children of ${parent.name}.");
+        throw MissingServerItemException(parent);
+      } else {
+        // Retries should try connecting again instead of re-using error
+        unawaited(_childCache.remove(item.id.raw));
+        itemFetch.completeError(e);
+        _downloadsService.incrementConnectionErrors();
+        rethrow;
+      }
     }
   }
 
@@ -1427,8 +1446,13 @@ class DownloadsSyncService {
       }
       return stubList;
     } catch (e) {
-      _downloadsService.incrementConnectionErrors();
-      rethrow;
+      if (e is Response && e.statusCode == 404) {
+        _syncLogger.warning("Got 404 while fetching children of ${parent.name}.");
+        throw MissingServerItemException(parent);
+      } else {
+        _downloadsService.incrementConnectionErrors();
+        rethrow;
+      }
     }
   }
 

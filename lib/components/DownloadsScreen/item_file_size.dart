@@ -15,100 +15,76 @@ class ItemFileSize extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isarDownloader = GetIt.instance<DownloadsService>();
-    final downloadingText = AppLocalizations.of(context)!.activeDownloadSize;
-    final deletingText = AppLocalizations.of(context)!.missingDownloadSize;
-    final syncingText = AppLocalizations.of(context)!.syncingDownloadSize;
-    final syncFailedText = AppLocalizations.of(context)!.syncingFailed;
-    Future<String> sizeText = ref.watch(isarDownloader.itemProvider(stub).future).then((item) {
-      switch (item?.state) {
-        case DownloadItemState.notDownloaded:
-          if (isarDownloader.getStatus(item!, null) == DownloadItemStatus.notNeeded) {
-            return Future.value(deletingText);
-          } else {
-            return Future.value(syncingText);
-          }
-        case DownloadItemState.syncFailed:
-          return Future.value("!!!$syncFailedText");
-        case DownloadItemState.failed:
-        case DownloadItemState.complete:
-        case DownloadItemState.needsRedownloadComplete:
-          if (item!.type == DownloadItemType.track) {
-            String codec = "";
-            String bitrate = "null";
-            if (item.fileTranscodingProfile == null ||
-                item.fileTranscodingProfile?.codec == FinampTranscodingCodec.original) {
-              codec = item.baseItem?.mediaSources?[0].container ?? "";
-            } else {
-              codec = item.fileTranscodingProfile?.codec.name ?? "";
-              bitrate = item.fileTranscodingProfile?.bitrateKbps ?? "null";
-            }
-            return isarDownloader
-                .getFileSize(item)
-                .then(
-                  (value) => context.mounted
-                      ? AppLocalizations.of(context)!.downloadInfo(
-                          bitrate,
-                          codec.toUpperCase(),
-                          FileSize.getSize(value),
-                          // only show name if there is more than one location
-                          (FinampSettingsHelper.finampSettings.downloadLocationsMap.length > 1
-                                  ? FinampSettingsHelper
-                                        .finampSettings
-                                        .downloadLocationsMap[item.fileDownloadLocation?.id]
-                                        ?.name
-                                  : null) ??
-                              "null",
-                        )
-                      : "null",
-                );
-          } else {
-            var profile = item.userTranscodingProfile ?? item.syncTranscodingProfile;
-            //Suppress codec display on downloads without audio files
-            if (!(item.finampCollection?.type.hasAudio ?? true)) {
-              profile = null;
-            }
-            var codec = profile?.codec.name ?? FinampTranscodingCodec.original.name;
-            return isarDownloader
-                .getFileSize(item)
-                .then(
-                  (value) => context.mounted
-                      ? AppLocalizations.of(context)!.collectionDownloadInfo(
-                          profile?.bitrateKbps ?? "null",
-                          codec.toUpperCase(),
-                          FileSize.getSize(value),
-                          // only show name if there is more than one location
-                          (FinampSettingsHelper.finampSettings.downloadLocationsMap.length > 1
-                                  ? FinampSettingsHelper
-                                        .finampSettings
-                                        .downloadLocationsMap[item.syncDownloadLocation?.id]
-                                        ?.name
-                                  : null) ??
-                              "null",
-                        )
-                      : "null",
-                );
-          }
-        case DownloadItemState.downloading:
-        case DownloadItemState.enqueued:
-        case DownloadItemState.needsRedownload:
-          return Future.value(downloadingText);
-        case null:
-          return Future.value(deletingText);
-      }
-    });
-    return FutureBuilder(
-      future: sizeText,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data!.startsWith("!!!")) {
-            return Text(snapshot.data!.substring(3), style: TextStyle(color: Colors.red));
-          } else {
-            return Text(snapshot.data!);
-          }
-        }
-        return const Text("");
-      },
-    );
+    final textFunction = ref.watch(downloadSizeTextProvider(stub)).valueOrNull;
+    final text = textFunction == null ? "" : textFunction(context);
+    if (text.startsWith("!!!")) {
+      return Text(text.substring(3), style: TextStyle(color: Colors.red));
+    } else {
+      return Text(text);
+    }
   }
 }
+
+final downloadSizeTextProvider = FutureProvider.autoDispose.family((Ref ref, DownloadStub stub) async {
+  final downloadsService = GetIt.instance<DownloadsService>();
+
+  final item = await ref.watch(downloadsService.itemProvider(stub).future);
+
+  switch (item?.state) {
+    case DownloadItemState.notDownloaded:
+      if (downloadsService.getStatus(item!, null) == DownloadItemStatus.notNeeded) {
+        return (BuildContext context) => AppLocalizations.of(context)!.missingDownloadSize;
+      } else {
+        return (BuildContext context) => AppLocalizations.of(context)!.syncingDownloadSize;
+      }
+    case DownloadItemState.syncFailed:
+      return (BuildContext context) => "!!!${AppLocalizations.of(context)!.syncingFailed}";
+    case DownloadItemState.failed:
+    case DownloadItemState.complete:
+    case DownloadItemState.needsRedownloadComplete:
+      if (item!.type == DownloadItemType.track) {
+        String codec = "";
+        String bitrate = "null";
+        if (item.fileTranscodingProfile == null ||
+            item.fileTranscodingProfile?.codec == FinampTranscodingCodec.original) {
+          codec = item.baseItem?.mediaSources?[0].container ?? "";
+        } else {
+          codec = item.fileTranscodingProfile?.codec.name ?? "";
+          bitrate = item.fileTranscodingProfile?.bitrateKbps ?? "null";
+        }
+        final fileSize = await downloadsService.getFileSize(item);
+        // only show name if there is more than one location
+        final locationName = FinampSettingsHelper.finampSettings.downloadLocationsMap.length > 1
+            ? FinampSettingsHelper.finampSettings.downloadLocationsMap[item.fileDownloadLocation?.id]?.name
+            : null;
+        return (BuildContext context) => AppLocalizations.of(
+          context,
+        )!.downloadInfo(bitrate, codec.toUpperCase(), FileSize.getSize(fileSize), locationName ?? "null");
+      } else {
+        var profile = item.userTranscodingProfile ?? item.syncTranscodingProfile;
+        //Suppress codec display on downloads without audio files
+        if (!(item.finampCollection?.type.hasAudio ?? true)) {
+          profile = null;
+        }
+        final codec = profile?.codec.name ?? FinampTranscodingCodec.original.name;
+        final fileSize = await downloadsService.getFileSize(item);
+        // only show name if there is more than one location
+        final locationName = FinampSettingsHelper.finampSettings.downloadLocationsMap.length > 1
+            ? FinampSettingsHelper.finampSettings.downloadLocationsMap[item.syncDownloadLocation?.id]?.name
+            : null;
+        return (BuildContext context) => AppLocalizations.of(context)!.collectionDownloadInfo(
+          profile?.bitrateKbps ?? "null",
+          codec.toUpperCase(),
+          FileSize.getSize(fileSize),
+
+          locationName ?? "null",
+        );
+      }
+    case DownloadItemState.downloading:
+    case DownloadItemState.enqueued:
+    case DownloadItemState.needsRedownload:
+      return (BuildContext context) => AppLocalizations.of(context)!.activeDownloadSize;
+    case null:
+      return (BuildContext context) => AppLocalizations.of(context)!.missingDownloadSize;
+  }
+});
