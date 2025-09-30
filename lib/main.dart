@@ -308,6 +308,8 @@ Future<void> _setupProviders() async {
   container.listen(finampSettingsProvider, (_, __) {});
   await container.read(finampSettingsProvider.future);
 
+  await initImageCache();
+
   DataSourceService.create();
   AutoOffline.startWatching();
 

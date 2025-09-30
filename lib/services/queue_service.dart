@@ -17,6 +17,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path_helper;
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -31,9 +32,6 @@ import 'music_player_background_task.dart';
 
 /// A track queueing service for Finamp.
 class QueueService {
-  /// Used to build content:// URIs that are handled by Finamp's built-in content provider.
-  static final contentProviderPackageName = "com.unicornsonlsd.finamp";
-
   static const savedQueueSource = QueueItemSource.rawId(
     type: QueueItemSourceType.unknown,
     name: QueueItemSourceName(type: QueueItemSourceNameType.savedQueue),
@@ -266,7 +264,8 @@ class QueueService {
         assert(artUri.scheme == "file");
         // use content provider for handling media art on Android
         if (Platform.isAndroid) {
-          artUri = Uri(scheme: "content", host: contentProviderPackageName, path: artUri.path);
+          final packageInfo = await PackageInfo.fromPlatform();
+          artUri = Uri(scheme: "content", host: packageInfo.packageName, path: artUri.path);
         }
         if (!force && _audioHandler.mediaItem.valueOrNull?.id != currentMediaItem?.id) return;
         currentMediaItem = currentMediaItem?.copyWith(artUri: artUri);
@@ -279,7 +278,7 @@ class QueueService {
         (_, latest) => updateMediaItem(latest, false),
       );
       updateMediaItem(_providers.read(albumImageProvider(artRequest)), true);
-    } else {}
+    }
     _audioHandler.queue.add(
       _queuePreviousTracks
           .followedBy(_currentTrack != null ? [_currentTrack!] : [])
@@ -619,10 +618,8 @@ class QueueService {
       _queueServiceLogger.fine("Order items length: ${_order.items.length}");
 
       // set playback order to trigger shuffle if necessary (fixes indices being wrong when starting with shuffle enabled)
-      playbackOrder = order;
-
-      // _queueStream.add(getQueue());
-      _queueFromConcatenatingAudioSource();
+      // this will run _queueFromConcatenatingAudioSource();
+      await setPlaybackOrder(order);
 
       if (beginPlaying) {
         // don't await this, because it will not return until playback is finished
@@ -1023,7 +1020,7 @@ class QueueService {
 
   FinampLoopMode get loopMode => _loopMode;
 
-  set playbackOrder(FinampPlaybackOrder order) {
+  Future<void> setPlaybackOrder(FinampPlaybackOrder order) async {
     // Native shuffle is not currently implemented on mediakit backend.
     if ((Platform.isLinux || Platform.isWindows) && order != FinampPlaybackOrder.linear) {
       GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.desktopShuffleWarning);
@@ -1035,23 +1032,25 @@ class QueueService {
     _playbackOrderStream.add(order);
 
     // update queue accordingly and generate new shuffled order if necessary
+    final AudioServiceShuffleMode mode;
     if (_playbackOrder == FinampPlaybackOrder.shuffled) {
-      _audioHandler.shuffle().then(
-        (_) =>
-            _audioHandler.setShuffleMode(AudioServiceShuffleMode.all).then((_) => _queueFromConcatenatingAudioSource()),
-      );
+      await _audioHandler.shuffle();
+      mode = AudioServiceShuffleMode.all;
     } else {
-      _audioHandler.setShuffleMode(AudioServiceShuffleMode.none).then((_) => _queueFromConcatenatingAudioSource());
+      mode = AudioServiceShuffleMode.none;
     }
+    await _audioHandler.setShuffleMode(mode);
+    //await _audioHandler.playbackState.where((event) => event.shuffleMode == mode).first;
+    _queueFromConcatenatingAudioSource();
   }
 
   FinampPlaybackOrder get playbackOrder => _playbackOrder;
 
-  void togglePlaybackOrder() {
+  Future<void> togglePlaybackOrder() {
     if (_playbackOrder == FinampPlaybackOrder.shuffled) {
-      playbackOrder = FinampPlaybackOrder.linear;
+      return setPlaybackOrder(FinampPlaybackOrder.linear);
     } else {
-      playbackOrder = FinampPlaybackOrder.shuffled;
+      return setPlaybackOrder(FinampPlaybackOrder.shuffled);
     }
   }
 

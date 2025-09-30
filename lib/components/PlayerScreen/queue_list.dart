@@ -49,32 +49,33 @@ class QueueList extends StatefulWidget {
     super.key,
     required this.scrollController,
     required this.previousTracksHeaderKey,
-    required this.currentTrackKey,
-    required this.nextUpHeaderKey,
-    required this.queueHeaderKey,
     required this.jumpToCurrentKey,
   });
 
   final ScrollController scrollController;
+
+  // Used to jump to current track
   final GlobalKey previousTracksHeaderKey;
-  final Key currentTrackKey;
-  final GlobalKey nextUpHeaderKey;
-  final GlobalKey queueHeaderKey;
+
+  // Used to control appearance of jump to current button
   final GlobalKey<JumpToCurrentButtonState> jumpToCurrentKey;
 
   @override
   State<QueueList> createState() => _QueueListState();
 }
 
-void scrollToKey({required GlobalKey key, Duration duration = const Duration(milliseconds: 500)}) {
+void scrollToKey({required GlobalKey key, Duration duration = const Duration(milliseconds: 500)}) async {
   // Wait for any queue rebuilds the caller may have induced to complete before beginning animation
-  SchedulerBinding.instance.addPostFrameCallback((_) {
-    Scrollable.ensureVisible(
-      key.currentContext!,
-      duration: MediaQuery.disableAnimationsOf(key.currentContext!) ? Duration.zero : duration,
-      curve: Curves.easeInOutCubic,
-    );
-  });
+  // It seem that that RenderSliver may take several frames to actually change size after the queue rebuilds, so just
+  // add a delay.
+  // TODO either watch for previous tracks renderobject to be correct height or just calculate scroll offset ourselves without delay.
+  await Future<void>.delayed(Duration(milliseconds: 200));
+  await Scrollable.ensureVisible(
+    key.currentContext!,
+    duration: MediaQuery.disableAnimationsOf(key.currentContext!) ? Duration.zero : duration,
+    curve: Curves.easeInOutCubic,
+    alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+  );
 }
 
 class _QueueListState extends State<QueueList> {
@@ -86,6 +87,9 @@ class _QueueListState extends State<QueueList> {
   bool _performInitialJump = true;
 
   late List<Widget> _contents;
+
+  // Used to jump when changing playback order
+  final queueHeaderKey = GlobalKey();
 
   @override
   void initState() {
@@ -168,19 +172,15 @@ class _QueueListState extends State<QueueList> {
           },
         ),
       ),
-      CurrentTrack(
-        // key: UniqueKey(),
-        key: widget.currentTrackKey,
-      ),
+      const CurrentTrack(),
       // next up
       StreamBuilder(
-        key: widget.nextUpHeaderKey,
         stream: _queueService.getQueueStream(),
         initialData: _queueService.getQueue(),
         builder: (context, snapshot) {
           if (snapshot.data != null && snapshot.data!.nextUp.isNotEmpty) {
             return SliverStickyHeader(
-              header: NextUpSectionHeader(controls: true, nextUpHeaderKey: widget.nextUpHeaderKey),
+              header: NextUpSectionHeader(controls: true),
               sliver: NextUpTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey),
             );
           } else {
@@ -189,6 +189,8 @@ class _QueueListState extends State<QueueList> {
         },
       ),
       // Queue
+      // Scrolling to floating headers doesn't work properly, so place the key in a dedicated sliver
+      SliverToBoxAdapter(key: queueHeaderKey),
       SliverStickyHeader(
         header: QueueSectionHeader(
           source: _source,
@@ -208,8 +210,7 @@ class _QueueListState extends State<QueueList> {
             ],
           ),
           controls: true,
-          nextUpHeaderKey: widget.nextUpHeaderKey,
-          queueHeaderKey: widget.queueHeaderKey,
+          queueHeaderKey: queueHeaderKey,
           scrollController: widget.scrollController,
         ),
         sliver: QueueTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey),
@@ -239,9 +240,6 @@ class _QueueListState extends State<QueueList> {
 
 Future<dynamic> showQueueBottomSheet(BuildContext context, WidgetRef ref) {
   GlobalKey previousTracksHeaderKey = GlobalKey();
-  Key currentTrackKey = UniqueKey();
-  GlobalKey nextUpHeaderKey = GlobalKey();
-  GlobalKey queueHeaderKey = GlobalKey();
   GlobalKey<JumpToCurrentButtonState> jumpToCurrentKey = GlobalKey();
 
   FeedbackHelper.feedback(FeedbackType.heavy);
@@ -293,9 +291,6 @@ Future<dynamic> showQueueBottomSheet(BuildContext context, WidgetRef ref) {
                         child: QueueList(
                           scrollController: scrollController,
                           previousTracksHeaderKey: previousTracksHeaderKey,
-                          currentTrackKey: currentTrackKey,
-                          nextUpHeaderKey: nextUpHeaderKey,
-                          queueHeaderKey: queueHeaderKey,
                           jumpToCurrentKey: jumpToCurrentKey,
                         ),
                       ),
@@ -943,7 +938,6 @@ class QueueSectionHeader extends StatelessWidget {
   final Widget title;
   final QueueItemSource? source;
   final bool controls;
-  final GlobalKey nextUpHeaderKey;
   final GlobalKey queueHeaderKey;
   final ScrollController scrollController;
 
@@ -951,7 +945,6 @@ class QueueSectionHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.source,
-    required this.nextUpHeaderKey,
     required this.queueHeaderKey,
     required this.scrollController,
     this.controls = false,
@@ -1037,12 +1030,10 @@ class QueueSectionHeader extends StatelessWidget {
                       color: info?.order == FinampPlaybackOrder.shuffled
                           ? IconTheme.of(context).color!
                           : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                      onPressed: () {
-                        queueService.togglePlaybackOrder();
+                      onPressed: () async {
+                        await queueService.togglePlaybackOrder();
                         FeedbackHelper.feedback(FeedbackType.selection);
-                        // Give time for playback oreder change to complete
-                        Future.delayed(const Duration(milliseconds: 200), () => scrollToKey(key: nextUpHeaderKey));
-                        // scrollToKey(key: nextUpHeaderKey, duration: const Duration(milliseconds: 1000));
+                        scrollToKey(key: queueHeaderKey);
                       },
                     ),
                     IconButton(
@@ -1073,9 +1064,8 @@ class QueueSectionHeader extends StatelessWidget {
 
 class NextUpSectionHeader extends StatelessWidget {
   final bool controls;
-  final GlobalKey nextUpHeaderKey;
 
-  const NextUpSectionHeader({super.key, required this.nextUpHeaderKey, this.controls = false});
+  const NextUpSectionHeader({super.key, this.controls = false});
 
   static MenuMaskHeight defaultHeight = MenuMaskHeight(114.0);
 

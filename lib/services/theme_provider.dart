@@ -209,6 +209,7 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
         // Keep cached player themes until app closure, as they can take several seconds to calculate
         ref.keepAlive();
       }
+      themeProviderLogger.finer("Calculated theme color $color for image $image");
       return _getColorScheme(color, brightness);
     }).then((value) => state = value);
     return getGrayTheme(brightness);

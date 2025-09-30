@@ -329,6 +329,7 @@ class _LyricsViewState extends ConsumerState<LyricsView> with WidgetsBindingObse
                     behavior: const FinampScrollBehavior(scrollbars: false),
                     child: LyricsListMask(
                       child: ListView.builder(
+                        key: PageStorageKey(metadata.valueOrNull?.item),
                         controller: autoScrollController,
                         itemCount: lyricLines.length + 2,
                         itemBuilder: (context, rawIndex) {
