@@ -2016,5 +2016,19 @@
     "quickActions": "빠른 작업",
     "@quickActions": {
         "description": "Title for the short menu that can be shown when long-pressing on the menu button on the player screen. Currently only used for adding to and removing from playlists."
-    }
+    },
+    "addRemoveFromPlaylist": "플레이리스트에 추가 / 삭제",
+    "@addRemoveFromPlaylist": {
+        "description": "Header for add to/remove from playlist popup menu"
+    },
+    "addPlaylistSubheader": "플레이리스트에 아이템 추가",
+    "@addPlaylistSubheader": {
+        "description": "Subheader for adding to a playlist in the add to/remove from playlist popup menu"
+    },
+    "trackOfflineFavorites": "모든 즐겨찾기 상태 동기화",
+    "@trackOfflineFavorites": {},
+    "trackOfflineFavoritesSubtitle": "이 설정은 오프라인 모드에서 가장 최신의 즐겨찾기 상태를 보여줄 수 있게 합니다.  파일을 추가로 다운로드 받지는 않습니다.",
+    "@trackOfflineFavoritesSubtitle": {},
+    "allPlaylistsInfoSettingSubtitle": "플레이리스트의 모든 메타 데이터를 동기화하여 사용자의 플레이리스트 경험을 개선합니다",
+    "@allPlaylistsInfoSettingSubtitle": {}
 }
