@@ -13,7 +13,7 @@
     "@pathReturnSlashErrorMessage": {},
     "enterLowPriorityStateOnPause": "Перейти у стан низького пріоритету під час паузи",
     "@enterLowPriorityStateOnPause": {},
-    "shuffleAllTrackCount": "Перемішати всі композиції",
+    "shuffleAllTrackCount": "Перемішати всі треки",
     "@shuffleAllTrackCount": {},
     "shuffleAllTrackCountSubtitle": "Кількість треків для завантаження під час використання кнопки перемішування всіх треків на вкладці треків або екрані жанрів.",
     "@shuffleAllTrackCountSubtitle": {},
@@ -116,7 +116,7 @@
     "@playlists": {},
     "album": "Альбомом",
     "@album": {},
-    "trackCount": "{count,plural,=1{{count} Композиція} other{{count} Композиції}}",
+    "trackCount": "{count,plural,=1{{count} Трек} other{{count} Треків}}",
     "@trackCount": {
         "placeholders": {
             "count": {
@@ -350,7 +350,7 @@
     },
     "unknownName": "Невідома назва",
     "@unknownName": {},
-    "tracks": "Композиції",
+    "tracks": "Треки",
     "@tracks": {},
     "albums": "Альбоми",
     "@albums": {},
@@ -570,7 +570,7 @@
     "@goToGenre": {},
     "confirmFavoriteAdded": "Додано Обране",
     "@confirmFavoriteAdded": {},
-    "skipToNextTrackButtonTooltip": "Перемотати до наступної композиції",
+    "skipToNextTrackButtonTooltip": "На наступний трек",
     "@skipToNextTrackButtonTooltip": {
         "description": "Tooltip for the button that skips to the next track"
     },
@@ -606,7 +606,7 @@
     "@shuffleAllQueueSource": {
         "description": "Title for the queue source when the user is shuffling all tracks. Should be capitalized (if applicable) to be more recognizable throughout the UI"
     },
-    "topTracks": "Найліпші композиції",
+    "topTracks": "Найліпші треки",
     "@topTracks": {},
     "shuffleAlbumsNext": "Перемішати альбоми наступними",
     "@shuffleAlbumsNext": {
@@ -773,7 +773,7 @@
     "@orDivider": {
         "description": "Text that separates two different ways to log in. For example, after selecting a server during the login flow, the other can either use Quick Connect, *or* select an account from a list. The text is stylized by wrapping it in dashes: '- or -'."
     },
-    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} композиція} other{{trackCount} композиції}}, {imageCount,plural,=1{{imageCount} зображення} other{{imageCount} зображення}}\n{syncCount,plural,=1{{syncCount} синхронізація вузла} other{{syncCount} синхронізація вузлів}}{repairing, plural, =0{} other{\nНаразі виправляється}}",
+    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} трек} other{{trackCount} треків}}, {imageCount,plural,=1{{imageCount} зображення} other{{imageCount} зображення}}\n{syncCount,plural,=1{{syncCount} синхронізація вузла} other{{syncCount} синхронізація вузлів}}{repairing, plural, =0{} other{\nНаразі виправляється}}",
     "@downloadedCountUnified": {
         "description": "Display of downloaded track and image count on downloads screen.",
         "placeholders": {
@@ -1012,7 +1012,7 @@
     "@redownloadcomplete": {
         "description": "Mesage when Automatically Redownload Transcodes transcode setting completes operations."
     },
-    "redownloadSubtitle": "Автоматично повторно завантажувати композиції, які мали б бути у іншій якості згідно змін батьківської колекції.",
+    "redownloadSubtitle": "Автоматично повторно завантажувати треки, які мають бути в іншій якості через зміни головної колекції.",
     "@redownloadSubtitle": {
         "description": "subtitle for download transcode setting which redownloads tracks with higher allowed qualities"
     },
@@ -1025,7 +1025,7 @@
             }
         }
     },
-    "playbackSpeedControlSettingDescription": "Автоматично:\nFinmap намагається ідентифікувати, чи є відтворювана композиція подкастом, чи аудіокнигою (її частиною). Це визначається у випадках коли композиція довша за {trackDuration} хв., альбом композиції довший за {albumDuration} год., чи композиція має хоча б один із перерахованих жанрів: {genreList}\nРегулятори швидкості відтворення з'являться в меню відтворювача.\n\nПоказувати:\nРегулятори швидкості відтворення завжди відображатимуться в меню відтворювача.\n\nПриховувати:\nРегулятори швидкості відтворення завжди приховані.",
+    "playbackSpeedControlSettingDescription": "Автоматично:\nFinmap намагається ідентифікувати, чи є відтворюваний трек подкастом, чи аудіокнигою (її частиною). Це визначається у випадках коли трек довший за {trackDuration} хв., альбом трека довший за {albumDuration} год., чи трек має хоча б один із перерахованих жанрів: {genreList}\nЕлементи керування швидкістю з'являться в меню програвача.\n\nПоказувати:\nЕлементи керування швидкістю завжди відображатимуться в меню програвача.\n\nПриховувати:\nЕлементи керування швидкістю завжди приховані.",
     "@playbackSpeedControlSettingDescription": {
         "description": "Description for the dropdown that selects the replay gain mode, shown in a dialog that opens when the user presses the info icon next to the dropdown",
         "placeholders": {
@@ -1047,7 +1047,7 @@
     "@playerScreenMinimumCoverPaddingEditorSubtitle": {
         "description": "Subtitle for the editor that allows the user to set the minimum padding around the album cover on the player screen."
     },
-    "scrollToCurrentTrack": "Прокрутити до поточної композиції",
+    "scrollToCurrentTrack": "Прокрутити до поточного трека",
     "@scrollToCurrentTrack": {
         "description": "Tooltip for button that scrolls the queue list back to the current track"
     },
@@ -1129,7 +1129,7 @@
     "@volumeNormalizationModeSelectorSubtitle": {
         "description": "Subtitle for the dropdown that selects the replay gain mode"
     },
-    "couldNotLoad": "Не вдалось завантажити {source, select, album{альбом} playlist{список відтворення} trackMix{мікс композицій} artistMix{мікс виконавців} albumMix{мікс альбомів} genreMix{мікс жанрів} favorites{обране} allTracks{усі композиції} filteredList{композиції} genre{жанр} artist{виконавця} track{композицію} nextUpAlbum{альбом у наступному} nextUpPlaylist{список відтворення у наступному} nextUpArtist{виконавця у наступному} other{}}",
+    "couldNotLoad": "Не вдалось завантажити {source, select, album{альбом} playlist{плейлист} trackMix{мікс трека} artistMix{мікс виконавця} albumMix{мікс альбому} genreMix{мікс жанру} favorites{улюблене} allTracks{усі треки} filteredList{треки} genre{жанр} artist{виконавець} track{трек} nextUpAlbum{альбом у «Далі в черзі»} nextUpPlaylist{плейлист у «Далі в черзі»} nextUpArtist{виконавець у «Далі в черзі»} other{}}",
     "@couldNotLoad": {
         "placeholders": {
             "source": {
@@ -1185,7 +1185,7 @@
     "@playbackModeTranscoding": {
         "description": "Feature chip that is shown when tracks are being transcoded by the server"
     },
-    "skipToPreviousTrackButtonTooltip": "Перемотати на початок або до попередньої композиції",
+    "skipToPreviousTrackButtonTooltip": "На початок поточного треку або попереднього",
     "@skipToPreviousTrackButtonTooltip": {
         "description": "Tooltip for the button that skips to the beginning of the current track or to the previous track"
     },
@@ -1219,7 +1219,7 @@
             }
         }
     },
-    "tracksFormerNextUp": "Композиції додано із наступного",
+    "tracksFormerNextUp": "Треки, додані через “Далі в черзі”",
     "@tracksFormerNextUp": {
         "description": "Title for the queue source for tracks that were once added to the queue via the \"Next Up\" feature, but have since been played"
     },
@@ -1364,7 +1364,7 @@
     "@fiveLatestAlbumsSettingSubtitle": {},
     "cacheLibraryImagesSettings": "Кешувати зображення поточної бібліотеки",
     "@cacheLibraryImagesSettings": {},
-    "offlineTrackCount": "{count,plural,=1{{count} Композицію} other{{count} Композиції}}, {downloads} завантажено",
+    "offlineTrackCount": "{count,plural,=1{{count} Трек} other{{count} Треків}}, {downloads} завантажено",
     "@offlineTrackCount": {
         "placeholders": {
             "count": {
@@ -1375,7 +1375,7 @@
             }
         }
     },
-    "offlineTrackCountArtist": "{count,plural,=1{{count} Композиція} other{{count} Композиції}} завантажено",
+    "offlineTrackCountArtist": "{count,plural,=1{{count} Трек} other{{count} Треків}} завантажено",
     "@offlineTrackCountArtist": {
         "placeholders": {
             "count": {
@@ -1550,7 +1550,7 @@
     "@startInstantMixForIndividualTracksSwitchTitle": {
         "description": "Title for the switch that toggles if tapping a track on the tracks tab will start an instant mix of that track instead of just playing a single track."
     },
-    "startInstantMixForIndividualTracksSwitchSubtitle": "Коли увімкнено, натискання на композицію у вкладці композицій почне миттєвий мікс цієї композиції замість відтворення власне композиції.",
+    "startInstantMixForIndividualTracksSwitchSubtitle": "Коли увімкнено, відтворення треку з вкладки “Треки” запускатиме миттєвий мікс замість відтворення лише одного треку.",
     "@startInstantMixForIndividualTracksSwitchSubtitle": {},
     "downloadItem": "Завантажити",
     "@downloadItem": {
@@ -1582,7 +1582,7 @@
     },
     "cacheLibraryImagesSettingsSubtitle": "Обкладинки усіх альбомів, виконавців, жанрів, та списків відтворення у поточній активній бібліотеці будуть завантажені.",
     "@cacheLibraryImagesSettingsSubtitle": {},
-    "showProgressOnNowPlayingBarTitle": "Показувати прогрес композиції у внутрішньому міні-відтворювачі",
+    "showProgressOnNowPlayingBarTitle": "Показувати прогрес відтворювання трека у вбудованому міні-програвачі",
     "@showProgressOnNowPlayingBarTitle": {
         "description": "Title for the setting that controls if the in-app miniplayer / now playing bar at the botton of the music screen functions as a progress bar"
     },
@@ -1724,7 +1724,7 @@
     "@albumScreen": {
         "description": "Name for the view/screen that shows albums"
     },
-    "showCoversOnAlbumScreenSubtitle": "Показувати обкладинки альбому для кожної композиції окремо на екрані альбому.",
+    "showCoversOnAlbumScreenSubtitle": "Показувати обкладинки альбому для кожного трека окремо на вкладці альбому.",
     "@showCoversOnAlbumScreenSubtitle": {
         "description": "Subtitle for the setting that controls if album covers are shown for each track separately on the album screen"
     },
@@ -1756,7 +1756,7 @@
     "@lyricsFontSizeTitle": {
         "description": "Title for the setting that controls the font size of lyrics in the lyrics view"
     },
-    "emptyTopTracksList": "Ви ще не слухали жодної композиції від цього виконавця.",
+    "emptyTopTracksList": "Ви ще не слухали жодного треку від цього виконавця.",
     "@emptyTopTracksList": {
         "description": "Message shown as a placeholder when the top tracks list for an artist is empty"
     },
