@@ -1,8 +1,4 @@
-import 'dart:io';
-
 import 'package:finamp/models/finamp_models.dart';
-import 'package:finamp/services/finamp_user_helper.dart';
-import 'package:finamp/services/queue_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
@@ -23,12 +19,14 @@ class MetadataProvider {
   static const speedControlLongAlbumDuration = Duration(hours: 3);
 
   final PlaybackInfoResponse playbackInfo;
+  final BaseItemDto item;
   LyricDto? lyrics;
   bool isDownloaded;
   bool qualifiesForPlaybackSpeedControl;
   double? parentNormalizationGain;
 
   MetadataProvider({
+    required this.item,
     required this.playbackInfo,
     this.lyrics,
     this.isDownloaded = false,
@@ -152,6 +150,7 @@ final AutoDisposeFutureProviderFamily<MetadataProvider?, BaseItemDto> metadataPr
       }
 
       final metadata = MetadataProvider(
+        item: item,
         playbackInfo: playbackInfo,
         isDownloaded: localPlaybackInfo != null,
         parentNormalizationGain: parent?.normalizationGain,
