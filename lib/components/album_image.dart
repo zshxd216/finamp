@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
-import 'package:octo_image/octo_image.dart';
+import 'package:octo_image/src/image/fade_widget.dart';
 import 'package:uuid/v4.dart';
 
 import '../models/jellyfin_models.dart';
@@ -203,19 +203,10 @@ class _AlbumImageState extends ConsumerState<AlbumImage> {
 
 /// An [AlbumImage] without any of the padding or media size detection.
 class BareAlbumImage extends ConsumerWidget {
-  const BareAlbumImage({
-    super.key,
-    required this.imageListenable,
-    this.imageProviderCallback,
-    this.errorBuilder = defaultErrorBuilder,
-    this.placeholderBuilder,
-    required this.onZoomRoute,
-  });
+  const BareAlbumImage({super.key, required this.imageListenable, this.placeholderBuilder, required this.onZoomRoute});
 
   final ProviderListenable<FinampImage> imageListenable;
   final WidgetBuilder? placeholderBuilder;
-  final OctoErrorBuilder errorBuilder;
-  final ImageProviderCallback? imageProviderCallback;
   final bool onZoomRoute;
 
   static Widget defaultPlaceholderBuilder(BuildContext context) {
@@ -245,24 +236,82 @@ class BareAlbumImage extends ConsumerWidget {
     localPlaceholder ??= defaultPlaceholderBuilder;
 
     if (image != null) {
-      if (imageProviderCallback != null) {
-        imageProviderCallback!(image);
-      }
       final fadeTime = MediaQuery.disableAnimationsOf(context) || onZoomRoute
           ? Duration.zero
-          : const Duration(milliseconds: 300);
-      return OctoImage(
+          : const Duration(milliseconds: 700);
+
+      return Image(
+        key: ValueKey(image),
         image: image,
-        filterQuality: FilterQuality.medium,
-        fadeOutDuration: fadeTime,
-        fadeInDuration: fadeTime,
+        frameBuilder: (_, child, frame, _) => ImageFader(
+          key: ValueKey(image),
+          fadeTime: fadeTime,
+          placeholder: localPlaceholder!(context),
+          image: frame != null ? child : null,
+        ),
         fit: BoxFit.contain,
-        placeholderBuilder: localPlaceholder,
-        errorBuilder: errorBuilder,
+        alignment: Alignment.center,
+        repeat: ImageRepeat.noRepeat,
+        matchTextDirection: false,
+        filterQuality: FilterQuality.medium,
+        errorBuilder: defaultErrorBuilder,
       );
     }
 
     return Builder(builder: localPlaceholder);
+  }
+}
+
+/// Wait for an image to load and fade it in over the placeholder.  This is based on Octoimage, but with the ability to
+/// dynamically reduce the fade time for images which load quickly.
+class ImageFader extends StatefulWidget {
+  const ImageFader({super.key, required this.fadeTime, required this.placeholder, required this.image});
+
+  final Duration fadeTime;
+  final Widget placeholder;
+  final Widget? image;
+
+  @override
+  State<ImageFader> createState() => _ImageFaderState();
+}
+
+class _ImageFaderState extends State<ImageFader> {
+  bool wasSyncronouslyLoaded = true;
+  DateTime? startTime;
+  Duration? fadeTime;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = widget.image;
+    // If we have never built without the image, just return the child without the fadein stack
+    if (image != null && wasSyncronouslyLoaded) return image;
+
+    wasSyncronouslyLoaded = false;
+    startTime ??= DateTime.now();
+
+    if (image == null) return widget.placeholder;
+
+    // This point is only reached when we have previously shown the placeholder but have now been rebuilt with a loaded image
+    if (fadeTime == null) {
+      // The widget fade in time is the smaller of the widget fadeTime or the time between widget creation and initial image load
+      final loadTime = DateTime.now().difference(startTime!);
+      fadeTime = Duration(
+        microseconds: loadTime.inMicroseconds.clamp(Duration.zero.inMicroseconds, widget.fadeTime.inMicroseconds),
+      );
+    }
+    return Stack(
+      fit: StackFit.passthrough,
+      alignment: Alignment.center,
+      children: [
+        FadeWidget(duration: fadeTime!, curve: Curves.easeIn, child: image),
+        FadeWidget(
+          duration: fadeTime!,
+          curve: Curves.easeOut,
+          direction: AnimationDirection.reverse,
+          child: widget.placeholder,
+        ),
+      ],
+    );
   }
 }
 
