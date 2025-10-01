@@ -2030,5 +2030,45 @@
     "trackOfflineFavoritesSubtitle": "이 설정은 오프라인 모드에서 가장 최신의 즐겨찾기 상태를 보여줄 수 있게 합니다.  파일을 추가로 다운로드 받지는 않습니다.",
     "@trackOfflineFavoritesSubtitle": {},
     "allPlaylistsInfoSettingSubtitle": "플레이리스트의 모든 메타 데이터를 동기화하여 사용자의 플레이리스트 경험을 개선합니다",
-    "@allPlaylistsInfoSettingSubtitle": {}
+    "@allPlaylistsInfoSettingSubtitle": {},
+    "downloadFavoritesSetting": "모든 즐겨찾기 다운로드",
+    "@downloadFavoritesSetting": {},
+    "downloadAllPlaylistsSetting": "모든 플레이리스트 다운로드",
+    "@downloadAllPlaylistsSetting": {},
+    "fiveLatestAlbumsSetting": "최신 5개 앨범 다운로드",
+    "@fiveLatestAlbumsSetting": {},
+    "fiveLatestAlbumsSettingSubtitle": "다운로드한 곡들은 시간이 지나면 삭제됩니다. 앨범이 제거되지 않도록 다운로드 잠금을 설정하십시오.",
+    "@fiveLatestAlbumsSettingSubtitle": {},
+    "cacheLibraryImagesSettings": "현재 라이브러리 이미지 캐시하기",
+    "@cacheLibraryImagesSettings": {},
+    "cacheLibraryImagesSettingsSubtitle": "현재 활성화된 라이브리의 모든 앨범, 아티스트, 장르, 플레이리스트의 커버 이미지들을 다운로드 합니다.",
+    "@cacheLibraryImagesSettingsSubtitle": {},
+    "showProgressOnNowPlayingBarTitle": "인앱 미니 플레이어에 곡 진행률을 표시함",
+    "@showProgressOnNowPlayingBarTitle": {
+        "description": "Title for the setting that controls if the in-app miniplayer / now playing bar at the bottom of the music screen functions as a progress bar"
+    },
+    "showProgressOnNowPlayingBarSubtitle": "인앱 미니 플레이어 / 음악 화면 하단의 지금 재생중 기능에 진행률 표시 여부를 설정합니다.",
+    "@showProgressOnNowPlayingBarSubtitle": {
+        "description": "Subtitle for the setting that controls if the now playing bar / miniplayer at the bottom of the music screen functions as a progress bar"
+    },
+    "lyricsScreenButtonTitle": "가사",
+    "@lyricsScreenButtonTitle": {
+        "description": "Label for the button for opening the lyrics screen"
+    },
+    "lyricsScreen": "가사 보기",
+    "@lyricsScreen": {
+        "description": "Name for the view/screen that shows lyrics for the currently playing track"
+    },
+    "showLyricsTimestampsTitle": "동기화된 가사에 타임스탬프 표시",
+    "@showLyricsTimestampsTitle": {
+        "description": "Title for the setting that controls if timestamps are shown for lyrics"
+    },
+    "showLyricsTimestampsSubtitle": "(가능한 경우) 가사 보기에서 가사의 각 행에 타임스탬프 표시 여부를 설정합니다.",
+    "@showLyricsTimestampsSubtitle": {
+        "description": "Subtitle for the setting that controls if timestamps are shown for lyrics"
+    },
+    "showStopButtonOnMediaNotificationTitle": "미디어 알림에 정지 버튼을 표시합니다",
+    "@showStopButtonOnMediaNotificationTitle": {
+        "description": "Title for the setting that controls if the media notification has a stop button."
+    }
 }
