@@ -1467,5 +1467,71 @@
         "description": "Setting description. Make sure the Mode names match the translations."
     },
     "autoOfflineSettingTitle": "自動オフラインモード",
-    "@autoOfflineSettingTitle": {}
+    "@autoOfflineSettingTitle": {},
+    "activeDownloadSize": "ダウンロード中…",
+    "@activeDownloadSize": {
+        "description": "Message shown for download size while item is still being downloaded"
+    },
+    "missingDownloadSize": "削除中…",
+    "@missingDownloadSize": {
+        "description": "Message shown for download size while item is being deleted but is not fully removed"
+    },
+    "syncingDownloadSize": "同期中…",
+    "@syncingDownloadSize": {
+        "description": "Message shown for download size while item is still syncing."
+    },
+    "genericCancel": "キャンセル",
+    "@genericCancel": {
+        "description": "Used when the user stops an action from taking place inside a popup dialog window"
+    },
+    "autoReloadPromptReloadButton": "リロード",
+    "@autoReloadPromptReloadButton": {
+        "description": "Button title for reloading the queue after network settings change"
+    },
+    "trackMenuButtonTooltip": "曲メニュー",
+    "@trackMenuButtonTooltip": {
+        "description": "Tooltip for the button that opens the track menu"
+    },
+    "lyricsAlignmentTitle": "歌詞のアライメント",
+    "@lyricsAlignmentTitle": {
+        "description": "Title for the setting that controls the alignment of lyrics in the lyrics view"
+    },
+    "playbackMode": "再生モード",
+    "@playbackMode": {
+        "description": "Label for the feature chips showing the playback mode of a track. See [playbackModeLocal], [playbackModeDirectPlaying], and [playbackModeTranscoding]"
+    },
+    "resetFiltersButton": "フィルターのリセット",
+    "@resetFiltersButton": {
+        "description": "Button to reset filters on a list of items"
+    },
+    "discordRPCSettingTitle": "Discord の Rich Presence",
+    "@discordRPCSettingTitle": {
+        "description": "Title for the setting that controls if the Discord RPC (Rich Presence) feature is enabled"
+    },
+    "lyricsFontSizeTitle": "歌詞のフォントサイズ",
+    "@lyricsFontSizeTitle": {
+        "description": "Title for the setting that controls the font size of lyrics in the lyrics view"
+    },
+    "hideQueueButton": "キューボタンを隠す",
+    "@hideQueueButton": {},
+    "noReleaseDate": "リリース日なし",
+    "@noReleaseDate": {
+        "description": "Placeholder text if an item has no release date set."
+    },
+    "releaseDateFormatMonthDayYear": "月・日・年",
+    "@releaseDateFormatMonthDayYear": {
+        "description": "Date format option for the release date of an album, showing the year and month and day/date. Example: March 2, 2022"
+    },
+    "removeFromPlaylistPrompt": "プレイリスト'{playlistName}'から'{itemName}'を削除しますか？",
+    "@removeFromPlaylistPrompt": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            },
+            "playlistName": {
+                "type": "String"
+            }
+        },
+        "description": "Prompt on dialog to confirm a removal from playlist"
+    }
 }
