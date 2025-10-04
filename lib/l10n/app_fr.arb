@@ -2741,5 +2741,49 @@
     "dragToReorder": "Faites glisser pour réorganiser",
     "@dragToReorder": {
         "description": "Label shown on drag handles of track list  tiles in the queue list"
+    },
+    "emptyAlbum": "Aucun titre.",
+    "@emptyAlbum": {
+        "description": "Message shown as a placeholder when an album or playlist is empty."
+    },
+    "addDownloadLocationsErrorPrompt": "Échec de l'écriture dans le répertoire sélectionné. Modifiez les autorisations ou choisissez un autre emplacement.",
+    "@addDownloadLocationsErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+    },
+    "androidImageErrorPrompt": "AVERTISSEMENT : En raison des restrictions du système d'exploitation, nous ne pouvons pas enregistrer d'images dans le dossier Musique d'Android. Veuillez choisir un autre emplacement.",
+    "@androidImageErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+    },
+    "addDownloadLocationsErrorButton": "Ajouter quand même",
+    "@addDownloadLocationsErrorButton": {
+        "description": "Label shown on button for adding a download location we suspect to be buggy"
+    },
+    "syncFailedWarningShort": "Avertissement : échec de la synchronisation de certains téléchargements avec le serveur.",
+    "@syncFailedWarningShort": {
+        "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+    },
+    "syncFailedWarningLong": "Certains téléchargements n'ont pas pu être synchronisés avec le serveur. L'élément serveur correspondant a probablement été supprimé. Le téléchargement ayant échoué doit être supprimé pour nettoyer les fichiers obsolètes.",
+    "@syncFailedWarningLong": {
+        "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+    },
+    "openDownloads": "Ouvrir les Téléchargements",
+    "@openDownloads": {
+        "description": "Label on a button to open the downloads screen after a sync fails."
+    },
+    "syncingFailed": "Échec de la synchronisation. Ce téléchargement a probablement été supprimé du serveur et doit être supprimé.",
+    "@syncingFailed": {
+        "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+    },
+    "autoplayRestoredQueueTitle": "Lire automatiquement les files d'attente restaurées",
+    "@autoplayRestoredQueueTitle": {
+        "description": "Title for the setting that controls if restored queues automatically play."
+    },
+    "autoplayRestoredQueueSubtitle": "Les files d'attente restaurées automatiquement au démarrage ou via l'écran de restauration des files d'attente seront lues automatiquement. Les files d'attente qui ne parviennent pas à restaurer toutes les pistes ne seront jamais lues automatiquement, quel que soit ce paramètre.",
+    "@autoplayRestoredQueueSubtitle": {
+        "description": "Subtitle for the setting that controls if restored queues automatically play."
+    },
+    "missingBlurhashWarning": "Avertissement : Le serveur Jellyfin semble mal configuré et ne calcule pas les flous de hachage. Cela empêche Finamp de dédupliquer les téléchargements d'images. Veuillez corriger le serveur et effectuer une réparation des téléchargements.",
+    "@missingBlurhashWarning": {
+        "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
     }
 }
