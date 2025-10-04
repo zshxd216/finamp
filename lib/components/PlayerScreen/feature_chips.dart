@@ -210,9 +210,13 @@ class FeatureChips extends ConsumerWidget {
             behavior: ScrollConfiguration.of(context).copyWith(dragDevices: PointerDeviceKind.values.toSet()),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Features(
-                backgroundColor: IconTheme.of(context).color?.withOpacity(0.1) ?? _defaultBackgroundColour,
-                features: featureState,
+              child: Builder(
+                builder: (context) {
+                  return Features(
+                    backgroundColor: IconTheme.of(context).color?.withOpacity(0.1) ?? _defaultBackgroundColour,
+                    features: featureState,
+                  );
+                },
               ),
             ),
           ),

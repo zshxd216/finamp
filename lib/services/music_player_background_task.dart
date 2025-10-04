@@ -8,10 +8,10 @@ import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
+import 'package:finamp/services/current_track_metadata_provider.dart';
 import 'package:finamp/services/favorite_provider.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/services/queue_service.dart';
-import 'package:finamp/services/current_track_metadata_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -64,6 +64,8 @@ class FadeState {
 }
 
 class PlayerVolumeController {
+  static final _volumeLogger = Logger("Volume");
+
   PlayerVolumeController(this._player) {
     _updateVolume();
   }
@@ -98,6 +100,9 @@ class PlayerVolumeController {
     var vol2 = _replayGainVolume.clamp(0.0, 1.0);
     var vol3 = _fadeVolume.clamp(0.0, 1.0);
     var totalVol = vol1 * vol2 * vol3;
+    _volumeLogger.info(
+      "Setting volume to $totalVol - user: $_internalVolume gain: $_replayGainVolume fade: $_fadeVolume",
+    );
     return _player.setVolume(totalVol.clamp(0.0, 1.0));
   }
 }

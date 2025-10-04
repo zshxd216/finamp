@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
-class ConfirmationPromptDialog extends AlertDialog {
+import '../l10n/app_localizations.dart';
+
+class ConfirmationPromptDialog extends StatelessWidget {
   const ConfirmationPromptDialog({
     super.key,
     required this.promptText,
     required this.confirmButtonText,
-    required this.abortButtonText,
-    required this.onConfirmed,
-    required this.onAborted,
+    this.abortButtonText,
+    this.onConfirmed,
     this.centerText = false,
   });
   final String promptText;
   final String confirmButtonText;
   final String? abortButtonText;
   final void Function()? onConfirmed;
-  final void Function()? onAborted;
   final bool centerText;
 
   @override
@@ -29,23 +29,22 @@ class ConfirmationPromptDialog extends AlertDialog {
       actionsOverflowDirection: VerticalDirection.up,
       title: Text(promptText, style: const TextStyle(fontSize: 18), textAlign: centerText ? TextAlign.center : null),
       actions: [
-        if (abortButtonText != null)
-          Container(
-            constraints: const BoxConstraints(maxWidth: 150.0),
-            child: TextButton(
-              child: Text(abortButtonText!, textAlign: TextAlign.center),
-              onPressed: () {
-                Navigator.of(context).pop();
-                onAborted?.call();
-              },
-            ),
+        Container(
+          constraints: const BoxConstraints(maxWidth: 150.0),
+          child: TextButton(
+            child: Text(abortButtonText ?? AppLocalizations.of(context)!.genericCancel, textAlign: TextAlign.center),
+            onPressed: () {
+              // The widget may be dismissed via the modal instead of the cancel button, so return null to unify behaviors.
+              Navigator.of(context).pop(null);
+            },
           ),
+        ),
         Container(
           constraints: const BoxConstraints(maxWidth: 150.0),
           child: TextButton(
             child: Text(confirmButtonText, textAlign: TextAlign.center, softWrap: true),
             onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(true); // Close the dialog
               onConfirmed?.call();
             },
           ),

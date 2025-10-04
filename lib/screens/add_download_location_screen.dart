@@ -1,11 +1,14 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path_helper;
 import 'package:provider/provider.dart';
+import 'package:uuid/v4.dart';
 
 import '../components/AddDownloadLocationScreen/app_directory_location_form.dart';
 import '../components/AddDownloadLocationScreen/custom_download_location_form.dart';
+import '../components/confirmation_prompt_dialog.dart';
 import '../models/finamp_models.dart';
 import '../services/finamp_settings_helper.dart';
 
@@ -91,7 +94,40 @@ class _AddDownloadLocationScreenState extends State<AddDownloadLocationScreen> w
                   baseDirectory: newDownloadLocation.baseDirectory,
                 );
 
+                if (!context.mounted) return;
+
+                final imageTest = File(path_helper.join(downloadLocation.currentPath, "__${UuidV4().generate()}.jpg"));
+                final songTest = File(path_helper.join(downloadLocation.currentPath, "__${UuidV4().generate()}.mp3"));
+                bool songPassed = false;
+
+                try {
+                  songTest.createSync(recursive: true);
+                  songPassed = true;
+                  imageTest.createSync(recursive: true);
+                } on FileSystemException {
+                  bool? confirmed = await showDialog(
+                    context: context,
+                    builder: (_) => ConfirmationPromptDialog(
+                      // If song writes succeed but image writes fail, assume we are in the android Music folder.
+                      promptText: songPassed
+                          ? AppLocalizations.of(context)!.androidImageErrorPrompt
+                          : AppLocalizations.of(context)!.addDownloadLocationsErrorPrompt,
+                      confirmButtonText: AppLocalizations.of(context)!.addDownloadLocationsErrorButton,
+                      centerText: true,
+                    ),
+                  );
+                  if (!(confirmed ?? false)) return;
+                } finally {
+                  if (songTest.existsSync()) {
+                    songTest.deleteSync();
+                  }
+                  if (imageTest.existsSync()) {
+                    imageTest.deleteSync();
+                  }
+                }
+
                 FinampSettingsHelper.addDownloadLocation(downloadLocation);
+                if (!context.mounted) return;
                 Navigator.of(context).pop();
               }
             },

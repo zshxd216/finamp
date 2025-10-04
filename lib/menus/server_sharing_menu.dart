@@ -64,7 +64,7 @@ Future<void> showServerSharingPanel({required BuildContext context}) async {
         ),
         SliverPadding(padding: EdgeInsets.only(bottom: 40.0)),
       ];
-      var stackHeight = MediaQuery.sizeOf(context).height * 0.45;
+      var stackHeight = MediaQuery.heightOf(context) * 0.45;
       return (stackHeight, menu);
     },
   );
@@ -154,9 +154,7 @@ class _ServerSharingMenuControlsState extends ConsumerState<ServerSharingMenuCon
               confirmButtonText: AppLocalizations.of(
                 context,
               )!.serverSharingMenuConfirmationDialogConfirmationButtonLabel,
-              abortButtonText: MaterialLocalizations.of(context).cancelButtonLabel,
               onConfirmed: () => setServerSharing(true),
-              onAborted: () {},
             ),
           );
         } else {

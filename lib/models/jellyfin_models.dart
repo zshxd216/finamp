@@ -3794,7 +3794,7 @@ class LyricLineCue {
 
   int get startMicros => start ~/ 10;
 
-  int get endMicros => end != null ? end! ~/ 10 : 0;
+  int? get endMicros => end != null ? end! ~/ 10 : null;
 
   factory LyricLineCue.fromJson(Map<String, dynamic> json) => _$LyricLineCueFromJson(json);
 

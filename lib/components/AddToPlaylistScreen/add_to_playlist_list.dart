@@ -14,11 +14,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../menus/playlist_actions_menu.dart';
 import '../../models/jellyfin_models.dart';
 import '../confirmation_prompt_dialog.dart';
 import '../global_snackbar.dart';
 import 'new_playlist_dialog.dart';
-import '../../menus/playlist_actions_menu.dart';
 
 class AddToPlaylistList extends StatefulWidget {
   const AddToPlaylistList({super.key, required this.itemsToAdd, required this.playlistsFuture});
@@ -278,9 +278,7 @@ class _AddToPlaylistTileState extends ConsumerState<AddToPlaylistTile> {
               builder: (context) => ConfirmationPromptDialog(
                 promptText: promptText,
                 confirmButtonText: AppLocalizations.of(context)!.addButtonLabel,
-                abortButtonText: MaterialLocalizations.of(context).cancelButtonLabel,
                 onConfirmed: () => confirmed = true,
-                onAborted: () {},
               ),
             );
             if (!confirmed || !context.mounted) return false;

@@ -181,6 +181,7 @@ class FinampSettingsHelper {
     FinampSetters.setAutoloadLastQueueOnStartup(DefaultSettings.autoLoadLastQueueOnStartup);
     FinampSetters.setAutoReloadQueue(DefaultSettings.autoReloadQueue);
     FinampSetters.setClearQueueOnStopEvent(DefaultSettings.clearQueueOnStopEvent);
+    FinampSetters.setAutoplayRestoredQueue(DefaultSettings.autoplayRestoredQueue);
   }
 
   static void resetPlaybackReportingSettings() {
@@ -262,7 +263,7 @@ class FinampSettingsHelper {
 
   static IconButton makeSettingsResetButtonWithDialog(
     BuildContext context,
-    Function() resetFunction, {
+    void Function() resetFunction, {
     bool isGlobal = false,
   }) {
     // TODO: Replace the following Strings with localization
@@ -277,9 +278,7 @@ class FinampSettingsHelper {
             confirmButtonText: isGlobal
                 ? AppLocalizations.of(context)!.resetSettingsPromptGlobalConfirm
                 : AppLocalizations.of(context)!.reset,
-            abortButtonText: AppLocalizations.of(context)!.genericCancel,
             onConfirmed: resetFunction,
-            onAborted: () {},
           ),
         );
       },

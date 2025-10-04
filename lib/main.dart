@@ -25,6 +25,7 @@ import 'package:finamp/screens/playback_history_screen.dart';
 import 'package:finamp/screens/playback_reporting_settings_screen.dart';
 import 'package:finamp/screens/player_settings_screen.dart';
 import 'package:finamp/screens/queue_restore_screen.dart';
+import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/android_auto_helper.dart';
 import 'package:finamp/services/audio_service_smtc.dart';
 import 'package:finamp/services/data_source_service.dart';
@@ -97,6 +98,7 @@ import 'services/theme_mode_helper.dart';
 import 'setup_logging.dart';
 
 final _mainLog = Logger("Main()");
+late DateTime startTime;
 
 final providerScopeKey = GlobalKey();
 
@@ -104,6 +106,7 @@ void main() async {
   // If the app has failed, this is set to true. If true, we don't attempt to run the main app since the error app has started.
   bool hasFailed = false;
   try {
+    startTime = DateTime.now();
     await setupLogging();
     await _setupEdgeToEdgeOverlayStyle();
     _mainLog.info("Setup edge-to-edge overlay");
@@ -284,6 +287,10 @@ Future<void> setupHive() async {
   Box<ThemeMode> themeModeBox = Hive.box("ThemeMode");
   if (themeModeBox.isEmpty) ThemeModeHelper.setThemeMode(DefaultSettings.theme);
 
+  final compactFile = File(path_helper.join(dir.path, "$isarDatabaseName.isar.compact}"));
+  if (compactFile.existsSync()) {
+    compactFile.deleteSync();
+  }
   final isar = await Isar.open(
     [DownloadItemSchema, IsarTaskDataSchema, FinampUserSchema, DownloadedLyricsSchema],
     directory: dir.path,
@@ -300,6 +307,8 @@ Future<void> _setupProviders() async {
   // Make sure that finampSettingsProvider always has a value available
   container.listen(finampSettingsProvider, (_, __) {});
   await container.read(finampSettingsProvider.future);
+
+  await initImageCache();
 
   DataSourceService.create();
   AutoOffline.startWatching();
@@ -373,8 +382,8 @@ Future<void> _setupPlaybackServices() async {
       androidNotificationIcon: "mipmap/white",
       androidNotificationChannelId: "com.unicornsonlsd.finamp.audio",
       // notificationColor: TODO use the theme color for older versions of Android,
-      // Preloading art does not work on android due to use of content:// scheme.
-      preloadArtwork: !Platform.isAndroid,
+      // We will handle preloading artwork ourselves
+      preloadArtwork: false,
       androidBrowsableRootExtras: <String, dynamic>{
         // support showing search button on Android Auto as well as alternative search results on the player screen after voice search
         "android.media.browse.SEARCH_SUPPORTED": true,
@@ -385,6 +394,7 @@ Future<void> _setupPlaybackServices() async {
             FinampSettingsHelper.finampSettings.contentViewType == ContentViewType.list ? 1 : 2,
       },
     ),
+    cacheManager: StubImageCache(),
   );
 
   GetIt.instance.registerSingleton<MusicPlayerBackgroundTask>(audioHandler);
@@ -470,7 +480,12 @@ Future<void> _trustAndroidUserCerts() async {
   // Extend the default security context to trust Android user certificates.
   // This is a workaround for <https://github.com/dart-lang/sdk/issues/50435>.
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterUserCertificatesAndroid().trustAndroidUserCertificates(SecurityContext.defaultContext);
+  try {
+    await FlutterUserCertificatesAndroid().trustAndroidUserCertificates(SecurityContext.defaultContext);
+  } catch (e) {
+    Logger("AndroidCertTrust").severe("Failed to trust certificates: $e", e);
+    GlobalSnackbar.error("Failed to trust user certificates: $e");
+  }
 }
 
 Future<void> _setupFinampUserHelper() async {
@@ -554,7 +569,7 @@ class _FinampState extends State<Finamp> with WindowListener {
           child: ValueListenableBuilder(
             valueListenable: LocaleHelper.localeListener,
             builder: (_, __, ___) {
-              final transitionBuilder = MediaQuery.of(context).disableAnimations
+              final transitionBuilder = MediaQuery.disableAnimationsOf(context)
                   ? PageTransitionsTheme(
                       // Disable page transitions on all platforms if [disableAnimations] is true, otherwise use default transitions
                       builders: TargetPlatform.values.fold(

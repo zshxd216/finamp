@@ -107,7 +107,7 @@ class JellyfinApiHelper {
     if (output is T) {
       return output;
     }
-    _jellyfinApiHelperLogger.severe("Error in background isolate:", output);
+    _jellyfinApiHelperLogger.severe("Error in background isolate: $output", output);
     throw output as Object;
   }
 

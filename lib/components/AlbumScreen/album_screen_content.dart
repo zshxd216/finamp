@@ -259,7 +259,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
             ),
             SliverToBoxAdapter(child: SizedBox(height: 16.0)),
           ]
-        else if (!isLoading && displayChildren.isNotEmpty)
+        else if (!isLoading)
           TracksSliverList(
             childrenForList: displayChildren,
             childrenForQueue: queueChildren,
@@ -312,13 +312,15 @@ class _TracksSliverListState extends ConsumerState<TracksSliverList> {
   @override
   Widget build(BuildContext context) {
     if (widget.childrenForList.isEmpty) {
-      return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-          child: Text(
-            AppLocalizations.of(context)!.emptyTopTracksList,
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
+      return SliverFillRemaining(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+            child: Text(
+              AppLocalizations.of(context)!.emptyAlbum,
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       );
