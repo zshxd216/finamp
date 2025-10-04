@@ -2731,5 +2731,49 @@
     "dragToReorder": "Перетягніть, щоб змінити порядок",
     "@dragToReorder": {
         "description": "Label shown on drag handles of track list  tiles in the queue list"
+    },
+    "emptyAlbum": "Без слідів.",
+    "@emptyAlbum": {
+        "description": "Message shown as a placeholder when an album or playlist is empty."
+    },
+    "addDownloadLocationsErrorPrompt": "Не вдалося записати до вибраного каталогу. Вам слід змінити дозволи або вибрати інше місце розташування.",
+    "@addDownloadLocationsErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+    },
+    "androidImageErrorPrompt": "ПОПЕРЕДЖЕННЯ: Ми не можемо записати зображення до папки «Музика» на Android через обмеження ОС. Вам слід вибрати інше місце.",
+    "@androidImageErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+    },
+    "addDownloadLocationsErrorButton": "Додати все одно",
+    "@addDownloadLocationsErrorButton": {
+        "description": "Label shown on button for adding a download location we suspect to be buggy"
+    },
+    "syncFailedWarningShort": "Попередження: Не вдалося синхронізувати деякі завантаження із сервером.",
+    "@syncFailedWarningShort": {
+        "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+    },
+    "syncFailedWarningLong": "Деякі завантаження не вдалося синхронізувати із сервером. Ймовірно, відповідний елемент сервера було видалено. Невдале завантаження слід видалити, щоб очистити застарілі файли.",
+    "@syncFailedWarningLong": {
+        "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+    },
+    "openDownloads": "Відкрити завантаження",
+    "@openDownloads": {
+        "description": "Label on a button to open the downloads screen after a sync fails."
+    },
+    "syncingFailed": "Не вдалося синхронізувати. Це завантаження, ймовірно, було вилучено із сервера, і його слід видалити.",
+    "@syncingFailed": {
+        "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+    },
+    "autoplayRestoredQueueTitle": "Автоматично відтворювати відновлені черги",
+    "@autoplayRestoredQueueTitle": {
+        "description": "Title for the setting that controls if restored queues automatically play."
+    },
+    "autoplayRestoredQueueSubtitle": "Черги, автоматично відновлені під час запуску або через екран відновлення черги, почнуть відтворюватися автоматично. Черги, у яких не вдається відновити всі треки, ніколи не відтворюватимуться автоматично, незалежно від цього налаштування.",
+    "@autoplayRestoredQueueSubtitle": {
+        "description": "Subtitle for the setting that controls if restored queues automatically play."
+    },
+    "missingBlurhashWarning": "Попередження: Сервер Jellyfin, схоже, налаштований неправильно і не обчислює blurhashes.  Це заважає Finamp видаляти дублікати завантажених зображень.  Будь ласка, виправте налаштування сервера і запустіть відновлення завантажень.",
+    "@missingBlurhashWarning": {
+        "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
     }
 }
