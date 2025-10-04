@@ -1030,18 +1030,20 @@ class JellyfinApiHelper {
 
     List<String> builtPath = List<String>.from(parsedBaseUrl.pathSegments);
     builtPath.addAll(["Items", item.imageId!, "Images", "Primary"]);
+    final Map<String, dynamic> queryParams = {
+      if (format != null) "format": format,
+      if (quality != null) "quality": quality.toString(),
+      if (maxWidth != null) "MaxWidth": maxWidth.toString(),
+      if (maxHeight != null) "MaxHeight": maxHeight.toString(),
+    };
     return Uri(
       host: parsedBaseUrl.host,
       port: parsedBaseUrl.port,
       scheme: parsedBaseUrl.scheme,
       userInfo: parsedBaseUrl.userInfo,
       pathSegments: builtPath,
-      queryParameters: {
-        if (format != null) "format": format,
-        if (quality != null) "quality": quality.toString(),
-        if (maxWidth != null) "MaxWidth": maxWidth.toString(),
-        if (maxHeight != null) "MaxHeight": maxHeight.toString(),
-      },
+      // don't pass an empty map, otherwise .toString() will append just the `?` at the end, which is unusual
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
   }
 
