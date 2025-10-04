@@ -28,8 +28,9 @@ class IconButtonWithSemantics extends ConsumerWidget {
           icon: Icon(icon),
           visualDensity: VisualDensity.compact,
           onPressed: () {
-            if (onPressed != null) {
-              onPressed!();
+            var callback = onPressed;
+            if (callback != null) {
+              callback();
               FeedbackHelper.feedback(FeedbackType.selection);
             }
           },
