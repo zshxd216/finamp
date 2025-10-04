@@ -406,13 +406,6 @@ class QueueListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<bool> queueListTileConfirmDismiss(direction) async {
-      final queueService = GetIt.instance<QueueService>();
-      FeedbackHelper.feedback(FeedbackType.heavy);
-      unawaited(queueService.removeAtOffset(indexOffset));
-      return true;
-    }
-
     return TrackListItem(
       baseItem: item,
       parentItem: parentItem,
@@ -426,7 +419,11 @@ class QueueListTile extends StatelessWidget {
       // This must be in ListTile instead of parent GestureDetecter to
       // enable hover color changes
       onTap: onTap,
-      confirmDismiss: queueListTileConfirmDismiss,
+      confirmDismiss: (DismissDirection direction) async {
+        FeedbackHelper.feedback(FeedbackType.heavy);
+        onRemoveFromList?.call();
+        return true;
+      },
     );
   }
 }

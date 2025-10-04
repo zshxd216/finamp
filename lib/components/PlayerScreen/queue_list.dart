@@ -530,6 +530,9 @@ class _NextUpTracksListState extends State<NextUpTracksList> {
                     isInPlaylist: queueItemInPlaylist(item),
                     parentItem: item.source.item,
                     allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
+                    onRemoveFromList: () {
+                      unawaited(_queueService.removeAtOffset(indexOffset));
+                    },
                     onTap: (bool playable) async {
                       FeedbackHelper.feedback(FeedbackType.selection);
                       await _queueService.skipByOffset(indexOffset);
@@ -618,6 +621,9 @@ class _QueueTracksListState extends State<QueueTracksList> {
                   isInPlaylist: queueItemInPlaylist(item),
                   parentItem: item.source.item,
                   allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
+                  onRemoveFromList: () {
+                    unawaited(_queueService.removeAtOffset(indexOffset));
+                  },
                   onTap: (bool playable) async {
                     FeedbackHelper.feedback(FeedbackType.selection);
                     await _queueService.skipByOffset(indexOffset);
