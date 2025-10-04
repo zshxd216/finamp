@@ -148,8 +148,9 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
         } else {
           _pagingController.appendPage(newItems, pageKey + newItems.length);
         }
-        if (letterToSearch != null) {
-          scrollToLetter(letterToSearch);
+        var localLetterToSearch = letterToSearch;
+        if (localLetterToSearch != null) {
+          scrollToLetter(localLetterToSearch);
         }
       }
     } catch (e) {
@@ -222,8 +223,9 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     if (localRefreshCount == refreshCount && mounted) {
       _pagingController.appendLastPage(items);
       fullyLoadedRefresh = localRefreshCount;
-      if (letterToSearch != null) {
-        scrollToLetter(letterToSearch);
+      var localLetterToSearch = letterToSearch;
+      if (localLetterToSearch != null) {
+        scrollToLetter(localLetterToSearch);
       }
     }
   }
@@ -261,12 +263,11 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
 
   // Scrolls the list to the first occurrence of the letter in the list
   // If clicked in the # element, it goes to the first or last one item, depending on sort order
-  void scrollToLetter(String? clickedLetter) async {
-    String? letter = clickedLetter ?? letterToSearch;
-    if (letter == null || letter.isEmpty) return;
+  void scrollToLetter(String letter) async {
+    if (letter.isEmpty) return;
 
     letterToSearch = letter;
-    var codePointToScrollTo = letterToSearch!.toLowerCase().codeUnitAt(0);
+    var codePointToScrollTo = letter.toLowerCase().codeUnitAt(0);
 
     // Max code point is lower case z to increase the chance of seeing a character
     // past the target but below the ignore point
