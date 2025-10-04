@@ -755,15 +755,11 @@ class DownloadsService {
     final JellyfinApiHelper jellyfinApiData = GetIt.instance<JellyfinApiHelper>();
     for (var item in allItems) {
       if (item.baseItem?.mediaStreams?.any((stream) => stream.type == "Lyric") ?? false) {
-        // check if lyrics are already downloaded
-        if (_isar.downloadedLyrics.where().isarIdEqualTo(item.isarId).countSync() > 0) {
-          continue;
-        }
         idsWithLyrics[item.isarId] = null;
         LyricDto? lyrics;
         try {
           lyrics = await jellyfinApiData.getLyrics(itemId: BaseItemId(item.id));
-          _downloadsLogger.finer("Fetched lyrics for ${item.name}");
+          _downloadsLogger.finest("Fetched lyrics for ${item.name}");
           idsWithLyrics[item.isarId] = lyrics;
         } catch (e) {
           _downloadsLogger.warning("Failed to fetch lyrics for ${item.name}.");
@@ -771,11 +767,16 @@ class DownloadsService {
       }
     }
     _isar.writeTxnSync(() {
-      for (var id in idsWithLyrics.keys) {
+      for (var id in idsWithLyrics.keys.where((id) {
+        final oldLyricsVersion = _isar.downloadedLyrics.getSync(id)?.lyricDto?.metadata?.version;
+        // if the versions don't match (or it isn't set), apply the new lyrics to be safe
+        return idsWithLyrics[id]?.metadata?.version == null || oldLyricsVersion != idsWithLyrics[id]?.metadata?.version;
+      })) {
         var canonItem = _isar.downloadItems.getSync(id);
         if (canonItem != null && idsWithLyrics[id] != null) {
           final lyricsItem = DownloadedLyrics.fromItem(isarId: canonItem.isarId, item: idsWithLyrics[id]!);
           _isar.downloadedLyrics.putSync(lyricsItem, saveLinks: false);
+          _downloadsLogger.finer("Updated lyrics for '${canonItem.name}'");
         }
       }
     });
