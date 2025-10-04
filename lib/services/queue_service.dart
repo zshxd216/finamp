@@ -448,7 +448,7 @@ class QueueService {
           // Always restore queues as linear to prevent them being reshuffled while restoring
           order: FinampPlaybackOrder.linear,
           beginPlaying:
-              (isReload && (_audioHandler.playbackState.valueOrNull?.playing ?? false)) ||
+              isReload ? (_audioHandler.playbackState.valueOrNull?.playing ?? false) :
               (FinampSettingsHelper.finampSettings.autoplayRestoredQueue && droppedTracks == 0),
           source: info.source ?? savedQueueSource,
         );
