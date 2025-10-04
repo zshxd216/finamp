@@ -2729,5 +2729,49 @@
     "dragToReorder": "Přesuňte pro změnu pořadí",
     "@dragToReorder": {
         "description": "Label shown on drag handles of track list  tiles in the queue list"
+    },
+    "emptyAlbum": "Žádné skladby.",
+    "@emptyAlbum": {
+        "description": "Message shown as a placeholder when an album or playlist is empty."
+    },
+    "addDownloadLocationsErrorPrompt": "Zápis do zvoleného adresáře selhal.  Měli byste upravit oprávnění nebo si vybrat jiné umístění.",
+    "@addDownloadLocationsErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+    },
+    "androidImageErrorPrompt": "VAROVÁNÍ: Z důvodu omezení systému Android nemáme možnost vytvářet obrázky ve složce Music.  Měli byste si vybrat jiné umístění.",
+    "@androidImageErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+    },
+    "addDownloadLocationsErrorButton": "Přesto přidat",
+    "@addDownloadLocationsErrorButton": {
+        "description": "Label shown on button for adding a download location we suspect to be buggy"
+    },
+    "syncFailedWarningShort": "Varování: Nepodařilo se synchronizovat některá stahování se serverem.",
+    "@syncFailedWarningShort": {
+        "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+    },
+    "syncFailedWarningLong": "Nepodařilo se synchronizovat některá stahování se serverem.  Odpovídající položka na serveru byla nejspíše odstraněna.  Selhané stahování by mělo být odstraněno pro vymazání zastaralých souborů.",
+    "@syncFailedWarningLong": {
+        "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+    },
+    "openDownloads": "Otevřít Stahování",
+    "@openDownloads": {
+        "description": "Label on a button to open the downloads screen after a sync fails."
+    },
+    "syncingFailed": "Synchronizace selhala.  Tento soubor byl nejspíše odstraněn ze serveru a měl by být smazán.",
+    "@syncingFailed": {
+        "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+    },
+    "autoplayRestoredQueueTitle": "Automaticky přehrát obnovené fronty",
+    "@autoplayRestoredQueueTitle": {
+        "description": "Title for the setting that controls if restored queues automatically play."
+    },
+    "autoplayRestoredQueueSubtitle": "Fronty automaticky obnovené při spuštění nebo skrze obrazovku obnovení fronty se začnou automaticky přehrávat.  Fronty, ve kterých se nepodařilo obnovit všechny skladby, se nikdy nebudou přehrávat automaticky, nezávisle na tomto nastavení.",
+    "@autoplayRestoredQueueSubtitle": {
+        "description": "Subtitle for the setting that controls if restored queues automatically play."
+    },
+    "missingBlurhashWarning": "Varování: Server Jellyfin je nejspíše nesprávně nastaven a nevypočívává hashe rozmazání.  To zabraňuje aplikaci Finamp v deduplikaci stahování obrázků.  Opravte prosím server a spusťte opravu stahování.",
+    "@missingBlurhashWarning": {
+        "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
     }
 }
