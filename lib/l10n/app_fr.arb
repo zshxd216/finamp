@@ -9,7 +9,7 @@
     "@internalExternalIpExplanation": {
         "description": "Informations supplémentaires sur l'IP à utiliser pour l'accès à distance, et sur la nécessité ou non de spécifier un port"
     },
-    "emptyServerUrl": "Vous devez indiquez l'adresse du serveur.",
+    "emptyServerUrl": "Vous devez indiquer l'adresse du serveur",
     "@emptyServerUrl": {
         "description": "Cette erreur intervient lorsque l'utilisateur tente de se connecter sans indiquer l'adresse du serveur"
     },
@@ -25,7 +25,7 @@
     "@selectMusicLibraries": {
         "description": "Titre de l'écran de sélection de bibliothèque"
     },
-    "couldNotFindLibraries": "Aucune bibliothèque trouvée",
+    "couldNotFindLibraries": "Aucune bibliothèque trouvée.",
     "@couldNotFindLibraries": {
         "description": "Cette erreur intervient lorsque l'utilisateur n'a pas de bibliothèque"
     },
@@ -190,7 +190,7 @@
     "@location": {},
     "addButtonLabel": "Ajouter",
     "@addButtonLabel": {},
-    "shareLogs": "Partager les journaux.",
+    "shareLogs": "Partager les journaux",
     "@shareLogs": {},
     "logsCopied": "Journaux copiés.",
     "@logsCopied": {},
@@ -198,7 +198,7 @@
     "@message": {},
     "stackTrace": "Trace d'appels",
     "@stackTrace": {},
-    "applicationLegalese": "Soumis à la licence Mozilla Public License 2.0.\nLe code source est disponible sur :{sourceCodeLink}",
+    "applicationLegalese": "Soumis à la licence Mozilla Public License 2.0.\nLe code source est disponible sur {sourceCodeLink}",
     "@applicationLegalese": {},
     "transcoding": "Transcodage",
     "@transcoding": {},
@@ -206,7 +206,7 @@
     "@downloadLocations": {},
     "audioService": "Service audio",
     "@audioService": {},
-    "interactions": "Intéractions",
+    "interactions": "Interactions",
     "@interactions": {},
     "layoutAndTheme": "Disposition et apparence",
     "@layoutAndTheme": {},
@@ -222,7 +222,7 @@
     "@enableTranscodingSubtitle": {},
     "bitrate": "Débit binaire",
     "@bitrate": {},
-    "bitrateSubtitle": "Un bitrate plus élevé offre une meilleure qualité audio au prix d'une bande passante plus importante. Cela ne s'applique pas aux codecs sans pertes, par exemple FLAC.",
+    "bitrateSubtitle": "Un bitrate plus élevé offre une meilleure qualité audio au prix d'une bande passante plus importante. Cela ne s'applique pas aux codecs sans perte, par exemple FLAC",
     "@bitrateSubtitle": {},
     "customLocation": "Emplacement personnalisé",
     "@customLocation": {},
@@ -288,7 +288,7 @@
     "@hideTrackArtistsIfSameAsAlbumArtists": {},
     "disableGesture": "Désactiver les gestes",
     "@disableGesture": {},
-    "disableGestureSubtitle": "Indique si les gestes doivent être désactivés.",
+    "disableGestureSubtitle": "Désactiver ou non les gestes.",
     "@disableGestureSubtitle": {},
     "showFastScroller": "Afficher le défileur rapide",
     "@showFastScroller": {},
@@ -1308,7 +1308,7 @@
     "@reportQueueToServer": {
         "description": "Label for the setting that toggles reporting of the current queue to the Jellyfin server"
     },
-    "startInstantMixForIndividualTracksSwitchSubtitle": "Lorsque cette option est activée, appuyer sur une piste dans l'onglet Pistes lancera un mixage instantané de cette piste au lieu de simplement lire une seule piste.",
+    "startInstantMixForIndividualTracksSwitchSubtitle": "Lorsque cette option est activée, appuyer sur un titre dans l’onglet Pistes lancera un mixage instantané de celui-ci au lieu d’une unique lecture.",
     "@startInstantMixForIndividualTracksSwitchSubtitle": {},
     "repairDownloads": "Réparation des problèmes avec les fichiers téléchargés ou leurs métadonnées.",
     "@repairDownloads": {
@@ -1350,7 +1350,7 @@
     "@shuffleAlbumsToQueue": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of the regular queue"
     },
-    "volumeNormalizationModeSelectorDescription": "Dynamique :\nLe gain de piste est utilisé pour la lecture normale, mais si un album est en cours de lecture (soit parce qu''il s''agit de la source principale de la file d''attente de lecture, soit parce qu''il a été ajouté à la file d''attente à un moment donné), le gain de l''album est utilisé à la place.\n\nBasé sur la piste :\nLe gain de piste est toujours utilisé, qu'un album soit en cours de lecture ou non.\n\nBasé sur l'album:\nLe gain de piste est toujours utilisé, sauf si cela n'est pas disponible (ex. pour les singles), La piste sera utilisée à la place.\n\n\nAlbums uniquement :\nLa normalisation du volume n'est appliquée que lors de la lecture d'albums (en utilisant le gain de l'album), mais pas pour les pistes individuelles.",
+    "volumeNormalizationModeSelectorDescription": "Dynamique :\nLe gain de piste est utilisé pour la lecture normale, mais si un album est en cours de lecture (soit parce qu''il s''agit de la source principale de la file d''attente de lecture, soit parce qu''il a été ajouté à la file d''attente à un moment donné), le gain de l''album est utilisé à la place.\n\nBasé sur la piste :\nLe gain de piste est toujours utilisé, qu'un album soit en cours de lecture ou non.\n\nBasé sur l'album:\nLe gain de piste est toujours utilisé, sauf si cela n'est pas disponible (ex. pour les singles), La piste sera utilisée à la place.\n\nAlbums uniquement :\nLa normalisation du volume n'est appliquée que lors de la lecture d'albums (en utilisant le gain de l'album), mais pas pour les pistes individuelles.",
     "@volumeNormalizationModeSelectorDescription": {
         "description": "Description for the dropdown that selects the replay gain mode, shown in a dialog that opens when the user presses the info icon next to the dropdown"
     },
@@ -1401,7 +1401,7 @@
             }
         }
     },
-    "volumeNormalizationModeSelectorTitle": "Mode de normalisation du volume",
+    "volumeNormalizationModeSelectorTitle": "Mode de normalisation",
     "@volumeNormalizationModeSelectorTitle": {
         "description": "Title for the dropdown that selects the replay gain mode"
     },
@@ -1900,7 +1900,7 @@
     "@librarySelectError": {
         "description": "Error shown when the library select screen fails to load."
     },
-    "startupErrorCallToAction": "Veuillez créer un problème sur \"github.com/jmshrv/finamp\" avec les logs (utilisez le bouton ci-dessous) et une capture d'écran de cette page, afin que nous puissions le résoudre le plus rapidement possible.",
+    "startupErrorCallToAction": "Veuillez créer un ticket sur \"github.com/jmshrv/finamp\" avec les logs (utilisez le bouton ci-dessous) et une capture d'écran de cette page, afin que nous puissions le résoudre le plus rapidement possible.",
     "@startupErrorCallToAction": {
         "description": "The subtitle / call to action for what to do after encountering a startup error"
     },
@@ -2354,7 +2354,7 @@
     },
     "preferLocalNetworkEnableSwitchDescription": "Utiliser ou non une adresse différente lorsque vous êtes sur le réseau local de votre serveur Jellyfin",
     "@preferLocalNetworkEnableSwitchDescription": {},
-    "autoReloadPromptMissingTracks": "{amountUndownloadedTracks, plural, =1{1 piste} other{{amountUndownloadedTracks} pistes}}seront supprimées de la file d'attente car elles ne sont pas téléchargées.",
+    "autoReloadPromptMissingTracks": "{amountUndownloadedTracks, plural, =1{1 piste} other{{amountUndownloadedTracks} pistes}} seront supprimées de la file d'attente car elles ne sont pas téléchargées.",
     "@autoReloadPromptMissingTracks": {
         "description": "Additional prompt text shown when the queue needs to be reloaded after changing network settings and some undownloaded tracks are in the queue",
         "placeholders": {
