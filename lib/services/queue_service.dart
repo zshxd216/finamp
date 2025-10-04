@@ -447,9 +447,9 @@ class QueueService {
           initialIndex: items["current"]!.isNotEmpty || items["queue"]!.isNotEmpty ? items["previous"]!.length : 0,
           // Always restore queues as linear to prevent them being reshuffled while restoring
           order: FinampPlaybackOrder.linear,
-          beginPlaying:
-              isReload ? (_audioHandler.playbackState.valueOrNull?.playing ?? false) :
-              (FinampSettingsHelper.finampSettings.autoplayRestoredQueue && droppedTracks == 0),
+          beginPlaying: isReload
+              ? (_audioHandler.playbackState.valueOrNull?.playing ?? false)
+              : (FinampSettingsHelper.finampSettings.autoplayRestoredQueue && droppedTracks == 0),
           source: info.source ?? savedQueueSource,
         );
 
