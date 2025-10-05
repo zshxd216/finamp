@@ -1140,8 +1140,30 @@ class JellyfinApiHelper {
   /// !!! since images are considered metadata, this can only be done by administrators.
   Future<void> setItemPrimaryImage({required BaseItemId itemId, required File imageFile}) async {
     assert(_verifyCallable());
-    final response = await jellyfinApi.setItemPrimaryImage(itemId: itemId, imagePath: imageFile.path);
-    if (response.toString().isNotEmpty) {
+    final bytes = await imageFile.readAsBytes();
+    final base64Image = base64Encode(bytes);
+    // Infer mime type from extension (fallback jpeg)
+    final lower = imageFile.path.toLowerCase();
+    ContentType contentType;
+    if (lower.endsWith('.png')) {
+      contentType = ContentType('image', 'png');
+    } else if (lower.endsWith('.webp')) {
+      contentType = ContentType('image', 'webp');
+    } else if (lower.endsWith('.gif')) {
+      contentType = ContentType('image', 'gif');
+    } else if (lower.endsWith('.bmp')) {
+      contentType = ContentType('image', 'bmp');
+    } else if (lower.endsWith('.heic') || lower.endsWith('.heif')) {
+      contentType = ContentType('image', 'heic');
+    } else {
+      contentType = ContentType('image', 'jpeg');
+    }
+    final response = await jellyfinApi.setItemPrimaryImage(
+      itemId: itemId,
+      base64Image: base64Image,
+      contentType: contentType.mimeType,
+    );
+    if (!response.isSuccessful) {
       throw response as Object;
     }
   }

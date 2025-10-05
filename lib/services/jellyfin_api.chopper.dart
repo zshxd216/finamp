@@ -160,19 +160,19 @@ final class _$JellyfinApi extends JellyfinApi {
 
   @override
   Future<Response<dynamic>> setItemPrimaryImage({
+    String contentType = "image/jpeg",
     required BaseItemId itemId,
-    required String imagePath,
+    required String base64Image,
   }) {
-    final Uri $url = Uri.parse('/Items/{id}/Images/Primary');
-    final List<PartValue> $parts = <PartValue>[
-      PartValueFile<String>('image', imagePath),
-    ];
+    final Uri $url = Uri.parse('/Items/${itemId}/Images/Primary');
+    final Map<String, String> $headers = {'Content-Type': contentType};
+    final $body = base64Image;
     final Request $request = Request(
       'POST',
       $url,
       client.baseUrl,
-      parts: $parts,
-      multipart: true,
+      body: $body,
+      headers: $headers,
     );
     return client.send<dynamic, dynamic>($request);
   }
