@@ -105,12 +105,9 @@ class DefaultSettings {
   static const onlyShowFavorites = false;
   static const trackShuffleItemCount = 250;
   static const volumeNormalizationActive = true;
-  // 80% volume in dB. In my testing, most tracks were louder than the default target
-  // of -18.0 LUFS, so the gain rarely needed to be increased. -2.0 gives us a bit of
-  // headroom in case we need to boost a track (since volume can't go above 1.0),
-  // without reducing the volume too much.
-  // Ideally the maximum gain in each library should be fetched from the server, and this volume should be adjusted accordingly
-  static const volumeNormalizationIOSBaseGain = -2.0;
+  // Set the base gain to 6.0 dB, which will work against any tracks that have a normalization gain of -6.0 dB or lower. For higher gains this will cause the actual volume to be lower than it should be, since we can't compensate the volume upwards beyond 100%
+  // Ideally the maximum gain in each library should be fetched from the server, and this volume should be adjusted accordingly to be the exact inverse, so that the quietest track in the library plays at 100% volume, and only louder tracks get their volume reduced
+  static const volumeNormalizationIOSBaseGain = 6.0;
   static const volumeNormalizationMode = VolumeNormalizationMode.hybrid;
   static const contentViewType = ContentViewType.list;
   static const playbackSpeedVisibility = PlaybackSpeedVisibility.automatic;
