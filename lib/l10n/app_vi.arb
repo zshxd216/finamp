@@ -751,18 +751,6 @@
             }
         }
     },
-    "playbackActionPagePlay": "Phát",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "Xáo trộn",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "Xáo trộn Albums",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "Chỉnh sửa {itemType, select, playlist{Playlist} other{}}",
     "@editItemTitle": {
         "placeholders": {

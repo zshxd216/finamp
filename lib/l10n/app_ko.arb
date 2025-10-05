@@ -1524,18 +1524,6 @@
     "@libraryDownloads": {
         "description": "Title for the library downloads section on the downloads screen."
     },
-    "playbackActionPagePlay": "재생",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "임의 재생",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "앨범 임의 재생",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "편집 {itemType, select, playlist{플레이리스트} other{}}",
     "@editItemTitle": {
         "placeholders": {

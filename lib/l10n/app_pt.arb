@@ -1762,14 +1762,6 @@
     "@genreFilterPlaylistScreens": {
         "description": "Label for the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
-    "playbackActionPagePlay": "Reproduzir",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffleAlbums": "Baralhar os Álbuns",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "enablePlayonTitle": "Ativar Suporte a 'Tocar Em'",
     "@enablePlayonTitle": {
         "description": "Label for the setting to enable Jellyfin's 'Play On' feature (remote control)"
@@ -1811,10 +1803,6 @@
     "startupErrorCallToAction": "Por favor crie um registo em \"github.com/jmshrv/finamp\" com os relatórios (use o botão em baixo) e uma captura de ecrã desta página, para que possamos corrigir isto o mais rapidamente possível.",
     "@startupErrorCallToAction": {
         "description": "The subtitle / call to action for what to do after encountering a startup error"
-    },
-    "playbackActionPageShuffle": "Baralhar",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
     },
     "libraryDownloads": "Downloads de biblioteca",
     "@libraryDownloads": {

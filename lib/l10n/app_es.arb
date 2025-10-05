@@ -2028,14 +2028,6 @@
     "@genreFilterPlaylistScreens": {
         "description": "Label for the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
-    "playbackActionPagePlay": "Reproducir",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "Mezclar",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
     "playOnReconnectionDelay": "Retraso de reconexión de \"Reproducir en\"",
     "@playOnReconnectionDelay": {
         "description": "Label for the setting that controls the reconnection attempts frequency of a disconnected PlayOn session"
@@ -2150,10 +2142,6 @@
     },
     "exportLogs": "Guardar registros",
     "@exportLogs": {},
-    "playbackActionPageShuffleAlbums": "Mezclar álbumes",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "Editar {itemType, select, playlist{lista de reproducción} other{}}",
     "@editItemTitle": {
         "placeholders": {

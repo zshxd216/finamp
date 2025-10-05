@@ -566,18 +566,6 @@
     "@activeDownloadsTitle": {},
     "noActiveDownloads": "Nincs aktív letöltés.",
     "@noActiveDownloads": {},
-    "playbackActionPagePlay": "Lejátszás",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "Keverés",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "Albumok keverése",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "confirmDownloadStarted": "A letöltés elindítva",
     "@confirmDownloadStarted": {
         "description": "A confirmation message that is shown after successfully adding an item to the download queue, before it starts being processed and enqueued for download"

@@ -2261,18 +2261,6 @@
     "@defaultOrder": {
         "description": "Default sorting order for playlists (server order)"
     },
-    "playbackActionPagePlay": "Lecture",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "Aléatoire",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "Albums aléatoires",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "curatedItemsNoFavorites": "Vous n'avez pas de favoris{itemType, select, artistGenreFilter{ pour cet artiste dans ce genre} artist{ pour cet artiste} genre{ pour ce genre} other{}}.",
     "@curatedItemsNoFavorites": {
         "description": "Tooltip for Favorites on Curated Items in Online Mode when no favorites yet.",

@@ -2173,18 +2173,6 @@
             }
         }
     },
-    "playbackActionPagePlay": "Воспроизведение",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "Перемешка",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "Перемешка Альбомов",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "Изменить {itemType, select, playlist{Плейлист} other{}}",
     "@editItemTitle": {
         "placeholders": {

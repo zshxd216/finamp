@@ -2381,14 +2381,6 @@
     "@defaultOrder": {
         "description": "Default sorting order for playlists (server order)"
     },
-    "playbackActionPagePlay": "Přehrát",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffleAlbums": "Alba náhodně",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "Upravit {itemType, select, playlist{seznam skladeb} other{}}",
     "@editItemTitle": {
         "placeholders": {
@@ -2396,10 +2388,6 @@
                 "type": "String"
             }
         }
-    },
-    "playbackActionPageShuffle": "Náhodně",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
     },
     "sleepTimerProjectedDuration": "Přehrávání se pozastaví za ~{duration}",
     "@sleepTimerProjectedDuration": {

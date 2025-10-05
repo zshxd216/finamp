@@ -584,10 +584,6 @@
     "@speed": {
         "description": "Used as a placeholder in the input of the playback speed menu"
     },
-    "playbackActionPageShuffle": "Sega",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
     "appearsOnAlbums": "Ilmub veel",
     "@appearsOnAlbums": {},
     "startupErrorWorkaround": "Lahenduseks võid proovida rakenduse andmete kustutamist. Arvesta, et kõik su sätted ja allalaadimised kustutatakse.",
@@ -598,16 +594,8 @@
     "@playerScreenMinimumCoverPaddingEditorSubtitle": {
         "description": "Subtitle for the editor that allows the user to set the minimum padding around the album cover on the player screen."
     },
-    "playbackActionPagePlay": "Mängi",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
     "syncDownloadedPlaylists": "Sünkroniseeri allalaetud esitusloendid",
     "@syncDownloadedPlaylists": {},
-    "playbackActionPageShuffleAlbums": "Sega albumid",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "playbackSpeedControlSettingDescription": "Automaatne\nFinamp proovib automaatselt tuvastada, kas mängitav klipp on podcast või audioraamat. Tuvastus toimub, kui klipp on pikem kui {trackDuration} minutit, kui klipi album on pikem kui {albumDuration} tundi või kui klipile on määratud üks neist žanritest: {genreList}\nTaasesitus kiiruse nuppe näidatakse sel juhul mängija vaate menüüs.\n\nNäidatud:\nTaasesitus kiiruse nuppe näidatakse alati mängija vaate menüüs.\n\nPeidetud:\nTaasesitus kiiruse nuppe ei näidata kunagi mängija vaate menüüs.",
     "@playbackSpeedControlSettingDescription": {
         "description": "Description for the dropdown that selects the replay gain mode, shown in a dialog that opens when the user presses the info icon next to the dropdown",

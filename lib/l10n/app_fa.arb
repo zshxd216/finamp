@@ -1912,18 +1912,6 @@
             }
         }
     },
-    "playbackActionPagePlay": "پخش",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "مخلوط کردن",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "مخلوط کردن آلبوم‌ها",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "ویرایش {itemType, select, playlist{فهرست پخش} other{}}",
     "@editItemTitle": {
         "placeholders": {

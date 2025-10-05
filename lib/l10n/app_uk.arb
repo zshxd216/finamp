@@ -2388,10 +2388,6 @@
             }
         }
     },
-    "playbackActionPageShuffle": "Перемішати",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
     "editItemTitle": "Редагувати {itemType, select, playlist{Список відтворення} other{}}",
     "@editItemTitle": {
         "placeholders": {
@@ -2465,18 +2461,10 @@
     "@preferLocalNetworkActiveAddressInfoText": {
         "description": "Shows the active address inside the network settings screen so the user can see if this feature works"
     },
-    "playbackActionPageShuffleAlbums": "Перемішати альбоми",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "preferLocalNetworkEnableSwitchDescription": "Чи використовувати іншу адресу, коли ви перебуваєте в локальній мережі вашого сервера jellyfin",
     "@preferLocalNetworkEnableSwitchDescription": {},
     "preferLocalNetworkPublicAddressSettingDescription": "Основна адреса, яка використовується для підключення до вашого сервера Jellyfin",
     "@preferLocalNetworkPublicAddressSettingDescription": {},
-    "playbackActionPagePlay": "Відтворити",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
     "preferLocalNetworkTargetAddressLocalSettingTitle": "Адреса локальної мережі",
     "@preferLocalNetworkTargetAddressLocalSettingTitle": {},
     "preferLocalNetworkTargetAddressLocalSettingDescription": "Цільова адреса сервера Jellyfin у вашій локальній мережі",

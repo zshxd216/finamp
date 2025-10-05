@@ -2298,18 +2298,6 @@
             }
         }
     },
-    "playbackActionPagePlay": "播放",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "随机播放",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "随机播放专辑",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "编辑 {itemType, select, playlist{播放列表} other{}}",
     "@editItemTitle": {
         "placeholders": {

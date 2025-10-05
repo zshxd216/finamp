@@ -1703,18 +1703,6 @@
     "@defaultOrder": {
         "description": "Default sorting order for playlists (server order)"
     },
-    "playbackActionPagePlay": "Oynat",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "Karıştır",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "Albümleri Karıştır",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "exportLogs": "Günlükleri kaydet",
     "@exportLogs": {},
     "startupErrorCallToAction": "Günlükler ve bu sayfanın bir ekran görüntüsünü de ekleyerek \"github.com/jmshrv/finamp\" adresine lütfen bir sorun oluşturun, böylece mümkün olduğunca çabuk düzeltebiliriz.",

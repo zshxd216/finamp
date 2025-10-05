@@ -2385,14 +2385,6 @@
             }
         }
     },
-    "playbackActionPagePlay": "播放",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffleAlbums": "專輯隨機播放",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "sleepTimerProjectedDuration": "約 {duration} 後進入睡眠",
     "@sleepTimerProjectedDuration": {
         "description": "Displays duration until playback is expected to be ended by the sleep timer (unless the queue is modified before). {duration} is a pre-formatted string.",
@@ -2416,10 +2408,6 @@
                 "type": "int"
             }
         }
-    },
-    "playbackActionPageShuffle": "隨機播放",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
     },
     "editItemTitle": "編輯{itemType, select, playlist{播放清單} other{}}",
     "@editItemTitle": {

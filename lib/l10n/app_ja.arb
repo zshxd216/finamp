@@ -793,18 +793,6 @@
             }
         }
     },
-    "playbackActionPagePlay": "再生",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "シャッフル",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "シャッフルアルバム",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "編集{itemType, select, playlist{プレイリスト} other{}}",
     "@editItemTitle": {
         "placeholders": {

@@ -2087,18 +2087,6 @@
     "@favoriteArtists": {},
     "recentlyPlayed": "Riprodotti di recente",
     "@recentlyPlayed": {},
-    "playbackActionPagePlay": "Riproduci",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffleAlbums": "Riproduci casualmente gli Album",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
-    "playbackActionPageShuffle": "Riproduci casualmente",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
     "editItemTitle": "Modifica {itemType, select, playlist{Playlist} other{}}",
     "@editItemTitle": {
         "placeholders": {

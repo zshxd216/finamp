@@ -2126,10 +2126,6 @@
     "@showFavoriteButtonOnMediaNotificationTitle": {
         "description": "Title for the setting that controls if the media notification has a favorite button."
     },
-    "playbackActionPageShuffleAlbums": "Sekoita Albumit",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "Muokkaa {itemType, select, playlist{Soittolista} other{}}",
     "@editItemTitle": {
         "placeholders": {
@@ -2216,17 +2212,9 @@
             }
         }
     },
-    "playbackActionPagePlay": "Toista",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
     "genreFilterPlaylistScreensSubtitle": "Kun päällä, soittolistat (tyylilajivalikon kautta avattuna) näyttävät vain raidat, jotka täsmäävät tyylilajiin jota paraikaa selaat. (Tyylilajisuodattimen saa aina käsin pois päältä näyttääksesi kaikki raidat.)",
     "@genreFilterPlaylistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
-    },
-    "playbackActionPageShuffle": "Sekoita",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
     },
     "favoriteArtists": "Suosikkiartistit",
     "@favoriteArtists": {},

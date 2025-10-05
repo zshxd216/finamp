@@ -2177,14 +2177,6 @@
     "@noDateLastPlayed": {
         "description": "Placeholder text if an item has no lastPlayedDate set."
     },
-    "playbackActionPagePlay": "Spela upp",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "Shuffla",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
     "editItemTitle": "Redigera {itemType, select, playlist{spellista} other{}}",
     "@editItemTitle": {
         "placeholders": {
@@ -2286,10 +2278,6 @@
     "sleepTimerStartTimer": "Starta timer",
     "@sleepTimerStartTimer": {
         "description": "Label for the button that starts the sleep timer"
-    },
-    "playbackActionPageShuffleAlbums": "Shuffla album",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
     },
     "preferLocalNetworkTargetAddressLocalSettingTitle": "Lokal nätverksadress",
     "@preferLocalNetworkTargetAddressLocalSettingTitle": {},

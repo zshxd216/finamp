@@ -620,18 +620,6 @@
             }
         }
     },
-    "playbackActionPagePlay": "Afspil",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "Bland",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "Bland Albummer",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "offlineTrackCount": "{count,plural,=1{{count} Nummer} other{{count} Numrer}}, {downloads} Downloadet",
     "@offlineTrackCount": {
         "placeholders": {

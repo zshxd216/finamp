@@ -1077,10 +1077,6 @@
     "@libraryDownloads": {
         "description": "Title for the library downloads section on the downloads screen."
     },
-    "playbackActionPagePlay": "Reproduir",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
     "formattedRelativeTime": "{type, select, just_now{just ara} minutes{fa {value} minuts} hours{fa {value} hores} yesterday{ahir} days{{value, plural, =1{fa 1 dia} other{fa {value} dies}}} other{value}}",
     "@formattedRelativeTime": {
         "description": "Returns a relative time string based on how long ago something happened. Used for various DateTime values such as Date Last Played and Date Added.",
@@ -1102,14 +1098,6 @@
                 "type": "int"
             }
         }
-    },
-    "playbackActionPageShuffle": "Barreja",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "Barreja Àlbums",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
     },
     "editItemTitle": "Edit {itemType, select, playlist{Llista de Reproducció} other{}}",
     "@editItemTitle": {

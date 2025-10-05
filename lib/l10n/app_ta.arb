@@ -1867,18 +1867,6 @@
     "@noItemsDownloaded": {
         "description": "Shown on the downloads screen for sections without any downloaded items."
     },
-    "playbackActionPagePlay": "விளையாடுங்கள்",
-    "@playbackActionPagePlay": {
-        "description": "Label for the playback action page that contains all actions related to playing in order"
-    },
-    "playbackActionPageShuffle": "கலக்கு",
-    "@playbackActionPageShuffle": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled"
-    },
-    "playbackActionPageShuffleAlbums": "கலக்கு ஆல்பங்கள்",
-    "@playbackActionPageShuffleAlbums": {
-        "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
-    },
     "editItemTitle": "{itemType, select, playlist{பிளேலிஸ்ட்} other{உருப்படி}} ஐ திருத்தவும்",
     "@editItemTitle": {
         "placeholders": {
