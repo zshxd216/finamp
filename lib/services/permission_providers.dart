@@ -1,0 +1,93 @@
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
+
+final ProviderFamily<bool, BaseItemDto> canDeleteFromServerProvider = ProviderFamily((ref, BaseItemDto item) {
+  bool offline = ref.watch(finampSettingsProvider.isOffline);
+  if (offline) {
+    return false;
+  }
+  var itemType = BaseItemDtoType.fromItem(item);
+  var isPlaylist = itemType == BaseItemDtoType.playlist;
+  bool deleteEnabled = ref.watch(finampSettingsProvider.allowDeleteFromServer);
+
+  // always check if a playlist is deletable
+  if (!deleteEnabled && !isPlaylist) {
+    return false;
+  }
+
+  // do not bother checking server for item types known to not be deletable
+  if (![BaseItemDtoType.album, BaseItemDtoType.playlist, BaseItemDtoType.track].contains(itemType)) {
+    return false;
+  }
+  bool? serverReturn = ref.watch(_canDeleteFromServerAsyncProvider(item.id)).value;
+  if (serverReturn == null) {
+    // fallback to allowing deletion even if the response is invalid, since the user might still be able to delete
+    // worst case would be getting an error message when trying to delete
+    return item.canDelete ?? true;
+  } else {
+    return serverReturn;
+  }
+});
+
+final AutoDisposeFutureProviderFamily<bool?, BaseItemId> _canDeleteFromServerAsyncProvider =
+    AutoDisposeFutureProviderFamily((ref, BaseItemId id) {
+      return GetIt.instance<JellyfinApiHelper>()
+          .getItemById(id)
+          .then((response) {
+            return response.canDelete;
+          })
+          .catchError((_) {
+            return false;
+          });
+    });
+
+final ProviderFamily<bool, BaseItemDto> canEditItemProvider = ProviderFamily((ref, BaseItemDto item) {
+  var itemType = BaseItemDtoType.fromItem(item);
+
+  // do not bother checking server for item types known to not be deletable
+  if (![BaseItemDtoType.album, BaseItemDtoType.playlist, BaseItemDtoType.track].contains(itemType)) {
+    return false;
+  }
+  bool? serverReturn = ref.watch(_canEditItemAsyncProvider(item.id)).value;
+  if (serverReturn == null) {
+    // fallback to allowing deletion even if the response is invalid, since the user might still be able to delete
+    // worst case would be getting an error message when trying to delete
+    return true;
+  } else {
+    return serverReturn;
+  }
+});
+
+final AutoDisposeFutureProviderFamily<bool?, BaseItemId> _canEditItemAsyncProvider = AutoDisposeFutureProviderFamily((
+  ref,
+  BaseItemId id,
+) {
+  return GetIt.instance<JellyfinApiHelper>()
+      .getPlaylistUser(id)
+      .then((response) {
+        return response.canEdit;
+      })
+      .catchError((_) {
+        return false;
+      });
+});
+
+final Provider<bool> canEditMetadataProvider = Provider((ref) {
+  bool? serverReturn = ref.watch(_canEditMetadataAsyncProvider).value;
+  return serverReturn ?? false;
+});
+
+final AutoDisposeFutureProvider<bool> _canEditMetadataAsyncProvider = AutoDisposeFutureProvider((ref) {
+  return GetIt.instance<JellyfinApiHelper>()
+      .getUser()
+      .then((response) {
+        return response.policy?.isAdministrator ?? false;
+      })
+      .catchError((_) {
+        return false;
+      });
+});

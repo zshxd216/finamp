@@ -2816,5 +2816,9 @@
   "missingBlurhashWarning": "Warning: The Jellyfin server appears to be misconfigured and is not calculating blurhashes.  This prevents Finamp from de-duplicating image downloads.  Please correct the server and run a downloads repair.",
   "@missingBlurhashWarning": {
     "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
+  },
+  "noPermissionToEditMetadata": "You don't have permissions to edit metadata (including images).",
+  "@noPermissionToEditMetadata": {
+    "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
   }
 }
