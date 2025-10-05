@@ -929,6 +929,11 @@ class QueueService {
     return _queueStream;
   }
 
+  static final queueInfoStreamProvider = StreamProvider<FinampQueueInfo?>((ref) {
+    final service = GetIt.instance<QueueService>();
+    return service.getQueueStream();
+  });
+
   void refreshQueueStream() {
     _queueStream.add(getQueue());
   }

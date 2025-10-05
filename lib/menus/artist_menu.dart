@@ -62,7 +62,7 @@ Future<void> showModalArtistMenu({
         child: SliverToBoxAdapter(
           child: PlaybackActionRow(
             controller: pageViewController,
-            playbackActionPages: getPlaybackActionPages(context: context, item: baseItem),
+            item: baseItem,
           ),
         ),
       ),

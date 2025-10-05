@@ -2798,13 +2798,13 @@
   "@preferNextUpPrependingSubtitle": {
     "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
   },
-  "rememberLastUsedPlaybackActionRowPageTitle": "Remember Playback Action Row Page",
+  "rememberLastUsedPlaybackActionRowPageTitle": "Remember Last Playback Mode",
   "@rememberLastUsedPlaybackActionRowPageTitle": {
-    "description": "Title for the setting to remember the last used Playback Action Row Page."
+    "description": "Title for the setting to remember the last used playback mode."
   },
-  "rememberLastUsedPlaybackActionRowPageSubtitle": "When enabled, your last used Playback Action Row Page will be remembered.",
+  "rememberLastUsedPlaybackActionRowPageSubtitle": "When enabled, your last used playback mode (e.g., Next Up) will be remembered.",
   "@rememberLastUsedPlaybackActionRowPageSubtitle": {
-    "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
+    "description": "Subtitle for the setting to remember the last used playback mode."
   },
   "discOfAlbum": "[Disc {number}] {albumName}",
   "@discOfAlbum": {

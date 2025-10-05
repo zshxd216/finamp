@@ -61,10 +61,7 @@ Future<void> showModalGenreMenu({
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
         child: SliverToBoxAdapter(
-          child: PlaybackActionRow(
-            controller: pageViewController,
-            playbackActionPages: getPlaybackActionPages(context: context, item: baseItem),
-          ),
+          child: PlaybackActionRow(controller: pageViewController, item: baseItem),
         ),
       ),
       MenuMask(

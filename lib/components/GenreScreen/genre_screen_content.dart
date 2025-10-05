@@ -299,12 +299,8 @@ class _GenreScreenContentState extends ConsumerState<GenreScreenContent> {
           child: PlaybackActionRow(
             controller: pageViewController,
             compactLayout: true,
-            playbackActionPages: getPlaybackActionPages(
-              context: context,
               item: widget.parent,
-              popContext: false,
-              compactLayout: true,
-            ),
+            popContext: false,
           ),
         ),
         if (!isLoading)

@@ -1,11 +1,12 @@
+import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_page_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
 
 final double playActionRowHeightDefault = 96.0;
 final double playActionPageIndicatorHeightDefault = 31.0;
@@ -14,18 +15,30 @@ class PlaybackActionRow extends ConsumerWidget {
   const PlaybackActionRow({
     super.key,
     required this.controller,
-    required this.playbackActionPages,
+    required this.item,
+    this.popContext = true,
     this.compactLayout = false,
+    this.genreFilter,
   });
 
   final PageController controller;
-  final Map<String, Widget> playbackActionPages;
+  final PlayableItem item;
+  final bool popContext;
   final bool compactLayout;
+  final BaseItemDto? genreFilter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(QueueService.queueInfoStreamProvider);
+    final Map<String, Widget> playbackActionPages = getPlaybackActionPages(
+      context: context,
+      item: item,
+      popContext: popContext,
+      compactLayout: compactLayout,
+      genreFilter: genreFilter,
+    );
+    
     final double playActionRowHeight = compactLayout ? 76.0 : playActionRowHeightDefault;
-    final queueService = GetIt.instance<QueueService>();
     final rememberLastUsedPlaybackActionRowPage = ref.read(
       finampSettingsProvider.rememberLastUsedPlaybackActionRowPage,
     );
@@ -49,7 +62,7 @@ class PlaybackActionRow extends ConsumerWidget {
                   ? PlaybackActionRowPage.playNext
                   : PlaybackActionRowPage.appendNext;
 
-              final pageMap = queueService.getQueue().nextUp.isEmpty
+              final pageMap = ref.read(QueueService.queueInfoStreamProvider).value?.nextUp.isEmpty ?? true
                   ? {0: PlaybackActionRowPage.newQueue, 1: nextUpDefault, 2: PlaybackActionRowPage.playLast}
                   : {
                       0: PlaybackActionRowPage.newQueue,
