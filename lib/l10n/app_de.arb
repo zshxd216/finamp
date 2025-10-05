@@ -2709,5 +2709,111 @@
     "dragToReorder": "Zum Neuordnen ziehen",
     "@dragToReorder": {
         "description": "Label shown on drag handles of track list  tiles in the queue list"
+    },
+    "shuffleSome": "Zufällig",
+    "@shuffleSome": {},
+    "playbackActionPageNewQueue": "Neue Warteschleife",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Als Nächstes",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageNextUp": "Zu \"Als Nächstes\" hinzufügem",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "playbackActionPageAppendToQueue": "Zuletzt",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "shuffleSomeNext": "Zufällig als nächstes",
+    "@shuffleSomeNext": {
+        "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "shuffleSomeToNextUp": "Zufällig an \"Als Nächstes\" anhängen",
+    "@shuffleSomeToNextUp": {
+        "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
+    },
+    "shuffleSomeToQueue": "Zufällig zur Warteschleife",
+    "@shuffleSomeToQueue": {
+        "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
+    },
+    "shuffleSomeAlbums": "Zufällige Alben",
+    "@shuffleSomeAlbums": {
+        "description": "Label for action that shuffles some albums of a genre"
+    },
+    "shuffleSomeAlbumsNext": "Zufällige Alben als nächstes",
+    "@shuffleSomeAlbumsNext": {
+        "description": "Label for action that shuffles some albums of a genre and adds them at the start of Next Up"
+    },
+    "shuffleSomeAlbumsToNextUp": "Zufällige Alben als nächstes",
+    "@shuffleSomeAlbumsToNextUp": {
+        "description": "Label for action that shuffles all albums of a genre and adds them at the end of Next Up"
+    },
+    "shuffleSomeAlbumsToQueue": "Alben zufällig zur Warteschleife",
+    "@shuffleSomeAlbumsToQueue": {
+        "description": "Label for action that shuffles all albums of a genre and adds them at the end of the regular queue"
+    },
+    "emptyAlbum": "Keine Titel.",
+    "@emptyAlbum": {
+        "description": "Message shown as a placeholder when an album or playlist is empty."
+    },
+    "preferNextUpPrependingTitle": "Einfügen am Anfang von ‚Als Nächstes‘ bevorzugen",
+    "@preferNextUpPrependingTitle": {
+        "description": "Title for the setting to prefer prepending to Next Up over appending"
+    },
+    "preferNextUpPrependingSubtitle": "Wenn aktiviert, werden die Schaltflächen \"Als Nächstes abspielen\" angezeigt, wenn \"Als Nächstes\" leer ist. Andernfalls ist \"Zu ‚Als Nächstes‘ hinzufügen\" die Standardoption.",
+    "@preferNextUpPrependingSubtitle": {
+        "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
+    },
+    "rememberLastUsedPlaybackActionRowPageTitle": "Letzten Playback-Modus speichern",
+    "@rememberLastUsedPlaybackActionRowPageTitle": {
+        "description": "Title for the setting to remember the last used playback mode."
+    },
+    "rememberLastUsedPlaybackActionRowPageSubtitle": "Wenn aktiviert, wird der zuletzt verwendete Wiedergabe-Modus (z. B. \"Als Nächstes\") gespeichert.",
+    "@rememberLastUsedPlaybackActionRowPageSubtitle": {
+        "description": "Subtitle for the setting to remember the last used playback mode."
+    },
+    "addDownloadLocationsErrorPrompt": "Das Schreiben in das ausgewählte Verzeichnis ist fehlgeschlagen. Bitte ändere die Berechtigungen oder wähle einen anderen Speicherort.",
+    "@addDownloadLocationsErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+    },
+    "androidImageErrorPrompt": "WARNUNG: Aufgrund von Betriebssystemeinschränkungen können keine Bilder in den Android-Musikordner geschrieben werden. Bitte wähle einen anderen Speicherort.",
+    "@androidImageErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+    },
+    "addDownloadLocationsErrorButton": "Trotzdem hinzufügen",
+    "@addDownloadLocationsErrorButton": {
+        "description": "Label shown on button for adding a download location we suspect to be buggy"
+    },
+    "syncFailedWarningShort": "Warnung: Einige Downloads konnten nicht mit dem Server synchronisiert werden.",
+    "@syncFailedWarningShort": {
+        "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+    },
+    "syncFailedWarningLong": "Einige Downloads konnten nicht mit dem Server synchronisiert werden. Das zugehörige Item auf dem Server wurde wahrscheinlich gelöscht. Der fehlgeschlagene Download sollte gelöscht werden, um veraltete Dateien zu bereinigen.",
+    "@syncFailedWarningLong": {
+        "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+    },
+    "openDownloads": "Downloads öffnen",
+    "@openDownloads": {
+        "description": "Label on a button to open the downloads screen after a sync fails."
+    },
+    "syncingFailed": "Synchronisierung fehlgeschlagen. Dieser Download wurde wahrscheinlich vom Server entfernt und sollte gelöscht werden.",
+    "@syncingFailed": {
+        "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+    },
+    "autoplayRestoredQueueTitle": "Wiederhergestellte Warteschlangen automatisch abspielen",
+    "@autoplayRestoredQueueTitle": {
+        "description": "Title for the setting that controls if restored queues automatically play."
+    },
+    "autoplayRestoredQueueSubtitle": "Wiederhergestellte Warteschlangen beim Start oder über den Bildschirm ‚Warteschlange wiederherstellen‘ werden automatisch abgespielt. Warteschlangen, bei denen nicht alle Titel wiederhergestellt werden konnten, werden unabhängig von dieser Einstellung niemals automatisch abgespielt.",
+    "@autoplayRestoredQueueSubtitle": {
+        "description": "Subtitle for the setting that controls if restored queues automatically play."
+    },
+    "missingBlurhashWarning": "Warnung: Der Jellyfin-Server scheint falsch konfiguriert zu sein und berechnet keine Blurhashes. Dadurch kann Finamp Bilddownloads nicht de-duplizieren. Bitte korrigieren Sie die Serverkonfiguration und führen Sie eine Reparatur der Downloads durch.",
+    "@missingBlurhashWarning": {
+        "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
     }
 }
