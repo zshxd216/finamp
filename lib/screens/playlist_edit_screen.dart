@@ -34,14 +34,16 @@ class PlaylistEditScreen extends ConsumerStatefulWidget {
 }
 
 class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
+  // UI constants
+  static const double _coverSize = 130.0; // kept for reuse
+  static const double _wrapSpacing = 12.0; // kept for reuse
+
   String? _name;
-  BaseItemId? _id;
   bool? _publicVisibility;
   bool _isUpdating = false;
   List<BaseItemDto> playlistTracks = [];
   List<BaseItemDto> removedTracks = [];
 
-  BaseItemDto? _albumImage;
   File? newAlbumImage;
 
   // Dirty tracking baselines
@@ -59,17 +61,9 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
     return false;
   }
 
-  bool get _hasMetadataChanged {
-    return _name != _initialName || (_publicVisibility ?? false) != _initialVisibility;
-  }
-
-  bool get _hasCoverChanged {
-    return newAlbumImage != null;
-  }
-
-  bool get _isDirty {
-    return _haveTracksChanged || _hasMetadataChanged || _hasCoverChanged;
-  }
+  bool get _hasMetadataChanged => _name != _initialName || (_publicVisibility ?? false) != _initialVisibility;
+  bool get _hasCoverChanged => newAlbumImage != null;
+  bool get _isDirty => _haveTracksChanged || _hasMetadataChanged || _hasCoverChanged;
 
   Future<bool> _confirmDiscardChanges() async {
     if (!_isDirty) return true;
@@ -109,8 +103,6 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
   void initState() {
     super.initState();
     _name = widget.playlist.name;
-    _id = widget.playlist.id;
-    _albumImage = widget.playlist;
     _fetchPublicVisibility();
     final tracksAsync = ref.read(getSortedPlaylistTracksProvider(widget.playlist));
     final (allTracks, playableTracks) = tracksAsync.valueOrNull ?? (null, null);
@@ -121,31 +113,23 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
   }
 
   Future<File?> filePicker() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      return file;
-    } else {
-      return null;
-    }
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result == null) return null;
+    return File(result.files.single.path!);
   }
 
   Future<void> _fetchPublicVisibility() async {
     if (_publicVisibility != null) return;
-    final resultPlaylist = await _jellyfinApiHelper.getPlaylist(_id!);
-    setState(() {
-      _publicVisibility = resultPlaylist['OpenAccess'] as bool;
-    });
+    final resultPlaylist = await _jellyfinApiHelper.getPlaylist(widget.playlist.id!);
+    setState(() => _publicVisibility = resultPlaylist['OpenAccess'] as bool);
+    _resetDirtyBaseline();
   }
 
   Future<void> _saveOrUpdatePlaylist() async {
-    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-      setState(() {
-        _isUpdating = true;
-      });
-
-      _formKey.currentState!.save();
-
+    final formState = _formKey.currentState;
+    if (formState != null && formState.validate()) {
+      setState(() => _isUpdating = true);
+      formState.save();
       try {
         if (_hasMetadataChanged) {
           // Jellyfin can't handle updating both the track list and name at the same time, so make two separate requests
@@ -167,41 +151,37 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
             itemId: widget.playlist.id,
           );
         }
-
         if (_hasCoverChanged) {
           await _jellyfinApiHelper.setItemPrimaryImage(itemId: widget.playlist.id!, imageFile: newAlbumImage!);
         }
-
         musicScreenRefreshStream.add(null); // refresh playlist content
-
         if (!mounted) return;
-
         GlobalSnackbar.message((context) => AppLocalizations.of(context)!.playlistUpdated, isConfirmation: true);
-        setState(() {
-          _resetDirtyBaseline();
-        });
-        Navigator.of(context).pop();
+        setState(_resetDirtyBaseline);
+        // Trigger success flash before pop
+        _playlistSaveFeedbackController.success();
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        if (mounted) Navigator.of(context).pop();
       } catch (e) {
         GlobalSnackbar.error(e);
-
-        if (mounted) {
-          setState(() {
-            _isUpdating = false;
-          });
-        }
-        return;
+        if (mounted) setState(() => _isUpdating = false);
       }
     }
   }
 
+  // Controller to communicate save state transitions to FAB
+  final _playlistSaveFeedbackController = _PlaylistSaveFeedbackController();
+
   @override
   Widget build(BuildContext context) {
     final bool isOffline = ref.watch(finampSettingsProvider.isOffline);
-    SortBy playlistSortBySetting = ref.read(finampSettingsProvider.playlistTracksSortBy);
+    final playlistSortBySetting = ref.read(finampSettingsProvider.playlistTracksSortBy);
     final playlistSortBy =
         (isOffline && (playlistSortBySetting == SortBy.datePlayed || playlistSortBySetting == SortBy.playCount))
         ? SortBy.defaultOrder
-        : playlistSortBySetting;
+        : playlistSortBySetting; // kept intentionally
+    // ignore: unused_local_variable
+    final _ = playlistSortBy;
 
     final playlistTracksCount = playlistTracks.length;
     final trackCountString = (playlistTracks.length == widget.playlist.childCount || !isOffline)
@@ -222,9 +202,7 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
         final shouldDiscard = await _confirmDiscardChanges();
-        if (shouldDiscard && mounted) {
-          Navigator.of(context).pop();
-        }
+        if (shouldDiscard && mounted) Navigator.of(context).pop();
       },
       child: Scaffold(
         body: PaddedCustomScrollview(
@@ -238,181 +216,42 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
               titleSpacing: 0,
               flexibleSpace: ItemTheme(
                 item: widget.playlist,
-                child: Builder(
-                  builder: (context) {
-                    return FlexibleSpaceBar(
-                      background: Align(
-                        alignment: AlignmentGeometry.bottomCenter,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                          decoration: BoxDecoration(
-                            color: ColorScheme.of(context).primary.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  GestureDetector(
-                                    onTap: ref.watch(canEditMetadataProvider)
-                                        ? () async {
-                                            final file = await filePicker();
-                                            if (file == null) return;
-                                            setState(() {
-                                              newAlbumImage = file;
-                                            });
-                                          }
-                                        : () {
-                                            GlobalSnackbar.message(
-                                              (context) => AppLocalizations.of(context)!.noPermissionToEditMetadata,
-                                            );
-                                          },
-                                    child: SizedBox(
-                                      height: 130,
-                                      width: 130,
-                                      child: Stack(
-                                        clipBehavior: Clip.none,
-                                        alignment: Alignment.center,
-                                        children: [
-                                          if (newAlbumImage != null)
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(5),
-                                              child: Image.file(
-                                                newAlbumImage!,
-                                                fit: BoxFit.cover,
-                                                width: 150,
-                                                height: 150,
-                                                errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black26),
-                                              ),
-                                            )
-                                          else
-                                            AlbumImage(
-                                              item: _albumImage,
-                                              borderRadius: BorderRadius.all(Radius.circular(5)),
-                                              tapToZoom: false,
-                                            ),
-                                          if (ref.watch(canEditMetadataProvider))
-                                            Stack(
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black.withValues(alpha: 0.4),
-                                                    borderRadius: BorderRadius.circular(5),
-                                                  ),
-                                                ),
-                                                Center(child: Icon(TablerIcons.edit, color: Colors.white, size: 32.0)),
-                                              ],
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 10, height: 1),
-                                  // Playlist Name + Public Visibility
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Form(
-                                          key: _formKey,
-                                          child: TextFormField(
-                                            initialValue: _name,
-                                            textAlign: TextAlign.start,
-                                            cursorColor: ColorScheme.of(context).onSurface,
-                                            decoration: InputDecoration(
-                                              isDense: true,
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                                              labelText: AppLocalizations.of(context)!.name,
-                                              floatingLabelBehavior: FloatingLabelBehavior.never,
-                                              filled: true,
-                                              fillColor: Theme.of(context).brightness == Brightness.dark
-                                                  ? Colors.black.withOpacity(0.8)
-                                                  : Colors.white.withOpacity(0.8),
-                                              border: OutlineInputBorder(
-                                                // borderSide: BorderSide(color: ColorScheme.of(context).primary, width: 1.0),
-                                                borderSide: BorderSide.none,
-                                                borderRadius: BorderRadius.circular(6),
-                                              ),
-                                            ),
-                                            textInputAction: TextInputAction.done,
-                                            validator: (value) {
-                                              if (value == null || value.isEmpty) {
-                                                return AppLocalizations.of(context)!.required;
-                                              }
-                                              return null;
-                                            },
-                                            onFieldSubmitted: (_) async => await _saveOrUpdatePlaylist(),
-                                            onChanged: (value) => setState(() {
-                                              _name = value;
-                                            }),
-                                            onSaved: (newValue) => _name = newValue,
-                                          ),
-                                        ),
-
-                                        FormField<bool>(
-                                          builder: (state) {
-                                            return CheckboxListTile(
-                                              value: _publicVisibility ?? false,
-                                              title: Text(
-                                                AppLocalizations.of(context)!.publiclyVisiblePlaylist,
-                                                textAlign: TextAlign.left,
-                                              ),
-                                              contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 4.0),
-                                              onChanged: (value) {
-                                                state.didChange(value);
-                                                setState(() {
-                                                  _publicVisibility = value!;
-                                                });
-                                              },
-                                            );
-                                          },
-                                        ),
-
-                                        // Text(_songCount as String),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                          child: Wrap(
-                                            direction: Axis.horizontal,
-                                            alignment: WrapAlignment.start,
-                                            spacing: 12.0,
-                                            children: [Text(trackCountString), Text(trackDurationString)],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
+                child: _HeaderSection(
+                  formKey: _formKey,
+                  coverSize: _coverSize,
+                  name: _name,
+                  albumImage: widget.playlist,
+                  canEdit: ref.watch(canEditMetadataProvider),
+                  publicVisibility: _publicVisibility ?? false,
+                  trackCountString: trackCountString,
+                  trackDurationString: trackDurationString,
+                  onPickImage: () async {
+                    final file = await filePicker();
+                    if (file == null) return;
+                    setState(() => newAlbumImage = file);
                   },
+                  newAlbumImage: newAlbumImage,
+                  onNameChanged: (v) => setState(() => _name = v),
+                  onVisibilityChanged: (v) => setState(() => _publicVisibility = v),
+                  onSubmit: () async => await _saveOrUpdatePlaylist(),
                 ),
               ),
             ),
             SliverReorderableList(
               autoScrollerVelocityScalar: 20.0,
               onReorder: (oldIndex, newIndex) {
-                if (mounted) {
-                  setState(() {
-                    playlistTracks.insert(
-                      newIndex < oldIndex ? newIndex : newIndex - 1,
-                      playlistTracks.removeAt(oldIndex),
-                    );
-                  });
-                }
+                if (!mounted) return;
+                setState(() {
+                  playlistTracks.insert(
+                    newIndex < oldIndex ? newIndex : newIndex - 1,
+                    playlistTracks.removeAt(oldIndex),
+                  );
+                });
               },
-              onReorderStart: (p0) {
-                FeedbackHelper.feedback(FeedbackType.selection);
-              },
+              onReorderStart: (_) => FeedbackHelper.feedback(FeedbackType.selection),
               findChildIndexCallback: (Key key) {
                 key = key as GlobalObjectKey;
-                final ValueKey<String> valueKey = key.value as ValueKey<String>;
+                final valueKey = key.value as ValueKey<String>;
                 final index = playlistTracks.indexWhere((item) => item.id == valueKey.value);
                 if (index == -1) return null;
                 return index;
@@ -420,7 +259,6 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
               itemCount: playlistTracks.length,
               itemBuilder: (context, index) {
                 final item = playlistTracks[index];
-
                 return Material(
                   type: MaterialType.transparency,
                   key: ValueKey(item.id),
@@ -428,69 +266,344 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
                     item: item,
                     listIndex: index,
                     onRemoveOrRestore: () {
-                      setState(() {
-                        removedTracks.add(playlistTracks.removeAt(index));
-                      });
+                      setState(() => removedTracks.add(playlistTracks.removeAt(index)));
                     },
                     onTap: (bool playable) {},
                   ),
                 );
               },
             ),
-            SliverStickyHeader(
-              header: Padding(
-                padding: const EdgeInsets.only(left: 12.0, top: 16.0, bottom: 2.0),
-                child: Text(
-                  AppLocalizations.of(context)!.removedTracks,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              sliver: removedTracks.isEmpty
-                  ? SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: Center(child: Text(AppLocalizations.of(context)!.removedTracksEmptyListPlaceholder)),
-                      ),
-                    )
-                  : SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final item = removedTracks[index];
-
-                        return Material(
-                          type: MaterialType.transparency,
-                          key: ValueKey(item.id),
-                          child: EditListTile(
-                            item: item,
-                            listIndex: index,
-                            restoreInsteadOfRemove: true,
-                            onRemoveOrRestore: () {
-                              setState(() {
-                                playlistTracks.add(removedTracks.removeAt(index));
-                              });
-                            },
-                            onTap: (bool playable) {},
-                          ),
-                        );
-                      }, childCount: removedTracks.length),
-                    ),
+            _RemovedTracksSection(
+              removedTracks: removedTracks,
+              onRestore: (index) => setState(() => playlistTracks.add(removedTracks.removeAt(index))),
             ),
           ],
         ),
         floatingActionButton: _isDirty
-            ? FloatingActionButton.extended(
+            ? _PlaylistSaveFAB(
+                isSaving: _isUpdating,
                 onPressed: _isUpdating ? null : () async => await _saveOrUpdatePlaylist(),
-                label: _isUpdating
-                    ? Row(
-                        children: <Widget>[
-                          SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-                          SizedBox(width: 8),
-                          Text(AppLocalizations.of(context)!.savingChanges),
-                        ],
-                      )
-                    : Text(AppLocalizations.of(context)!.updatePlaylistButtonLabel),
-                icon: _isUpdating ? null : const Icon(TablerIcons.device_floppy),
+                controller: _playlistSaveFeedbackController,
               )
             : null,
+      ),
+    );
+  }
+}
+
+class _HeaderSection extends ConsumerWidget {
+  const _HeaderSection({
+    required this.formKey,
+    required this.coverSize,
+    required this.name,
+    required this.albumImage,
+    required this.canEdit,
+    required this.publicVisibility,
+    required this.trackCountString,
+    required this.trackDurationString,
+    required this.onPickImage,
+    required this.newAlbumImage,
+    required this.onNameChanged,
+    required this.onVisibilityChanged,
+    required this.onSubmit,
+    Key? key,
+  }) : super(key: key);
+
+  final GlobalKey<FormState> formKey;
+  final double coverSize;
+  final String? name;
+  final BaseItemDto? albumImage;
+  final bool canEdit;
+  final bool publicVisibility;
+  final String trackCountString;
+  final String trackDurationString;
+  final VoidCallback onPickImage;
+  final File? newAlbumImage;
+  final ValueChanged<String> onNameChanged;
+  final ValueChanged<bool> onVisibilityChanged;
+  final Future<void> Function() onSubmit;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FlexibleSpaceBar(
+      background: Align(
+        alignment: AlignmentGeometry.bottomCenter,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+          decoration: BoxDecoration(
+            color: ColorScheme.of(context).primary.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: canEdit
+                        ? onPickImage
+                        : () => GlobalSnackbar.message(
+                            (context) => AppLocalizations.of(context)!.noPermissionToEditMetadata,
+                          ),
+                    child: SizedBox(
+                      height: coverSize,
+                      width: coverSize,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.center,
+                        children: [
+                          if (newAlbumImage != null)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Image.file(
+                                newAlbumImage!,
+                                fit: BoxFit.cover,
+                                width: coverSize,
+                                height: coverSize,
+                                errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black26),
+                              ),
+                            )
+                          else
+                            AlbumImage(
+                              item: albumImage,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
+                              tapToZoom: false,
+                            ),
+                          if (canEdit)
+                            Stack(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.4),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                const Center(child: Icon(TablerIcons.edit, color: Colors.white, size: 32.0)),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10, height: 1),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Form(
+                          key: formKey,
+                          child: TextFormField(
+                            initialValue: name,
+                            textAlign: TextAlign.start,
+                            cursorColor: ColorScheme.of(context).onSurface,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                              labelText: AppLocalizations.of(context)!.name,
+                              floatingLabelBehavior: FloatingLabelBehavior.never,
+                              filled: true,
+                              fillColor: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.black.withOpacity(0.8)
+                                  : Colors.white.withOpacity(0.8),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            textInputAction: TextInputAction.done,
+                            validator: (value) =>
+                                (value == null || value.isEmpty) ? AppLocalizations.of(context)!.required : null,
+                            onFieldSubmitted: (_) async => await onSubmit(),
+                            onChanged: onNameChanged,
+                            onSaved: (newValue) => onNameChanged(newValue ?? ''),
+                          ),
+                        ),
+                        FormField<bool>(
+                          builder: (state) => CheckboxListTile(
+                            value: publicVisibility,
+                            title: Text(
+                              AppLocalizations.of(context)!.publiclyVisiblePlaylist,
+                              textAlign: TextAlign.left,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 4.0),
+                            onChanged: (value) {
+                              state.didChange(value);
+                              if (value != null) onVisibilityChanged(value);
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: Wrap(
+                            spacing: _PlaylistEditScreenState._wrapSpacing,
+                            children: [Text(trackCountString), Text(trackDurationString)],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RemovedTracksSection extends StatelessWidget {
+  const _RemovedTracksSection({required this.removedTracks, required this.onRestore});
+
+  final List<BaseItemDto> removedTracks;
+  final void Function(int index) onRestore;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverStickyHeader(
+      header: Padding(
+        padding: const EdgeInsets.only(left: 12.0, top: 16.0, bottom: 2.0),
+        child: Text(AppLocalizations.of(context)!.removedTracks, style: Theme.of(context).textTheme.titleMedium),
+      ),
+      sliver: removedTracks.isEmpty
+          ? SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Center(child: Text(AppLocalizations.of(context)!.removedTracksEmptyListPlaceholder)),
+              ),
+            )
+          : SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final item = removedTracks[index];
+                return Material(
+                  type: MaterialType.transparency,
+                  key: ValueKey(item.id),
+                  child: EditListTile(
+                    item: item,
+                    listIndex: index,
+                    restoreInsteadOfRemove: true,
+                    onRemoveOrRestore: () => onRestore(index),
+                    onTap: (bool playable) {},
+                  ),
+                );
+              }, childCount: removedTracks.length),
+            ),
+    );
+  }
+}
+
+class _PlaylistSaveFeedbackController extends ChangeNotifier {
+  bool _showSuccess = false;
+  bool get showSuccess => _showSuccess;
+
+  void success() {
+    _showSuccess = true;
+    notifyListeners();
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (_showSuccess) {
+        _showSuccess = false;
+        notifyListeners();
+      }
+    });
+  }
+}
+
+class _PlaylistSaveFAB extends StatefulWidget {
+  const _PlaylistSaveFAB({required this.isSaving, required this.onPressed, required this.controller});
+  final bool isSaving;
+  final VoidCallback? onPressed;
+  final _PlaylistSaveFeedbackController controller;
+
+  @override
+  State<_PlaylistSaveFAB> createState() => _PlaylistSaveFABState();
+}
+
+class _PlaylistSaveFABState extends State<_PlaylistSaveFAB> with SingleTickerProviderStateMixin {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _PlaylistSaveFAB oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+      widget.controller.addListener(_onControllerChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (widget.controller.showSuccess) {
+      // Light haptic feedback if available
+      FeedbackHelper.feedback(FeedbackType.selection);
+      setState(() {});
+    } else {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final showingSuccess = widget.controller.showSuccess;
+    final isSaving = widget.isSaving && !showingSuccess; // freeze spinner during success flash if already done
+    final l10n = AppLocalizations.of(context)!; // assume localization is always available
+    return Tooltip(
+      message: isSaving
+          ? l10n.savingChanges
+          : showingSuccess
+          ? l10n.playlistUpdated
+          : l10n.updatePlaylistButtonLabel,
+      waitDuration: const Duration(milliseconds: 400),
+      child: Semantics(
+        button: true,
+        label: showingSuccess ? l10n.playlistUpdated : (isSaving ? l10n.savingChanges : l10n.updatePlaylistButtonLabel),
+        child: FloatingActionButton.extended(
+          heroTag: 'playlist-edit-save-fab',
+          onPressed: isSaving || showingSuccess ? null : widget.onPressed,
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: ScaleTransition(scale: anim, child: child),
+            ),
+            child: showingSuccess
+                ? const Icon(TablerIcons.check, key: ValueKey('success-icon'))
+                : isSaving
+                ? const SizedBox(
+                    key: ValueKey('saving-icon'),
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(TablerIcons.device_floppy, key: ValueKey('save-icon')),
+          ),
+          label: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: SizeTransition(sizeFactor: anim, axis: Axis.horizontal, child: child),
+            ),
+            child: showingSuccess
+                ? Text(l10n.playlistUpdated, key: const ValueKey('success-label'))
+                : isSaving
+                ? Text(l10n.savingChanges, key: const ValueKey('saving-label'))
+                : Text(l10n.updatePlaylistButtonLabel, key: const ValueKey('save-label')),
+          ),
+        ),
       ),
     );
   }
