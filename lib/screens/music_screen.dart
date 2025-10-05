@@ -370,7 +370,7 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
           builder: (context) {
             final child = TabBarView(
               controller: _tabController,
-              physics: ref.watch(finampSettingsProvider.disableGesture) || MediaQuery.of(context).disableAnimations
+              physics: ref.watch(finampSettingsProvider.disableGesture) || MediaQuery.disableAnimationsOf(context)
                   ? const NeverScrollableScrollPhysics()
                   : widget.tabTypeFilter != null
                   ? NeverScrollableScrollPhysics()
@@ -379,11 +379,10 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
               children: sortedTabs.map((tabType) {
                 return Column(
                   children: [
-                    buildArtistTypeSelectionRow(
-                      context,
-                      tabType,
-                      ref.watch(finampSettingsProvider.defaultArtistType),
-                      refreshTab,
+                    ArtistTypeSelectionRow(
+                      tabType: tabType,
+                      defaultArtistType: ref.watch(finampSettingsProvider.defaultArtistType),
+                      refreshTab: refreshTab,
                     ),
                     Expanded(
                       child: MusicScreenTabView(
@@ -492,8 +491,10 @@ class _TransparentRightSwipeDetectorState extends State<TransparentRightSwipeDet
     final finalOffset = details.globalPosition;
     final initialOffset = _initialSwipeOffset;
     if (initialOffset != null) {
-      final offsetDifference = initialOffset.dx - finalOffset.dx;
-      if (offsetDifference < -100.0) {
+      final horizontalOffset = initialOffset.dx - finalOffset.dx;
+      final verticalOffset = initialOffset.dy - finalOffset.dy;
+      // Only trigger if swipe angle primarily horizontal
+      if (horizontalOffset < -100.0 && horizontalOffset.abs() > verticalOffset.abs() * 1.5) {
         _initialSwipeOffset = null;
         widget.action();
       }

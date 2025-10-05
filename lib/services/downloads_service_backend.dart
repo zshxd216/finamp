@@ -18,6 +18,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/finamp_models.dart';
 import '../models/jellyfin_models.dart';
+import '../screens/downloads_screen.dart';
 import 'finamp_settings_helper.dart';
 import 'finamp_user_helper.dart';
 import 'jellyfin_api_helper.dart';
@@ -106,6 +107,17 @@ class IsarPersistentStorage implements PersistentStorage {
         _isar.isarTaskDatas.where().typeEqualTo(type).deleteAllSync();
       }
     });
+  }
+}
+
+class MissingServerItemException implements Exception {
+  MissingServerItemException(this.item);
+
+  final DownloadStub item;
+
+  @override
+  String toString() {
+    return "MissingServerItemException(id: ${item.id}, name:${item.name})";
   }
 }
 
@@ -316,46 +328,53 @@ class IsarTaskQueue implements TaskQueue {
           }
           await SchedulerBinding.instance.scheduleTask(() {
             _activeDownloads.add(task.isarId);
-            // Base URL shouldn't be null at this point (user has to be logged in
-            // to get to the point where they can add downloads).
-            var url = switch (task.type) {
-              DownloadItemType.track =>
-                _jellyfinApiData
-                    .getTrackDownloadUrl(item: task.baseItem!, transcodingProfile: task.fileTranscodingProfile)
-                    .toString(),
-              DownloadItemType.image =>
-                _jellyfinApiData
-                    .getImageUrl(
-                      item: task.baseItem!,
-                      // Download original file
-                      quality: null,
-                      format: null,
-                    )
-                    .toString(),
-              _ => throw StateError("Invalid enqueue ${task.name} which is a ${task.type}"),
-            };
-            _enqueueLog.fine("Submitting download ${task.name} to background_downloader.");
-            var downloadTask = DownloadTask(
-              taskId: task.isarId.toString(),
-              url: url,
-              displayName: task.name,
-              baseDirectory: task.fileDownloadLocation!.baseDirectory.baseDirectory,
-              retries: 3,
-              directory: path_helper.dirname(task.path!),
-              headers: {"Authorization": _finampUserHelper.authorizationHeader},
-              filename: path_helper.basename(task.path!),
-            );
-            return Future.sync(() async {
-              //bool success = await FileDownloader().resume(downloadTask);
-              //if (!success) {
-              bool success = await FileDownloader().enqueue(downloadTask);
-              //}
-              if (!success) {
-                // We currently have no way to recover here.  The user must re-sync to clear
-                // the stuck download.
-                _enqueueLog.severe("Task ${task.name} failed to enqueue with background_downloader.");
-              }
-            });
+            try {
+              // Base URL shouldn't be null at this point (user has to be logged in
+              // to get to the point where they can add downloads).
+              var url = switch (task.type) {
+                DownloadItemType.track =>
+                  _jellyfinApiData
+                      .getTrackDownloadUrl(item: task.baseItem!, transcodingProfile: task.fileTranscodingProfile)
+                      .toString(),
+                DownloadItemType.image =>
+                  _jellyfinApiData
+                      .getImageUrl(
+                        item: task.baseItem!,
+                        // Download original file
+                        quality: null,
+                        format: null,
+                      )
+                      .toString(),
+                _ => throw StateError("Invalid enqueue ${task.name} which is a ${task.type}"),
+              };
+              _enqueueLog.fine("Submitting download ${task.name} to background_downloader.");
+              var downloadTask = DownloadTask(
+                taskId: task.isarId.toString(),
+                url: url,
+                displayName: task.name,
+                baseDirectory: task.fileDownloadLocation!.baseDirectory.baseDirectory,
+                retries: 3,
+                directory: path_helper.dirname(task.path!),
+                headers: {"Authorization": _finampUserHelper.authorizationHeader},
+                filename: path_helper.basename(task.path!),
+              );
+              return Future.sync(() async {
+                //bool success = await FileDownloader().resume(downloadTask);
+                //if (!success) {
+                bool success = await FileDownloader().enqueue(downloadTask);
+                //}
+                if (!success) {
+                  // We currently have no way to recover here.  The user must re-sync to clear
+                  // the stuck download.
+                  _enqueueLog.severe("Task ${task.name} failed to enqueue with background_downloader.");
+                }
+              });
+            } catch (e) {
+              _enqueueLog.severe("Error creating download task for ${task.name}: $e.", e);
+              _isar.writeTxnSync(() {
+                _downloadsService.updateItemState(task, DownloadItemState.failed);
+              });
+            }
             // Set priority high to prevent stalling
           }, Priority.animation + 50);
           // This helps prevent choking the method channel, see MemoryTaskQueue
@@ -659,6 +678,7 @@ class DownloadsSyncService {
   final Set<int> _requireCompleted = {};
   final Set<int> _infoCompleted = {};
   Completer<void>? _callbacksComplete;
+  int _missingItemExceptions = 0;
 
   final int _batchSize = 10;
 
@@ -697,9 +717,13 @@ class DownloadsSyncService {
       _metadataCache = {};
       _childCache = {};
       _callbacksComplete = Completer();
+      _missingItemExceptions = 0;
       unawaited(_advanceQueue());
       await _callbacksComplete!.future;
       _syncLogger.info("All syncs complete.");
+      if (_missingItemExceptions > 0) {
+        showSyncWarningSnackbar();
+      }
     } finally {
       _callbacksComplete = null;
     }
@@ -760,7 +784,11 @@ class DownloadsSyncService {
                   _isar.writeTxnSync(() {
                     _downloadsService.updateItemState(item, DownloadItemState.syncFailed);
                   });
-                  rethrow;
+                  if (e is MissingServerItemException) {
+                    _missingItemExceptions++;
+                  } else {
+                    rethrow;
+                  }
                 } else {
                   _syncLogger.finest("Sync of ${item.name} failed with error $e, retrying", e);
                   _requireCompleted.remove(sync.stubIsarId);
@@ -855,7 +883,10 @@ class DownloadsSyncService {
 
     DownloadItem? isarParent;
 
-    // Skip items that are unlikely to need syncing if allowed.
+    // Skip items that are unlikely to need syncing if allowed.  This cannot skip info-only items as we do not have
+    // enough information to know if they have ever been synced, limiting utility with track and playlist downloads,
+    // but it should be more effective with albums, libraries, artists, and genres, which should primarily result
+    // in complete album downloads.
     if (FinampSettingsHelper.finampSettings.preferQuickSyncs && !_downloadsService.forceFullSync) {
       if (parent.type.requiresItem && !parent.baseItemType.expectChanges) {
         isarParent = _isar.downloadItems.getSync(parent.isarId);
@@ -875,11 +906,33 @@ class DownloadsSyncService {
     // metadata can be used, especially imageId and blurhash.
     BaseItemDto? newBaseItem;
     //If we aren't quicksyncing, fetch the latest BaseItemDto to copy into Isar.
-    if (parent.type.requiresItem &&
-        (!FinampSettingsHelper.finampSettings.preferQuickSyncs ||
-            _downloadsService.forceFullSync ||
-            _needsMetadataUpdate(parent))) {
-      newBaseItem = (await _getCollectionInfo(parent.baseItem!.id, parent.type, true))?.baseItem;
+    if (parent.type.requiresItem) {
+      bool expectNewItem = false;
+      if (!FinampSettingsHelper.finampSettings.preferQuickSyncs ||
+          _downloadsService.forceFullSync ||
+          _needsMetadataUpdate(parent)) {
+        newBaseItem = (await _getCollectionInfo(parent.baseItem!.id, parent.type, true))?.baseItem;
+        expectNewItem = true;
+      } else if (_metadataCache.containsKey(parent.baseItem!.id)) {
+        // Opportunistically check for item updates if we've already fetched from the server
+        newBaseItem = (await _metadataCache[parent.baseItem!.id])?.baseItem;
+        expectNewItem = true;
+      }
+      // If we fail to get a valid baseItemDto from the server, for most items we just wait for all other items to unlink us.
+      // For images, we may remain linked due to our blurhash/imageId still being used, so we attempt to find a
+      // replacement baseItemDto whose blurhash/imageId match.
+      if (expectNewItem) {
+        if (parent.type == DownloadItemType.image) {
+          if ((newBaseItem?.blurHash ?? newBaseItem?.imageId) != parent.id) {
+            newBaseItem = await _updateImageBaseItem(parent);
+          }
+        } else {
+          if (newBaseItem == null) {
+            _syncLogger.warning("Could not fetch BaseItemDto ${parent.name} from server.");
+            throw MissingServerItemException(parent);
+          }
+        }
+      }
     }
     // We return the same BaseItemDto for all requests, so null out playlistItemId
     // as it will not usually be accurate.  Modifying without copying should be
@@ -1282,11 +1335,16 @@ class DownloadsSyncService {
       }
       return childStubs;
     } catch (e) {
-      // Retries should try connecting again instead of re-using error
-      unawaited(_childCache.remove(item.id.raw));
-      itemFetch.completeError(e);
-      _downloadsService.incrementConnectionErrors();
-      rethrow;
+      if (e is Response && e.statusCode == 404) {
+        _syncLogger.warning("Got 404 while fetching children of ${parent.name}.");
+        throw MissingServerItemException(parent);
+      } else {
+        // Retries should try connecting again instead of re-using error
+        unawaited(_childCache.remove(item.id.raw));
+        itemFetch.completeError(e);
+        _downloadsService.incrementConnectionErrors();
+        rethrow;
+      }
     }
   }
 
@@ -1388,8 +1446,13 @@ class DownloadsSyncService {
       }
       return stubList;
     } catch (e) {
-      _downloadsService.incrementConnectionErrors();
-      rethrow;
+      if (e is Response && e.statusCode == 404) {
+        _syncLogger.warning("Got 404 while fetching children of ${parent.name}.");
+        throw MissingServerItemException(parent);
+      } else {
+        _downloadsService.incrementConnectionErrors();
+        rethrow;
+      }
     }
   }
 
@@ -1407,6 +1470,26 @@ class DownloadsSyncService {
       }
     }
     return null;
+  }
+
+  /// If items on the server are deleted or updated, it is possible that the BaseItemDto stored in the image download is
+  /// no longer a valid parent for the image, as identified by blurHash??imageId.  This attempts to select a new parent
+  /// with a valid BaseItemDto referring to the given image.
+  Future<BaseItemDto?> _updateImageBaseItem(DownloadStub parent) async {
+    _syncLogger.finer("Attempting to update image item id for ${parent.name}");
+    final localParents = _isar.downloadItems
+        .filter()
+        .requires((q) => q.isarIdEqualTo(parent.isarId))
+        .or()
+        .info((q) => q.isarIdEqualTo(parent.isarId))
+        .findAllSync();
+    final serverParents = await Future.wait(
+      localParents.where((x) => x.type.requiresItem).map((x) => _getCollectionInfo(x.baseItem!.id, x.type, true)),
+    );
+    final validParent = serverParents.firstWhereOrNull(
+      (x) => (x?.baseItem?.blurHash ?? x?.baseItem?.imageId) == parent.id,
+    );
+    return validParent?.baseItem;
   }
 
   /// This returns whether the given item needs its metadata refreshed from the server.
@@ -1467,7 +1550,7 @@ class DownloadsSyncService {
 
   /// Removes unsafe characters from file names.  Used by [_downloadTrack] and
   /// [_downloadImage] for human readable download locations.
-  String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp('[/?<>\\:*|"]'), "_");
+  String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp(r'[/?<>:*|.\\"]'), "_");
 
   /// Prepares for downloading of a given track by filling in the path information
   /// and media sources, and marking item as enqueued in isar.
@@ -1491,7 +1574,7 @@ class DownloadsSyncService {
 
     // Container must be accurate because unknown container names break iOS playback
     String? container = downloadItem.syncTranscodingProfile?.codec.container ?? mediaSources?.firstOrNull?.container;
-    String extension = container == null ? "" : ".$container";
+    String extension = container == null ? "" : ".${_filesystemSafe(container)}";
 
     String fileName;
     String subDirectory;
@@ -1499,9 +1582,15 @@ class DownloadsSyncService {
       if (mediaSources == null) {
         _syncLogger.warning("Media source info for ${item.id} returned null, filename may be weird.");
       }
-      subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
+      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() == "finamp") {
+        subDirectory = _filesystemSafe(item.albumArtist) ?? '';
+      } else {
+        subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
+      }
+
       // We use a regex to filter out bad characters from track/album names.
-      fileName = _filesystemSafe("${item.album} - ${item.indexNumber ?? 0} - ${item.name}$extension")!;
+      final baseFilename = _filesystemSafe("${item.album} - ${item.indexNumber ?? 0} - ${item.name}");
+      fileName = "$baseFilename$extension";
     } else {
       fileName = "${item.id}$extension";
       subDirectory = FINAMP_BASE_DOWNLOAD_DIRECTORY;
@@ -1565,7 +1654,11 @@ class DownloadsSyncService {
 
     String subDirectory;
     if (downloadLocation.useHumanReadableNames) {
-      subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
+      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() == "finamp") {
+        subDirectory = _filesystemSafe(item.albumArtist) ?? '';
+      } else {
+        subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
+      }
     } else {
       subDirectory = "images";
     }

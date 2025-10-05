@@ -26,6 +26,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(DeviceProfileAdapter());
     registerAdapter(DirectPlayProfileAdapter());
     registerAdapter(DiscordRpcIconAdapter());
+    registerAdapter(DlnaProfileTypeAdapter());
     registerAdapter(DownloadLocationAdapter());
     registerAdapter(DownloadLocationTypeAdapter());
     registerAdapter(DownloadedImageAdapter());
@@ -66,6 +67,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(NameLongIdPairAdapter());
     registerAdapter(OfflineListenAdapter());
     registerAdapter(PlaybackActionRowPageAdapter());
+    registerAdapter(PlaybackInfoRequestAdapter());
     registerAdapter(PlaybackSpeedVisibilityAdapter());
     registerAdapter(PlayerStateInfoAdapter());
     registerAdapter(ProfileConditionAdapter());
@@ -119,6 +121,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(DeviceProfileAdapter());
     registerAdapter(DirectPlayProfileAdapter());
     registerAdapter(DiscordRpcIconAdapter());
+    registerAdapter(DlnaProfileTypeAdapter());
     registerAdapter(DownloadLocationAdapter());
     registerAdapter(DownloadLocationTypeAdapter());
     registerAdapter(DownloadedImageAdapter());
@@ -159,6 +162,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(NameLongIdPairAdapter());
     registerAdapter(OfflineListenAdapter());
     registerAdapter(PlaybackActionRowPageAdapter());
+    registerAdapter(PlaybackInfoRequestAdapter());
     registerAdapter(PlaybackSpeedVisibilityAdapter());
     registerAdapter(PlayerStateInfoAdapter());
     registerAdapter(ProfileConditionAdapter());

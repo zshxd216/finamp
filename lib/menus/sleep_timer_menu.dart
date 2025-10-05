@@ -480,7 +480,7 @@ class _SleepTimerMenuState extends State<SleepTimerMenu> {
                           durationUntilFinalTrack = newSleepTimer.totalDuration < currentTrackRemainingDuration
                               ? Duration.zero
                               : currentTrackRemainingDuration +
-                                    queueInfo.getDurationUntil(finalTrackIndex - queueInfo.currentTrackIndex + 1);
+                                    queueInfo.getDurationUntil(finalTrackIndex - queueInfo.currentTrackIndex);
                           durationUntilEndOfFinalTrack = newSleepTimer.totalDuration < currentTrackRemainingDuration
                               ? currentTrackRemainingDuration
                               : durationUntilFinalTrack + durationOfFinalTrack;

@@ -116,7 +116,7 @@ class DefaultSettings {
   static const playbackSpeedVisibility = PlaybackSpeedVisibility.automatic;
   static const contentGridViewCrossAxisCountPortrait = 2;
   static const contentGridViewCrossAxisCountLandscape = 3;
-  static const showTextOnGridView = true;
+  static const showTextOnGridView = false;
   static const sleepTimerDurationSeconds = 60 * 30;
   static const useCoverAsBackground = true;
   static const playerScreenCoverMinimumPadding = 1.5;
@@ -230,6 +230,8 @@ class DefaultSettings {
   static const rpcEnabled = false;
   static const rpcIcon = DiscordRpcIcon.transparent;
   static const preferAddingToFavoritesOverPlaylists = false;
+  static const previousTracksExpaned = false;
+  static const autoplayRestoredQueue = false;
   static const preferNextUpPrepending = true;
   static const rememberLastUsedPlaybackActionRowPage = true;
   static const lastUsedPlaybackActionRowPage = PlaybackActionRowPage.newQueue;
@@ -358,6 +360,8 @@ class FinampSettings {
     this.rpcEnabled = DefaultSettings.rpcEnabled,
     this.rpcIcon = DefaultSettings.rpcIcon,
     this.preferAddingToFavoritesOverPlaylists = DefaultSettings.preferAddingToFavoritesOverPlaylists,
+    this.previousTracksExpaned = DefaultSettings.previousTracksExpaned,
+    this.autoplayRestoredQueue = DefaultSettings.autoplayRestoredQueue,
     this.preferNextUpPrepending = DefaultSettings.preferNextUpPrepending,
     this.rememberLastUsedPlaybackActionRowPage = DefaultSettings.rememberLastUsedPlaybackActionRowPage,
     this.lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage,
@@ -757,13 +761,19 @@ class FinampSettings {
   @HiveField(126, defaultValue: DefaultSettings.preferAddingToFavoritesOverPlaylists)
   bool preferAddingToFavoritesOverPlaylists = DefaultSettings.preferAddingToFavoritesOverPlaylists;
 
-  @HiveField(127, defaultValue: DefaultSettings.preferNextUpPrepending)
+  @HiveField(127, defaultValue: DefaultSettings.previousTracksExpaned)
+  bool previousTracksExpaned = DefaultSettings.previousTracksExpaned;
+
+  @HiveField(128, defaultValue: DefaultSettings.autoplayRestoredQueue)
+  bool autoplayRestoredQueue = DefaultSettings.autoplayRestoredQueue;
+
+  @HiveField(129, defaultValue: DefaultSettings.preferNextUpPrepending)
   bool preferNextUpPrepending = DefaultSettings.preferNextUpPrepending;
 
-  @HiveField(128, defaultValue: DefaultSettings.rememberLastUsedPlaybackActionRowPage)
+  @HiveField(130, defaultValue: DefaultSettings.rememberLastUsedPlaybackActionRowPage)
   bool rememberLastUsedPlaybackActionRowPage = DefaultSettings.rememberLastUsedPlaybackActionRowPage;
 
-  @HiveField(129, defaultValue: DefaultSettings.lastUsedPlaybackActionRowPage)
+  @HiveField(131, defaultValue: DefaultSettings.lastUsedPlaybackActionRowPage)
   PlaybackActionRowPage lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage;
 
   static Future<FinampSettings> create() async {
@@ -1349,6 +1359,7 @@ class DownloadStub {
       userTranscodingProfile: null,
       syncTranscodingProfile: transcodingProfile,
       fileTranscodingProfile: null,
+      themeColor: null,
     );
   }
 
@@ -1377,6 +1388,7 @@ class DownloadItem extends DownloadStub {
     required this.userTranscodingProfile,
     required this.syncTranscodingProfile,
     required this.fileTranscodingProfile,
+    required this.themeColor,
   }) : super._build() {
     assert(!(type == DownloadItemType.collection && baseItemType == BaseItemDtoType.playlist) || viewId == null);
   }
@@ -1420,6 +1432,10 @@ class DownloadItem extends DownloadStub {
   DownloadProfile? syncTranscodingProfile;
   DownloadProfile? fileTranscodingProfile;
 
+  /// The primary color of an image used for theming, stored as an ARGB32 int.
+  /// This should only be non-null for images with a blurhash id.
+  int? themeColor;
+
   @ignore
   DownloadLocation? get fileDownloadLocation =>
       FinampSettingsHelper.finampSettings.downloadLocationsMap[fileTranscodingProfile?.downloadLocationId];
@@ -1450,35 +1466,47 @@ class DownloadItem extends DownloadStub {
     required bool forceCopy,
   }) {
     String? json;
+    String? imageName;
+    List<int>? newOrderedChildren;
     if (type == DownloadItemType.image) {
-      // Images do not have any attributes we might want to update
-      return null;
-    }
-    if (item != null) {
-      if (baseItemType != BaseItemDtoType.fromItem(item) || baseItem == null) {
+      // The only relevant attribute for an image is the imageid.  If it is unchanged, do not update.
+      if (item == null) {
+        return null;
+      }
+      if ((item.blurHash ?? item.imageId) != id) {
         throw "Could not update $name - incompatible new item $item";
       }
-      if (item.id != id) {
-        throw "Could not update $name - incompatible new item $item";
+      if (item.imageId == baseItem!.imageId) {
+        return null;
       }
-      // Not all BaseItemDto are requested with mediaSources, mediaStreams or childCount.  Do not
-      // overwrite with null if the new item does not have them.
-      item.mediaSources ??= baseItem?.mediaSources;
-      item.mediaStreams ??= baseItem?.mediaStreams;
-      item.sortName ??= baseItem?.sortName;
-    }
-    assert(
-      item == null ||
-          ((item.mediaSources == null || item.mediaSources!.isNotEmpty) &&
-              (item.mediaStreams == null || item.mediaStreams!.isNotEmpty)),
-    );
-    var orderedChildren = orderedChildItems?.map((e) => e.isarId).toList();
-    if (!forceCopy) {
-      if (viewId == null || viewId == this.viewId) {
-        if (item == null || baseItem!.mostlyEqual(item)) {
-          var equal = const DeepCollectionEquality().equals;
-          if (equal(orderedChildren, this.orderedChildren)) {
-            return null;
+      imageName = "Image for ${item.name}";
+    } else {
+      if (item != null) {
+        if (baseItemType != BaseItemDtoType.fromItem(item) || baseItem == null) {
+          throw "Could not update $name - incompatible new item $item";
+        }
+        if (item.id.raw != id) {
+          throw "Could not update $name - incompatible new item $item";
+        }
+        // Not all BaseItemDto are requested with mediaSources, mediaStreams or childCount.  Do not
+        // overwrite with null if the new item does not have them.
+        item.mediaSources ??= baseItem?.mediaSources;
+        item.mediaStreams ??= baseItem?.mediaStreams;
+        item.sortName ??= baseItem?.sortName;
+      }
+      assert(
+        item == null ||
+            ((item.mediaSources == null || item.mediaSources!.isNotEmpty) &&
+                (item.mediaStreams == null || item.mediaStreams!.isNotEmpty)),
+      );
+      newOrderedChildren = orderedChildItems?.map((e) => e.isarId).toList();
+      if (!forceCopy) {
+        if (viewId == null || viewId == this.viewId) {
+          if (item == null || baseItem!.mostlyEqual(item)) {
+            var equal = const DeepCollectionEquality().equals;
+            if (equal(newOrderedChildren, orderedChildren)) {
+              return null;
+            }
           }
         }
       }
@@ -1492,8 +1520,8 @@ class DownloadItem extends DownloadStub {
       id: id,
       isarId: isarId,
       jsonItem: json ?? jsonItem,
-      name: item?.name ?? name,
-      orderedChildren: orderedChildren ?? this.orderedChildren,
+      name: imageName ?? item?.name ?? name,
+      orderedChildren: newOrderedChildren ?? orderedChildren,
       parentIndexNumber: item?.parentIndexNumber ?? parentIndexNumber,
       path: path,
       state: state,
@@ -1502,6 +1530,7 @@ class DownloadItem extends DownloadStub {
       userTranscodingProfile: userTranscodingProfile,
       syncTranscodingProfile: syncTranscodingProfile,
       fileTranscodingProfile: fileTranscodingProfile,
+      themeColor: themeColor,
     );
   }
 }
@@ -3497,7 +3526,7 @@ enum DiscordRpcIcon {
   }
 }
 
-@HiveType(typeId: 102)
+@HiveType(typeId: 104)
 enum PlaybackActionRowPage {
   @HiveField(0)
   newQueue,

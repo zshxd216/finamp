@@ -80,9 +80,7 @@ class DownloadButton extends ConsumerWidget {
               builder: (context) => ConfirmationPromptDialog(
                 promptText: AppLocalizations.of(context)!.downloadLibraryPrompt(item.name),
                 confirmButtonText: AppLocalizations.of(context)!.addButtonLabel,
-                abortButtonText: MaterialLocalizations.of(context).cancelButtonLabel,
                 onConfirmed: () => DownloadDialog.show(context, item, viewId),
-                onAborted: () {},
               ),
             );
           } else {

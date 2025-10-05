@@ -2277,6 +2277,10 @@
   "@emptyTopTracksList": {
     "description": "Message shown as a placeholder when the top tracks list for an artist is empty"
   },
+  "emptyAlbum": "No tracks.",
+  "@emptyAlbum": {
+    "description": "Message shown as a placeholder when an album or playlist is empty."
+  },
   "emptyFilteredListTitle": "No items found",
   "@emptyFilteredListTitle": {
     "description": "Message shown when a list of items is filtered and no items match the filter"
@@ -2818,5 +2822,49 @@
   "moreActionsOnAlbumDisc": "More actions on album disc",
   "@moreActionsOnAlbumDisc": {
     "description": "Label for the disc header menu button."
+  },
+  "dragToReorder": "Drag to Reorder",
+  "@dragToReorder": {
+    "description": "Label shown on drag handles of track list  tiles in the queue list"
+  },
+  "addDownloadLocationsErrorPrompt": "Writing to selected directory failed.  You should modify permissions or choose another location.",
+  "@addDownloadLocationsErrorPrompt": {
+    "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+  },
+  "androidImageErrorPrompt": "WARNING: We are unable to write images to the android Music folder due to OS restrictions.  You should choose another location.",
+  "@androidImageErrorPrompt": {
+    "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+  },
+  "addDownloadLocationsErrorButton": "Add anyway",
+  "@addDownloadLocationsErrorButton": {
+    "description": "Label shown on button for adding a download location we suspect to be buggy"
+  },
+  "syncFailedWarningShort": "Warning: Failed to synchronize some downloads with server.",
+  "@syncFailedWarningShort": {
+    "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+  },
+  "syncFailedWarningLong": "Some downloads failed to synchronize with the server.  The matching server item was likely deleted.  The failed download should be deleted to clean up the outdated files.",
+  "@syncFailedWarningLong": {
+    "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+  },
+  "openDownloads": "Open Downloads",
+  "@openDownloads": {
+    "description": "Label on a button to open the downloads screen after a sync fails."
+  },
+  "syncingFailed": "Sync failed.  This download has likely been removed from the server, and should be deleted.",
+  "@syncingFailed": {
+    "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+  },
+  "autoplayRestoredQueueTitle": "Automatically Play Restored Queues",
+  "@autoplayRestoredQueueTitle": {
+    "description": "Title for the setting that controls if restored queues automatically play."
+  },
+  "autoplayRestoredQueueSubtitle": "Queues restored automatically on startup or via the queue restore screen will begin playing automatically.  Queues which fail to restore all tracks will never autoplay, regardless of this setting.",
+  "@autoplayRestoredQueueSubtitle": {
+    "description": "Subtitle for the setting that controls if restored queues automatically play."
+  },
+  "missingBlurhashWarning": "Warning: The Jellyfin server appears to be misconfigured and is not calculating blurhashes.  This prevents Finamp from de-duplicating image downloads.  Please correct the server and run a downloads repair.",
+  "@missingBlurhashWarning": {
+    "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
   }
 }

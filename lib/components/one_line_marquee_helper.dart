@@ -25,6 +25,7 @@ class OneLineMarqueeHelper extends ConsumerWidget {
         )..layout(maxWidth: constraints.maxWidth);
 
         final isOverflowing = textPainter.didExceedMaxLines;
+        textPainter.dispose();
 
         if (isOverflowing) {
           return Container(

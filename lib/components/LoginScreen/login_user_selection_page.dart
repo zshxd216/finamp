@@ -269,7 +269,7 @@ class JellyfinUserWidget extends StatelessWidget {
         } else {
           return Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+              color: Theme.brightnessOf(context) == Brightness.dark ? Colors.white : Colors.black,
             ),
             child: Image.asset('images/finamp.png', width: avatarSize, height: avatarSize),
           );
@@ -281,7 +281,7 @@ class JellyfinUserWidget extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(
               color: Theme.of(context).textTheme.bodyMedium!.color!,
-              width: Theme.of(context).brightness == Brightness.dark ? 1 : 2,
+              width: Theme.brightnessOf(context) == Brightness.dark ? 1 : 2,
             ),
             borderRadius: BorderRadius.circular(16),
           ),

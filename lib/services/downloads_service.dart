@@ -79,6 +79,9 @@ class DownloadsService {
   /// Causes the downloads queue to stop processing new items
   bool get allowDownloads => allowSyncs && !syncBuffer.isRunning;
 
+  /// Marks whether we have encountered an image with a missing blurhash
+  bool serverMissingBlurhash = false;
+
   //
   // Providers
   //
@@ -120,39 +123,41 @@ class DownloadsService {
 
   /// Provider for user-downloaded items of a specific category.
   /// Used to show and group downloaded items on the downloads screen.
-  late final userDownloadedItemsProvider = FutureProvider.family
-      .autoDispose<List<DownloadStub>, DownloadsScreenCategory>((ref, category) async {
-        // Refresh lists when addDownload or removeDownload is called.
-        ref.watch(_anchorProvider);
-        final allItems = await _isar.downloadItems
-            .filter()
-            .requiredBy((q) => q.isarIdEqualTo(_anchor.isarId))
-            .sortByName()
-            .findAll();
+  late final userDownloadedItemsProvider = Provider.family.autoDispose<List<DownloadStub>, DownloadsScreenCategory>((
+    ref,
+    category,
+  ) {
+    // Refresh lists when addDownload or removeDownload is called.
+    ref.watch(_anchorProvider);
+    final allItems = _isar.downloadItems
+        .filter()
+        .requiredBy((q) => q.isarIdEqualTo(_anchor.isarId))
+        .sortByName()
+        .findAllSync();
 
-        return allItems
-            .where(
-              (item) => switch (category) {
-                DownloadsScreenCategory.special =>
-                  item.type == category.type &&
-                      item.finampCollection?.type != FinampCollectionType.collectionWithLibraryFilter,
+    return allItems
+        .where(
+          (item) => switch (category) {
+            DownloadsScreenCategory.special =>
+              item.type == category.type &&
+                  item.finampCollection?.type != FinampCollectionType.collectionWithLibraryFilter,
 
-                DownloadsScreenCategory.artists =>
-                  (item.type == category.type && item.baseItemType == category.baseItemType) ||
-                      (item.finampCollection?.type == FinampCollectionType.collectionWithLibraryFilter &&
-                          BaseItemDtoType.fromItem(item.finampCollection!.item!) == BaseItemDtoType.artist),
+            DownloadsScreenCategory.artists =>
+              (item.type == category.type && item.baseItemType == category.baseItemType) ||
+                  (item.finampCollection?.type == FinampCollectionType.collectionWithLibraryFilter &&
+                      BaseItemDtoType.fromItem(item.finampCollection!.item!) == BaseItemDtoType.artist),
 
-                DownloadsScreenCategory.genres =>
-                  (item.type == category.type && item.baseItemType == category.baseItemType) ||
-                      (item.finampCollection?.type == FinampCollectionType.collectionWithLibraryFilter &&
-                          BaseItemDtoType.fromItem(item.finampCollection!.item!) == BaseItemDtoType.genre),
-                _ =>
-                  item.type == category.type &&
-                      (category.baseItemType == null || item.baseItemType == category.baseItemType),
-              },
-            )
-            .toList();
-      });
+            DownloadsScreenCategory.genres =>
+              (item.type == category.type && item.baseItemType == category.baseItemType) ||
+                  (item.finampCollection?.type == FinampCollectionType.collectionWithLibraryFilter &&
+                      BaseItemDtoType.fromItem(item.finampCollection!.item!) == BaseItemDtoType.genre),
+            _ =>
+              item.type == category.type &&
+                  (category.baseItemType == null || item.baseItemType == category.baseItemType),
+          },
+        )
+        .toList();
+  });
 
   /// Constructs the service.  startQueues should also be called to complete initialization.
   DownloadsService() {
@@ -1572,7 +1577,37 @@ class DownloadsService {
     if (imageId == null) {
       return null;
     }
+    if (item != null && item.blurHash == null) {
+      serverMissingBlurhash = true;
+    }
     return _getDownloadByID(imageId, DownloadItemType.image);
+  }
+
+  /// Retrieve the primary theme color of an image.  Only images stored by blurhash are supported to avoid the theoretical
+  /// possibility of the color and image file becoming desynced.  The returned value is (image is downloaded,theme color).
+  (bool, Color?) getImageTheme(String? blurHash) {
+    if (blurHash == null) {
+      return (false, null);
+    }
+    var item = _isar.downloadItems.getSync(DownloadStub.getHash(blurHash, DownloadItemType.image));
+    assert(item == null || item.baseItem!.blurHash == blurHash);
+    return (item != null, item?.themeColor != null ? Color(item!.themeColor!) : null);
+  }
+
+  /// Set the primary theme color of an image.  Only images stored by blurhash are supported to avoid the theoretical
+  /// possibility of the color and image file becoming desynced.
+  void setImageTheme(String? blurHash, Color themeColor) {
+    if (blurHash == null) {
+      return;
+    }
+    _isar.writeTxnSync(() {
+      final item = _isar.downloadItems.getSync(DownloadStub.getHash(blurHash, DownloadItemType.image));
+      if (item != null) {
+        assert(item.baseItem!.blurHash == blurHash);
+        item.themeColor = themeColor.toARGB32();
+        _isar.downloadItems.putSync(item, saveLinks: false);
+      }
+    });
   }
 
   /// Get DownloadedLyrics by the corresponding track's BaseItemDto.

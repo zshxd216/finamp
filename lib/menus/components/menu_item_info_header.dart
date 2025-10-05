@@ -370,7 +370,7 @@ class _ItemInfoState extends ConsumerState<ItemInfo> {
           height: widget.condensed ? infoHeaderCondensedInternalHeight : infoHeaderFullInternalHeight,
           clipBehavior: Clip.antiAlias,
           decoration: ShapeDecoration(
-            color: Theme.of(context).brightness == Brightness.dark
+            color: Theme.brightnessOf(context) == Brightness.dark
                 ? Colors.black.withOpacity(0.25)
                 : Colors.white.withOpacity(0.15),
             shape: widget.shape,

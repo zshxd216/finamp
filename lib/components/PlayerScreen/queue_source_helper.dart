@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:finamp/components/global_snackbar.dart';
+import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/screens/album_screen.dart';
 import 'package:finamp/screens/artist_screen.dart';
@@ -9,7 +10,6 @@ import 'package:finamp/screens/music_screen.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:finamp/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../models/jellyfin_models.dart';
@@ -83,12 +83,8 @@ Future<bool> removeFromPlaylist(
           context,
         )!.removeFromPlaylistPrompt(item.name ?? "item", parent.name ?? "playlist"),
         confirmButtonText: AppLocalizations.of(context)!.removeFromPlaylistConfirm,
-        abortButtonText: AppLocalizations.of(context)!.genericCancel,
         onConfirmed: () {
           isConfirmed = true;
-        },
-        onAborted: () {
-          isConfirmed = false;
         },
       ),
     );

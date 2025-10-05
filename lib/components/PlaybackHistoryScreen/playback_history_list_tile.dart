@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/components/favorite_button.dart';
+import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/audio_service_helper.dart';
 import 'package:flutter/material.dart' hide ReorderableList;
@@ -34,7 +34,7 @@ class _PlaybackHistoryListTileState extends ConsumerState<PlaybackHistoryListTil
   @override
   Widget build(BuildContext context) {
     final baseItem = jellyfin_models.BaseItemDto.fromJson(
-      widget.item.item.item.extras?["itemJson"] as Map<String, dynamic>,
+      widget.item.item.item.extras!["itemJson"] as Map<String, dynamic>,
     );
 
     void menuCallback() async {
@@ -59,7 +59,7 @@ class _PlaybackHistoryListTileState extends ConsumerState<PlaybackHistoryListTil
           minVerticalPadding: 0.0,
           horizontalTitleGap: 10.0,
           contentPadding: const EdgeInsets.only(right: 4.0),
-          leading: AlbumImage(item: widget.item.item.item.extras?["itemJson"] == null ? null : baseItem),
+          leading: AlbumImage(item: baseItem),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

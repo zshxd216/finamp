@@ -34,9 +34,8 @@ class DeleteFromServerMenuEntry extends ConsumerWidget implements HideableMenuEn
                 : DownloadItemType.collection,
             item: baseItem,
           );
-          await askBeforeDeleteFromServerAndDevice(context, item);
-          Navigator.pop(context); // close popup
-          musicScreenRefreshStream.add(null);
+          await askBeforeDeleteFromServerAndDevice(context, item, refresh: () => musicScreenRefreshStream.add(null));
+          if (context.mounted) Navigator.pop(context); // close popup
         },
       ),
     );
