@@ -986,7 +986,7 @@
     "@shuffleToNextUp": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
-    "shuffleToQueue": "Baralhar para a fila",
+    "shuffleToQueue": "Embaralhar para a Fila",
     "@shuffleToQueue": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the regular queue, to play after all prior tracks from the queue have played"
     },
@@ -1195,11 +1195,11 @@
     "@shuffleAlbums": {
         "description": "Label for action that shuffles all albums of an artist or genre"
     },
-    "shuffleAlbumsToQueue": "Baralhar Álbuns Na Fila",
+    "shuffleAlbumsToQueue": "Embaralhar Álbuns para a Fila",
     "@shuffleAlbumsToQueue": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of the regular queue"
     },
-    "shuffleAlbumsToNextUp": "Baralhar Álbuns para lista A Seguir",
+    "shuffleAlbumsToNextUp": "Embaralhar Álbuns para A Seguir",
     "@shuffleAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of Next Up"
     },
@@ -2727,5 +2727,91 @@
     "dragToReorder": "Arrastar para Reordenar",
     "@dragToReorder": {
         "description": "Label shown on drag handles of track list  tiles in the queue list"
+    },
+    "shuffleSome": "Embaralhar alguns",
+    "@shuffleSome": {},
+    "playbackActionPageNewQueue": "Nova Fila de Espera",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Reproduzir Próxima",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageNextUp": "Acrescentar Próxima",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "playbackActionPageAppendToQueue": "Reproduzir Última",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "shuffleSomeNext": "Embaralhar algumas próximas",
+    "@shuffleSomeNext": {
+        "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "shuffleSomeToNextUp": "Embaralhar algumas para Próxima em Cima",
+    "@shuffleSomeToNextUp": {
+        "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
+    },
+    "shuffleSomeToQueue": "Embaralhar algumas para a Fila de Espera",
+    "@shuffleSomeToQueue": {
+        "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
+    },
+    "shuffleSomeAlbums": "Embaralhar alguns Álbuns",
+    "@shuffleSomeAlbums": {
+        "description": "Label for action that shuffles some albums of a genre"
+    },
+    "shuffleSomeAlbumsNext": "Baralhar alguns Álbuns a Seguir",
+    "@shuffleSomeAlbumsNext": {
+        "description": "Label for action that shuffles some albums of a genre and adds them at the start of Next Up"
+    },
+    "shuffleSomeAlbumsToNextUp": "Embaralhar alguns Álbuns para A Seguir",
+    "@shuffleSomeAlbumsToNextUp": {
+        "description": "Label for action that shuffles all albums of a genre and adds them at the end of Next Up"
+    },
+    "shuffleSomeAlbumsToQueue": "Embaralhar alguns Álbuns para a Fila",
+    "@shuffleSomeAlbumsToQueue": {
+        "description": "Label for action that shuffles all albums of a genre and adds them at the end of the regular queue"
+    },
+    "emptyAlbum": "Nenhumas faixas.",
+    "@emptyAlbum": {
+        "description": "Message shown as a placeholder when an album or playlist is empty."
+    },
+    "preferNextUpPrependingTitle": "Preferir Pre-acrescentar para A Seguir",
+    "@preferNextUpPrependingTitle": {
+        "description": "Title for the setting to prefer prepending to Next Up over appending"
+    },
+    "rememberLastUsedPlaybackActionRowPageTitle": "Lembrar Último Modo de Reprodução",
+    "@rememberLastUsedPlaybackActionRowPageTitle": {
+        "description": "Title for the setting to remember the last used playback mode."
+    },
+    "addDownloadLocationsErrorButton": "Adicionar de qualquer maneira",
+    "@addDownloadLocationsErrorButton": {
+        "description": "Label shown on button for adding a download location we suspect to be buggy"
+    },
+    "openDownloads": "Abrir Descarregados",
+    "@openDownloads": {
+        "description": "Label on a button to open the downloads screen after a sync fails."
+    },
+    "syncingFailed": "Sincronização falhou.  Esta descarga foi provavelmente removida do servidor, e deve ser apagada.",
+    "@syncingFailed": {
+        "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+    },
+    "autoplayRestoredQueueTitle": "Reproduzir Automaticamente Filas Restauradas",
+    "@autoplayRestoredQueueTitle": {
+        "description": "Title for the setting that controls if restored queues automatically play."
+    },
+    "preferNextUpPrependingSubtitle": "Quando activo, os botões \"Reproduzir Primo\" serão mostrados quando A Seguir está vazio. Caso contrário, \"Adicionar a A Seguir\" será a predefinição.",
+    "@preferNextUpPrependingSubtitle": {
+        "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
+    },
+    "rememberLastUsedPlaybackActionRowPageSubtitle": "Quando activo, o seu último modo de reprodução usado (ex., A Seguir) será lembrado.",
+    "@rememberLastUsedPlaybackActionRowPageSubtitle": {
+        "description": "Subtitle for the setting to remember the last used playback mode."
+    },
+    "addDownloadLocationsErrorPrompt": "A escrita no directório selecionado falhou.  Você deve modificar as permissões ou escolher outra localização.",
+    "@addDownloadLocationsErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs fails"
     }
 }
