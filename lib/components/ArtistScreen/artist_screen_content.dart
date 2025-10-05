@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:finamp/components/Buttons/cta_medium.dart';
+import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/curated_item_filter_row.dart';
 import 'package:finamp/services/artist_content_provider.dart';
 import 'package:finamp/components/curated_item_sections.dart';
@@ -177,6 +178,12 @@ class _ArtistScreenContentState extends ConsumerState<ArtistScreenContent> {
                       ? AppLocalizations.of(context)!.downloadButtonDisabledGenreFilterTooltip
                       : null,
                 ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  openItemMenu(context: context, item: widget.parent);
+                },
+              ),
             ],
           ),
           if (!isLoading)

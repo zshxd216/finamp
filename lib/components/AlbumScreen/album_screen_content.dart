@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/MusicScreen/sort_by_menu_button.dart';
 import 'package:finamp/components/MusicScreen/sort_order_button.dart';
@@ -135,6 +136,12 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
                       ? AppLocalizations.of(context)!.downloadButtonDisabledGenreFilterTooltip
                       : null,
                 ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  openItemMenu(context: context, item: widget.parent);
+                },
+              ),
             ];
 
             return SliverAppBar(
