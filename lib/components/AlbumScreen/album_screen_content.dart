@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/MusicScreen/sort_by_menu_button.dart';
 import 'package:finamp/components/MusicScreen/sort_order_button.dart';
@@ -18,7 +19,6 @@ import '../../models/finamp_models.dart';
 import '../../models/jellyfin_models.dart';
 import '../../services/finamp_settings_helper.dart';
 import '../../services/queue_service.dart';
-import '../Buttons/cta_medium.dart';
 import '../favorite_button.dart';
 import '../padded_custom_scrollview.dart';
 import 'album_screen_content_flexible_space_bar.dart';
@@ -136,13 +136,19 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
                       ? AppLocalizations.of(context)!.downloadButtonDisabledGenreFilterTooltip
                       : null,
                 ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  openItemMenu(context: context, item: widget.parent);
+                },
+              ),
             ];
 
             return SliverAppBar(
               title: (widget.parent.type != "Playlist")
                   ? Text(widget.parent.name ?? AppLocalizations.of(context)!.unknownName)
                   : null,
-              expandedHeight: kToolbarHeight + 125 + 18 + CTAMedium.predictedHeight(context),
+              expandedHeight: kToolbarHeight + 125 + 18 + 100,
               // collapsedHeight: kToolbarHeight + 125 + 80,
               pinned: true,
               centerTitle: false,
@@ -269,7 +275,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
             forceAlbumArtists: (widget.parent.type == "Playlist" && playlistSortBy == SortBy.albumArtist),
           )
         else
-          SliverFillRemaining(child: Center(child: CircularProgressIndicator.adaptive())),
+          SliverFillRemaining(child: CircularProgressIndicator.adaptive()),
       ],
     );
   }

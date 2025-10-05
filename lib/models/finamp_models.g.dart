@@ -409,6 +409,15 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         autoplayRestoredQueue: fields[128] == null
             ? false
             : fields[128] as bool,
+        preferNextUpPrepending: fields[129] == null
+            ? true
+            : fields[129] as bool,
+        rememberLastUsedPlaybackActionRowPage: fields[130] == null
+            ? true
+            : fields[130] as bool,
+        lastUsedPlaybackActionRowPage: fields[131] == null
+            ? PlaybackActionRowPage.newQueue
+            : fields[131] as PlaybackActionRowPage,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -423,7 +432,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(122)
+      ..writeByte(125)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -667,7 +676,13 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(127)
       ..write(obj.previousTracksExpaned)
       ..writeByte(128)
-      ..write(obj.autoplayRestoredQueue);
+      ..write(obj.autoplayRestoredQueue)
+      ..writeByte(129)
+      ..write(obj.preferNextUpPrepending)
+      ..writeByte(130)
+      ..write(obj.rememberLastUsedPlaybackActionRowPage)
+      ..writeByte(131)
+      ..write(obj.lastUsedPlaybackActionRowPage);
   }
 
   @override
@@ -2870,6 +2885,51 @@ class DiscordRpcIconAdapter extends TypeAdapter<DiscordRpcIcon> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DiscordRpcIconAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
+  @override
+  final typeId = 104;
+
+  @override
+  PlaybackActionRowPage read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return PlaybackActionRowPage.newQueue;
+      case 1:
+        return PlaybackActionRowPage.playNext;
+      case 2:
+        return PlaybackActionRowPage.appendNext;
+      case 3:
+        return PlaybackActionRowPage.playLast;
+      default:
+        return PlaybackActionRowPage.newQueue;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, PlaybackActionRowPage obj) {
+    switch (obj) {
+      case PlaybackActionRowPage.newQueue:
+        writer.writeByte(0);
+      case PlaybackActionRowPage.playNext:
+        writer.writeByte(1);
+      case PlaybackActionRowPage.appendNext:
+        writer.writeByte(2);
+      case PlaybackActionRowPage.playLast:
+        writer.writeByte(3);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlaybackActionRowPageAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
