@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:chopper/chopper.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:http/http.dart' hide Response;
 import 'package:logging/logging.dart';
 
 @Deprecated("Use GlobalSnackbar.error(dynamic error) instead")
@@ -19,6 +21,9 @@ class GlobalSnackbar {
   static final List<Function> _queue = [];
 
   static Timer? _timer;
+
+  // Tracks currently displayed network error keys for dedup while any matching snackbar is visible.
+  static final Set<String> _activeErrorKeys = <String>{};
 
   /// It is possible for some GlobalSnackbar methods to be called before app
   /// startup completes.  If this happens, we delay executing the function
@@ -81,6 +86,20 @@ class GlobalSnackbar {
   /// Show an unlocalized error message to the user
   static void error(dynamic event) => _enqueue(() => _error(event));
   static void _error(dynamic event) {
+    // Suppress common transient network error "Failed host lookup"
+    bool suppressError = false;
+    if (event is SocketException || event is ClientException) {
+      suppressError = event.toString().contains("Failed host lookup");
+    } else if (event is Response && event.error is SocketException) {
+      suppressError = event.error.toString().contains("Failed host lookup");
+    } else if (event.toString().contains("Failed host lookup")) {
+      suppressError = true;
+    }
+    if (suppressError) {
+      _logger.fine("Suppressed error: $event", event);
+      return;
+    }
+
     _logger.warning("Displaying error: $event", event);
     BuildContext context = materialAppNavigatorKey.currentContext!;
     String errorText;
@@ -93,14 +112,37 @@ class GlobalSnackbar {
     } else {
       errorText = event.toString();
     }
+    // Only dedup NETWORK errors. Dedup is based on error "type", not URL/content.
+    bool isNetworkError =
+        event is SocketException ||
+        event is ClientException ||
+        (event is Response && (event.error is SocketException || event.error is ClientException));
+
+    String? dedupKey;
+    if (isNetworkError) {
+      if (event is Response) {
+        // Use status code + underlying error type (avoid including URL or body)
+        final underlying = event.error;
+        dedupKey = "network:${event.statusCode}:${underlying.runtimeType}";
+      } else {
+        dedupKey = "network:${event.runtimeType}";
+      }
+
+      if (_activeErrorKeys.contains(dedupKey)) {
+        _logger.fine("Duplicate network error suppressed: $dedupKey");
+        return;
+      }
+      _activeErrorKeys.add(dedupKey); // add to active keys
+    }
+
     // give immediate feedback that something went wrong
     FeedbackHelper.feedback(FeedbackType.warning);
-    materialAppScaffoldKey.currentState!.showSnackBar(
+    final controller = materialAppScaffoldKey.currentState!.showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.anErrorHasOccured),
         action: SnackBarAction(
           label: MaterialLocalizations.of(context).moreButtonTooltip,
-          onPressed: () => showDialog(
+          onPressed: () => showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(
               title: Text(AppLocalizations.of(context)!.error),
@@ -117,5 +159,14 @@ class GlobalSnackbar {
         duration: const Duration(seconds: 4),
       ),
     );
+
+    // When this snackbar fully closes (timeout or swipe), clear the key if it matches, allowing future identical errors.
+    if (isNetworkError && dedupKey != null) {
+      controller.closed.then((reason) {
+        if (_activeErrorKeys.remove(dedupKey)) {
+          _logger.fine("Removed active error key after dismissal: $dedupKey (reason: $reason)");
+        }
+      });
+    }
   }
 }
