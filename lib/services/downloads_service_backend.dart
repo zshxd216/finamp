@@ -1563,8 +1563,12 @@ class DownloadsSyncService {
     String fileName;
     String subDirectory;
     if (downloadLocation.useHumanReadableNames) {
+      final indexNumber = item.indexNumber != null ? "[${item.indexNumber}] " : "";
+      final artist = (item.artists?.isNotEmpty ?? false) ? "${item.artists?.first} - " : "";
+      // final originalFilename = item.path?.split(r'\\/').lastOrNull?.split('.').slice(0, -1).join('.');
+      final originalFilename = item.mediaSources?.firstWhere((e) => e.type.toLowerCase() == "default").name;
       fileName = _filesystemSafe(
-        "${item.indexNumber != null ? "[${item.indexNumber}] " : ""}${item.artists?.isNotEmpty ?? false ? "${item.artists?.joinNonNull(", ")} - " : ""}${item.name}",
+        originalFilename ?? "$indexNumber$artist${item.name}",
       )!;
       final pathSegments = [_filesystemSafe(item.albumArtist), _filesystemSafe(item.album)];
       // if (item.parentIndexNumber != null) {
