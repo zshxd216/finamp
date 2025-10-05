@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/global_snackbar.dart';
@@ -160,9 +162,10 @@ Future<List<BaseItemDto>> loadChildTracksFromShuffledGenreAlbums({required BaseI
 
   List<BaseItemDto> newItems = [];
 
-  // We assume that there are roughly 15 tracks per album and
-  // calculate an albumLimit to avoid loading too much data
-  final albumLimit = (settings.trackShuffleItemCount / 15).toInt();
+  // We fetch as many albums as the track limit allows (just in case there are only singles)
+  // but we have to apply a fixed upper limit of 200 albums as we could get 
+  // a 414 error (request uri too long) in step 2 (fetching the tracks) otherwise.
+  final albumLimit = min(settings.trackShuffleItemCount, 200);
   int totalTrackLimit = settings.trackShuffleItemCount;
 
   if (settings.isOffline) {
@@ -214,6 +217,8 @@ Future<List<BaseItemDto>> loadChildTracksFromShuffledGenreAlbums({required BaseI
           albumIds: albumIds,
           includeItemTypes: [BaseItemDtoType.track.idString].join(","),
           sortBy: "Album,ParentIndexNumber,IndexNumber,SortName",
+          // here we fetch one additional track to later check if the last album fits perfectly in the limit or if it exceeds it and has to be removed:
+          limit: totalTrackLimit + 1,
         ) ??
         [];
 
