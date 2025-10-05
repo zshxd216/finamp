@@ -38,11 +38,14 @@ class _NetworkSettingsScreenState extends State<NetworkSettingsScreen> {
           LocalNetworkAddressSelector(),
           TextButton(
             onPressed: () async {
+              // Ensure any pending edits in the local network address field are committed first
+              if (LocalNetworkAddressSelector.commitPendingEdits != null) {
+                await LocalNetworkAddressSelector.commitPendingEdits!();
+              }
               final [public, private] = await Future.wait([
                 GetIt.instance<JellyfinApiHelper>().pingPublicServer(),
                 GetIt.instance<JellyfinApiHelper>().pingLocalServer(),
               ]);
-
               GlobalSnackbar.message(
                 (context) => AppLocalizations.of(context)!.ping("${public.toString()}_${private.toString()}"),
               );

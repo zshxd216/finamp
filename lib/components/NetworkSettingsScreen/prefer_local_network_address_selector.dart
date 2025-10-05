@@ -10,16 +10,55 @@ import 'package:get_it/get_it.dart';
 class LocalNetworkAddressSelector extends ConsumerStatefulWidget {
   const LocalNetworkAddressSelector({super.key});
 
+  // Externally callable hook to force committing pending edits before actions (e.g., test connection)
+  static Future<void> Function()? commitPendingEdits;
+
   @override
   ConsumerState<LocalNetworkAddressSelector> createState() => _LocalNetworkAddressSelector();
 }
 
 class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSelector> {
   TextEditingController? _controller;
+  FocusNode? _focusNode;
+  String _lastCommittedValue = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode!.addListener(() {
+      if (!(_focusNode?.hasFocus ?? false)) {
+        _commitIfChanged();
+      }
+    });
+    LocalNetworkAddressSelector.commitPendingEdits = _commitIfChanged;
+  }
+
+  Future<void> _updateUrl(String url) async {
+    if (url.isEmpty) return; // Ignore empty
+    if (!url.startsWith('http')) {
+      GlobalSnackbar.message((context) => AppLocalizations.of(context)!.missingSchemaError);
+      return;
+    }
+    GetIt.instance<FinampUserHelper>().currentUser?.update(newLocalAddress: url);
+    await changeTargetUrl();
+  }
+
+  Future<void> _commitIfChanged() async {
+    final current = _controller?.text.trim() ?? '';
+    if (current == _lastCommittedValue) return;
+    _lastCommittedValue = current;
+    await _updateUrl(current);
+  }
+
   @override
   void dispose() {
-    super.dispose();
+    if (LocalNetworkAddressSelector.commitPendingEdits == _commitIfChanged) {
+      LocalNetworkAddressSelector.commitPendingEdits = null;
+    }
+    _focusNode?.dispose();
     _controller?.dispose();
+    super.dispose();
   }
 
   @override
@@ -29,6 +68,9 @@ class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSele
     bool featureEnabled = user?.preferLocalNetwork ?? DefaultSettings.preferLocalNetwork;
 
     _controller ??= TextEditingController(text: address);
+    if (_lastCommittedValue.isEmpty) {
+      _lastCommittedValue = address;
+    }
 
     return ListTile(
       enabled: featureEnabled,
@@ -39,15 +81,18 @@ class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSele
         child: TextField(
           enabled: featureEnabled,
           controller: _controller,
+          focusNode: _focusNode,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.url,
-          onSubmitted: (value) async {
-            if (!value.startsWith("http")) {
-              return GlobalSnackbar.message((context) => AppLocalizations.of(context)!.missingSchemaError);
-            }
-            GetIt.instance<FinampUserHelper>().currentUser?.update(newLocalAddress: value);
-            await changeTargetUrl();
+          onTapOutside: (_) {
+            FocusScope.of(context).unfocus();
+            _commitIfChanged();
           },
+          onEditingComplete: () {
+            FocusScope.of(context).unfocus();
+            _commitIfChanged();
+          },
+          onSubmitted: (_) => _commitIfChanged(),
         ),
       ),
     );
