@@ -4,11 +4,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/album_image.dart';
-import 'package:finamp/components/favorite_button.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/album_screen_provider.dart';
 import 'package:finamp/services/feedback_helper.dart';
@@ -22,7 +22,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive_ce_flutter/hive_flutter.dart';
 
 class PlaylistEditScreen extends ConsumerStatefulWidget {
   const PlaylistEditScreen({super.key, required this.playlist});
@@ -78,11 +77,17 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
           context: context,
           barrierDismissible: false,
           builder: (ctx) => AlertDialog(
-            title: Text("Discard Changes?*"),
-            content: Text("You have unsaved changes. Discard them and go back?*"),
+            title: Text(AppLocalizations.of(context)!.discardChangesTitle),
+            content: Text(AppLocalizations.of(context)!.discardChangesDescription),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text("Cancel*")),
-              TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text("Discard & Go Back*")),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(AppLocalizations.of(context)!.genericCancel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(AppLocalizations.of(context)!.discardChangesConfirmButton),
+              ),
             ],
           ),
         ) ??
@@ -212,16 +217,6 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
             leadingZeroes: false,
           );
 
-    var themeInfo = ref.read(localThemeInfoProvider);
-    bool useDefaultTheme = false;
-    ThemeImage? themeImage;
-    // If we have a usable theme image for our item, propagate this information
-    if ((themeInfo?.largeThemeImage ?? false) && themeInfo?.item == widget.playlist) {
-      themeImage = ref.read(localImageProvider);
-    } else {
-      useDefaultTheme = true;
-    }
-
     return PopScope(
       canPop: !_isDirty,
       onPopInvokedWithResult: (didPop, result) async {
@@ -238,7 +233,9 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
             bottomPadding: 120.0,
             slivers: [
               SliverAppBar(
-                title: Text("Edit Playlist"),
+                title: Text(
+                  AppLocalizations.of(context)!.editItemTitle(BaseItemDtoType.fromItem(widget.playlist).name),
+                ),
                 expandedHeight: kToolbarHeight + 125 + 48,
                 pinned: true,
                 centerTitle: false,
@@ -313,18 +310,8 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
                                                         borderRadius: BorderRadius.circular(5),
                                                       ),
                                                     ),
-                                                    Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        Icon(TablerIcons.edit, color: Colors.white, size: 32.0),
-                                                        SizedBox(height: 5),
-                                                        Text(
-                                                          "Tap to Edit Cover*",
-                                                          textAlign: TextAlign.center,
-                                                          style: TextStyle(color: Colors.white),
-                                                        ),
-                                                      ],
+                                                    Center(
+                                                      child: Icon(TablerIcons.edit, color: Colors.white, size: 32.0),
                                                     ),
                                                   ],
                                                 ),
@@ -444,23 +431,14 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
                 itemCount: playlistTracks.length,
                 itemBuilder: (context, index) {
                   final item = playlistTracks[index];
-                  final actualIndex = index;
-                  final indexOffset = index + 1;
 
                   return Material(
                     type: MaterialType.transparency,
                     key: ValueKey(item.id),
-                    child: QueueListTile(
+                    child: EditListTile(
                       item: item,
                       listIndex: index,
-                      actualIndex: actualIndex,
-                      indexOffset: indexOffset,
-                      parentItem: widget.playlist,
-                      allowReorder: true,
-                      isCurrentTrack: false,
-                      isInPlaylist: true,
-                      allowDismiss: true,
-                      onRemoveFromList: () {
+                      onRemoveOrRestore: () {
                         setState(() {
                           removedTracks.add(playlistTracks.removeAt(index));
                         });
@@ -473,72 +451,38 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
               SliverStickyHeader(
                 header: Padding(
                   padding: const EdgeInsets.only(left: 12.0, top: 16.0, bottom: 2.0),
-                  child: Text("Removed Tracks*", style: Theme.of(context).textTheme.titleMedium),
+                  child: Text(
+                    AppLocalizations.of(context)!.removedTracks,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
                 sliver: removedTracks.isEmpty
                     ? SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.only(top: 20.0),
-                          child: Center(child: const Text("Removed tracks will appear here*")),
+                          child: Center(child: Text(AppLocalizations.of(context)!.removedTracksEmptyListPlaceholder)),
                         ),
                       )
-                    : SliverReorderableList(
-                        autoScrollerVelocityScalar: 20.0,
-                        onReorder: (oldIndex, newIndex) {
-                          if (mounted) {
-                            setState(() {
-                              removedTracks.insert(newIndex, removedTracks.removeAt(oldIndex));
-                            });
-                          }
-                        },
-                        onReorderStart: (p0) {
-                          FeedbackHelper.feedback(FeedbackType.selection);
-                        },
-                        findChildIndexCallback: (Key key) {
-                          key = key as GlobalObjectKey;
-                          final ValueKey<String> valueKey = key.value as ValueKey<String>;
-                          final index = removedTracks.indexWhere((item) => item.id == valueKey.value);
-                          if (index == -1) return null;
-                          return index;
-                        },
-                        itemCount: removedTracks.length,
-                        itemBuilder: (context, index) {
+                    : SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
                           final item = removedTracks[index];
-                          final actualIndex = index;
-                          final indexOffset = index + 1;
 
                           return Material(
                             type: MaterialType.transparency,
                             key: ValueKey(item.id),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: QueueListTile(
-                                    item: item,
-                                    listIndex: index,
-                                    actualIndex: actualIndex,
-                                    indexOffset: indexOffset,
-                                    allowReorder: false,
-                                    isCurrentTrack: false,
-                                    isInPlaylist: false,
-                                    allowDismiss: false,
-                                    onTap: (bool playable) {},
-                                  ),
-                                ),
-                                IconButton(
-                                  visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                  icon: Icon(TablerIcons.arrow_back_up),
-                                  tooltip: "Restore to Playlist*",
-                                  onPressed: () {
-                                    setState(() {
-                                      playlistTracks.add(removedTracks.removeAt(index));
-                                    });
-                                  },
-                                ),
-                              ],
+                            child: EditListTile(
+                              item: item,
+                              listIndex: index,
+                              restoreInsteadOfRemove: true,
+                              onRemoveOrRestore: () {
+                                setState(() {
+                                  playlistTracks.add(removedTracks.removeAt(index));
+                                });
+                              },
+                              onTap: (bool playable) {},
                             ),
                           );
-                        },
+                        }, childCount: removedTracks.length),
                       ),
               ),
             ],
@@ -548,13 +492,13 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
                   onPressed: _isUpdating ? null : () async => await _saveOrUpdatePlaylist(),
                   label: _isUpdating
                       ? Row(
-                          children: const [
+                          children: <Widget>[
                             SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)),
                             SizedBox(width: 8),
-                            Text('Saving...'),
+                            Text(AppLocalizations.of(context)!.savingChanges),
                           ],
                         )
-                      : const Text("Save/Update Playlist"),
+                      : Text(AppLocalizations.of(context)!.updatePlaylistButtonLabel),
                   icon: _isUpdating ? null : const Icon(TablerIcons.device_floppy),
                 )
               : null,

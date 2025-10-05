@@ -433,14 +433,11 @@ class _PreviousTracksListState extends State<PreviousTracksList> with TickerProv
               itemExtent: QueueListTile.height,
               itemBuilder: (context, index) {
                 final item = _previousTracks![index];
-                final actualIndex = index;
                 final indexOffset = -((_previousTracks?.length ?? 0) - index);
                 return QueueListTile(
                   key: ValueKey(item.id),
                   item: item.baseItem!,
                   listIndex: index,
-                  actualIndex: actualIndex,
-                  indexOffset: indexOffset,
                   isInPlaylist: queueItemInPlaylist(item),
                   parentItem: item.source.item,
                   allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
@@ -519,14 +516,11 @@ class _NextUpTracksListState extends State<NextUpTracksList> {
                 itemExtent: QueueListTile.height,
                 itemBuilder: (context, index) {
                   final item = _nextUp![index];
-                  final actualIndex = index;
                   final indexOffset = index + 1;
                   return QueueListTile(
                     key: ValueKey(item.id),
                     item: item.baseItem!,
                     listIndex: index,
-                    actualIndex: actualIndex,
-                    indexOffset: indexOffset,
                     isInPlaylist: queueItemInPlaylist(item),
                     parentItem: item.source.item,
                     allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
@@ -609,15 +603,12 @@ class _QueueTracksListState extends State<QueueTracksList> {
               itemExtent: QueueListTile.height,
               itemBuilder: (context, index) {
                 final item = _queue![index];
-                final actualIndex = index;
                 final indexOffset = index + _nextUp!.length + 1;
 
                 return QueueListTile(
                   key: ValueKey(item.id),
                   item: item.baseItem!,
                   listIndex: index,
-                  actualIndex: actualIndex,
-                  indexOffset: indexOffset,
                   isInPlaylist: queueItemInPlaylist(item),
                   parentItem: item.source.item,
                   allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,

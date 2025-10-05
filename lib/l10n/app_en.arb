@@ -483,6 +483,14 @@
   "@required": {},
   "updateButtonLabel": "Update",
   "@updateButtonLabel": {},
+  "updatePlaylistButtonLabel": "Update Playlist",
+  "@updatePlaylistButtonLabel": {
+    "description": "Label for the button that updates the playlist on the edit playlist screen"
+  },
+  "savingChanges": "Saving changes…",
+  "@savingChanges": {
+    "description": "Text shown while the changes to a playlist are being saved"
+  },
   "playlistUpdated": "Playlist updated.",
   "@playlistUpdated": {},
   "downloadsDeleted": "Downloads deleted.",
@@ -2820,5 +2828,29 @@
   "noPermissionToEditMetadata": "You don't have permissions to edit metadata (including images).",
   "@noPermissionToEditMetadata": {
     "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
+  },
+  "removedTracks": "Removed Tracks",
+  "@removedTracks": {
+    "description": "Section header for the list of removed tracks on the playlist edit screen"
+  },
+  "removedTracksEmptyListPlaceholder": "Removed tracks will appear here",
+  "@removedTracksEmptyListPlaceholder": {
+    "description": "Placeholder text shown when there are no removed tracks"
+  },
+  "restoreTrack": "Restore Track",
+  "@restoreTrack": {
+    "description": "Button title for restoring a track that was marked to be removed"
+  },
+  "discardChangesTitle": "Discard Changes?",
+  "@discardChangesTitle": {
+    "description": "Title for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+  },
+  "discardChangesDescription": "You have unsaved changes. Discard them and go back?",
+  "@discardChangesDescription": {
+    "description": "Description for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+  },
+  "discardChangesConfirmButton": "Discard Changes",
+  "@discardChangesConfirmButton": {
+    "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
   }
 }
