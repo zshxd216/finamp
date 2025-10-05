@@ -22,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
 class PlaylistEditScreen extends ConsumerStatefulWidget {
   const PlaylistEditScreen({super.key, required this.playlist});
@@ -230,231 +231,203 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
           Navigator.of(context).pop();
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () async {
-              if (!_isDirty) {
-                Navigator.of(context).pop();
-              } else {
-                final discard = await _confirmDiscardChanges();
-                if (discard && mounted) Navigator.of(context).pop();
-              }
-            },
-          ),
-          title: Text(AppLocalizations.of(context)!.editItemTitle("playlist")),
-        ),
-        body: PaddedCustomScrollview(
-          bottomPadding: 100.0,
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: ref.watch(canEditMetadataProvider)
-                          ? () async {
-                              final file = await filePicker();
-                              if (file == null) return;
-                              setState(() {
-                                newAlbumImage = file;
-                              });
-                            }
-                          : () {
-                              GlobalSnackbar.message(
-                                (context) => AppLocalizations.of(context)!.noPermissionToEditMetadata,
-                              );
-                            },
-                      child: SizedBox(
-                        height: 130,
-                        width: 130,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          alignment: Alignment.center,
-                          children: [
-                            if (newAlbumImage != null)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(5),
-                                child: Image.file(
-                                  newAlbumImage!,
-                                  fit: BoxFit.cover,
-                                  width: 150,
-                                  height: 150,
-                                  errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black26),
-                                ),
-                              )
-                            else
-                              AlbumImage(
-                                item: _albumImage,
-                                borderRadius: BorderRadius.all(Radius.circular(5)),
-                                tapToZoom: false,
+      child: SafeArea(
+        bottom: false,
+        child: Scaffold(
+          body: PaddedCustomScrollview(
+            bottomPadding: 120.0,
+            slivers: [
+              SliverAppBar(
+                title: Text("Edit Playlist"),
+                expandedHeight: kToolbarHeight + 125 + 48,
+                pinned: true,
+                centerTitle: false,
+                titleSpacing: 0,
+                flexibleSpace: ProviderScope(
+                  overrides: [localThemeInfoProvider.overrideWithValue(ThemeInfo(widget.playlist, useIsolate: false))],
+                  child: Theme(
+                    data: ThemeData(colorScheme: ref.watch(localThemeProvider)),
+                    child: Builder(
+                      builder: (context) {
+                        return FlexibleSpaceBar(
+                          background: Align(
+                            alignment: AlignmentGeometry.bottomCenter,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                              decoration: BoxDecoration(
+                                color: ColorScheme.of(context).primary.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                            if (ref.watch(canEditMetadataProvider))
-                              Stack(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.4),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      Icon(TablerIcons.edit, color: Colors.white, size: 32.0),
-                                      SizedBox(height: 5),
-                                      Text(
-                                        "Tap to Edit Cover*",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.white),
+                                      GestureDetector(
+                                        onTap: ref.watch(canEditMetadataProvider)
+                                            ? () async {
+                                                final file = await filePicker();
+                                                if (file == null) return;
+                                                setState(() {
+                                                  newAlbumImage = file;
+                                                });
+                                              }
+                                            : () {
+                                                GlobalSnackbar.message(
+                                                  (context) => AppLocalizations.of(context)!.noPermissionToEditMetadata,
+                                                );
+                                              },
+                                        child: SizedBox(
+                                          height: 130,
+                                          width: 130,
+                                          child: Stack(
+                                            clipBehavior: Clip.none,
+                                            alignment: Alignment.center,
+                                            children: [
+                                              if (newAlbumImage != null)
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(5),
+                                                  child: Image.file(
+                                                    newAlbumImage!,
+                                                    fit: BoxFit.cover,
+                                                    width: 150,
+                                                    height: 150,
+                                                    errorBuilder: (_, __, ___) =>
+                                                        const ColoredBox(color: Colors.black26),
+                                                  ),
+                                                )
+                                              else
+                                                AlbumImage(
+                                                  item: _albumImage,
+                                                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                                                  tapToZoom: false,
+                                                ),
+                                              if (ref.watch(canEditMetadataProvider))
+                                                Stack(
+                                                  children: [
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black.withValues(alpha: 0.4),
+                                                        borderRadius: BorderRadius.circular(5),
+                                                      ),
+                                                    ),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Icon(TablerIcons.edit, color: Colors.white, size: 32.0),
+                                                        SizedBox(height: 5),
+                                                        Text(
+                                                          "Tap to Edit Cover*",
+                                                          textAlign: TextAlign.center,
+                                                          style: TextStyle(color: Colors.white),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10, height: 1),
+                                      // Playlist Name + Public Visibility
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Form(
+                                              key: _formKey,
+                                              child: TextFormField(
+                                                initialValue: _name,
+                                                textAlign: TextAlign.start,
+                                                cursorColor: ColorScheme.of(context).onSurface,
+                                                decoration: InputDecoration(
+                                                  isDense: true,
+                                                  contentPadding: const EdgeInsets.symmetric(
+                                                    horizontal: 4,
+                                                    vertical: 6,
+                                                  ),
+                                                  labelText: AppLocalizations.of(context)!.name,
+                                                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                                                  filled: true,
+                                                  fillColor: ColorScheme.of(context).surface,
+                                                  border: OutlineInputBorder(
+                                                    // borderSide: BorderSide(color: ColorScheme.of(context).primary, width: 1.0),
+                                                    borderSide: BorderSide.none,
+                                                    borderRadius: BorderRadius.circular(6),
+                                                  ),
+                                                ),
+                                                textInputAction: TextInputAction.done,
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return AppLocalizations.of(context)!.required;
+                                                  }
+                                                  return null;
+                                                },
+                                                onFieldSubmitted: (_) async => await _saveOrUpdatePlaylist(),
+                                                onChanged: (value) => setState(() {
+                                                  _name = value;
+                                                }),
+                                                onSaved: (newValue) => _name = newValue,
+                                              ),
+                                            ),
+
+                                            FormField<bool>(
+                                              builder: (state) {
+                                                return CheckboxListTile(
+                                                  value: _publicVisibility ?? false,
+                                                  title: Text(
+                                                    AppLocalizations.of(context)!.publiclyVisiblePlaylist,
+                                                    textAlign: TextAlign.left,
+                                                  ),
+                                                  contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 4.0),
+                                                  onChanged: (value) {
+                                                    state.didChange(value);
+                                                    setState(() {
+                                                      _publicVisibility = value!;
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ),
+
+                                            // Text(_songCount as String),
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                              child: Wrap(
+                                                direction: Axis.horizontal,
+                                                alignment: WrapAlignment.start,
+                                                spacing: 12.0,
+                                                children: [Text(trackCountString), Text(trackDurationString)],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10, height: 1),
-                    // Playlist Name + Public Visibility
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Form(
-                            key: _formKey,
-                            child: TextFormField(
-                              initialValue: _name,
-                              textAlign: TextAlign.start,
-                              cursorColor: Theme.of(context).colorScheme.onPrimary,
-                              decoration: InputDecoration(
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
-                                labelText: AppLocalizations.of(context)!.name,
-                                floatingLabelBehavior: FloatingLabelBehavior.never,
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  // borderSide: BorderSide(color: ColorScheme.of(context).primary, width: 1.0),
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                              ),
-                              textInputAction: TextInputAction.done,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return AppLocalizations.of(context)!.required;
-                                }
-                                return null;
-                              },
-                              onFieldSubmitted: (_) async => await _saveOrUpdatePlaylist(),
-                              onChanged: (value) => setState(() {
-                                _name = value;
-                              }),
-                              onSaved: (newValue) => _name = newValue,
                             ),
                           ),
-
-                          FormField<bool>(
-                            builder: (state) {
-                              return CheckboxListTile(
-                                value: _publicVisibility ?? false,
-                                title: Text(
-                                  AppLocalizations.of(context)!.publiclyVisiblePlaylist,
-                                  textAlign: TextAlign.left,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 4.0),
-                                onChanged: (value) {
-                                  state.didChange(value);
-                                  setState(() {
-                                    _publicVisibility = value!;
-                                  });
-                                },
-                              );
-                            },
-                          ),
-
-                          // Text(_songCount as String),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                            child: Wrap(
-                              direction: Axis.horizontal,
-                              alignment: WrapAlignment.start,
-                              spacing: 12.0,
-                              children: [Text(trackCountString), Text(trackDurationString)],
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-            SliverReorderableList(
-              autoScrollerVelocityScalar: 20.0,
-              onReorder: (oldIndex, newIndex) {
-                if (mounted) {
-                  setState(() {
-                    playlistTracks.insert(
-                      newIndex < oldIndex ? newIndex : newIndex - 1,
-                      playlistTracks.removeAt(oldIndex),
-                    );
-                  });
-                }
-              },
-              onReorderStart: (p0) {
-                FeedbackHelper.feedback(FeedbackType.selection);
-              },
-              findChildIndexCallback: (Key key) {
-                key = key as GlobalObjectKey;
-                final ValueKey<String> valueKey = key.value as ValueKey<String>;
-                final index = playlistTracks.indexWhere((item) => item.id == valueKey.value);
-                if (index == -1) return null;
-                return index;
-              },
-              itemCount: playlistTracks.length,
-              itemBuilder: (context, index) {
-                final item = playlistTracks[index];
-                final actualIndex = index;
-                final indexOffset = index + 1;
-
-                return Material(
-                  type: MaterialType.transparency,
-                  key: ValueKey(item.id),
-                  child: QueueListTile(
-                    item: item,
-                    listIndex: index,
-                    actualIndex: actualIndex,
-                    indexOffset: indexOffset,
-                    parentItem: widget.playlist,
-                    allowReorder: true,
-                    isCurrentTrack: false,
-                    isInPlaylist: true,
-                    allowDismiss: true,
-                    onRemoveFromList: () {
-                      setState(() {
-                        removedTracks.add(playlistTracks.removeAt(index));
-                      });
-                    },
-                    onTap: (bool playable) {},
-                  ),
-                );
-              },
-            ),
-            SliverStickyHeader(
-              header: Text("Removed Tracks*"),
-              sliver: SliverReorderableList(
+              SliverReorderableList(
                 autoScrollerVelocityScalar: 20.0,
                 onReorder: (oldIndex, newIndex) {
                   if (mounted) {
                     setState(() {
-                      removedTracks.insert(newIndex, removedTracks.removeAt(oldIndex));
+                      playlistTracks.insert(
+                        newIndex < oldIndex ? newIndex : newIndex - 1,
+                        playlistTracks.removeAt(oldIndex),
+                      );
                     });
                   }
                 },
@@ -464,13 +437,13 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
                 findChildIndexCallback: (Key key) {
                   key = key as GlobalObjectKey;
                   final ValueKey<String> valueKey = key.value as ValueKey<String>;
-                  final index = removedTracks.indexWhere((item) => item.id == valueKey.value);
+                  final index = playlistTracks.indexWhere((item) => item.id == valueKey.value);
                   if (index == -1) return null;
                   return index;
                 },
-                itemCount: removedTracks.length,
+                itemCount: playlistTracks.length,
                 itemBuilder: (context, index) {
-                  final item = removedTracks[index];
+                  final item = playlistTracks[index];
                   final actualIndex = index;
                   final indexOffset = index + 1;
 
@@ -483,13 +456,13 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
                       actualIndex: actualIndex,
                       indexOffset: indexOffset,
                       parentItem: widget.playlist,
-                      allowReorder: false,
+                      allowReorder: true,
                       isCurrentTrack: false,
-                      isInPlaylist: false,
-                      allowDismiss: false,
+                      isInPlaylist: true,
+                      allowDismiss: true,
                       onRemoveFromList: () {
                         setState(() {
-                          removedTracks.removeAt(index);
+                          removedTracks.add(playlistTracks.removeAt(index));
                         });
                       },
                       onTap: (bool playable) {},
@@ -497,24 +470,95 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
                   );
                 },
               ),
-            ),
-          ],
-        ),
-        floatingActionButton: _isDirty
-            ? FloatingActionButton.extended(
-                onPressed: _isUpdating ? null : () async => await _saveOrUpdatePlaylist(),
-                label: _isUpdating
-                    ? Row(
-                        children: const [
-                          SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-                          SizedBox(width: 8),
-                          Text('Saving...'),
-                        ],
+              SliverStickyHeader(
+                header: Padding(
+                  padding: const EdgeInsets.only(left: 12.0, top: 16.0, bottom: 2.0),
+                  child: Text("Removed Tracks*", style: Theme.of(context).textTheme.titleMedium),
+                ),
+                sliver: removedTracks.isEmpty
+                    ? SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Center(child: const Text("Removed tracks will appear here*")),
+                        ),
                       )
-                    : const Text("Save/Update Playlist"),
-                icon: _isUpdating ? null : const Icon(TablerIcons.device_floppy),
-              )
-            : null,
+                    : SliverReorderableList(
+                        autoScrollerVelocityScalar: 20.0,
+                        onReorder: (oldIndex, newIndex) {
+                          if (mounted) {
+                            setState(() {
+                              removedTracks.insert(newIndex, removedTracks.removeAt(oldIndex));
+                            });
+                          }
+                        },
+                        onReorderStart: (p0) {
+                          FeedbackHelper.feedback(FeedbackType.selection);
+                        },
+                        findChildIndexCallback: (Key key) {
+                          key = key as GlobalObjectKey;
+                          final ValueKey<String> valueKey = key.value as ValueKey<String>;
+                          final index = removedTracks.indexWhere((item) => item.id == valueKey.value);
+                          if (index == -1) return null;
+                          return index;
+                        },
+                        itemCount: removedTracks.length,
+                        itemBuilder: (context, index) {
+                          final item = removedTracks[index];
+                          final actualIndex = index;
+                          final indexOffset = index + 1;
+
+                          return Material(
+                            type: MaterialType.transparency,
+                            key: ValueKey(item.id),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: QueueListTile(
+                                    item: item,
+                                    listIndex: index,
+                                    actualIndex: actualIndex,
+                                    indexOffset: indexOffset,
+                                    allowReorder: false,
+                                    isCurrentTrack: false,
+                                    isInPlaylist: false,
+                                    allowDismiss: false,
+                                    onTap: (bool playable) {},
+                                  ),
+                                ),
+                                IconButton(
+                                  visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+                                  icon: Icon(TablerIcons.arrow_back_up),
+                                  tooltip: "Restore to Playlist*",
+                                  onPressed: () {
+                                    setState(() {
+                                      playlistTracks.add(removedTracks.removeAt(index));
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+          floatingActionButton: _isDirty
+              ? FloatingActionButton.extended(
+                  onPressed: _isUpdating ? null : () async => await _saveOrUpdatePlaylist(),
+                  label: _isUpdating
+                      ? Row(
+                          children: const [
+                            SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                            SizedBox(width: 8),
+                            Text('Saving...'),
+                          ],
+                        )
+                      : const Text("Save/Update Playlist"),
+                  icon: _isUpdating ? null : const Icon(TablerIcons.device_floppy),
+                )
+              : null,
+        ),
       ),
     );
   }
