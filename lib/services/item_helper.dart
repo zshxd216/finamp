@@ -163,7 +163,7 @@ Future<List<BaseItemDto>> loadChildTracksFromShuffledGenreAlbums({required BaseI
   List<BaseItemDto> newItems = [];
 
   // We fetch as many albums as the track limit allows (just in case there are only singles)
-  // but we have to apply a fixed upper limit of 200 albums as we could get 
+  // but we have to apply a fixed upper limit of 200 albums as we could get
   // a 414 error (request uri too long) in step 2 (fetching the tracks) otherwise.
   final albumLimit = min(settings.trackShuffleItemCount, 200);
   int totalTrackLimit = settings.trackShuffleItemCount;
