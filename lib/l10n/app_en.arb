@@ -2825,7 +2825,7 @@
   "@missingBlurhashWarning": {
     "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
   },
-  "noPermissionToEditMetadata": "You don't have permissions to edit metadata (including images).",
+  "noPermissionToEditMetadata": "You need to be an administrator to edit metadata images.",
   "@noPermissionToEditMetadata": {
     "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
   },

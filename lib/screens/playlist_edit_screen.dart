@@ -8,6 +8,7 @@ import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/components/icon_button_with_semantics.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/album_screen_provider.dart';
@@ -37,6 +38,8 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
   // UI constants
   static const double _coverSize = 130.0; // kept for reuse
   static const double _wrapSpacing = 12.0; // kept for reuse
+
+  bool _isLoading = true;
 
   String? _name;
   bool? _publicVisibility;
@@ -102,11 +105,15 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
   @override
   void initState() {
     super.initState();
+    _isLoading = true;
     _name = widget.playlist.name;
     _fetchPublicVisibility();
     final tracksAsync = ref.read(getSortedPlaylistTracksProvider(widget.playlist));
-    final (allTracks, playableTracks) = tracksAsync.valueOrNull ?? (null, null);
-    playlistTracks = allTracks ?? [];
+    final (allTracks, playableTracks) = tracksAsync.valueOrNull ?? (<BaseItemDto>[], <BaseItemDto>[]);
+    playlistTracks = List.from(allTracks);
+    if (tracksAsync.hasValue) {
+      setState(() => _isLoading = false);
+    }
     _initialName = _name ?? '';
     _initialVisibility = _publicVisibility ?? false;
     _initialTrackIdsOrder = playlistTracks.map((t) => t.id.raw).toList();
@@ -121,7 +128,7 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
   Future<void> _fetchPublicVisibility() async {
     if (_publicVisibility != null) return;
     final resultPlaylist = await _jellyfinApiHelper.getPlaylist(widget.playlist.id!);
-    setState(() => _publicVisibility = resultPlaylist['OpenAccess'] as bool);
+    setState(() => _publicVisibility = resultPlaylist.openAccess);
     _resetDirtyBaseline();
   }
 
@@ -155,9 +162,13 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
           await _jellyfinApiHelper.setItemPrimaryImage(itemId: widget.playlist.id!, imageFile: newAlbumImage!);
         }
         musicScreenRefreshStream.add(null); // refresh playlist content
+        ref.invalidate(getSortedPlaylistTracksProvider(widget.playlist));
         if (!mounted) return;
         GlobalSnackbar.message((context) => AppLocalizations.of(context)!.playlistUpdated, isConfirmation: true);
-        setState(_resetDirtyBaseline);
+        setState(() {
+          _isUpdating = false;
+          _resetDirtyBaseline();
+        });
         // Trigger success flash before pop
         _playlistSaveFeedbackController.success();
         await Future<void>.delayed(const Duration(milliseconds: 500));
@@ -174,14 +185,20 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // wait for playlist tracks, then mark loading as false
+    ref.listen(getSortedPlaylistTracksProvider(widget.playlist), (_, tracksAsyncLoaded) {
+      if (mounted) {
+        final (allTracksLoaded, playableTracksLoaded) =
+            tracksAsyncLoaded.valueOrNull ?? (<BaseItemDto>[], <BaseItemDto>[]);
+        setState(() {
+          playlistTracks = List.from(allTracksLoaded);
+          _initialTrackIdsOrder = playlistTracks.map((t) => t.id.raw).toList();
+          _isLoading = false;
+        });
+      }
+    });
+
     final bool isOffline = ref.watch(finampSettingsProvider.isOffline);
-    final playlistSortBySetting = ref.read(finampSettingsProvider.playlistTracksSortBy);
-    final playlistSortBy =
-        (isOffline && (playlistSortBySetting == SortBy.datePlayed || playlistSortBySetting == SortBy.playCount))
-        ? SortBy.defaultOrder
-        : playlistSortBySetting; // kept intentionally
-    // ignore: unused_local_variable
-    final _ = playlistSortBy;
 
     final playlistTracksCount = playlistTracks.length;
     final trackCountString = (playlistTracks.length == widget.playlist.childCount || !isOffline)
@@ -210,6 +227,14 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
           slivers: [
             SliverAppBar(
               title: Text(AppLocalizations.of(context)!.editItemTitle(BaseItemDtoType.fromItem(widget.playlist).name)),
+              actions: [
+                if (_isDirty)
+                  IconButtonWithSemantics(
+                    label: AppLocalizations.of(context)!.updatePlaylistButtonLabel,
+                    icon: TablerIcons.device_floppy,
+                    onPressed: _isUpdating ? null : () async => await _saveOrUpdatePlaylist(),
+                  ),
+              ],
               expandedHeight: kToolbarHeight + 125 + 48,
               pinned: true,
               centerTitle: false,
@@ -237,53 +262,77 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
                 ),
               ),
             ),
-            SliverReorderableList(
-              autoScrollerVelocityScalar: 20.0,
-              onReorder: (oldIndex, newIndex) {
-                if (!mounted) return;
-                setState(() {
-                  playlistTracks.insert(
-                    newIndex < oldIndex ? newIndex : newIndex - 1,
-                    playlistTracks.removeAt(oldIndex),
+            if (_isLoading)
+              ItemTheme(
+                item: widget.playlist,
+                child: Builder(
+                  builder: (context) {
+                    return SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(ColorScheme.of(context).primary),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              )
+            else ...[
+              SliverReorderableList(
+                autoScrollerVelocityScalar: 20.0,
+                onReorder: (oldIndex, newIndex) {
+                  if (!mounted) return;
+                  setState(() {
+                    playlistTracks.insert(
+                      newIndex < oldIndex ? newIndex : newIndex - 1,
+                      playlistTracks.removeAt(oldIndex),
+                    );
+                  });
+                },
+                onReorderStart: (_) => FeedbackHelper.feedback(FeedbackType.selection),
+                findChildIndexCallback: (Key key) {
+                  key = key as GlobalObjectKey;
+                  final valueKey = key.value as ValueKey<String>;
+                  final index = playlistTracks.indexWhere((item) => item.id == valueKey.value);
+                  if (index == -1) return null;
+                  return index;
+                },
+                itemCount: playlistTracks.length,
+                itemBuilder: (context, index) {
+                  final item = playlistTracks[index];
+                  return Material(
+                    type: MaterialType.transparency,
+                    key: ValueKey(item.id),
+                    child: EditListTile(
+                      item: item,
+                      listIndex: index,
+                      onRemoveOrRestore: () {
+                        setState(() => removedTracks.add(playlistTracks.removeAt(index)));
+                      },
+                      onTap: (bool playable) {},
+                    ),
                   );
-                });
-              },
-              onReorderStart: (_) => FeedbackHelper.feedback(FeedbackType.selection),
-              findChildIndexCallback: (Key key) {
-                key = key as GlobalObjectKey;
-                final valueKey = key.value as ValueKey<String>;
-                final index = playlistTracks.indexWhere((item) => item.id == valueKey.value);
-                if (index == -1) return null;
-                return index;
-              },
-              itemCount: playlistTracks.length,
-              itemBuilder: (context, index) {
-                final item = playlistTracks[index];
-                return Material(
-                  type: MaterialType.transparency,
-                  key: ValueKey(item.id),
-                  child: EditListTile(
-                    item: item,
-                    listIndex: index,
-                    onRemoveOrRestore: () {
-                      setState(() => removedTracks.add(playlistTracks.removeAt(index)));
-                    },
-                    onTap: (bool playable) {},
-                  ),
-                );
-              },
-            ),
-            _RemovedTracksSection(
-              removedTracks: removedTracks,
-              onRestore: (index) => setState(() => playlistTracks.add(removedTracks.removeAt(index))),
-            ),
+                },
+              ),
+              _RemovedTracksSection(
+                removedTracks: removedTracks,
+                onRestore: (index) => setState(() => playlistTracks.add(removedTracks.removeAt(index))),
+              ),
+            ],
           ],
         ),
         floatingActionButton: _isDirty
-            ? _PlaylistSaveFAB(
-                isSaving: _isUpdating,
-                onPressed: _isUpdating ? null : () async => await _saveOrUpdatePlaylist(),
-                controller: _playlistSaveFeedbackController,
+            ? ItemTheme(
+                item: widget.playlist,
+                child: _PlaylistSaveFAB(
+                  isSaving: _isUpdating,
+                  onPressed: _isUpdating ? null : () async => await _saveOrUpdatePlaylist(),
+                  controller: _playlistSaveFeedbackController,
+                ),
               )
             : null,
       ),

@@ -740,10 +740,10 @@ class JellyfinApiHelper {
   }
 
   /// Gets a Playlist
-  Future<dynamic> getPlaylist(BaseItemId playlistId) async {
+  Future<PlaylistInfo> getPlaylist(BaseItemId playlistId) async {
     assert(_verifyCallable());
     final response = await jellyfinApi.getPlaylist(playlistId: playlistId);
-    return response;
+    return PlaylistInfo.fromJson(response as Map<String, dynamic>);
   }
 
   /// Creates a new playlist.

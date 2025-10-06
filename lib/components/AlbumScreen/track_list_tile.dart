@@ -467,7 +467,8 @@ class EditListTile extends StatelessWidget {
       features: [
         restoreInsteadOfRemove ? null : TrackListItemFeatures.listIndex,
         TrackListItemFeatures.cover,
-        restoreInsteadOfRemove ? null : TrackListItemFeatures.dragHandle,
+        TrackListItemFeatures.dragHandle,
+        TrackListItemFeatures.fullyDraggable,
         restoreInsteadOfRemove ? TrackListItemFeatures.restoreButton : TrackListItemFeatures.removeFromListButton,
       ].nonNulls.toList(),
     );
@@ -559,7 +560,7 @@ class TrackListItem extends ConsumerWidget {
       builder: (context) {
         // Use potentially themed context in menu callback
         void menuCallback() async {
-          if (playable) {
+          if (playable && !features.contains(TrackListItemFeatures.fullyDraggable)) {
             FeedbackHelper.feedback(FeedbackType.selection);
             await showModalTrackMenu(
               context: context,
@@ -577,8 +578,12 @@ class TrackListItem extends ConsumerWidget {
             // Begin precalculating theme for song menu
             ref.listenManual(finampThemeProvider(ThemeInfo(baseItem)), (_, __) {});
           },
-          onLongPressStart: (details) => menuCallback(),
-          onSecondaryTapDown: (details) => menuCallback(),
+          onLongPressStart: features.contains(TrackListItemFeatures.fullyDraggable)
+              ? null
+              : (details) => menuCallback(),
+          onSecondaryTapDown: features.contains(TrackListItemFeatures.fullyDraggable)
+              ? null
+              : (details) => menuCallback(),
           child: !playable
               ? listItem
               : Dismissible(
@@ -602,7 +607,7 @@ class TrackListItem extends ConsumerWidget {
       },
     );
 
-    return isCurrentlyPlaying && highlightCurrentTrack
+    final fullTile = isCurrentlyPlaying && highlightCurrentTrack
         ? PlayerScreenTheme(
             themeTransitionDuration: const Duration(milliseconds: 500),
             themeOverride: (imageTheme) {
@@ -628,6 +633,9 @@ class TrackListItem extends ConsumerWidget {
             child: unthemedItem,
           )
         : unthemedItem;
+    return features.contains(TrackListItemFeatures.fullyDraggable)
+        ? ReorderableDelayedDragStartListener(index: listIndex ?? 0, child: fullTile)
+        : fullTile;
   }
 }
 
@@ -638,6 +646,7 @@ enum TrackListItemFeatures {
   duration,
   addToPlaylistOrFavorite,
   dragHandle,
+  fullyDraggable,
   removeFromListButton,
   restoreButton,
 }
