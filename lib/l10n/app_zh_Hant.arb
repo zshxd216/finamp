@@ -2719,5 +2719,111 @@
     "dragToReorder": "拖曳以重新排序",
     "@dragToReorder": {
         "description": "Label shown on drag handles of track list  tiles in the queue list"
+    },
+    "shuffleSome": "隨機挑選",
+    "@shuffleSome": {},
+    "playbackActionPageNewQueue": "新的佇列",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "播放下一首",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageNextUp": "加入下一首",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "playbackActionPageAppendToQueue": "最後播放",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "shuffleSomeNext": "隨機挑選至下一首",
+    "@shuffleSomeNext": {
+        "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "shuffleSomeToNextUp": "隨機挑選至即將播放",
+    "@shuffleSomeToNextUp": {
+        "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
+    },
+    "shuffleSomeToQueue": "隨機挑選至播放佇列",
+    "@shuffleSomeToQueue": {
+        "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
+    },
+    "shuffleSomeAlbums": "隨機挑選專輯",
+    "@shuffleSomeAlbums": {
+        "description": "Label for action that shuffles some albums of a genre"
+    },
+    "shuffleSomeAlbumsNext": "隨機挑選專輯至下一首",
+    "@shuffleSomeAlbumsNext": {
+        "description": "Label for action that shuffles some albums of a genre and adds them at the start of Next Up"
+    },
+    "shuffleSomeAlbumsToNextUp": "隨機挑選專輯至即將播放",
+    "@shuffleSomeAlbumsToNextUp": {
+        "description": "Label for action that shuffles all albums of a genre and adds them at the end of Next Up"
+    },
+    "shuffleSomeAlbumsToQueue": "隨機挑選專輯至播放佇列",
+    "@shuffleSomeAlbumsToQueue": {
+        "description": "Label for action that shuffles all albums of a genre and adds them at the end of the regular queue"
+    },
+    "emptyAlbum": "沒有歌曲。",
+    "@emptyAlbum": {
+        "description": "Message shown as a placeholder when an album or playlist is empty."
+    },
+    "preferNextUpPrependingTitle": "優先插入至下一首",
+    "@preferNextUpPrependingTitle": {
+        "description": "Title for the setting to prefer prepending to Next Up over appending"
+    },
+    "preferNextUpPrependingSubtitle": "啟用後，當「即將播放」清單為空時，會顯示「下一首播放」按鈕；否則預設為「加入至即將播放」。",
+    "@preferNextUpPrependingSubtitle": {
+        "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
+    },
+    "rememberLastUsedPlaybackActionRowPageTitle": "記住上次的播放模式",
+    "@rememberLastUsedPlaybackActionRowPageTitle": {
+        "description": "Title for the setting to remember the last used playback mode."
+    },
+    "rememberLastUsedPlaybackActionRowPageSubtitle": "啟用後，系統會記住您上次使用的播放模式（例如：即將播放）。",
+    "@rememberLastUsedPlaybackActionRowPageSubtitle": {
+        "description": "Subtitle for the setting to remember the last used playback mode."
+    },
+    "addDownloadLocationsErrorPrompt": "無法寫入選取的資料夾。請修改權限或選擇其他位置。",
+    "@addDownloadLocationsErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+    },
+    "androidImageErrorPrompt": "警告：由於作業系統的限制，無法將圖片寫入 Android 的「音樂」資料夾。請選擇其他儲存位置。",
+    "@androidImageErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+    },
+    "addDownloadLocationsErrorButton": "強制加入",
+    "@addDownloadLocationsErrorButton": {
+        "description": "Label shown on button for adding a download location we suspect to be buggy"
+    },
+    "syncFailedWarningShort": "警告：部分下載項目與伺服器同步失敗。",
+    "@syncFailedWarningShort": {
+        "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+    },
+    "syncFailedWarningLong": "部分下載未能與伺服器同步。伺服器上的對應檔案可能已刪除。建議刪除這些下載失敗的項目，以清理過期的檔案。",
+    "@syncFailedWarningLong": {
+        "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+    },
+    "openDownloads": "開啟下載位置",
+    "@openDownloads": {
+        "description": "Label on a button to open the downloads screen after a sync fails."
+    },
+    "syncingFailed": "同步失敗。此下載項目可能已從伺服器移除，建議刪除。",
+    "@syncingFailed": {
+        "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+    },
+    "autoplayRestoredQueueTitle": "自動播放已復原的播放佇列",
+    "@autoplayRestoredQueueTitle": {
+        "description": "Title for the setting that controls if restored queues automatically play."
+    },
+    "autoplayRestoredQueueSubtitle": "在啟動時或透過「佇列還原畫面」自動還原的播放佇列，將會自動開始播放。若播放佇列在還原時無法成功載入所有歌曲，則無論此設定為何，都不會自動播放。",
+    "@autoplayRestoredQueueSubtitle": {
+        "description": "Subtitle for the setting that controls if restored queues automatically play."
+    },
+    "missingBlurhashWarning": "警告：偵測到 Jellyfin 伺服器未正確生成 BlurHash。這會使 Finamp 無法辨識重複圖片並導致重複下載。請修正伺服器設定並執行下載修復以清理下載項目。",
+    "@missingBlurhashWarning": {
+        "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
     }
 }
