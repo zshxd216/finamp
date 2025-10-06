@@ -2813,5 +2813,25 @@
     "addDownloadLocationsErrorPrompt": "A escrita no directório selecionado falhou.  Você deve modificar as permissões ou escolher outra localização.",
     "@addDownloadLocationsErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+    },
+    "androidImageErrorPrompt": "AVISO: Nós somos incapazes de escrever imagens na paste Music do android devido a restrições do SO.  Você deve escolher outra localização.",
+    "@androidImageErrorPrompt": {
+        "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+    },
+    "syncFailedWarningShort": "Aviso: Falhou ao sincronizar algumas descargas com o servidor.",
+    "@syncFailedWarningShort": {
+        "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+    },
+    "syncFailedWarningLong": "Algumas descargas falharam ao sincronizar com o servidor.  O item correspondente no servidor foi provavelmente apagado.  A descarga falhada deve ser apagada para limpar os ficheiros desatualizados.",
+    "@syncFailedWarningLong": {
+        "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+    },
+    "autoplayRestoredQueueSubtitle": "As filas restauradas automaticamente no arranque ou via o ecrã de restauro de fila irão começar a ser reproduzidas automaticamente.  As filas que falhem o restauro de todas as faixas nunca irão ser auto-reproduzidas, independentemente desta definição.",
+    "@autoplayRestoredQueueSubtitle": {
+        "description": "Subtitle for the setting that controls if restored queues automatically play."
+    },
+    "missingBlurhashWarning": "Aviso: O servidor Jellyfin parece estar mal configurado e não está a calcular as blurhashes.  Isto previne o Finamp de des-duplicar descargas de imagens.  Por favor corrija o servidor e corra uma reparação das descargas.",
+    "@missingBlurhashWarning": {
+        "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
     }
 }
