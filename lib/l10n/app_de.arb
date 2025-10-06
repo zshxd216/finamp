@@ -2768,11 +2768,11 @@
     "@preferNextUpPrependingSubtitle": {
         "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
     },
-    "rememberLastUsedPlaybackActionRowPageTitle": "Letzten Playback-Modus speichern",
+    "rememberLastUsedPlaybackActionRowPageTitle": "Letzten Wiedergabemodus merken",
     "@rememberLastUsedPlaybackActionRowPageTitle": {
         "description": "Title for the setting to remember the last used playback mode."
     },
-    "rememberLastUsedPlaybackActionRowPageSubtitle": "Wenn aktiviert, wird der zuletzt verwendete Wiedergabe-Modus (z. B. \"Als Nächstes\") gespeichert.",
+    "rememberLastUsedPlaybackActionRowPageSubtitle": "Wenn aktiviert, wird der zuletzt verwendete Wiedergabemodus (z. B. \"Als Nächstes\") gespeichert.",
     "@rememberLastUsedPlaybackActionRowPageSubtitle": {
         "description": "Subtitle for the setting to remember the last used playback mode."
     },
