@@ -2362,5 +2362,7 @@
             }
         },
         "description": "Message shown when a genre filter or open-genre action fails because the genre item could not be found."
-    }
+    },
+    "shuffleSome": "随机播放",
+    "@shuffleSome": {}
 }
