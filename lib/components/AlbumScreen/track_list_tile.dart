@@ -536,7 +536,7 @@ class TrackListItem extends ConsumerWidget {
     );
 
     var listCard = Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0),
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0),
       child: TrackListItemTile(
         baseItem: baseItem,
         listIndex: listIndex,
@@ -748,7 +748,14 @@ class TrackListItemTile extends ConsumerWidget {
             (features.contains(TrackListItemFeatures.parentIndex) && actualIndex != null))
           Padding(
             padding: features.contains(TrackListItemFeatures.cover)
-                ? const EdgeInsets.only(left: 2.0, right: 8.0)
+                ? EdgeInsets.only(
+                    left:
+                        features.contains(TrackListItemFeatures.listIndex) ||
+                            features.contains(TrackListItemFeatures.parentIndex)
+                        ? 0.0
+                        : 2.0,
+                    right: 8.0,
+                  )
                 : const EdgeInsets.only(left: 6.0, right: 0.0),
             child: Container(
               constraints: const BoxConstraints(minWidth: 22.0),
@@ -987,8 +994,7 @@ class TrackListItemTile extends ConsumerWidget {
                   ),
                 if (features.contains(TrackListItemFeatures.removeFromListButton))
                   IconButton(
-                    padding: const EdgeInsets.only(left: 6.0),
-                    constraints: const BoxConstraints(),
+                    visualDensity: VisualDensity(horizontal: -4),
                     icon: Icon(
                       TablerIcons.x,
                       color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
@@ -1003,8 +1009,7 @@ class TrackListItemTile extends ConsumerWidget {
                   ),
                 if (features.contains(TrackListItemFeatures.restoreButton))
                   IconButton(
-                    padding: const EdgeInsets.only(left: 6.0),
-                    constraints: const BoxConstraints(),
+                    visualDensity: VisualDensity(horizontal: -4),
                     icon: Icon(
                       TablerIcons.arrow_back_up,
                       color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
@@ -1029,8 +1034,9 @@ class TrackListItemTile extends ConsumerWidget {
                         listIndex ??
                         0, // will briefly use 0 as index, but should resolve quickly enough for user not to notice
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 6.0),
+                      padding: const EdgeInsets.only(left: 4.0),
                       child: IconButtonWithSemantics(
+                        visualDensity: VisualDensity(horizontal: -4),
                         icon: TablerIcons.menu_order,
                         onPressed: null,
                         label: AppLocalizations.of(context)!.dragToReorder,
