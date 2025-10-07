@@ -7,7 +7,6 @@ import 'package:background_downloader/background_downloader.dart';
 import 'package:chopper/chopper.dart';
 import 'package:collection/collection.dart';
 import 'package:finamp/components/global_snackbar.dart';
-import 'package:finamp/extensions/string.dart';
 import 'package:finamp/services/downloads_service.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
@@ -1556,7 +1555,7 @@ class DownloadsSyncService {
   String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp(r'[/?<>:*|.\\"]'), "_");
 
   /// Builds the subdirectory ($1) and base filename ($2) for track and image files
-  /// Used by [_downloadTrack] and [_downloadImage] for a consistent directory structure.
+  /// Used by [_downloadTrack] for a consistent directory structure.
   (String, String) _getDownloadPath(DownloadItem downloadItem) {
     var downloadLocation = downloadItem.syncDownloadLocation!;
     var item = downloadItem.baseItem!;
@@ -1568,7 +1567,7 @@ class DownloadsSyncService {
       // final originalFilename = item.path?.split(r'\\/').lastOrNull?.split('.').slice(0, -1).join('.');
       final originalFilename = item.mediaSources?.firstWhere((e) => e.type.toLowerCase() == "default").name;
       fileName = _filesystemSafe(
-        originalFilename ?? "$indexNumber$artist${item.name}",
+        "${originalFilename ?? "$indexNumber$artist${item.name}"}_${item.id.raw.substring(0, 8)}",
       )!;
       final pathSegments = [_filesystemSafe(item.albumArtist), _filesystemSafe(item.album)];
       // if (item.parentIndexNumber != null) {
@@ -1670,13 +1669,17 @@ class DownloadsSyncService {
   /// and marking item as enqueued in isar.
   Future<void> _downloadImage(DownloadItem downloadItem) async {
     assert(downloadItem.type == DownloadItemType.image && downloadItem.syncDownloadLocation != null);
+    var downloadLocation = downloadItem.syncDownloadLocation!;
 
-    String baseFilename;
-    String subDirectory;
-    (subDirectory, baseFilename) = _getDownloadPath(downloadItem);
-    // Add a random ID to avoid collisions. Due to the downloads structure,
-    // images are always placed on the same level as the requiring item
-    final fileName = "${baseFilename}_${Uuid().v4().substring(0, 8)}.image";
+    String subDirectory = FINAMP_BASE_IMAGES_DIRECTORY;
+
+    if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() != "finamp") {
+      subDirectory = path_helper.join("Finamp", subDirectory);
+    }
+    if (downloadLocation.baseDirectory.baseDirectory == BaseDirectory.root) {
+      subDirectory = path_helper.join(downloadLocation.currentPath, subDirectory);
+    }
+    final fileName = "${Uuid().v4()}.image";
 
     _isar.writeTxnSync(() {
       DownloadItem? canonItem = _isar.downloadItems.getSync(downloadItem.isarId);

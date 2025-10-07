@@ -10,14 +10,11 @@ import 'package:get_it/get_it.dart';
 class LocalNetworkAddressSelector extends ConsumerStatefulWidget {
   const LocalNetworkAddressSelector({super.key});
 
-  static final GlobalKey<State<LocalNetworkAddressSelector>> localNetworkAddressKey =
-      GlobalKey<State<LocalNetworkAddressSelector>>(debugLabel: "localNetworkAddressKey");
-
   @override
-  ConsumerState<LocalNetworkAddressSelector> createState() => _LocalNetworkAddressSelector();
+  ConsumerState<LocalNetworkAddressSelector> createState() => LocalNetworkAddressSelectorState();
 }
 
-class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSelector> {
+class LocalNetworkAddressSelectorState extends ConsumerState<LocalNetworkAddressSelector> {
 
   TextEditingController? _controller;
   FocusNode? _focusNode;
@@ -26,7 +23,7 @@ class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSele
   @override
   void initState() {
     super.initState();
-    FinampUser? user = ref.read(FinampUserHelper.finampCurrentUserProvider).valueOrNull;
+    FinampUser? user = GetIt.instance<FinampUserHelper>().currentUser;
     String address = user?.localAddress ?? DefaultSettings.localNetworkAddress;
     _controller ??= TextEditingController(text: address);
     if (_lastCommittedValue.isEmpty) {
