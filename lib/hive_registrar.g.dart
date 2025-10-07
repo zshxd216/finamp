@@ -66,6 +66,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(NameIdPairAdapter());
     registerAdapter(NameLongIdPairAdapter());
     registerAdapter(OfflineListenAdapter());
+    registerAdapter(PlaybackActionRowPageAdapter());
     registerAdapter(PlaybackInfoRequestAdapter());
     registerAdapter(PlaybackSpeedVisibilityAdapter());
     registerAdapter(PlayerStateInfoAdapter());
@@ -163,6 +164,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(NameIdPairAdapter());
     registerAdapter(NameLongIdPairAdapter());
     registerAdapter(OfflineListenAdapter());
+    registerAdapter(PlaybackActionRowPageAdapter());
     registerAdapter(PlaybackInfoRequestAdapter());
     registerAdapter(PlaybackSpeedVisibilityAdapter());
     registerAdapter(PlayerStateInfoAdapter());

@@ -4,7 +4,7 @@ import 'package:finamp/components/AlbumScreen/album_screen_content_flexible_spac
 import 'package:finamp/components/AlbumScreen/download_button.dart';
 import 'package:finamp/components/AlbumScreen/playlist_edit_button.dart';
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
-import 'package:finamp/components/Buttons/cta_medium.dart';
+import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/MusicScreen/sort_by_menu_button.dart';
 import 'package:finamp/components/MusicScreen/sort_order_button.dart';
@@ -138,13 +138,19 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
                       ? AppLocalizations.of(context)!.downloadButtonDisabledGenreFilterTooltip
                       : null,
                 ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  openItemMenu(context: context, item: widget.parent);
+                },
+              ),
             ];
 
             return SliverAppBar(
               title: (widget.parent.type != "Playlist")
                   ? Text(widget.parent.name ?? AppLocalizations.of(context)!.unknownName)
                   : null,
-              expandedHeight: kToolbarHeight + 125 + 18 + CTAMedium.predictedHeight(context),
+              expandedHeight: kToolbarHeight + 125 + 18 + 100,
               // collapsedHeight: kToolbarHeight + 125 + 80,
               pinned: true,
               centerTitle: false,
@@ -271,7 +277,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
             forceAlbumArtists: (widget.parent.type == "Playlist" && playlistSortBy == SortBy.albumArtist),
           )
         else
-          SliverFillRemaining(child: Center(child: CircularProgressIndicator.adaptive())),
+          SliverFillRemaining(child: CircularProgressIndicator.adaptive()),
       ],
     );
   }
