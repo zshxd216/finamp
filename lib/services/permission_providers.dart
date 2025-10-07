@@ -54,7 +54,7 @@ final AutoDisposeProviderFamily<bool, BaseItemDto> canEditItemProvider = AutoDis
 ) {
   var itemType = BaseItemDtoType.fromItem(item);
 
-  // do not bother checking server for item types known to not be deletable
+  // do not bother checking server for item types known to not be editable
   if (![BaseItemDtoType.album, BaseItemDtoType.playlist, BaseItemDtoType.track].contains(itemType)) {
     return false;
   }

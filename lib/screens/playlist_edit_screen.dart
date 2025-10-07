@@ -138,11 +138,6 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
     _initialTrackIdsOrder = playlistTracks.map((t) => t.id.raw).toList();
   }
 
-  @override
-  void dispose() {
-    _playlistTracksSubscription?.close();
-    super.dispose();
-  }
 
   Future<File?> filePicker() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.image);
