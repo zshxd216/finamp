@@ -895,5 +895,33 @@
         }
     },
     "adaptive": "Kohanduv",
-    "@adaptive": {}
+    "@adaptive": {},
+    "startupErrorCallToAction": "Palun esita probleem aadressil \"github.com/jmshrv/finamp\", lisades logid (kasuta allolevat nuppu) ja selle lehe ekraanipildi, et saaksime selle võimalikult kiiresti parandada.",
+    "@startupErrorCallToAction": {
+        "description": "The subtitle / call to action for what to do after encountering a startup error"
+    },
+    "shuffleSome": "Sega mõned",
+    "@shuffleSome": {},
+    "shuffleCountButton": "Sega ({count,plural,=1{{count} lugu} other{{count} lugu}})",
+    "@shuffleCountButton": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "playbackActionPageNewQueue": "Uus järjekord",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Esita järgmisena",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageAppendToQueue": "Esita viimasena",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "logoutButtonSubtitle": "Teise serverisse sisselogimine kustutab olemasolevad allalaadimised",
+    "@logoutButtonSubtitle": {}
 }
