@@ -39,13 +39,13 @@
     "@genres": {},
     "playlists": "播放清單",
     "@playlists": {},
-    "startMix": "生成組合",
+    "startMix": "開始混播",
     "@startMix": {},
-    "startMixNoTracksArtist": "在開始組合前，長按藝人可將其加入或移出組合清單",
+    "startMixNoTracksArtist": "在開始混播前，長按藝人可將其加入或移出混播清單",
     "@startMixNoTracksArtist": {
         "description": "Snackbar message that shows when the user presses the instant mix button with no artists selected"
     },
-    "startMixNoTracksAlbum": "在開始組合前，長按專輯可將其加入或移出組合清單",
+    "startMixNoTracksAlbum": "在開始混播前，長按專輯可將其加入或移出混播清單",
     "@startMixNoTracksAlbum": {
         "description": "Snackbar message that shows when the user presses the instant mix button with no albums selected"
     },
@@ -334,7 +334,7 @@
     "@addToQueue": {},
     "replaceQueue": "更換播放佇列",
     "@replaceQueue": {},
-    "instantMix": "隨機組合",
+    "instantMix": "即時混播",
     "@instantMix": {},
     "goToAlbum": "檢視專輯",
     "@goToAlbum": {},
@@ -342,7 +342,7 @@
     "@addedToQueue": {},
     "queueReplaced": "播放佇列已被取代。",
     "@queueReplaced": {},
-    "startingInstantMix": "開始隨機組合。",
+    "startingInstantMix": "開始即時混播。",
     "@startingInstantMix": {},
     "anErrorHasOccured": "發生了一個錯誤。",
     "@anErrorHasOccured": {},
@@ -372,9 +372,9 @@
             }
         }
     },
-    "removeFromMix": "從組合中刪除",
+    "removeFromMix": "從混播中刪除",
     "@removeFromMix": {},
-    "addToMix": "加入組合",
+    "addToMix": "加入混播",
     "@addToMix": {},
     "disableGesture": "禁用手勢",
     "@disableGesture": {},
@@ -568,7 +568,7 @@
     "@usernameHint": {
         "description": "Hint text for the username input field."
     },
-    "startMixNoTracksGenre": "在開始組合前，長按類型可將其加入或移出組合清單",
+    "startMixNoTracksGenre": "在開始混播前，長按類型可將其加入或移出混播清單",
     "@startMixNoTracksGenre": {
         "description": "Snackbar message that shows when the user presses the instant mix button with no genres selected"
     },
@@ -975,7 +975,7 @@
     "@savedQueue": {
         "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
     },
-    "playingFromType": "現正播放自{source, select, album{專輯} playlist{播放清單} trackMix{歌曲組合} artistMix{藝人組合} albumMix{專輯組合} genreMix{類型組合} favorites{收藏} allTracks{所有歌曲} filteredList{篩選} genre{類型} artist{藝人} track{歌曲} nextUpAlbum{即將播放中的專輯} nextUpPlaylist{即將播放中的播放清單} nextUpArtist{即將播放中的藝人} nextUpGenre{即將播放中的類型} remoteClient{其他用戶端} other{}}",
+    "playingFromType": "現正播放自{source, select, album{專輯} playlist{播放清單} trackMix{歌曲混播} artistMix{藝人混播} albumMix{專輯混播} genreMix{類型混播} favorites{收藏} allTracks{所有歌曲} filteredList{篩選} genre{類型} artist{藝人} track{歌曲} nextUpAlbum{即將播放中的專輯} nextUpPlaylist{即將播放中的播放清單} nextUpArtist{即將播放中的藝人} nextUpGenre{即將播放中的類型} remoteClient{其他用戶端} other{}}",
     "@playingFromType": {
         "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
         "placeholders": {
@@ -1030,7 +1030,7 @@
     },
     "resetToDefaults": "恢復預設值",
     "@resetToDefaults": {},
-    "couldNotLoad": "無法載入{source, select, album{專輯} playlist{播放清單} trackMix{歌曲組合} artistMix{藝人組合} albumMix{專輯組合} genreMix{類型組合} favorites{收藏} allTracks{所有歌曲} filteredList{篩選} genre{類型} artist{藝人} track{歌曲} nextUpAlbum{即將播放中的專輯} nextUpPlaylist{即將播放中的播放清單} nextUpArtist{即將播放中的藝人} nextUpGenre{即將播放中的類型} other{}}",
+    "couldNotLoad": "無法載入{source, select, album{專輯} playlist{播放清單} trackMix{歌曲混播} artistMix{藝人混播} albumMix{專輯混播} genreMix{類型混播} favorites{收藏} allTracks{所有歌曲} filteredList{篩選} genre{類型} artist{藝人} track{歌曲} nextUpAlbum{即將播放中的專輯} nextUpPlaylist{即將播放中的播放清單} nextUpArtist{即將播放中的藝人} nextUpGenre{即將播放中的類型} other{}}",
     "@couldNotLoad": {
         "placeholders": {
             "source": {
@@ -1286,7 +1286,7 @@
     "@volumeNormalizationIOSBaseGainEditorSubtitle": {
         "description": "Subtitle for the input that sets the replay gain base gain on iOS and other non-Android platforms"
     },
-    "startInstantMixForIndividualTracksSwitchTitle": "為歌曲啟動隨機組合",
+    "startInstantMixForIndividualTracksSwitchTitle": "為歌曲啟動隨機混播",
     "@startInstantMixForIndividualTracksSwitchTitle": {
         "description": "Title for the switch that toggles if tapping a track on the tracks tab will start an instant mix of that track instead of just playing a single track."
     },
@@ -1294,7 +1294,7 @@
     "@volumeNormalizationModeTrackBased": {
         "description": "'Track-based' option for the replay gain mode dropdown. In track-based mode, the track gain is always used, regardless of whether an album is playing or not."
     },
-    "startInstantMixForIndividualTracksSwitchSubtitle": "啟用後，在「歌曲」分頁點選單一歌曲時，將會自動播放該歌曲的隨機組合，而非僅播放該歌曲本身。",
+    "startInstantMixForIndividualTracksSwitchSubtitle": "啟用後，在「歌曲」分頁點選單一歌曲時，將會自動播放該歌曲的隨機混播，而非僅播放該歌曲本身。",
     "@startInstantMixForIndividualTracksSwitchSubtitle": {},
     "repairComplete": "下載項目已成功修復。",
     "@repairComplete": {
@@ -2720,9 +2720,9 @@
     "@dragToReorder": {
         "description": "Label shown on drag handles of track list  tiles in the queue list"
     },
-    "shuffleSome": "隨機挑選",
+    "shuffleSome": "隨機歌曲",
     "@shuffleSome": {},
-    "playbackActionPageNewQueue": "新的佇列",
+    "playbackActionPageNewQueue": "立即播放",
     "@playbackActionPageNewQueue": {
         "description": "Label for the playback action page that contains all actions related to starting a new queue"
     },
@@ -2730,7 +2730,7 @@
     "@playbackActionPageNext": {
         "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
     },
-    "playbackActionPageNextUp": "加入下一首",
+    "playbackActionPageNextUp": "接續播放",
     "@playbackActionPageNextUp": {
         "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
     },
@@ -2738,31 +2738,31 @@
     "@playbackActionPageAppendToQueue": {
         "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
     },
-    "shuffleSomeNext": "隨機挑選至下一首",
+    "shuffleSomeNext": "隨機歌曲至下一首",
     "@shuffleSomeNext": {
         "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
-    "shuffleSomeToNextUp": "隨機挑選至即將播放",
+    "shuffleSomeToNextUp": "隨機歌曲至即將播放",
     "@shuffleSomeToNextUp": {
         "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
-    "shuffleSomeToQueue": "隨機挑選至播放佇列",
+    "shuffleSomeToQueue": "隨機至播放佇列",
     "@shuffleSomeToQueue": {
         "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
     },
-    "shuffleSomeAlbums": "隨機挑選專輯",
+    "shuffleSomeAlbums": "隨機專輯",
     "@shuffleSomeAlbums": {
         "description": "Label for action that shuffles some albums of a genre"
     },
-    "shuffleSomeAlbumsNext": "隨機挑選專輯至下一首",
+    "shuffleSomeAlbumsNext": "隨機專輯至下一首",
     "@shuffleSomeAlbumsNext": {
         "description": "Label for action that shuffles some albums of a genre and adds them at the start of Next Up"
     },
-    "shuffleSomeAlbumsToNextUp": "隨機挑選專輯至即將播放",
+    "shuffleSomeAlbumsToNextUp": "隨機專輯至即將播放",
     "@shuffleSomeAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of a genre and adds them at the end of Next Up"
     },
-    "shuffleSomeAlbumsToQueue": "隨機挑選專輯至播放佇列",
+    "shuffleSomeAlbumsToQueue": "隨機專輯至播放佇列",
     "@shuffleSomeAlbumsToQueue": {
         "description": "Label for action that shuffles all albums of a genre and adds them at the end of the regular queue"
     },
@@ -2818,7 +2818,7 @@
     "@autoplayRestoredQueueTitle": {
         "description": "Title for the setting that controls if restored queues automatically play."
     },
-    "autoplayRestoredQueueSubtitle": "在啟動時或透過「佇列還原畫面」自動還原的播放佇列，將會自動開始播放。若播放佇列在還原時無法成功載入所有歌曲，則無論此設定為何，都不會自動播放。",
+    "autoplayRestoredQueueSubtitle": "在啟動時或透過「恢復播放介面」自動還原的播放佇列，將會自動開始播放。若播放佇列在還原時無法成功載入所有歌曲，則無論此設定為何，都不會自動播放。",
     "@autoplayRestoredQueueSubtitle": {
         "description": "Subtitle for the setting that controls if restored queues automatically play."
     },
