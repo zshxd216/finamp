@@ -2773,5 +2773,15 @@
     "missingBlurhashWarning": "Avertissement : Le serveur Jellyfin semble mal configuré et ne calcule pas les flous de hachage. Cela empêche Finamp de dédupliquer les téléchargements d'images. Veuillez corriger le serveur et effectuer une réparation des téléchargements.",
     "@missingBlurhashWarning": {
         "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
+    },
+    "shuffleSome": "Lecture aléatoire",
+    "@shuffleSome": {},
+    "playbackActionPageNewQueue": "Nouvelle file d'attente",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Suivant",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
     }
 }
