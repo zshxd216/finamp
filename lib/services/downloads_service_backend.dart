@@ -1673,8 +1673,10 @@ class DownloadsSyncService {
 
     String subDirectory = FINAMP_BASE_IMAGES_DIRECTORY;
 
-    if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() != "finamp") {
-      subDirectory = path_helper.join("Finamp", subDirectory);
+    if (downloadLocation.useHumanReadableNames) {
+      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() != "finamp") {
+        subDirectory = path_helper.join("Finamp", subDirectory);
+      }
     }
     if (downloadLocation.baseDirectory.baseDirectory == BaseDirectory.root) {
       subDirectory = path_helper.join(downloadLocation.currentPath, subDirectory);

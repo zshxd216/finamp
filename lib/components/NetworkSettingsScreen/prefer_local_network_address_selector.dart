@@ -15,7 +15,6 @@ class LocalNetworkAddressSelector extends ConsumerStatefulWidget {
 }
 
 class LocalNetworkAddressSelectorState extends ConsumerState<LocalNetworkAddressSelector> {
-
   TextEditingController? _controller;
   FocusNode? _focusNode;
   String _lastCommittedValue = '';

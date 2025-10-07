@@ -19,11 +19,10 @@ class NetworkSettingsScreen extends StatefulWidget {
 }
 
 class _NetworkSettingsScreenState extends State<NetworkSettingsScreen> {
-
   final GlobalKey<LocalNetworkAddressSelectorState> localNetworkAddressKey = GlobalKey(
     debugLabel: "localNetworkAddressKey",
   );
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +37,7 @@ class _NetworkSettingsScreenState extends State<NetworkSettingsScreen> {
           AutoOfflineSelector(),
           Divider(),
           ActiveNetworkDisplay(),
-          PublicAddressSelector(),  
+          PublicAddressSelector(),
           LocalNetworkSelector(),
           LocalNetworkAddressSelector(key: localNetworkAddressKey),
           TextButton(
