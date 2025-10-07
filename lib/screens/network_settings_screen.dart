@@ -33,14 +33,16 @@ class _NetworkSettingsScreenState extends State<NetworkSettingsScreen> {
           AutoOfflineSelector(),
           Divider(),
           ActiveNetworkDisplay(),
-          PublicAddressSelector(),
+          PublicAddressSelector(),  
           LocalNetworkSelector(),
-          LocalNetworkAddressSelector(),
+          LocalNetworkAddressSelector(key: LocalNetworkAddressSelector.localNetworkAddressKey),
           TextButton(
             onPressed: () async {
               // Ensure any pending edits in the local network address field are committed first
-              if (LocalNetworkAddressSelector.commitPendingEdits != null) {
-                await LocalNetworkAddressSelector.commitPendingEdits!();
+              final widgetState = LocalNetworkAddressSelector.localNetworkAddressKey.currentState;
+              if (widgetState != null) {
+                final dynState = widgetState as dynamic;
+                await dynState.commitIfChanged();
               }
               final [public, private] = await Future.wait([
                 GetIt.instance<JellyfinApiHelper>().pingPublicServer(),

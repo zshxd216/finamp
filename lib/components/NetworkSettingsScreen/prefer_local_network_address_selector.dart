@@ -10,14 +10,15 @@ import 'package:get_it/get_it.dart';
 class LocalNetworkAddressSelector extends ConsumerStatefulWidget {
   const LocalNetworkAddressSelector({super.key});
 
-  // Externally callable hook to force committing pending edits before actions (e.g., test connection)
-  static Future<void> Function()? commitPendingEdits;
+  static final GlobalKey<State<LocalNetworkAddressSelector>> localNetworkAddressKey =
+      GlobalKey<State<LocalNetworkAddressSelector>>(debugLabel: "localNetworkAddressKey");
 
   @override
   ConsumerState<LocalNetworkAddressSelector> createState() => _LocalNetworkAddressSelector();
 }
 
 class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSelector> {
+
   TextEditingController? _controller;
   FocusNode? _focusNode;
   String _lastCommittedValue = '';
@@ -25,13 +26,18 @@ class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSele
   @override
   void initState() {
     super.initState();
+    FinampUser? user = ref.read(FinampUserHelper.finampCurrentUserProvider).valueOrNull;
+    String address = user?.localAddress ?? DefaultSettings.localNetworkAddress;
+    _controller ??= TextEditingController(text: address);
+    if (_lastCommittedValue.isEmpty) {
+      _lastCommittedValue = address;
+    }
     _focusNode = FocusNode();
     _focusNode!.addListener(() {
       if (!(_focusNode?.hasFocus ?? false)) {
-        _commitIfChanged();
+        commitIfChanged();
       }
     });
-    LocalNetworkAddressSelector.commitPendingEdits = _commitIfChanged;
   }
 
   Future<void> _updateUrl(String url) async {
@@ -44,7 +50,7 @@ class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSele
     await changeTargetUrl();
   }
 
-  Future<void> _commitIfChanged() async {
+  Future<void> commitIfChanged() async {
     final current = _controller?.text.trim() ?? '';
     if (current == _lastCommittedValue) return;
     _lastCommittedValue = current;
@@ -53,9 +59,6 @@ class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSele
 
   @override
   void dispose() {
-    if (LocalNetworkAddressSelector.commitPendingEdits == _commitIfChanged) {
-      LocalNetworkAddressSelector.commitPendingEdits = null;
-    }
     _focusNode?.dispose();
     _controller?.dispose();
     super.dispose();
@@ -64,13 +67,7 @@ class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSele
   @override
   Widget build(BuildContext context) {
     FinampUser? user = ref.watch(FinampUserHelper.finampCurrentUserProvider).valueOrNull;
-    String address = user?.localAddress ?? DefaultSettings.localNetworkAddress;
     bool featureEnabled = user?.preferLocalNetwork ?? DefaultSettings.preferLocalNetwork;
-
-    _controller ??= TextEditingController(text: address);
-    if (_lastCommittedValue.isEmpty) {
-      _lastCommittedValue = address;
-    }
 
     return ListTile(
       enabled: featureEnabled,
@@ -84,15 +81,11 @@ class _LocalNetworkAddressSelector extends ConsumerState<LocalNetworkAddressSele
           focusNode: _focusNode,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.url,
-          onTapOutside: (_) {
-            FocusScope.of(context).unfocus();
-            _commitIfChanged();
-          },
           onEditingComplete: () {
             FocusScope.of(context).unfocus();
-            _commitIfChanged();
+            commitIfChanged();
           },
-          onSubmitted: (_) => _commitIfChanged(),
+          onSubmitted: (_) => commitIfChanged(),
         ),
       ),
     );

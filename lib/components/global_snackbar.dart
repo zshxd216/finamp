@@ -161,7 +161,7 @@ class GlobalSnackbar {
     );
 
     // When this snackbar fully closes (timeout or swipe), clear the key if it matches, allowing future identical errors.
-    if (isNetworkError && dedupKey != null) {
+    if (dedupKey != null) {
       controller.closed.then((reason) {
         if (_activeErrorKeys.remove(dedupKey)) {
           _logger.fine("Removed active error key after dismissal: $dedupKey (reason: $reason)");
