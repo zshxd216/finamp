@@ -37,7 +37,7 @@ class PlaybackActionRow extends ConsumerWidget {
       compactLayout: compactLayout,
       genreFilter: genreFilter,
     );
-    
+
     final double playActionRowHeight = compactLayout ? 76.0 : playActionRowHeightDefault;
     final rememberLastUsedPlaybackActionRowPage = ref.read(
       finampSettingsProvider.rememberLastUsedPlaybackActionRowPage,

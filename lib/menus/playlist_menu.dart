@@ -64,10 +64,7 @@ Future<void> showModalPlaylistMenu({
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
         child: SliverToBoxAdapter(
-          child: PlaybackActionRow(
-            controller: pageViewController,
-            item: baseItem,
-          ),
+          child: PlaybackActionRow(controller: pageViewController, item: baseItem),
         ),
       ),
       MenuMask(

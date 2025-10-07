@@ -299,7 +299,7 @@ class _GenreScreenContentState extends ConsumerState<GenreScreenContent> {
           child: PlaybackActionRow(
             controller: pageViewController,
             compactLayout: true,
-              item: widget.parent,
+            item: widget.parent,
             popContext: false,
           ),
         ),

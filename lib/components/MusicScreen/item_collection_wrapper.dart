@@ -100,10 +100,8 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
             final artistGenreFilter = ref.watch(finampSettingsProvider.genreFilterArtistScreens);
             Navigator.of(context).push(
               MaterialPageRoute<ArtistScreen>(
-                builder: (_) => ArtistScreen(
-                  widgetArtist: mutableItem,
-                  genreFilter: artistGenreFilter ? widget.genreFilter : null,
-                ),
+                builder: (_) =>
+                    ArtistScreen(widgetArtist: mutableItem, genreFilter: artistGenreFilter ? widget.genreFilter : null),
               ),
             );
           } else if (mutableItem.type == "MusicGenre") {
@@ -112,10 +110,8 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
             final playlistGenreFilter = ref.watch(finampSettingsProvider.genreFilterPlaylists);
             Navigator.of(context).push(
               MaterialPageRoute<AlbumScreen>(
-                builder: (_) => AlbumScreen(
-                  parent: mutableItem,
-                  genreFilter: playlistGenreFilter ? widget.genreFilter : null,
-                ),
+                builder: (_) =>
+                    AlbumScreen(parent: mutableItem, genreFilter: playlistGenreFilter ? widget.genreFilter : null),
               ),
             );
           } else {

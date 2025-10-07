@@ -28,10 +28,7 @@ class EditItemMenuEntry extends ConsumerWidget implements HideableMenuEntry {
           Navigator.pop(context); // close menu
           switch (BaseItemDtoType.fromItem(baseItem)) {
             case BaseItemDtoType.playlist:
-              Navigator.pushNamed(
-                context,
-                PlaylistEditScreen.routeName, arguments: baseItem,
-              );
+              Navigator.pushNamed(context, PlaylistEditScreen.routeName, arguments: baseItem);
               break;
             default:
               GlobalSnackbar.message((context) => AppLocalizations.of(context)!.notImplementedYet);
