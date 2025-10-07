@@ -11,6 +11,7 @@ import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/gen/assets.gen.dart';
 import 'package:finamp/hive_registrar.g.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/models/locale_adapter.dart';
 import 'package:finamp/screens/accessibility_settings_screen.dart';
 import 'package:finamp/screens/album_settings_screen.dart';
@@ -24,6 +25,7 @@ import 'package:finamp/screens/network_settings_screen.dart';
 import 'package:finamp/screens/playback_history_screen.dart';
 import 'package:finamp/screens/playback_reporting_settings_screen.dart';
 import 'package:finamp/screens/player_settings_screen.dart';
+import 'package:finamp/screens/playlist_edit_screen.dart';
 import 'package:finamp/screens/queue_restore_screen.dart';
 import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/android_auto_helper.dart';
@@ -618,6 +620,8 @@ class _FinampState extends State<Finamp> with WindowListener {
                       GenreSettingsScreen.routeName: (context) => const GenreSettingsScreen(),
                       NetworkSettingsScreen.routeName: (context) => const NetworkSettingsScreen(),
                       AccessibilitySettingsScreen.routeName: (context) => const AccessibilitySettingsScreen(),
+                      PlaylistEditScreen.routeName: (context) =>
+                          PlaylistEditScreen(playlist: ModalRoute.settingsOf(context)!.arguments as BaseItemDto),
                     },
                     initialRoute: SplashScreen.routeName,
                     navigatorObservers: [SplitScreenNavigatorObserver(), KeepScreenOnObserver()],

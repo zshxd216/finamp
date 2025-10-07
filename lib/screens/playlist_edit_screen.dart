@@ -39,7 +39,9 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
   static const double _coverSize = 130.0; // kept for reuse
   static const double _wrapSpacing = 12.0; // kept for reuse
 
+  late BaseItemDto playlist;
   bool _isLoading = true;
+  ProviderSubscription? _playlistTracksSubscription;
 
   String? _name;
   bool? _publicVisibility;
@@ -105,18 +107,41 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
   @override
   void initState() {
     super.initState();
+    playlist = widget.playlist;
     _isLoading = true;
-    _name = widget.playlist.name;
+    _name = playlist.name;
     _fetchPublicVisibility();
-    final tracksAsync = ref.read(getSortedPlaylistTracksProvider(widget.playlist));
+    final tracksAsync = ref.read(getSortedPlaylistTracksProvider(playlist));
     final (allTracks, playableTracks) = tracksAsync.valueOrNull ?? (<BaseItemDto>[], <BaseItemDto>[]);
     playlistTracks = List.from(allTracks);
     if (tracksAsync.hasValue) {
       setState(() => _isLoading = false);
+    } else {
+      // wait for playlist tracks, then mark loading as false
+      _playlistTracksSubscription = ref.listenManual<AsyncValue<(List<BaseItemDto>, List<BaseItemDto>)>>(
+        getSortedPlaylistTracksProvider(playlist),
+        (_, tracksAsyncLoaded) {
+          if (mounted) {
+            final (allTracksLoaded, playableTracksLoaded) =
+                tracksAsyncLoaded.valueOrNull ?? (<BaseItemDto>[], <BaseItemDto>[]);
+            setState(() {
+              playlistTracks = List.from(allTracksLoaded);
+              _initialTrackIdsOrder = playlistTracks.map((t) => t.id.raw).toList();
+              _isLoading = false;
+            });
+          }
+        },
+      );
     }
     _initialName = _name ?? '';
     _initialVisibility = _publicVisibility ?? false;
     _initialTrackIdsOrder = playlistTracks.map((t) => t.id.raw).toList();
+  }
+
+  @override
+  void dispose() {
+    _playlistTracksSubscription?.close();
+    super.dispose();
   }
 
   Future<File?> filePicker() async {
@@ -127,9 +152,11 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
 
   Future<void> _fetchPublicVisibility() async {
     if (_publicVisibility != null) return;
-    final resultPlaylist = await _jellyfinApiHelper.getPlaylist(widget.playlist.id!);
-    setState(() => _publicVisibility = resultPlaylist.openAccess);
-    _resetDirtyBaseline();
+    final resultPlaylist = await _jellyfinApiHelper.getPlaylist(playlist.id!);
+    setState(() {
+      _publicVisibility = resultPlaylist.openAccess;
+      _initialVisibility = _publicVisibility ?? false;
+    });
   }
 
   Future<void> _saveOrUpdatePlaylist() async {
@@ -146,8 +173,10 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
               name: _name,
               userId: GetIt.instance<FinampUserHelper>().currentUserId,
             ),
-            itemId: widget.playlist.id,
+            itemId: playlist.id,
           );
+          // update local BaseItemDto to reflect changes for already loaded playlist screen
+          playlist.name = _name;
         }
         if (_haveTracksChanged) {
           await _jellyfinApiHelper.updatePlaylist(
@@ -155,23 +184,23 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
               ids: playlistTracks.map((track) => track.id).toList(),
               userId: GetIt.instance<FinampUserHelper>().currentUserId,
             ),
-            itemId: widget.playlist.id,
+            itemId: playlist.id,
           );
         }
         if (_hasCoverChanged) {
-          await _jellyfinApiHelper.setItemPrimaryImage(itemId: widget.playlist.id!, imageFile: newAlbumImage!);
+          await _jellyfinApiHelper.setItemPrimaryImage(itemId: playlist.id!, imageFile: newAlbumImage!);
         }
         musicScreenRefreshStream.add(null); // refresh playlist content
-        ref.invalidate(getSortedPlaylistTracksProvider(widget.playlist));
+        ref.invalidate(getAlbumOrPlaylistTracksProvider(playlist));
         if (!mounted) return;
-        GlobalSnackbar.message((context) => AppLocalizations.of(context)!.playlistUpdated, isConfirmation: true);
+        // GlobalSnackbar.message((context) => AppLocalizations.of(context)!.playlistUpdated, isConfirmation: true);
+        // Trigger success flash before pop
+        _playlistSaveFeedbackController.success();
+        await Future<void>.delayed(const Duration(milliseconds: 750));
         setState(() {
           _isUpdating = false;
           _resetDirtyBaseline();
         });
-        // Trigger success flash before pop
-        _playlistSaveFeedbackController.success();
-        await Future<void>.delayed(const Duration(milliseconds: 500));
         if (mounted) Navigator.of(context).pop();
       } catch (e) {
         GlobalSnackbar.error(e);
@@ -185,27 +214,14 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // wait for playlist tracks, then mark loading as false
-    ref.listen(getSortedPlaylistTracksProvider(widget.playlist), (_, tracksAsyncLoaded) {
-      if (mounted) {
-        final (allTracksLoaded, playableTracksLoaded) =
-            tracksAsyncLoaded.valueOrNull ?? (<BaseItemDto>[], <BaseItemDto>[]);
-        setState(() {
-          playlistTracks = List.from(allTracksLoaded);
-          _initialTrackIdsOrder = playlistTracks.map((t) => t.id.raw).toList();
-          _isLoading = false;
-        });
-      }
-    });
-
     final bool isOffline = ref.watch(finampSettingsProvider.isOffline);
 
     final playlistTracksCount = playlistTracks.length;
-    final trackCountString = (playlistTracks.length == widget.playlist.childCount || !isOffline)
+    final trackCountString = (playlistTracks.length == playlist.childCount || !isOffline)
         ? AppLocalizations.of(context)!.trackCount(playlistTracksCount)
-        : AppLocalizations.of(context)!.offlineTrackCount(widget.playlist.childCount!, playlistTracksCount);
-    final trackDurationString = (playlistTracks.length == widget.playlist.childCount)
-        ? printDuration(widget.playlist.runTimeTicksDuration(), leadingZeroes: false)
+        : AppLocalizations.of(context)!.offlineTrackCount(playlist.childCount!, playlistTracksCount);
+    final trackDurationString = (playlistTracks.length == playlist.childCount)
+        ? printDuration(playlist.runTimeTicksDuration(), leadingZeroes: false)
         : printDuration(
             playlistTracks
                 .map((t) => t.runTimeTicksDuration())
@@ -226,7 +242,7 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
           bottomPadding: 120.0,
           slivers: [
             SliverAppBar(
-              title: Text(AppLocalizations.of(context)!.editItemTitle(BaseItemDtoType.fromItem(widget.playlist).name)),
+              title: Text(AppLocalizations.of(context)!.editItemTitle(BaseItemDtoType.fromItem(playlist).name)),
               actions: [
                 if (_isDirty)
                   IconButtonWithSemantics(
@@ -240,12 +256,12 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
               centerTitle: false,
               titleSpacing: 0,
               flexibleSpace: ItemTheme(
-                item: widget.playlist,
+                item: playlist,
                 child: _HeaderSection(
                   formKey: _formKey,
                   coverSize: _coverSize,
                   name: _name,
-                  albumImage: widget.playlist,
+                  albumImage: playlist,
                   canEdit: ref.watch(canEditMetadataProvider),
                   publicVisibility: _publicVisibility ?? false,
                   trackCountString: trackCountString,
@@ -264,7 +280,7 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
             ),
             if (_isLoading)
               ItemTheme(
-                item: widget.playlist,
+                item: playlist,
                 child: Builder(
                   builder: (context) {
                     return SliverFillRemaining(
@@ -327,7 +343,7 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
         ),
         floatingActionButton: _isDirty
             ? ItemTheme(
-                item: widget.playlist,
+                item: playlist,
                 child: _PlaylistSaveFAB(
                   isSaving: _isUpdating,
                   onPressed: _isUpdating ? null : () async => await _saveOrUpdatePlaylist(),
@@ -550,12 +566,18 @@ class _PlaylistSaveFeedbackController extends ChangeNotifier {
   void success() {
     _showSuccess = true;
     notifyListeners();
-    Future.delayed(const Duration(milliseconds: 400), () {
+    Future.delayed(const Duration(milliseconds: 750), () {
       if (_showSuccess) {
         _showSuccess = false;
         notifyListeners();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _showSuccess = false;
+    super.dispose();
   }
 }
 

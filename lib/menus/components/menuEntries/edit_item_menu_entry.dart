@@ -28,11 +28,9 @@ class EditItemMenuEntry extends ConsumerWidget implements HideableMenuEntry {
           Navigator.pop(context); // close menu
           switch (BaseItemDtoType.fromItem(baseItem)) {
             case BaseItemDtoType.playlist:
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                PageRouteBuilder<PlaylistEditScreen>(
-                  pageBuilder: (context, animation, secondaryAnimation) => PlaylistEditScreen(playlist: baseItem),
-                ),
+                PlaylistEditScreen.routeName, arguments: baseItem,
               );
               break;
             default:

@@ -5,7 +5,10 @@ import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 
-final ProviderFamily<bool, BaseItemDto> canDeleteFromServerProvider = ProviderFamily((ref, BaseItemDto item) {
+final AutoDisposeProviderFamily<bool, BaseItemDto> canDeleteFromServerProvider = AutoDisposeProviderFamily((
+  ref,
+  BaseItemDto item,
+) {
   bool offline = ref.watch(finampSettingsProvider.isOffline);
   if (offline) {
     return false;
@@ -45,7 +48,10 @@ final AutoDisposeFutureProviderFamily<bool?, BaseItemId> _canDeleteFromServerAsy
           });
     });
 
-final ProviderFamily<bool, BaseItemDto> canEditItemProvider = ProviderFamily((ref, BaseItemDto item) {
+final AutoDisposeProviderFamily<bool, BaseItemDto> canEditItemProvider = AutoDisposeProviderFamily((
+  ref,
+  BaseItemDto item,
+) {
   var itemType = BaseItemDtoType.fromItem(item);
 
   // do not bother checking server for item types known to not be deletable
@@ -76,7 +82,7 @@ final AutoDisposeFutureProviderFamily<bool?, BaseItemId> _canEditItemAsyncProvid
       });
 });
 
-final Provider<bool> canEditMetadataProvider = Provider((ref) {
+final AutoDisposeProvider<bool> canEditMetadataProvider = AutoDisposeProvider((ref) {
   bool? serverReturn = ref.watch(_canEditMetadataAsyncProvider).value;
   return serverReturn ?? false;
 });

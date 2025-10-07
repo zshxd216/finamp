@@ -15,11 +15,9 @@ class PlaylistEditButton extends StatelessWidget {
     return IconButton(
       icon: const Icon(TablerIcons.edit),
       tooltip: AppLocalizations.of(context)!.editItemTitle(BaseItemDtoType.fromItem(playlist).name),
-      onPressed: () => Navigator.push(
+      onPressed: () => Navigator.pushNamed(
         context,
-        PageRouteBuilder<PlaylistEditScreen>(
-          pageBuilder: (context, animation, secondaryAnimation) => PlaylistEditScreen(playlist: playlist),
-        ),
+        PlaylistEditScreen.routeName, arguments: playlist,
       ),
     );
   }

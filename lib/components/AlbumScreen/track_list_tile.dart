@@ -634,7 +634,9 @@ class TrackListItem extends ConsumerWidget {
           )
         : unthemedItem;
     return features.contains(TrackListItemFeatures.fullyDraggable)
-        ? ReorderableDelayedDragStartListener(index: listIndex ?? 0, child: fullTile)
+        ? ((Platform.isLinux || Platform.isMacOS || Platform.isWindows)
+              ? ReorderableDragStartListener(index: listIndex ?? 0, child: fullTile)
+              : ReorderableDelayedDragStartListener(index: listIndex ?? 0, child: fullTile))
         : fullTile;
   }
 }
