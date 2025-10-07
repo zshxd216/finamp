@@ -47,17 +47,6 @@ Future<void> showModalPlaylistMenu({
   (double, List<Widget>) getMenuProperties(BuildContext context) {
     final menuEntries = getMenuEntries(context);
     final stackHeight = ThemedBottomSheet.calculateStackHeight(context: context, menuEntries: menuEntries);
-    final ref = GetIt.instance<ProviderContainer>();
-    final queueService = GetIt.instance<QueueService>();
-
-    final lastUsedPlaybackActionRowPage = ref.read(finampSettingsProvider.lastUsedPlaybackActionRowPage);
-    final lastUsedPlaybackActionRowPageIndex = lastUsedPlaybackActionRowPage.pageIndexFor(
-      nextUpIsEmpty: queueService.getQueue().nextUp.isEmpty,
-    );
-    final initialPageViewIndex = ref.read(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
-        ? lastUsedPlaybackActionRowPageIndex
-        : 0;
-    final pageViewController = PageController(initialPage: initialPageViewIndex);
 
     List<Widget> menu = [
       SliverPersistentHeader(delegate: MenuItemInfoSliverHeader(item: baseItem), pinned: true),
@@ -65,7 +54,6 @@ Future<void> showModalPlaylistMenu({
         height: MenuItemInfoSliverHeader.defaultHeight,
         child: SliverToBoxAdapter(
           child: PlaybackActionRow(
-            controller: pageViewController,
             item: baseItem,
           ),
         ),
