@@ -29,6 +29,8 @@ part 'downloads_service_backend.g.dart';
 /// Must not be changed without migrations. Additionally, directory cleaning in downloads repair should cover all folders ever used.
 const FINAMP_BASE_DOWNLOAD_DIRECTORY = "songs";
 
+const FINAMP_BASE_IMAGES_DIRECTORY = "images";
+
 class IsarPersistentStorage implements PersistentStorage {
   final _isar = GetIt.instance<Isar>();
 
@@ -1552,12 +1554,45 @@ class DownloadsSyncService {
   /// [_downloadImage] for human readable download locations.
   String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp(r'[/?<>:*|.\\"]'), "_");
 
+  /// Builds the subdirectory ($1) and base filename ($2) for tracks
+  /// Used by [_downloadTrack] for a consistent directory structure.
+  (String, String) _getTrackDownloadPath(DownloadItem downloadItem) {
+    assert(downloadItem.type == DownloadItemType.track);
+    var downloadLocation = downloadItem.syncDownloadLocation!;
+    var item = downloadItem.baseItem!;
+    String fileName;
+    String subDirectory;
+    if (downloadLocation.useHumanReadableNames) {
+      final indexNumber = item.indexNumber != null ? "[${item.indexNumber}] " : "";
+      final artist = (item.artists?.isNotEmpty ?? false) ? "${item.artists?.first} - " : "";
+      final originalFilename = item.mediaSources?.firstWhere((e) => e.type.toLowerCase() == "default").name;
+      fileName = _filesystemSafe(
+        "${originalFilename ?? "$indexNumber$artist${item.name}"}_${item.id.raw.substring(0, 8)}",
+      )!;
+      final pathSegments = [_filesystemSafe(item.albumArtist), _filesystemSafe(item.album)];
+      // if (item.parentIndexNumber != null) {
+      //   pathSegments.add(_filesystemSafe("Disc ${item.parentIndexNumber}"));
+      // }
+      subDirectory = path_helper.joinAll(pathSegments.nonNulls);
+      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() != "finamp") {
+        subDirectory = path_helper.join("Finamp", subDirectory);
+      }
+    } else {
+      fileName = item.id.raw;
+      subDirectory = FINAMP_BASE_DOWNLOAD_DIRECTORY;
+    }
+
+    if (downloadLocation.baseDirectory.baseDirectory == BaseDirectory.root) {
+      subDirectory = path_helper.join(downloadLocation.currentPath, subDirectory);
+    }
+    return (subDirectory, fileName);
+  }
+
   /// Prepares for downloading of a given track by filling in the path information
   /// and media sources, and marking item as enqueued in isar.
   Future<void> _downloadTrack(DownloadItem downloadItem) async {
     assert(downloadItem.type == DownloadItemType.track && downloadItem.syncDownloadLocation != null);
     var item = downloadItem.baseItem!;
-    var downloadLocation = downloadItem.syncDownloadLocation!;
 
     if (downloadItem.baseItem!.mediaSources == null && FinampSettingsHelper.finampSettings.isOffline) {
       _isar.writeTxnSync(() {
@@ -1576,29 +1611,10 @@ class DownloadsSyncService {
     String? container = downloadItem.syncTranscodingProfile?.codec.container ?? mediaSources?.firstOrNull?.container;
     String extension = container == null ? "" : ".${_filesystemSafe(container)}";
 
-    String fileName;
+    String baseFilename;
     String subDirectory;
-    if (downloadLocation.useHumanReadableNames) {
-      if (mediaSources == null) {
-        _syncLogger.warning("Media source info for ${item.id} returned null, filename may be weird.");
-      }
-      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() == "finamp") {
-        subDirectory = _filesystemSafe(item.albumArtist) ?? '';
-      } else {
-        subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
-      }
-
-      // We use a regex to filter out bad characters from track/album names.
-      final baseFilename = _filesystemSafe("${item.album} - ${item.indexNumber ?? 0} - ${item.name}");
-      fileName = "$baseFilename$extension";
-    } else {
-      fileName = "${item.id}$extension";
-      subDirectory = FINAMP_BASE_DOWNLOAD_DIRECTORY;
-    }
-
-    if (downloadLocation.baseDirectory.baseDirectory == BaseDirectory.root) {
-      subDirectory = path_helper.join(downloadLocation.currentPath, subDirectory);
-    }
+    (subDirectory, baseFilename) = _getTrackDownloadPath(downloadItem);
+    String fileName = "$baseFilename$extension";
 
     // fetch lyrics if track has lyrics
     LyricDto? lyrics;
@@ -1645,30 +1661,23 @@ class DownloadsSyncService {
     });
   }
 
-  /// Prepares for downloading of a given track by filling in the path information
+  /// Prepares for downloading of a given image by filling in the path information
   /// and marking item as enqueued in isar.
   Future<void> _downloadImage(DownloadItem downloadItem) async {
     assert(downloadItem.type == DownloadItemType.image && downloadItem.syncDownloadLocation != null);
-    var item = downloadItem.baseItem!;
     var downloadLocation = downloadItem.syncDownloadLocation!;
 
-    String subDirectory;
-    if (downloadLocation.useHumanReadableNames) {
-      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() == "finamp") {
-        subDirectory = _filesystemSafe(item.albumArtist) ?? '';
-      } else {
-        subDirectory = path_helper.join("Finamp", _filesystemSafe(item.albumArtist));
-      }
-    } else {
-      subDirectory = "images";
-    }
+    String subDirectory = FINAMP_BASE_IMAGES_DIRECTORY;
 
+    if (downloadLocation.useHumanReadableNames) {
+      if (path_helper.split(downloadLocation.currentPath).lastOrNull?.toLowerCase() != "finamp") {
+        subDirectory = path_helper.join("Finamp", subDirectory);
+      }
+    }
     if (downloadLocation.baseDirectory.baseDirectory == BaseDirectory.root) {
       subDirectory = path_helper.join(downloadLocation.currentPath, subDirectory);
     }
-
-    // Always use a new, unique filename when creating image downloads
-    final fileName = "${const Uuid().v4()}.image";
+    final fileName = "${Uuid().v4()}.image";
 
     _isar.writeTxnSync(() {
       DownloadItem? canonItem = _isar.downloadItems.getSync(downloadItem.isarId);

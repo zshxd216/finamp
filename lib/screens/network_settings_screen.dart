@@ -19,6 +19,10 @@ class NetworkSettingsScreen extends StatefulWidget {
 }
 
 class _NetworkSettingsScreenState extends State<NetworkSettingsScreen> {
+  final GlobalKey<LocalNetworkAddressSelectorState> localNetworkAddressKey = GlobalKey(
+    debugLabel: "localNetworkAddressKey",
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,14 +39,18 @@ class _NetworkSettingsScreenState extends State<NetworkSettingsScreen> {
           ActiveNetworkDisplay(),
           PublicAddressSelector(),
           LocalNetworkSelector(),
-          LocalNetworkAddressSelector(),
+          LocalNetworkAddressSelector(key: localNetworkAddressKey),
           TextButton(
             onPressed: () async {
+              // Ensure any pending edits in the local network address field are committed first
+              final widgetState = localNetworkAddressKey.currentState;
+              if (widgetState != null) {
+                await widgetState.commitIfChanged();
+              }
               final [public, private] = await Future.wait([
                 GetIt.instance<JellyfinApiHelper>().pingPublicServer(),
                 GetIt.instance<JellyfinApiHelper>().pingLocalServer(),
               ]);
-
               GlobalSnackbar.message(
                 (context) => AppLocalizations.of(context)!.ping("${public.toString()}_${private.toString()}"),
               );
