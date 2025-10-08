@@ -16,14 +16,13 @@ import 'package:get_it/get_it.dart';
 Map<String, Widget> getPlaybackActionPages({
   required BuildContext context,
   required PlayableItem item,
+  required bool nextUpNotEmpty,
   bool popContext = true,
   bool compactLayout = false,
+  bool preferNextUp = false,
   BaseItemDto? genreFilter,
 }) {
-  final queueService = GetIt.instance<QueueService>();
-  final ref = GetIt.instance<ProviderContainer>();
   final BaseItemDtoType? itemType = item is BaseItemDto ? BaseItemDtoType.fromItem(item) : null;
-  final preferNextUpPrepending = ref.read(finampSettingsProvider.preferNextUpPrepending);
 
   return {
     // New Queue
@@ -56,7 +55,7 @@ Map<String, Widget> getPlaybackActionPages({
       ],
     ),
     // Next
-    if (queueService.getQueue().nextUp.isNotEmpty || preferNextUpPrepending)
+    if (nextUpNotEmpty || preferNextUp)
       AppLocalizations.of(context)!.playbackActionPageNext: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -86,7 +85,7 @@ Map<String, Widget> getPlaybackActionPages({
         ],
       ),
     // Append to Next Up
-    if (queueService.getQueue().nextUp.isNotEmpty || !preferNextUpPrepending)
+    if (nextUpNotEmpty || !preferNextUp)
       AppLocalizations.of(context)!.playbackActionPageNextUp: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -169,15 +168,15 @@ class PlayPlaybackAction extends ConsumerWidget {
       label: AppLocalizations.of(context)!.playButtonLabel,
       compactLayout: compactLayout,
       onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
         await queueService.startPlayback(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
           source: QueueItemSource.fromPlayableItem(item),
           order: FinampPlaybackOrder.linear,
         );
-
-        if (popContext) {
-          Navigator.pop(context);
-        }
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -201,7 +200,7 @@ class PlayNextPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.read(finampSettingsProvider.preferNextUpPrepending);
+    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
     return Visibility(
       visible: queueService.getQueue().nextUp.isNotEmpty || preferNextUpPrepending,
@@ -211,6 +210,10 @@ class PlayNextPlaybackAction extends ConsumerWidget {
         label: AppLocalizations.of(context)!.playNext,
         compactLayout: compactLayout,
         onPressed: () async {
+          if (popContext) {
+            Navigator.pop(context);
+          }
+
           await queueService.addNext(
             items: await loadChildTracks(item: item, genreFilter: genreFilter),
             source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
@@ -220,10 +223,6 @@ class PlayNextPlaybackAction extends ConsumerWidget {
             (scaffold) => AppLocalizations.of(scaffold)!.confirmPlayNext(BaseItemDtoType.fromPlayableItem(item).name),
             isConfirmation: true,
           );
-
-          if (popContext) {
-            Navigator.pop(context);
-          }
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -248,7 +247,7 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.read(finampSettingsProvider.preferNextUpPrepending);
+    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
     return Visibility(
       visible: queueService.getQueue().nextUp.isNotEmpty || !preferNextUpPrepending,
@@ -258,6 +257,10 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
         label: AppLocalizations.of(context)!.addToNextUp,
         compactLayout: compactLayout,
         onPressed: () async {
+          if (popContext) {
+            Navigator.pop(context);
+          }
+
           await queueService.addToNextUp(
             items: await loadChildTracks(item: item, genreFilter: genreFilter),
             source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
@@ -268,10 +271,6 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
                 AppLocalizations.of(scaffold)!.confirmAddToNextUp(BaseItemDtoType.fromPlayableItem(item).name),
             isConfirmation: true,
           );
-
-          if (popContext) {
-            Navigator.pop(context);
-          }
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -302,6 +301,10 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
       label: AppLocalizations.of(context)!.addToQueue,
       compactLayout: compactLayout,
       onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
         await queueService.addToQueue(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
           source: QueueItemSource.fromPlayableItem(item),
@@ -311,10 +314,6 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmAddToQueue(BaseItemDtoType.fromPlayableItem(item).name),
           isConfirmation: true,
         );
-
-        if (popContext) {
-          Navigator.pop(context);
-        }
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -348,15 +347,15 @@ class ShufflePlaybackAction extends ConsumerWidget {
           : AppLocalizations.of(context)!.shuffleButtonLabel,
       compactLayout: compactLayout,
       onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
         await queueService.startPlayback(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
           source: QueueItemSource.fromPlayableItem(item),
           order: FinampPlaybackOrder.shuffled,
         );
-
-        if (popContext) {
-          Navigator.pop(context);
-        }
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -382,7 +381,7 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.read(finampSettingsProvider.preferNextUpPrepending);
+    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
     return Visibility(
       visible: queueService.getQueue().nextUp.isNotEmpty || preferNextUpPrepending,
@@ -395,6 +394,10 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
             : AppLocalizations.of(context)!.shuffleNext,
         compactLayout: compactLayout,
         onPressed: () async {
+          if (popContext) {
+            Navigator.pop(context);
+          }
+
           await queueService.addNext(
             items: await loadChildTracks(item: item, genreFilter: genreFilter),
             source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
@@ -402,10 +405,6 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
           );
 
           GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
-
-          if (popContext) {
-            Navigator.pop(context);
-          }
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -432,7 +431,7 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.read(finampSettingsProvider.preferNextUpPrepending);
+    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
     return Visibility(
       visible: queueService.getQueue().nextUp.isNotEmpty || !preferNextUpPrepending,
@@ -445,6 +444,10 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
             : AppLocalizations.of(context)!.shuffleToNextUp,
         compactLayout: compactLayout,
         onPressed: () async {
+          if (popContext) {
+            Navigator.pop(context);
+          }
+
           await queueService.addToNextUp(
             items: await loadChildTracks(item: item, genreFilter: genreFilter),
             source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
@@ -455,10 +458,6 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
             (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
             isConfirmation: true,
           );
-
-          if (popContext) {
-            Navigator.pop(context);
-          }
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -494,6 +493,10 @@ class ShuffleToQueuePlaybackAction extends ConsumerWidget {
           : AppLocalizations.of(context)!.shuffleToQueue,
       compactLayout: compactLayout,
       onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
         await queueService.addToQueue(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
           source: QueueItemSource.fromPlayableItem(item),
@@ -504,10 +507,6 @@ class ShuffleToQueuePlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToQueue,
           isConfirmation: true,
         );
-
-        if (popContext) {
-          Navigator.pop(context);
-        }
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -541,6 +540,10 @@ class ShuffleAlbumsPlaybackAction extends ConsumerWidget {
           : AppLocalizations.of(context)!.shuffleAlbums,
       compactLayout: compactLayout,
       onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
         await queueService.startPlayback(
           items: groupItems(
             items: await loadChildTracks(
@@ -553,10 +556,6 @@ class ShuffleAlbumsPlaybackAction extends ConsumerWidget {
           ),
           source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
         );
-
-        if (popContext) {
-          Navigator.pop(context);
-        }
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -582,7 +581,7 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.read(finampSettingsProvider.preferNextUpPrepending);
+    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
     return Visibility(
       visible: queueService.getQueue().nextUp.isNotEmpty || preferNextUpPrepending,
@@ -595,6 +594,10 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
             : AppLocalizations.of(context)!.shuffleAlbumsNext,
         compactLayout: compactLayout,
         onPressed: () async {
+          if (popContext) {
+            Navigator.pop(context);
+          }
+
           await queueService.addNext(
             items: groupItems(
               items: await loadChildTracks(
@@ -609,10 +612,6 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
           );
 
           GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
-
-          if (popContext) {
-            Navigator.pop(context);
-          }
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -639,7 +638,7 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.read(finampSettingsProvider.preferNextUpPrepending);
+    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
     return Visibility(
       visible: queueService.getQueue().nextUp.isNotEmpty || !preferNextUpPrepending,
@@ -652,6 +651,10 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
             : AppLocalizations.of(context)!.shuffleAlbumsToNextUp,
         compactLayout: compactLayout,
         onPressed: () async {
+          if (popContext) {
+            Navigator.pop(context);
+          }
+
           await queueService.addToNextUp(
             items: groupItems(
               items: await loadChildTracks(
@@ -669,10 +672,6 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
             (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
             isConfirmation: true,
           );
-
-          if (popContext) {
-            Navigator.pop(context);
-          }
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),
@@ -708,6 +707,10 @@ class ShuffleAlbumsToQueuePlaybackAction extends ConsumerWidget {
           : AppLocalizations.of(context)!.shuffleAlbumsToQueue,
       compactLayout: compactLayout,
       onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
         await queueService.addToQueue(
           items: groupItems(
             items: await loadChildTracks(
@@ -725,10 +728,6 @@ class ShuffleAlbumsToQueuePlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToQueue,
           isConfirmation: true,
         );
-
-        if (popContext) {
-          Navigator.pop(context);
-        }
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );

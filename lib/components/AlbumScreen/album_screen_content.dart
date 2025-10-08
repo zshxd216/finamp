@@ -277,7 +277,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
             forceAlbumArtists: (widget.parent.type == "Playlist" && playlistSortBy == SortBy.albumArtist),
           )
         else
-          SliverFillRemaining(child: CircularProgressIndicator.adaptive()),
+          SliverFillRemaining(child: Center(child: CircularProgressIndicator.adaptive())),
       ],
     );
   }

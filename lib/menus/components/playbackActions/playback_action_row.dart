@@ -11,34 +11,50 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final double playActionRowHeightDefault = 96.0;
 final double playActionPageIndicatorHeightDefault = 31.0;
 
-class PlaybackActionRow extends ConsumerWidget {
+class PlaybackActionRow extends ConsumerStatefulWidget {
   const PlaybackActionRow({
     super.key,
-    required this.controller,
     required this.item,
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
   });
 
-  final PageController controller;
   final PlayableItem item;
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(QueueService.queueInfoStreamProvider);
+  ConsumerState<PlaybackActionRow> createState() => _PlaybackActionRowState();
+}
+
+class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
+  late PageController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
+    final lastUsedPlaybackActionRowPage = ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPage);
+    final lastUsedPlaybackActionRowPageIndex = lastUsedPlaybackActionRowPage.pageIndexFor(
+      nextUpIsEmpty: !nextUpNotEmpty,
+    );
+    final initialPageViewIndex = ref.watch(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
+        ? lastUsedPlaybackActionRowPageIndex
+        : 0;
+    controller = PageController(initialPage: initialPageViewIndex);
+
     final Map<String, Widget> playbackActionPages = getPlaybackActionPages(
       context: context,
-      item: item,
-      popContext: popContext,
-      compactLayout: compactLayout,
-      genreFilter: genreFilter,
+      item: widget.item,
+      nextUpNotEmpty: nextUpNotEmpty,
+      popContext: widget.popContext,
+      compactLayout: widget.compactLayout,
+      genreFilter: widget.genreFilter,
+      preferNextUp: ref.watch(finampSettingsProvider.preferNextUpPrepending),
     );
 
-    final double playActionRowHeight = compactLayout ? 76.0 : playActionRowHeightDefault;
+    final double playActionRowHeight = widget.compactLayout ? 76.0 : playActionRowHeightDefault;
     final rememberLastUsedPlaybackActionRowPage = ref.read(
       finampSettingsProvider.rememberLastUsedPlaybackActionRowPage,
     );
@@ -79,7 +95,7 @@ class PlaybackActionRow extends ConsumerWidget {
         PlaybackActionPageIndicator(
           pages: playbackActionPages,
           pageController: controller,
-          compactLayout: compactLayout,
+          compactLayout: widget.compactLayout,
         ),
       ],
     );

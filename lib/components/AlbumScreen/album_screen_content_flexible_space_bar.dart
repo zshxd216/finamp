@@ -42,59 +42,36 @@ class AlbumScreenContentFlexibleSpaceBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    GetIt.instance<AudioServiceHelper>();
-    final queueService = GetIt.instance<QueueService>();
-
-    final lastUsedPlaybackActionRowPage = ref.read(finampSettingsProvider.lastUsedPlaybackActionRowPage);
-    final lastUsedPlaybackActionRowPageIndex = lastUsedPlaybackActionRowPage.pageIndexFor(
-      nextUpIsEmpty: queueService.getQueue().nextUp.isEmpty,
-    );
-    final initialPageViewIndex = ref.read(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
-        ? lastUsedPlaybackActionRowPageIndex
-        : 0;
-    final pageViewController = PageController(initialPage: initialPageViewIndex);
-
     return FlexibleSpaceBar(
       background: SafeArea(
         bottom: false,
-        child: Stack(
-          fit: StackFit.expand,
-          clipBehavior: Clip.hardEdge,
-          children: [
-            Positioned(
-              left: 8,
-              right: 8,
-              bottom: MediaQuery.of(context).padding.bottom,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      SizedBox(height: 125, child: AlbumImage(item: parentItem, tapToZoom: true)),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        flex: 2,
-                        child: ItemInfo(
-                          item: parentItem,
-                          itemTracks: items,
-                          genreFilter: genreFilter,
-                          updateGenreFilter: updateGenreFilter,
-                        ),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    SizedBox(height: 125, child: AlbumImage(item: parentItem, tapToZoom: true)),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      flex: 2,
+                      child: ItemInfo(
+                        item: parentItem,
+                        itemTracks: items,
+                        genreFilter: genreFilter,
+                        updateGenreFilter: updateGenreFilter,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  PlaybackActionRow(
-                    controller: pageViewController,
-                    compactLayout: true,
-                    item: parentItem,
-                    popContext: false,
-                    genreFilter: genreFilter,
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                PlaybackActionRow(compactLayout: true, item: parentItem, popContext: false, genreFilter: genreFilter),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

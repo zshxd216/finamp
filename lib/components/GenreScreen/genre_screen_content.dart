@@ -115,18 +115,8 @@ class _GenreScreenContentState extends ConsumerState<GenreScreenContent> {
     final genreCuratedItemSectionFilterOrder = ref.watch(finampSettingsProvider.genreItemSectionFilterChipOrder);
     final genreItemSectionsOrder = ref.watch(finampSettingsProvider.genreItemSectionsOrder);
     final bool autoSwitchItemCurationTypeEnabled = ref.watch(finampSettingsProvider.autoSwitchItemCurationType);
-    final queueService = GetIt.instance<QueueService>();
 
-    final lastUsedPlaybackActionRowPage = ref.read(finampSettingsProvider.lastUsedPlaybackActionRowPage);
-    final lastUsedPlaybackActionRowPageIndex = lastUsedPlaybackActionRowPage.pageIndexFor(
-      nextUpIsEmpty: queueService.getQueue().nextUp.isEmpty,
-    );
-    final initialPageViewIndex = ref.read(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
-        ? lastUsedPlaybackActionRowPageIndex
-        : 0;
-    final pageViewController = PageController(initialPage: initialPageViewIndex);
-
-    /// There are inidivual fetch methods for each section on the genre screen. They all are handled
+    /// There are individual fetch methods for each section on the genre screen. They all are handled
     /// by a single entry point provider "genreCuratedItemsProvider". This provider returns multiple values:
     /// the items themselves, the total count of all items of that specific type within this genre as well as
     /// the current ItemCurationType and a disabledFilterList. The genreCuratedItemsProvider uses a method
@@ -295,14 +285,7 @@ class _GenreScreenContentState extends ConsumerState<GenreScreenContent> {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 10)),
-        SliverToBoxAdapter(
-          child: PlaybackActionRow(
-            controller: pageViewController,
-            compactLayout: true,
-            item: widget.parent,
-            popContext: false,
-          ),
-        ),
+        SliverToBoxAdapter(child: PlaybackActionRow(compactLayout: true, item: widget.parent, popContext: false)),
         if (!isLoading)
           ...genreItemSectionsOrder.map((type) {
             switch (type) {
