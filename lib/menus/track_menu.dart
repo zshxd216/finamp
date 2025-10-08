@@ -264,6 +264,10 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       default:
         menuHeight = closedHeight;
     }
+
+    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
+    final preferNextUp = ref.watch(finampSettingsProvider.preferNextUpPrepending);
+
     return [
       if (widget.showPlaybackControls) ...[
         StreamBuilder<PlaybackBehaviorInfo>(
@@ -477,8 +481,8 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               PlayPlaybackAction(item: widget.item),
-              if (_queueService.getQueue().nextUp.isNotEmpty) PlayNextPlaybackAction(item: widget.item),
-              AddToNextUpPlaybackAction(item: widget.item),
+              if (nextUpNotEmpty || !preferNextUp) PlayNextPlaybackAction(item: widget.item),
+              if (nextUpNotEmpty || preferNextUp) AddToNextUpPlaybackAction(item: widget.item),
               AddToQueuePlaybackAction(item: widget.item),
             ],
           ),

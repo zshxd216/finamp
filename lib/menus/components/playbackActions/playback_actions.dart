@@ -247,33 +247,28 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
-    return Visibility(
-      visible: queueService.getQueue().nextUp.isNotEmpty || !preferNextUpPrepending,
-      child: PlaybackAction(
-        enabled: !(Platform.isWindows || Platform.isLinux),
-        icon: TablerIcons.corner_right_down_double,
-        label: AppLocalizations.of(context)!.addToNextUp,
-        compactLayout: compactLayout,
-        onPressed: () async {
-          if (popContext) {
-            Navigator.pop(context);
-          }
+    return PlaybackAction(
+      enabled: !(Platform.isWindows || Platform.isLinux),
+      icon: TablerIcons.corner_right_down_double,
+      label: AppLocalizations.of(context)!.addToNextUp,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
 
-          await queueService.addToNextUp(
-            items: await loadChildTracks(item: item, genreFilter: genreFilter),
-            source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
-          );
+        await queueService.addToNextUp(
+          items: await loadChildTracks(item: item, genreFilter: genreFilter),
+          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+        );
 
-          GlobalSnackbar.message(
-            (scaffold) =>
-                AppLocalizations.of(scaffold)!.confirmAddToNextUp(BaseItemDtoType.fromPlayableItem(item).name),
-            isConfirmation: true,
-          );
-        },
-        iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
-      ),
+        GlobalSnackbar.message(
+          (scaffold) => AppLocalizations.of(scaffold)!.confirmAddToNextUp(BaseItemDtoType.fromPlayableItem(item).name),
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
   }
 }
