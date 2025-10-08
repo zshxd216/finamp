@@ -2158,7 +2158,7 @@
     "@genreFilterArtistScreens": {
         "description": "Label for the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
     },
-    "autoSwitchItemCurationTypeSubtitle": "启用后，如果没有可用的项目（例如，没有特定艺术家的收藏），艺术家和流派屏幕上的项目部分将自动切换到不同的项目类型。",
+    "autoSwitchItemCurationTypeSubtitle": "启用后，如果没有可用的项目（例如，没有特定艺术家的收藏），艺术家和流派界面上的项目部分将自动切换到不同的项目类型。",
     "@autoSwitchItemCurationTypeSubtitle": {},
     "randomTracks": "歌曲（随机选择）",
     "@randomTracks": {},
@@ -2242,7 +2242,7 @@
     "@genreFilterPlaylistScreens": {
         "description": "Label for the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
-    "genreListsInheritSortingSubtitle": "启用后，“查看全部”列表将继承“类型”屏幕的排序和筛选设置。禁用后，将改用相应库选项卡中的设置。点击“类型”屏幕顶部的“计数”或“浏览播放列表”按钮将始终打开包含库选项卡中排序设置的完整列表。",
+    "genreListsInheritSortingSubtitle": "启用后，“查看全部”列表将继承“流派”界面的排序和筛选设置。禁用后，将改用相应库选项卡中的设置。点击“流派”界面顶部的“计数”或“浏览播放列表”按钮将始终打开包含库选项卡中排序设置的完整列表。",
     "@genreListsInheritSortingSubtitle": {
         "description": "Description of the setting that controls if a See All Genre Lists should inherit the Genre Sorting and Filtering."
     },
@@ -2397,11 +2397,11 @@
     "@shuffleSomeAlbumsNext": {
         "description": "Label for action that shuffles some albums of a genre and adds them at the start of Next Up"
     },
-    "shuffleSomeAlbumsToNextUp": "随机添加一些专辑到接下来队列",
+    "shuffleSomeAlbumsToNextUp": "随机添加专辑到接下来播放",
     "@shuffleSomeAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of a genre and adds them at the end of Next Up"
     },
-    "shuffleSomeAlbumsToQueue": "随机添加一些专辑到队列",
+    "shuffleSomeAlbumsToQueue": "随机添加专辑到播放队列",
     "@shuffleSomeAlbumsToQueue": {
         "description": "Label for action that shuffles all albums of a genre and adds them at the end of the regular queue"
     },
@@ -2419,7 +2419,7 @@
     "@seeAll": {
         "description": ""
     },
-    "artistScreen": "艺术家页面",
+    "artistScreen": "艺术家界面",
     "@artistScreen": {
         "description": "Name for the view/screen that shows artists"
     },
@@ -2439,7 +2439,7 @@
     "@applyFilterOnGenreChipTapPromptButton": {
         "description": "The button for the snackbar that is shown to the user if a genre filter was applied due to their selected settings"
     },
-    "genreScreen": "流派页面",
+    "genreScreen": "流派界面",
     "@genreScreen": {
         "description": "Name for the view/screen that shows genres"
     },
@@ -2454,5 +2454,242 @@
     "updatePlaylistButtonLabel": "更新播放列表",
     "@updatePlaylistButtonLabel": {
         "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "正在保存更改",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "confirmAddCollectionItemToPlaylist": "确定要将 {itemType, select, album{专辑} playlist{播放列表} artist{艺人} genre{类型} other{项目} }「{itemName}」中的所有曲目添加到此播放列表吗？这些曲目之后只能单独移除。",
+    "@confirmAddCollectionItemToPlaylist": {
+        "description": "Warning dialog for adding an album, artist, etc. or multiple tracks to a playlist, clarifying that this cannot be undone without removing all tracks individually and manually.",
+        "placeholders": {
+            "itemType": {
+                "type": "String",
+                "example": "album"
+            },
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmAddMultipleTracksToPlaylist": "你确定要将 {trackCount} 首歌曲添加到此播放列表吗？这些歌曲只能单独移除。",
+    "@confirmAddMultipleTracksToPlaylist": {
+        "description": "Warning dialog for adding multiple tracks to a playlist, clarifying that this cannot be undone without removing all tracks individually and manually.",
+        "placeholders": {
+            "trackCount": {
+                "type": "int"
+            }
+        }
+    },
+    "additionalBaseItemInfoTitle": "附加信息",
+    "@additionalBaseItemInfoTitle": {
+        "description": "Title for the setting that controls the displayed additional item info."
+    },
+    "additionalBaseItemInfoSubtitle": "设定列表中显示的附加信息类型。“自适应”模式会根据排序或上下文自动调整显示内容。",
+    "@additionalBaseItemInfoSubtitle": {
+        "description": "Subtitle for the setting that controls the displayed additional item info."
+    },
+    "noReleaseDate": "无发行日期",
+    "@noReleaseDate": {
+        "description": "Placeholder text if an item has no release date set."
+    },
+    "noDateAdded": "无添加日期",
+    "@noDateAdded": {
+        "description": "Placeholder text if an item has no dateAdded set."
+    },
+    "noDateLastPlayed": "尚未播放",
+    "@noDateLastPlayed": {
+        "description": "Placeholder text if an item has no lastPlayedDate set."
+    },
+    "autoOfflineOptionUnreachable": "无法连接",
+    "@autoOfflineOptionUnreachable": {
+        "description": "This is shown when the autoOffline feature is set to Unreachable, this means offline mode will be automatically enabled when - after a network change - the server cant be pinged"
+    },
+    "itemCount": "{childType, select,track{{amount, plural, =1{1 首歌曲} other{{amount} 首歌曲}}album{{amount, plural, =1{1 张专辑} other{{amount} 张专辑}}other{{amount, plural, =1{1 个项目}other{{amount} 项目}｝}",
+    "@itemCount": {
+        "description": "Amount of various child item, like artist albums, performing artist tracks, or genre albums. Shown for example in the menu headers.",
+        "placeholders": {
+            "childType": {
+                "type": "String",
+                "example": "album",
+                "description": "Options match BaseItemDtoType.name"
+            },
+            "amount": {
+                "type": "int"
+            }
+        }
+    },
+    "itemCountCalculating": "正在计算项目总数",
+    "@itemCountCalculating": {
+        "description": "Shown to screen readers while the item count is being calculated."
+    },
+    "preferLocalNetworkActiveAddressInfoText": "活动地址",
+    "@preferLocalNetworkActiveAddressInfoText": {
+        "description": "Shows the active address inside the network settings screen so the user can see if this feature works"
+    },
+    "preferLocalNetworkTargetAddressLocalSettingTitle": "本地网络地址",
+    "@preferLocalNetworkTargetAddressLocalSettingTitle": {},
+    "preferLocalNetworkTargetAddressLocalSettingDescription": "本地网络中 Jellyfin 服务器的目标地址",
+    "@preferLocalNetworkTargetAddressLocalSettingDescription": {},
+    "preferLocalNetworkEnableSwitchTitle": "优先使用本地网络",
+    "@preferLocalNetworkEnableSwitchTitle": {},
+    "preferLocalNetworkEnableSwitchDescription": "位于服务器本地网络时，是否改用本地地址进行连接",
+    "@preferLocalNetworkEnableSwitchDescription": {},
+    "preferLocalNetworkPublicAddressSettingTitle": "外部访问地址",
+    "@preferLocalNetworkPublicAddressSettingTitle": {},
+    "preferLocalNetworkPublicAddressSettingDescription": "用于连接 Jellyfin 服务器的主要访问地址",
+    "@preferLocalNetworkPublicAddressSettingDescription": {},
+    "preferLocalNetworkInfoBox": "需要开启定位功能并授予定位权限，才能读取当前网络名称。",
+    "@preferLocalNetworkInfoBox": {
+        "description": "This is only shown on ios and android since desktop doesnt require location permissions"
+    },
+    "clearQueueOnStopEventTitle": "外部停止时清空队列",
+    "@clearQueueOnStopEventTitle": {
+        "description": "Title for the setting that controls if OS stop commands clear the queue."
+    },
+    "clearQueueOnStopEventSubtitle": "如果收到系统的停止命令，将自动清空播放队列并关闭播放器。应用内的停止操作同样会清空队列并关闭播放器。",
+    "@clearQueueOnStopEventSubtitle": {
+        "description": "Subtitle for the setting that controls if OS stop commands clear the queue."
+    },
+    "autoReloadPrompt": "重新加载队列以应用新的 {type, select, network{网络设置} transcoding{转码设置} other{设置}}",
+    "@autoReloadPrompt": {
+        "description": "Prompt shown when the queue needs to be reloaded after changing network settings",
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "menuButtonLabel": "更多操作",
+    "@menuButtonLabel": {
+        "description": "Generic label for menu buttons shown throughout the app. Used for the album, artist, playlist, etc. menus"
+    },
+    "notImplementedYet": "功能尚未实现。",
+    "@notImplementedYet": {
+        "description": "Message shown when a feature is not implemented yet"
+    },
+    "automaticOfflineModeOverrideActiveTitle": "自动切换暂停中",
+    "@automaticOfflineModeOverrideActiveTitle": {
+        "description": "Title for the label shown below the offline mode toggle when automatic offline mode switching is paused"
+    },
+    "automaticOfflineModeOverrideActiveSubtitle": "点击这里恢复",
+    "@automaticOfflineModeOverrideActiveSubtitle": {
+        "description": "Subtitle for the label shown below the offline mode toggle when automatic offline mode switching is paused"
+    },
+    "sleepTimerFinishLastTrack": "播放完当前曲目？",
+    "@sleepTimerFinishLastTrack": {
+        "description": "Option for the sleep timer that will finish the last track before stopping playback."
+    },
+    "sleepTimerAfterCurrentTrack": "当前曲目结束后",
+    "@sleepTimerAfterCurrentTrack": {
+        "description": "Option for the sleep timer that will stop playback after the current track finishes."
+    },
+    "sleepTimerStartTimer": "开始计时",
+    "@sleepTimerStartTimer": {
+        "description": "Label for the button that starts the sleep timer"
+    },
+    "syncPlaybackSpeedAndPitchLabel": "速度与音调同步",
+    "@syncPlaybackSpeedAndPitchLabel": {
+        "description": "Label for the checkbox that toggled is the pitch is adjusted along with the playback speed, or if the pitch is kept constant. Shown in the speed submenu on the track menu"
+    },
+    "serverSharingMenuTitle": "本地网络服务器共享",
+    "@serverSharingMenuTitle": {
+        "description": "Title for the server sharing menu that allows the user to share their server address with other devices on the local network"
+    },
+    "serverSharingMenuButtonTitle": "共享服务器",
+    "@serverSharingMenuButtonTitle": {
+        "description": "Title for the button in the drawer that opens the server sharing menu"
+    },
+    "serverSharingMenuConfirmationDialogText": "确定要在离线模式中开启服务器共享？这会让 Finamp 通过本地网络传输数据。",
+    "@serverSharingMenuConfirmationDialogText": {
+        "description": "Dialog text shown when enabling server sharing while offline mode is enabled"
+    },
+    "serverSharingMenuConfirmationDialogConfirmationButtonLabel": "确认并启用",
+    "@serverSharingMenuConfirmationDialogConfirmationButtonLabel": {
+        "description": "Positive action label for the dialog shown when enabling server sharing while offline mode is enabled"
+    },
+    "serverSharingMenuControlTitleSharingEnabled": "正在共享的服务器",
+    "@serverSharingMenuControlTitleSharingEnabled": {
+        "description": "Title of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned on"
+    },
+    "serverSharingMenuControlSubtitleSharingDisabled": "点此共享",
+    "@serverSharingMenuControlSubtitleSharingDisabled": {
+        "description": "Subtitle of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned off"
+    },
+    "serverSharingMenuControlTitleSharingDisabled": "未共享",
+    "@serverSharingMenuControlTitleSharingDisabled": {
+        "description": "Title of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned off"
+    },
+    "serverSharingMenuControlSubtitleSharingEnabled": "点此停止",
+    "@serverSharingMenuControlSubtitleSharingEnabled": {
+        "description": "Subtitle of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned on"
+    },
+    "serverSharingMenuDescription": "当你不在 Jellyfin 服务器所在的本地网络时，分享服务器地址有助于快速设置新的客户端，例如酒店电视、办公室电脑或手机上的新应用。",
+    "@serverSharingMenuDescription": {
+        "description": "Description text shown in the server sharing menu, right below the controls"
+    },
+    "serverSharingMenuDetails": "它的工作原理是：在本地网络中监听来自其他客户端的服务器发现请求，然后用你配置的 Jellyfin 服务器地址进行响应。\n如果你同时配置了本地地址和公网地址，Finamp 会将两者都提供给请求的客户端。",
+    "@serverSharingMenuDetails": {
+        "description": "Description text shown in the server sharing menu, below the description"
+    },
+    "quickConnectAuthorizationMenuButtonTitle": "授权快速连接",
+    "@quickConnectAuthorizationMenuButtonTitle": {
+        "description": "Title for the button in the drawer that opens the quick connect authorization menu"
+    },
+    "quickConnectAuthorizationMenuPrompt": "请输入快速连接代码",
+    "@quickConnectAuthorizationMenuPrompt": {
+        "description": "Title for the button in server sharing menu that opens the quick connect authorization menu"
+    },
+    "quickConnectAuthorizationMenuTitle": "允许快速连接请求",
+    "@quickConnectAuthorizationMenuTitle": {
+        "description": "Title for the quick connect authorization menu that allows the user to authorize a quick connect request from another device"
+    },
+    "quickConnectAuthorizationMenuInputLabel": "快速连接代码",
+    "@quickConnectAuthorizationMenuInputLabel": {
+        "description": "Label for the quick connect code input, shown below the input field"
+    },
+    "quickConnectAuthorizationMenuStateSubtitleIdle": "请在下面输入或粘贴代码",
+    "@quickConnectAuthorizationMenuStateSubtitleIdle": {
+        "description": "Subtitle for the quick connect authorization menu state info (above the input field) while the code hasn't been submitted yet"
+    },
+    "quickConnectAuthorizationMenuStateTitleProcessing": "正在授权请求",
+    "@quickConnectAuthorizationMenuStateTitleProcessing": {
+        "description": "Title for the quick connect authorization menu state info (above the input field) while a request is being processed"
+    },
+    "quickConnectAuthorizationMenuStateTitleSuccess": "请求授权成功",
+    "@quickConnectAuthorizationMenuStateTitleSuccess": {
+        "description": "Title for the quick connect authorization menu state info (above the input field) when the authorization was successful"
+    },
+    "quickConnectAuthorizationMenuStateTitleFailed": "无效的快速连接代码",
+    "@quickConnectAuthorizationMenuStateTitleFailed": {
+        "description": "Title for the quick connect authorization menu state info (above the input field) when the authorization was unsuccessful"
+    },
+    "quickConnectAuthorizationMenuStateSubtitleFailed": "请检查代码后重试",
+    "@quickConnectAuthorizationMenuStateSubtitleFailed": {
+        "description": "Subtitle for the quick connect authorization menu state info (above the input field) when the authorization was unsuccessful"
+    },
+    "quickConnectAuthorizationMenuDescription": "想在其他 Jellyfin 客户端上登录？只需在上方输入或粘贴 6 位快速连接代码，即可授权登录，并使用与你在 Finamp 相同的账户登录该设备。",
+    "@quickConnectAuthorizationMenuDescription": {
+        "description": "Description for the quick connect authorization menu, shown at the bottom"
+    },
+    "accessibility": "无障碍设置",
+    "@accessibility": {
+        "description": "Title for the accessibility settings screen"
+    },
+    "useHighContrastColorsTitle": "使用高对比度颜色",
+    "@useHighContrastColorsTitle": {
+        "description": "Title for the setting that controls if high contrast colors are used throughout the app"
+    },
+    "useHighContrastColorsSubtitle": "启用高对比度动态配色，让界面内容更清晰易见。",
+    "@useHighContrastColorsSubtitle": {
+        "description": "Subtitle for the setting that controls if high contrast colors are used throughout the app"
+    },
+    "autoExpandPlayerScreenTitle": "播放开始时打开播放器界面",
+    "@autoExpandPlayerScreenTitle": {
+        "description": "Title for the setting that controls if the player screen is opened directly after starting a new queue"
+    },
+    "autoExpandPlayerScreenSubtitle": "播放新队列时自动显示“正在播放”界面",
+    "@autoExpandPlayerScreenSubtitle": {
+        "description": "Subtitle for the setting that controls if the player screen is opened directly after starting a new queue"
     }
 }
