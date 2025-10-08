@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 
+import '../components/LayoutSettingsScreen/accent_color_selector.dart';
 import '../components/LayoutSettingsScreen/content_grid_view_cross_axis_count_list_tile.dart';
 import '../components/LayoutSettingsScreen/content_view_type_dropdown_list_tile.dart';
 import '../components/LayoutSettingsScreen/show_artist_chip_image_toggle.dart';
@@ -74,6 +75,7 @@ class _LayoutSettingsScreenState extends ConsumerState<LayoutSettingsScreen> {
           ),
           const Divider(),
           const ThemeSelector(),
+          const AccentColorSelector(),
           const ContentViewTypeDropdownListTile(),
           const FixedSizeGridSwitch(),
           if (!ref.watch(finampSettingsProvider.useFixedSizeGridTiles))

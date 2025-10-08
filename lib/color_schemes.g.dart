@@ -84,3 +84,14 @@ const darkColorScheme = ColorScheme(
   outlineVariant: Color(0xFF41484D),
   scrim: Color(0xFF000000),
 );
+
+/// If [color] is provided -> returns a generated color scheme
+/// otherwise falls back to default color schemes
+/// [lightColorScheme] or [darkColorScheme]
+ColorScheme getColorScheme(Color? color ,{bool dark = false}) {
+  if (color != null) {
+    return ColorScheme.fromSeed(seedColor: color, brightness: dark ? Brightness.dark : Brightness.light);
+  }
+
+  return dark ? darkColorScheme : lightColorScheme;
+}

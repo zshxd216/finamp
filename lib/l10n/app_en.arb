@@ -716,6 +716,20 @@
   "@light": {},
   "dark": "Dark",
   "@dark": {},
+  "accentColor": "Accent Color",
+  "@accentColor": {
+    "description": "Title of the accent color setting"
+  },
+  "hexColorCode": "Hex Color Code (RRGGBB or AARRGGBB)",
+  "@hexColorCode": {
+    "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+  },
+  "save": "Save",
+  "@save": {},
+  "invalidColorCode": "Invalid color code",
+  "@invalidColorCode": {
+    "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+  },
   "tabs": "Tabs",
   "@tabs": {},
   "playerScreen": "Player Screen",
