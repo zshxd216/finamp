@@ -907,7 +907,7 @@
     },
     "allowSplitScreenSubtitle": "在寬螢幕環境下，播放器將與其他介面一同顯示。",
     "@allowSplitScreenSubtitle": {},
-    "shuffleNext": "隨機播放下一首",
+    "shuffleNext": "隨機加入下一首",
     "@shuffleNext": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
@@ -2720,17 +2720,17 @@
     "@dragToReorder": {
         "description": "Label shown on drag handles of track list  tiles in the queue list"
     },
-    "shuffleSome": "隨機歌曲",
+    "shuffleSome": "隨機播放",
     "@shuffleSome": {},
     "playbackActionPageNewQueue": "立即播放",
     "@playbackActionPageNewQueue": {
         "description": "Label for the playback action page that contains all actions related to starting a new queue"
     },
-    "playbackActionPageNext": "播放下一首",
+    "playbackActionPageNext": "接續播放",
     "@playbackActionPageNext": {
         "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
     },
-    "playbackActionPageNextUp": "接續播放",
+    "playbackActionPageNextUp": "稍後播放",
     "@playbackActionPageNextUp": {
         "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
     },
@@ -2738,31 +2738,31 @@
     "@playbackActionPageAppendToQueue": {
         "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
     },
-    "shuffleSomeNext": "隨機歌曲至下一首",
+    "shuffleSomeNext": "隨機加入下一首",
     "@shuffleSomeNext": {
         "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
-    "shuffleSomeToNextUp": "隨機歌曲至即將播放",
+    "shuffleSomeToNextUp": "隨機加入即將播放",
     "@shuffleSomeToNextUp": {
         "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
-    "shuffleSomeToQueue": "隨機至播放佇列",
+    "shuffleSomeToQueue": "隨機加入播放佇列",
     "@shuffleSomeToQueue": {
         "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
     },
-    "shuffleSomeAlbums": "隨機專輯",
+    "shuffleSomeAlbums": "專輯隨機播放",
     "@shuffleSomeAlbums": {
         "description": "Label for action that shuffles some albums of a genre"
     },
-    "shuffleSomeAlbumsNext": "隨機專輯至下一首",
+    "shuffleSomeAlbumsNext": "專輯隨機加入下一首",
     "@shuffleSomeAlbumsNext": {
         "description": "Label for action that shuffles some albums of a genre and adds them at the start of Next Up"
     },
-    "shuffleSomeAlbumsToNextUp": "隨機專輯至即將播放",
+    "shuffleSomeAlbumsToNextUp": "專輯隨機加入即將播放",
     "@shuffleSomeAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of a genre and adds them at the end of Next Up"
     },
-    "shuffleSomeAlbumsToQueue": "隨機專輯至播放佇列",
+    "shuffleSomeAlbumsToQueue": "專輯隨機加入播放佇列",
     "@shuffleSomeAlbumsToQueue": {
         "description": "Label for action that shuffles all albums of a genre and adds them at the end of the regular queue"
     },
