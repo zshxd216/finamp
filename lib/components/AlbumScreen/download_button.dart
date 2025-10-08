@@ -1,20 +1,19 @@
+import 'package:finamp/components/AlbumScreen/download_dialog.dart';
+import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
+import 'package:finamp/components/confirmation_prompt_dialog.dart';
 import 'package:finamp/components/delete_prompts.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/permission_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../models/finamp_models.dart';
-import '../../models/jellyfin_models.dart';
-import '../../services/downloads_service.dart';
-import '../../services/jellyfin_api_helper.dart';
-import '../MusicScreen/music_screen_tab_view.dart';
-import '../confirmation_prompt_dialog.dart';
-import 'download_dialog.dart';
 
 class DownloadButton extends ConsumerWidget {
   const DownloadButton({
@@ -42,7 +41,7 @@ class DownloadButton extends ConsumerWidget {
     var isOffline = ref.watch(finampSettingsProvider.isOffline);
     bool canDeleteFromServer = false;
     if (item.type.requiresItem) {
-      canDeleteFromServer = ref.watch(GetIt.instance<JellyfinApiHelper>().canDeleteFromServerProvider(item.baseItem!));
+      canDeleteFromServer = ref.watch(canDeleteFromServerProvider(item.baseItem!));
     }
     String? parentTooltip;
     if (status == null) {

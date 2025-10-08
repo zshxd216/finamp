@@ -5,11 +5,10 @@ import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
-import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:finamp/services/permission_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
-import 'package:get_it/get_it.dart';
 
 class DeleteFromServerMenuEntry extends ConsumerWidget implements HideableMenuEntry {
   final BaseItemDto baseItem;
@@ -18,9 +17,7 @@ class DeleteFromServerMenuEntry extends ConsumerWidget implements HideableMenuEn
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
-
-    final canDelete = ref.watch(jellyfinApiHelper.canDeleteFromServerProvider(baseItem));
+    final canDelete = ref.watch(canDeleteFromServerProvider(baseItem));
 
     return Visibility(
       visible: canDelete,

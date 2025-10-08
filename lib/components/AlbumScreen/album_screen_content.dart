@@ -1,30 +1,30 @@
 import 'dart:async';
 
+import 'package:finamp/components/AlbumScreen/album_screen_content_flexible_space_bar.dart';
+import 'package:finamp/components/AlbumScreen/download_button.dart';
+import 'package:finamp/components/AlbumScreen/playlist_edit_button.dart';
+import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
 import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/MusicScreen/sort_by_menu_button.dart';
 import 'package:finamp/components/MusicScreen/sort_order_button.dart';
+import 'package:finamp/components/favorite_button.dart';
+import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/album_menu.dart';
 import 'package:finamp/menus/components/icon_button_with_semantics.dart';
+import 'package:finamp/menus/components/overflow_menu_button.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/album_screen_provider.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/permission_providers.dart';
+import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../menus/album_menu.dart';
-import '../../menus/components/overflow_menu_button.dart';
-import '../../models/finamp_models.dart';
-import '../../models/jellyfin_models.dart';
-import '../../services/finamp_settings_helper.dart';
-import '../../services/queue_service.dart';
-import '../favorite_button.dart';
-import '../padded_custom_scrollview.dart';
-import 'album_screen_content_flexible_space_bar.dart';
-import 'download_button.dart';
-import 'playlist_edit_button.dart';
-import 'track_list_tile.dart';
 
 typedef BaseItemDtoCallback = void Function(BaseItemDto item);
 
@@ -120,8 +120,10 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
         SliverLayoutBuilder(
           builder: (context, constraints) {
             final actions = [
-              if (widget.parent.type == "Playlist" && !ref.watch(finampSettingsProvider.isOffline))
-                PlaylistNameEditButton(playlist: widget.parent),
+              if (widget.parent.type == "Playlist" &&
+                  !ref.watch(finampSettingsProvider.isOffline) &&
+                  ref.watch(canEditPlaylistProvider(widget.parent)))
+                PlaylistEditButton(playlist: widget.parent),
               if (widget.parent.type == "Playlist")
                 SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
               if (widget.parent.type == "Playlist")

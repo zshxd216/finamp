@@ -3526,7 +3526,7 @@ enum DiscordRpcIcon {
   }
 }
 
-@HiveType(typeId: 104)
+@HiveType(typeId: 107)
 enum PlaybackActionRowPage {
   @HiveField(0)
   newQueue,

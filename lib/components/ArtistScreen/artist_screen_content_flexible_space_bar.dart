@@ -76,8 +76,7 @@ class ArtistScreenContentFlexibleSpaceBar extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
-                PlaybackActionRow(
-                  compactLayout: true, item: parentItem, popContext: false, genreFilter: genreFilter),
+                PlaybackActionRow(compactLayout: true, item: parentItem, popContext: false, genreFilter: genreFilter),
               ],
             ),
           ),

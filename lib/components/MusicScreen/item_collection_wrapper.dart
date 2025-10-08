@@ -97,23 +97,21 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
         widget.onTap ??
         () {
           if (mutableItem.type == "MusicArtist") {
+            final artistGenreFilter = ref.watch(finampSettingsProvider.genreFilterArtistScreens);
             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ArtistScreen(
-                  widgetArtist: mutableItem,
-                  genreFilter: (ref.watch(finampSettingsProvider.genreFilterArtistScreens)) ? widget.genreFilter : null,
-                ),
+              MaterialPageRoute<ArtistScreen>(
+                builder: (_) =>
+                    ArtistScreen(widgetArtist: mutableItem, genreFilter: artistGenreFilter ? widget.genreFilter : null),
               ),
             );
           } else if (mutableItem.type == "MusicGenre") {
             Navigator.of(context).pushNamed(GenreScreen.routeName, arguments: mutableItem);
           } else if (mutableItem.type == "Playlist") {
+            final playlistGenreFilter = ref.watch(finampSettingsProvider.genreFilterPlaylists);
             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => AlbumScreen(
-                  parent: mutableItem,
-                  genreFilter: (ref.watch(finampSettingsProvider.genreFilterPlaylists)) ? widget.genreFilter : null,
-                ),
+              MaterialPageRoute<AlbumScreen>(
+                builder: (_) =>
+                    AlbumScreen(parent: mutableItem, genreFilter: playlistGenreFilter ? widget.genreFilter : null),
               ),
             );
           } else {

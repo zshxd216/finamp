@@ -57,11 +57,7 @@ Future<void> showModalAlbumMenu({
       SliverPersistentHeader(delegate: MenuItemInfoSliverHeader(item: item), pinned: true),
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
-        child: SliverToBoxAdapter(
-          child: PlaybackActionRow(
-            item: item,
-          ),
-        ),
+        child: SliverToBoxAdapter(child: PlaybackActionRow(item: item)),
       ),
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,

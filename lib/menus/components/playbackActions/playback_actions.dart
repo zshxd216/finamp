@@ -314,7 +314,6 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
           (scaffold) => AppLocalizations.of(scaffold)!.confirmAddToQueue(BaseItemDtoType.fromPlayableItem(item).name),
           isConfirmation: true,
         );
-
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -357,7 +356,6 @@ class ShufflePlaybackAction extends ConsumerWidget {
           source: QueueItemSource.fromPlayableItem(item),
           order: FinampPlaybackOrder.shuffled,
         );
-
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
@@ -460,7 +458,6 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
             (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
             isConfirmation: true,
           );
-
         },
         iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
       ),

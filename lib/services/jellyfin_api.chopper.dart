@@ -159,6 +159,37 @@ final class _$JellyfinApi extends JellyfinApi {
   }
 
   @override
+  Future<Response<dynamic>> setItemPrimaryImage({
+    String contentType = "image/jpeg",
+    required BaseItemId itemId,
+    required String base64Image,
+  }) {
+    final Uri $url = Uri.parse('/Items/${itemId}/Images/Primary');
+    final Map<String, String> $headers = {'Content-Type': contentType};
+    final $body = base64Image;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+      headers: $headers,
+    );
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
+  Future<dynamic> getUser() async {
+    final Uri $url = Uri.parse('/Users/Me');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
   Future<dynamic> getViews(String id) async {
     final Uri $url = Uri.parse('/Users/${id}/Views');
     final Request $request = Request('GET', $url, client.baseUrl);
@@ -303,6 +334,36 @@ final class _$JellyfinApi extends JellyfinApi {
     required BaseItemId itemId,
   }) async {
     final Uri $url = Uri.parse('/Users/${userId}/Items/${itemId}');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
+  Future<dynamic> getPlaylistUser({
+    required String userId,
+    required BaseItemId playlistId,
+  }) async {
+    final Uri $url = Uri.parse('/Playlists/${playlistId}/Users/${userId}');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
+  Future<dynamic> getPlaylistUsers({
+    required String userId,
+    required BaseItemId playlistId,
+  }) async {
+    final Uri $url = Uri.parse('/Playlists/${playlistId}/Users');
     final Request $request = Request('GET', $url, client.baseUrl);
     final Response $response = await client.send<dynamic, dynamic>(
       $request,

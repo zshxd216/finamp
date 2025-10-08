@@ -2891,7 +2891,7 @@ class DiscordRpcIconAdapter extends TypeAdapter<DiscordRpcIcon> {
 
 class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
   @override
-  final typeId = 104;
+  final typeId = 107;
 
   @override
   PlaybackActionRowPage read(BinaryReader reader) {

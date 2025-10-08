@@ -3844,3 +3844,53 @@ class PlaybackInfoRequest {
 
   Map<String, dynamic> toJson() => _$PlaybackInfoRequestToJson(this);
 }
+
+@JsonSerializable(
+  fieldRename: FieldRename.pascal,
+  explicitToJson: true,
+  anyMap: true,
+  converters: [BaseItemIdConverter()],
+)
+@HiveType(typeId: 104)
+class PlaylistInfo {
+  PlaylistInfo({this.openAccess, this.shares, this.itemIds});
+
+  @HiveField(0)
+  bool? openAccess;
+
+  @HiveField(1)
+  List<PlaylistUser>? shares;
+
+  @HiveField(2)
+  List<BaseItemId>? itemIds;
+
+  factory PlaylistInfo.fromJson(Map<String, dynamic> json) => _$PlaylistInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$PlaylistInfoToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.pascal, explicitToJson: true, anyMap: true)
+@HiveType(typeId: 105)
+class PlaylistUser {
+  PlaylistUser({this.userId, this.canEdit});
+
+  @HiveField(0)
+  String? userId;
+
+  @HiveField(1)
+  bool? canEdit;
+
+  factory PlaylistUser.fromJson(Map<String, dynamic> json) => _$PlaylistUserFromJson(json);
+  Map<String, dynamic> toJson() => _$PlaylistUserToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.pascal, explicitToJson: true, anyMap: true)
+@HiveType(typeId: 106)
+class PlaylistUsers {
+  PlaylistUsers({this.users});
+
+  @HiveField(0)
+  List<PlaylistUser>? users;
+
+  factory PlaylistUsers.fromJson(Map<String, dynamic> json) => _$PlaylistUsersFromJson(json);
+  Map<String, dynamic> toJson() => _$PlaylistUsersToJson(this);
+}

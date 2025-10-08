@@ -2703,6 +2703,115 @@ class PlaybackInfoRequestAdapter extends TypeAdapter<PlaybackInfoRequest> {
           typeId == other.typeId;
 }
 
+class PlaylistInfoAdapter extends TypeAdapter<PlaylistInfo> {
+  @override
+  final typeId = 104;
+
+  @override
+  PlaylistInfo read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return PlaylistInfo(
+      openAccess: fields[0] as bool?,
+      shares: (fields[1] as List?)?.cast<PlaylistUser>(),
+      itemIds: (fields[2] as List?)?.cast<BaseItemId>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, PlaylistInfo obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.openAccess)
+      ..writeByte(1)
+      ..write(obj.shares)
+      ..writeByte(2)
+      ..write(obj.itemIds);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlaylistInfoAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class PlaylistUserAdapter extends TypeAdapter<PlaylistUser> {
+  @override
+  final typeId = 105;
+
+  @override
+  PlaylistUser read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return PlaylistUser(
+      userId: fields[0] as String?,
+      canEdit: fields[1] as bool?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, PlaylistUser obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.userId)
+      ..writeByte(1)
+      ..write(obj.canEdit);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlaylistUserAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class PlaylistUsersAdapter extends TypeAdapter<PlaylistUsers> {
+  @override
+  final typeId = 106;
+
+  @override
+  PlaylistUsers read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return PlaylistUsers(users: (fields[0] as List?)?.cast<PlaylistUser>());
+  }
+
+  @override
+  void write(BinaryWriter writer, PlaylistUsers obj) {
+    writer
+      ..writeByte(1)
+      ..writeByte(0)
+      ..write(obj.users);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlaylistUsersAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class DlnaProfileTypeAdapter extends TypeAdapter<DlnaProfileType> {
   @override
   final typeId = 103;
@@ -4798,3 +4907,38 @@ Map<String, dynamic> _$PlaybackInfoRequestToJson(
   'AlwaysBurnInSubtitleWhenTranscoding':
       instance.alwaysBurnInSubtitleWhenTranscoding,
 };
+
+PlaylistInfo _$PlaylistInfoFromJson(Map json) => PlaylistInfo(
+  openAccess: json['OpenAccess'] as bool?,
+  shares: (json['Shares'] as List<dynamic>?)
+      ?.map((e) => PlaylistUser.fromJson(Map<String, dynamic>.from(e as Map)))
+      .toList(),
+  itemIds: (json['ItemIds'] as List<dynamic>?)
+      ?.map((e) => const BaseItemIdConverter().fromJson(e as String))
+      .toList(),
+);
+
+Map<String, dynamic> _$PlaylistInfoToJson(
+  PlaylistInfo instance,
+) => <String, dynamic>{
+  'OpenAccess': instance.openAccess,
+  'Shares': instance.shares?.map((e) => e.toJson()).toList(),
+  'ItemIds': instance.itemIds?.map(const BaseItemIdConverter().toJson).toList(),
+};
+
+PlaylistUser _$PlaylistUserFromJson(Map json) => PlaylistUser(
+  userId: json['UserId'] as String?,
+  canEdit: json['CanEdit'] as bool?,
+);
+
+Map<String, dynamic> _$PlaylistUserToJson(PlaylistUser instance) =>
+    <String, dynamic>{'UserId': instance.userId, 'CanEdit': instance.canEdit};
+
+PlaylistUsers _$PlaylistUsersFromJson(Map json) => PlaylistUsers(
+  users: (json['Users'] as List<dynamic>?)
+      ?.map((e) => PlaylistUser.fromJson(Map<String, dynamic>.from(e as Map)))
+      .toList(),
+);
+
+Map<String, dynamic> _$PlaylistUsersToJson(PlaylistUsers instance) =>
+    <String, dynamic>{'Users': instance.users?.map((e) => e.toJson()).toList()};

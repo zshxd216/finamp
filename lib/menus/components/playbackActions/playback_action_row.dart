@@ -43,7 +43,7 @@ class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
         ? lastUsedPlaybackActionRowPageIndex
         : 0;
     controller = PageController(initialPage: initialPageViewIndex);
-    
+
     final Map<String, Widget> playbackActionPages = getPlaybackActionPages(
       context: context,
       item: widget.item,
@@ -53,7 +53,7 @@ class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
       genreFilter: widget.genreFilter,
       preferNextUp: ref.watch(finampSettingsProvider.preferNextUpPrepending),
     );
-    
+
     final double playActionRowHeight = widget.compactLayout ? 76.0 : playActionRowHeightDefault;
     final rememberLastUsedPlaybackActionRowPage = ref.read(
       finampSettingsProvider.rememberLastUsedPlaybackActionRowPage,

@@ -68,8 +68,7 @@ class AlbumScreenContentFlexibleSpaceBar extends ConsumerWidget {
                   ],
                 ),
                 SizedBox(height: 10),
-                PlaybackActionRow(
-                  compactLayout: true, item: parentItem, popContext: false, genreFilter: genreFilter),
+                PlaybackActionRow(compactLayout: true, item: parentItem, popContext: false, genreFilter: genreFilter),
               ],
             ),
           ),
