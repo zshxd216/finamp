@@ -1,17 +1,17 @@
 {
-    "audioService": "Служба аудіовідтворення",
+    "audioService": "Аудіослужба",
     "@audioService": {},
     "layoutAndTheme": "Вигляд і тема",
     "@layoutAndTheme": {},
-    "notAvailableInOfflineMode": "Недоступне в оффлайн режимі",
+    "notAvailableInOfflineMode": "Недоступне в офлайн-режимі",
     "@notAvailableInOfflineMode": {},
-    "enableTranscodingSubtitle": "Перекодування музичного потоку відбувається зі сторони сервера.",
+    "enableTranscodingSubtitle": "Транскодує музичні потоки на боці сервера.",
     "@enableTranscodingSubtitle": {},
-    "customLocation": "Власна папка",
+    "customLocation": "Власне розташування",
     "@customLocation": {},
     "pathReturnSlashErrorMessage": "Шляхи, які повертають \"/\", не можна використовувати",
     "@pathReturnSlashErrorMessage": {},
-    "enterLowPriorityStateOnPause": "Перейти у стан низького пріоритету під час паузи",
+    "enterLowPriorityStateOnPause": "Переходити у стан низького пріоритету під час паузи",
     "@enterLowPriorityStateOnPause": {},
     "shuffleAllTrackCount": "Перемішати всі треки",
     "@shuffleAllTrackCount": {},
@@ -112,11 +112,11 @@
     "@couldNotFindLibraries": {
         "description": "Error message when the user does not have any libraries"
     },
-    "playlists": "Списки відтворення",
+    "playlists": "Плейлісти",
     "@playlists": {},
-    "album": "Альбомом",
+    "album": "Альбом",
     "@album": {},
-    "trackCount": "{count,plural,=1{{count} Трек} other{{count} Треків}}",
+    "trackCount": "{count,plural,=1{{count} Трек} few{{count} Треки} other{{count} Треків}}",
     "@trackCount": {
         "placeholders": {
             "count": {
@@ -124,9 +124,9 @@
             }
         }
     },
-    "dateAdded": "Датою додавання",
+    "dateAdded": "Дата додавання",
     "@dateAdded": {},
-    "startMixNoTracksArtist": "Затисніть на виконавцеві, щоб додати або видалити його з конструктора міксів перед початком мікшування",
+    "startMixNoTracksArtist": "Затисніть виконавця, щоб додати або прибрати його з міксу",
     "@startMixNoTracksArtist": {
         "description": "Snackbar message that shows when the user presses the instant mix button with no artists selected"
     },
@@ -134,25 +134,25 @@
     "@internalExternalIpExplanation": {
         "description": "Extra info for which IP to use for remote access, and info on whether or not the user needs to specify a port."
     },
-    "startMix": "Почати перемішування",
+    "startMix": "Почати мікс",
     "@startMix": {},
-    "artist": "Виконавцем",
+    "artist": "Виконавець",
     "@artist": {},
-    "startMixNoTracksAlbum": "Затисніть альбом, щоб додати або видалити його з конструктора міксів перед початком мікшування",
+    "startMixNoTracksAlbum": "Затисніть альбом, щоб додати або прибрати його з міксу",
     "@startMixNoTracksAlbum": {
         "description": "Snackbar message that shows when the user presses the instant mix button with no albums selected"
     },
     "sortBy": "Сортування за",
     "@sortBy": {},
-    "albumArtist": "Виконавцем альбому",
+    "albumArtist": "Виконавець альбому",
     "@albumArtist": {},
-    "communityRating": "Оцінкою спільноти",
+    "communityRating": "Оцінка спільноти",
     "@communityRating": {},
-    "playCount": "Кількістю відтворень",
+    "playCount": "Кількість відтворень",
     "@playCount": {},
     "premiereDate": "Дата випуску",
     "@premiereDate": {},
-    "downloadCount": "{count,plural, =1{{count} Завантажено} other{{count} Завантажень}}",
+    "downloadCount": "{count,plural, =1{{count} завантаження} few{{count} завантаження} other{{count} завантажень}}",
     "@downloadCount": {
         "placeholders": {
             "count": {
@@ -160,9 +160,9 @@
             }
         }
     },
-    "datePlayed": "Дата останньої гри",
+    "datePlayed": "Дата останнього відтворювання",
     "@datePlayed": {},
-    "name": "Ім'ям",
+    "name": "Ім'я",
     "@name": {},
     "downloadedMissingImages": "{count,plural, =0{Відсутніх зображень не знайдено} =1{Завантажено {count} відсутнє зображення} other{Завантажено {count} відсутніх зображень}}",
     "@downloadedMissingImages": {
@@ -181,7 +181,7 @@
             }
         }
     },
-    "errorScreenError": "Під час отримання списку помилок сталася помилка! На цьому етапі вам, ймовірно, слід просто створити проблему на GitHub і видалити дані програми",
+    "errorScreenError": "Під час отримання списку помилок сталася помилка! На цьому етапі вам, ймовірно, слід просто створити issue на GitHub і видалити дані програми",
     "@errorScreenError": {},
     "error": "Помилка",
     "@error": {},
@@ -203,9 +203,9 @@
             }
         }
     },
-    "failedToGetTrackFromDownloadId": "Не вдалося отримати композицію із ідентифікатора завантаження",
+    "failedToGetTrackFromDownloadId": "Не вдалося отримати трек із ідентифікатора завантаження",
     "@failedToGetTrackFromDownloadId": {},
-    "discNumber": "Платівка {number}",
+    "discNumber": "Диск {number}",
     "@discNumber": {
         "placeholders": {
             "number": {
@@ -233,21 +233,21 @@
     "@downloadLocations": {},
     "addButtonLabel": "Додати",
     "@addButtonLabel": {},
-    "applicationLegalese": "Ліцензовано на умовах Mozilla Public License 2.0.\nСирцевий код доступний за {sourceCodeLink}.",
+    "applicationLegalese": "Ліцензовано на умовах Mozilla Public License 2.0.\nВихідний код доступний на {sourceCodeLink}.",
     "@applicationLegalese": {},
     "bitrate": "Бітрейт",
     "@bitrate": {},
     "logOut": "Вийти",
     "@logOut": {},
-    "enableTranscoding": "Ввімкнути транскодування",
+    "enableTranscoding": "Увімкнути транскодування",
     "@enableTranscoding": {},
-    "areYouSure": "Ви впевнені ?",
+    "areYouSure": "Ви впевнені?",
     "@areYouSure": {},
     "dark": "Темна",
     "@dark": {},
     "appDirectory": "Тека застосунку",
     "@appDirectory": {},
-    "bitrateSubtitle": "Вищий бітрейт забезпечує вищу якість звуку за рахунок вищої пропускної здатності. Не застосовується на формати без втрат штибу FLAC",
+    "bitrateSubtitle": "Вищий бітрейт забезпечує кращу якість звуку ціною більшого споживання трафіку. Не застосовується до форматів без втрат, напр. FLAC",
     "@bitrateSubtitle": {},
     "addDownloadLocation": "Додати теку завантаження",
     "@addDownloadLocation": {},
@@ -271,7 +271,7 @@
             }
         }
     },
-    "customLocationsBuggy": "Користувацькі розташування можуть бути дуже помилковими, тому в більшості випадків не рекомендуються. Розташування в системній папці «Музика» не дозволяють зберігати обкладинки альбомів через обмеження ОС.",
+    "customLocationsBuggy": "Користувацькі розташування можуть працювати з помилками, тому в більшості випадків їх не рекомендується використовувати. Розташування в системній папці «Музика» не дозволяють зберігати обкладинки альбомів через обмеження ОС.",
     "@customLocationsBuggy": {},
     "grid": "Таблиця",
     "@grid": {},
@@ -328,7 +328,7 @@
     },
     "bufferDuration": "Тривалість буферу",
     "@bufferDuration": {},
-    "offlineMode": "Офлайн режим",
+    "offlineMode": "Офлайн-режим",
     "@offlineMode": {},
     "sortOrder": "Порядок сортування",
     "@sortOrder": {},
@@ -370,15 +370,15 @@
     "@downloads": {},
     "settings": "Налаштування",
     "@settings": {},
-    "budget": "Бюджетом",
+    "budget": "Бюджет",
     "@budget": {},
-    "criticRating": "Оцінкою критиків",
+    "criticRating": "Оцінка критиків",
     "@criticRating": {},
-    "productionYear": "Роком виходу",
+    "productionYear": "Рік виходу",
     "@productionYear": {},
     "random": "Випадково",
     "@random": {},
-    "revenue": "Доходом",
+    "revenue": "Дохід",
     "@revenue": {},
     "downloadMissingImages": "Завантажити відсутні зображення",
     "@downloadMissingImages": {},
@@ -386,19 +386,19 @@
     "@playButtonLabel": {},
     "shuffleButtonLabel": "Перемішати",
     "@shuffleButtonLabel": {},
-    "playlistUpdated": "Ім'я плейлисту змінено.",
+    "playlistUpdated": "Ім'я плейлісту змінено.",
     "@playlistUpdated": {},
     "downloadsDeleted": "Завантаження видалено.",
     "@downloadsDeleted": {},
     "addDownloads": "Додати завантаження",
     "@addDownloads": {},
-    "location": "Збережено в",
+    "location": "Розташування",
     "@location": {},
     "downloadsQueued": "Завантаження файлів",
     "@downloadsQueued": {},
     "message": "Повідомлення",
     "@message": {},
-    "stackTrace": "Трасування стека",
+    "stackTrace": "Журнал помилок",
     "@stackTrace": {},
     "confirm": "Підтвердити",
     "@confirm": {},
@@ -418,7 +418,7 @@
     "@noMusicLibrariesBody": {},
     "resetTabs": "Скинути вкладки",
     "@resetTabs": {},
-    "syncDownloadedPlaylists": "Синхронізувати завантажені списки відтворення",
+    "syncDownloadedPlaylists": "Синхронізувати завантажені плейлісти",
     "@syncDownloadedPlaylists": {},
     "showFastScroller": "Показувати швидку прокрутку",
     "@showFastScroller": {},
@@ -514,11 +514,11 @@
     "@login": {
         "description": "Label for the login button."
     },
-    "startMixNoTracksGenre": "Натисніть та утримуйте на жанрі для його додавання чи видалення із конструктора міксів перед початком мікшування",
+    "startMixNoTracksGenre": "Затисніть жанр, щоб додати або прибрати його з міксу",
     "@startMixNoTracksGenre": {
         "description": "Snackbar message that shows when the user presses the instant mix button with no genres selected"
     },
-    "title": "Заголовком",
+    "title": "Заголовок",
     "@title": {},
     "activeDownloads": "Активні завантаження",
     "@activeDownloads": {},
@@ -773,7 +773,7 @@
     "@orDivider": {
         "description": "Text that separates two different ways to log in. For example, after selecting a server during the login flow, the other can either use Quick Connect, *or* select an account from a list. The text is stylized by wrapping it in dashes: '- or -'."
     },
-    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} трек} other{{trackCount} треків}}, {imageCount,plural,=1{{imageCount} зображення} other{{imageCount} зображення}}\n{syncCount,plural,=1{{syncCount} синхронізація вузла} other{{syncCount} синхронізація вузлів}}{repairing, plural, =0{} other{\nНаразі виправляється}}",
+    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} трек} few{{value} трека} other{{trackCount} треків}}, {imageCount,plural,=1{{imageCount} зображення} few{{value} зображення}other{{imageCount} зображень}}\n{syncCount,plural,=1{{syncCount} синхронізація вузла} other{{syncCount} синхронізація вузлів}}{repairing, plural, =0{} other{\nНаразі виправляється}}",
     "@downloadedCountUnified": {
         "description": "Display of downloaded track and image count on downloads screen.",
         "placeholders": {
@@ -1364,7 +1364,7 @@
     "@fiveLatestAlbumsSettingSubtitle": {},
     "cacheLibraryImagesSettings": "Кешувати зображення поточної бібліотеки",
     "@cacheLibraryImagesSettings": {},
-    "offlineTrackCount": "{count,plural,=1{{count} Трек} other{{count} Треків}}, {downloads} завантажено",
+    "offlineTrackCount": "{count,plural,=1{{count} Трек} few{{count} Треки} other{{count} Треків}}, {downloads} завантажено",
     "@offlineTrackCount": {
         "placeholders": {
             "count": {
@@ -1375,7 +1375,7 @@
             }
         }
     },
-    "offlineTrackCountArtist": "{count,plural,=1{{count} Трек} other{{count} Треків}} завантажено",
+    "offlineTrackCountArtist": "{count,plural,=1{{count} Трек} few{{count} Треки} other{{count} Треків}} завантажено",
     "@offlineTrackCountArtist": {
         "placeholders": {
             "count": {
@@ -1843,7 +1843,7 @@
     "@deleteDownloadsConfirmButtonText": {
         "description": "Shown in the confirmation dialog for deleting downloaded media from the local device."
     },
-    "deleteDownloadsPrompt": "Ви впевнені, що хочете видалити {itemType, select, album{альбом} playlist{список відтворення} artist{виконавця} genre{жанр} track{композицію} library{бібліотеку} other{елемент}} '{itemName}' з цього пристрою?",
+    "deleteDownloadsPrompt": "Ви впевнені, що хочете видалити {itemType, select, album{альбом} playlist{плейліст} artist{виконавця} genre{жанр} track{трек} library{бібліотеку} other{елемент}} '{itemName}' з цього пристрою?",
     "@deleteDownloadsPrompt": {
         "placeholders": {
             "itemName": {
@@ -1959,7 +1959,7 @@
     "@autoOfflineSettingTitle": {},
     "appearsOnAlbums": "З'являється на",
     "@appearsOnAlbums": {},
-    "performingArtists": "Артисти-виконавці",
+    "performingArtists": "Виконавці",
     "@performingArtists": {},
     "albumArtists": "Виконавці альбому",
     "@albumArtists": {},
@@ -2056,7 +2056,7 @@
     "@startupErrorWorkaround": {
         "description": "The subtitle for how to manually recover from a startup error"
     },
-    "exportLogs": "Зберегти журнали",
+    "exportLogs": "Зберегти логи",
     "@exportLogs": {},
     "showShuffleButtonOnMediaNotificationTitle": "Показувати кнопку випадкового відтворення в сповіщенні про медіафайли",
     "@showShuffleButtonOnMediaNotificationTitle": {
@@ -2238,7 +2238,7 @@
     "@noReleaseDate": {
         "description": "Placeholder text if an album has no release date set."
     },
-    "formattedRelativeTime": "{type, select, just_now{щойно} minutes{{value} хвилин тому} hours{{value} год. тому} yesterday{вчора} days{{value, plural, =1{1 день тому} other{{value} днів тому}}} other{value}}",
+    "formattedRelativeTime": "{type, select, just_now{щойно} minutes{{value} хвилин тому} hours{{value} год. тому} yesterday{вчора} days{{value, plural, =1{1 день тому} few{{value} дні тому} other{{value} днів тому}}} other{value}}",
     "@formattedRelativeTime": {
         "description": "Returns a relative time string based on how long ago something happened. Used for various DateTime values such as Date Last Played and Date Added.",
         "placeholders": {
@@ -2370,7 +2370,7 @@
     },
     "recentlyPlayedAlbums": "Нещодавно відтворені альбоми",
     "@recentlyPlayedAlbums": {},
-    "defaultOrder": "Порядок за замовчуванням",
+    "defaultOrder": "Типовий порядок",
     "@defaultOrder": {
         "description": "Default sorting order for playlists (server order)"
     },
@@ -2388,7 +2388,7 @@
             }
         }
     },
-    "editItemTitle": "Редагувати {itemType, select, playlist{Список відтворення} other{}}",
+    "editItemTitle": "Редагувати {itemType, select, playlist{Плейліст} other{}}",
     "@editItemTitle": {
         "placeholders": {
             "itemType": {
@@ -2603,7 +2603,7 @@
     "@logoutButtonSubtitle": {},
     "adaptive": "Адаптивний",
     "@adaptive": {},
-    "shuffleCountButton": "Перемішати ({count,plural,=1{{count} Трек} other{{count} Треки}})",
+    "shuffleCountButton": "Перемішати ({count,plural,=1{{count} Трек} few{{count} Треки} other{{count} Треків}})",
     "@shuffleCountButton": {
         "placeholders": {
             "count": {
@@ -2774,11 +2774,11 @@
     "@playbackActionPageNext": {
         "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
     },
-    "playbackActionPageNextUp": "Додати далі",
+    "playbackActionPageNextUp": "Додати наступним",
     "@playbackActionPageNextUp": {
         "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
     },
-    "playbackActionPageAppendToQueue": "Грати останнім",
+    "playbackActionPageAppendToQueue": "Відтворити останнім",
     "@playbackActionPageAppendToQueue": {
         "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
     },
@@ -2826,7 +2826,7 @@
     "@rememberLastUsedPlaybackActionRowPageSubtitle": {
         "description": "Subtitle for the setting to remember the last used playback mode."
     },
-    "updatePlaylistButtonLabel": "Оновити список відтворення",
+    "updatePlaylistButtonLabel": "Оновити плейліст",
     "@updatePlaylistButtonLabel": {
         "description": "Label for the button that updates the playlist on the edit playlist screen"
     },
