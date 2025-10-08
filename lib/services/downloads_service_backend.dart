@@ -1554,9 +1554,10 @@ class DownloadsSyncService {
   /// [_downloadImage] for human readable download locations.
   String? _filesystemSafe(String? unsafe) => unsafe?.replaceAll(RegExp(r'[/?<>:*|.\\"]'), "_");
 
-  /// Builds the subdirectory ($1) and base filename ($2) for track and image files
+  /// Builds the subdirectory ($1) and base filename ($2) for tracks
   /// Used by [_downloadTrack] for a consistent directory structure.
-  (String, String) _getDownloadPath(DownloadItem downloadItem) {
+  (String, String) _getTrackDownloadPath(DownloadItem downloadItem) {
+    assert(downloadItem.type == DownloadItemType.track);
     var downloadLocation = downloadItem.syncDownloadLocation!;
     var item = downloadItem.baseItem!;
     String fileName;
@@ -1564,7 +1565,6 @@ class DownloadsSyncService {
     if (downloadLocation.useHumanReadableNames) {
       final indexNumber = item.indexNumber != null ? "[${item.indexNumber}] " : "";
       final artist = (item.artists?.isNotEmpty ?? false) ? "${item.artists?.first} - " : "";
-      // final originalFilename = item.path?.split(r'\\/').lastOrNull?.split('.').slice(0, -1).join('.');
       final originalFilename = item.mediaSources?.firstWhere((e) => e.type.toLowerCase() == "default").name;
       fileName = _filesystemSafe(
         "${originalFilename ?? "$indexNumber$artist${item.name}"}_${item.id.raw.substring(0, 8)}",
@@ -1579,11 +1579,7 @@ class DownloadsSyncService {
       }
     } else {
       fileName = item.id.raw;
-      if (downloadItem.type == DownloadItemType.image) {
-        subDirectory = FINAMP_BASE_IMAGES_DIRECTORY;
-      } else {
-        subDirectory = FINAMP_BASE_DOWNLOAD_DIRECTORY;
-      }
+      subDirectory = FINAMP_BASE_DOWNLOAD_DIRECTORY;
     }
 
     if (downloadLocation.baseDirectory.baseDirectory == BaseDirectory.root) {
@@ -1617,7 +1613,7 @@ class DownloadsSyncService {
 
     String baseFilename;
     String subDirectory;
-    (subDirectory, baseFilename) = _getDownloadPath(downloadItem);
+    (subDirectory, baseFilename) = _getTrackDownloadPath(downloadItem);
     String fileName = "$baseFilename$extension";
 
     // fetch lyrics if track has lyrics
@@ -1665,7 +1661,7 @@ class DownloadsSyncService {
     });
   }
 
-  /// Prepares for downloading of a given track by filling in the path information
+  /// Prepares for downloading of a given image by filling in the path information
   /// and marking item as enqueued in isar.
   Future<void> _downloadImage(DownloadItem downloadItem) async {
     assert(downloadItem.type == DownloadItemType.image && downloadItem.syncDownloadLocation != null);

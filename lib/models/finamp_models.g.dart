@@ -106,7 +106,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             ? true
             : fields[29] as bool,
         volumeNormalizationIOSBaseGain: fields[30] == null
-            ? -2.0
+            ? 6.0
             : (fields[30] as num).toDouble(),
         volumeNormalizationMode: fields[33] == null
             ? VolumeNormalizationMode.hybrid
