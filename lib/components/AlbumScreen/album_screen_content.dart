@@ -122,7 +122,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
             final actions = [
               if (widget.parent.type == "Playlist" &&
                   !ref.watch(finampSettingsProvider.isOffline) &&
-                  ref.watch(canEditItemProvider(widget.parent)))
+                  ref.watch(canEditPlaylistProvider(widget.parent)))
                 PlaylistEditButton(playlist: widget.parent),
               if (widget.parent.type == "Playlist")
                 SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),

@@ -9,6 +9,7 @@ final AutoDisposeProviderFamily<bool, BaseItemDto> canDeleteFromServerProvider =
   ref,
   BaseItemDto item,
 ) {
+  // we can't delete from server when offline
   bool offline = ref.watch(finampSettingsProvider.isOffline);
   if (offline) {
     return false;
@@ -48,17 +49,21 @@ final AutoDisposeFutureProviderFamily<bool?, BaseItemId> _canDeleteFromServerAsy
           });
     });
 
-final AutoDisposeProviderFamily<bool, BaseItemDto> canEditItemProvider = AutoDisposeProviderFamily((
+final AutoDisposeProviderFamily<bool, BaseItemDto> canEditPlaylistProvider = AutoDisposeProviderFamily((
   ref,
   BaseItemDto item,
 ) {
   var itemType = BaseItemDtoType.fromItem(item);
+  assert(itemType == BaseItemDtoType.playlist, "canEditPlaylistProvider should only be used with playlists");
+
+  // No need to check if offline, since we might support offline edits (which are synced on reconnect) at a later point, like adding a track to a playlist.
+  // For now, the using widgets should still have this check in place.
 
   // do not bother checking server for item types known to not be editable
   if (![BaseItemDtoType.album, BaseItemDtoType.playlist, BaseItemDtoType.track].contains(itemType)) {
     return false;
   }
-  bool? serverReturn = ref.watch(_canEditItemAsyncProvider(item.id)).value;
+  bool? serverReturn = ref.watch(_canEditPlaylistAsyncProvider(item.id)).value;
   if (serverReturn == null) {
     // fallback to allowing deletion even if the response is invalid, since the user might still be able to delete
     // worst case would be getting an error message when trying to delete
@@ -68,21 +73,24 @@ final AutoDisposeProviderFamily<bool, BaseItemDto> canEditItemProvider = AutoDis
   }
 });
 
-final AutoDisposeFutureProviderFamily<bool?, BaseItemId> _canEditItemAsyncProvider = AutoDisposeFutureProviderFamily((
-  ref,
-  BaseItemId id,
-) {
-  return GetIt.instance<JellyfinApiHelper>()
-      .getPlaylistUser(id)
-      .then((response) {
-        return response.canEdit;
-      })
-      .catchError((_) {
-        return false;
-      });
-});
+final AutoDisposeFutureProviderFamily<bool?, BaseItemId> _canEditPlaylistAsyncProvider =
+    AutoDisposeFutureProviderFamily((ref, BaseItemId id) {
+      return GetIt.instance<JellyfinApiHelper>()
+          .getPlaylistUser(id)
+          .then((response) {
+            return response.canEdit;
+          })
+          .catchError((_) {
+            return false;
+          });
+    });
 
 final AutoDisposeProvider<bool> canEditMetadataProvider = AutoDisposeProvider((ref) {
+  // editing metadata while offline (e.g., through caching or edit queues) probably isn't a good idea
+  bool offline = ref.watch(finampSettingsProvider.isOffline);
+  if (offline) {
+    return false;
+  }
   bool? serverReturn = ref.watch(_canEditMetadataAsyncProvider).value;
   return serverReturn ?? false;
 });
