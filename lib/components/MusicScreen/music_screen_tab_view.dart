@@ -148,8 +148,9 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
         } else {
           _pagingController.appendPage(newItems, pageKey + newItems.length);
         }
-        if (letterToSearch != null) {
-          scrollToLetter(letterToSearch);
+        var localLetterToSearch = letterToSearch;
+        if (localLetterToSearch != null) {
+          scrollToLetter(localLetterToSearch);
         }
       }
     } catch (e) {
@@ -222,8 +223,9 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     if (localRefreshCount == refreshCount && mounted) {
       _pagingController.appendLastPage(items);
       fullyLoadedRefresh = localRefreshCount;
-      if (letterToSearch != null) {
-        scrollToLetter(letterToSearch);
+      var localLetterToSearch = letterToSearch;
+      if (localLetterToSearch != null) {
+        scrollToLetter(localLetterToSearch);
       }
     }
   }
@@ -261,12 +263,11 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
 
   // Scrolls the list to the first occurrence of the letter in the list
   // If clicked in the # element, it goes to the first or last one item, depending on sort order
-  void scrollToLetter(String? clickedLetter) async {
-    String? letter = clickedLetter ?? letterToSearch;
-    if (letter == null || letter.isEmpty) return;
+  void scrollToLetter(String letter) async {
+    if (letter.isEmpty) return;
 
     letterToSearch = letter;
-    var codePointToScrollTo = letterToSearch!.toLowerCase().codeUnitAt(0);
+    var codePointToScrollTo = letter.toLowerCase().codeUnitAt(0);
 
     // Max code point is lower case z to increase the chance of seeing a character
     // past the target but below the ignore point
@@ -277,9 +278,21 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     }
 
     //TODO use binary search to improve performance for already loaded pages
+    var itemList = _pagingController.itemList!;
+    SortBy? tabSortBy = FinampSettingsHelper.finampSettings.tabSortBy[widget.tabContentType];
     bool reversed = FinampSettingsHelper.finampSettings.tabSortOrder[widget.tabContentType] == SortOrder.descending;
-    for (var i = 0; i < _pagingController.itemList!.length; i++) {
-      int itemCodePoint = _pagingController.itemList![i].nameForSorting!.toLowerCase().codeUnitAt(0);
+    for (var i = 0; i < itemList.length; i++) {
+      String sortName;
+      switch (tabSortBy) {
+        case SortBy.albumArtist:
+          sortName = itemList[i].albumArtist ?? "";
+          break;
+        default:
+          sortName = itemList[i].nameForSorting ?? "";
+          break;
+      }
+      if (sortName.isEmpty) continue; // assume empty names are at the start
+      int itemCodePoint = sortName.toLowerCase().codeUnitAt(0);
       if (itemCodePoint <= maxCodePoint) {
         final comparisonResult = itemCodePoint - codePointToScrollTo;
         if (comparisonResult == 0) {
@@ -297,7 +310,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
           // scroll to the previous item instead
           timer?.cancel();
           await controller.scrollToIndex(
-            (i - 1).clamp(0, (_pagingController.itemList?.length ?? 1) - 1),
+            (i - 1).clamp(0, itemList.length - 1),
             // duration: scrollDuration,
             duration: _getAnimationDurationForOffsetToIndex(i),
             preferPosition: AutoScrollPosition.middle,
@@ -523,13 +536,15 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                   ),
           );
 
+    var showFastScroller = ref.watch(finampSettingsProvider.showFastScroller);
+    var tabSortBy = ref.watch(finampSettingsProvider.tabSortBy(widget.tabContentType));
     return RefreshIndicator(
       onRefresh: () async => _refresh(),
       child:
-          ref.watch(finampSettingsProvider.showFastScroller) &&
+          showFastScroller &&
               (widget.sortByOverride == SortBy.sortName ||
-                  (widget.sortByOverride == null &&
-                      ref.watch(finampSettingsProvider.tabSortBy(widget.tabContentType)) == SortBy.sortName))
+                  widget.sortByOverride == SortBy.albumArtist ||
+                  widget.sortByOverride == null && (tabSortBy == SortBy.sortName || tabSortBy == SortBy.albumArtist))
           ? AlphabetList(
               callback: scrollToLetter,
               scrollController: controller,
