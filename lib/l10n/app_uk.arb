@@ -2825,5 +2825,41 @@
     "rememberLastUsedPlaybackActionRowPageSubtitle": "Якщо цю функцію ввімкнено, буде запам’ятано останній використаний режим відтворення (наприклад, «Наступний»).",
     "@rememberLastUsedPlaybackActionRowPageSubtitle": {
         "description": "Subtitle for the setting to remember the last used playback mode."
+    },
+    "updatePlaylistButtonLabel": "Оновити список відтворення",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "Збереження змін…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "noPermissionToEditMetadata": "Щоб редагувати зображення метаданих, вам потрібен адміністратор.",
+    "@noPermissionToEditMetadata": {
+        "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
+    },
+    "removedTracks": "Вилучені треки",
+    "@removedTracks": {
+        "description": "Section header for the list of removed tracks on the playlist edit screen"
+    },
+    "removedTracksEmptyListPlaceholder": "Вилучені треки з’являться тут",
+    "@removedTracksEmptyListPlaceholder": {
+        "description": "Placeholder text shown when there are no removed tracks"
+    },
+    "restoreTrack": "Відновити трек",
+    "@restoreTrack": {
+        "description": "Button title for restoring a track that was marked to be removed"
+    },
+    "discardChangesTitle": "Відхилити зміни?",
+    "@discardChangesTitle": {
+        "description": "Title for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "discardChangesDescription": "У вас є незбережені зміни. Відхилити їх та повернутися назад?",
+    "@discardChangesDescription": {
+        "description": "Description for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "discardChangesConfirmButton": "Скасувати зміни",
+    "@discardChangesConfirmButton": {
+        "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
     }
 }
