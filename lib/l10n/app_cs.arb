@@ -2823,5 +2823,41 @@
     "rememberLastUsedPlaybackActionRowPageSubtitle": "Pokud je povoleno, bude zapamatován váš poslední použitý režim přehrávání (např. Další na řadě).",
     "@rememberLastUsedPlaybackActionRowPageSubtitle": {
         "description": "Subtitle for the setting to remember the last used playback mode."
+    },
+    "updatePlaylistButtonLabel": "Aktualizovat seznam skladeb",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "Ukládání změn…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "noPermissionToEditMetadata": "Pro úpravu obrázků metadat musíte být administrátorem.",
+    "@noPermissionToEditMetadata": {
+        "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
+    },
+    "removedTracks": "Odstraněné skladby",
+    "@removedTracks": {
+        "description": "Section header for the list of removed tracks on the playlist edit screen"
+    },
+    "removedTracksEmptyListPlaceholder": "Odstraněné skladby se zobrazí zde",
+    "@removedTracksEmptyListPlaceholder": {
+        "description": "Placeholder text shown when there are no removed tracks"
+    },
+    "restoreTrack": "Obnovit skladbu",
+    "@restoreTrack": {
+        "description": "Button title for restoring a track that was marked to be removed"
+    },
+    "discardChangesTitle": "Zahodit změny?",
+    "@discardChangesTitle": {
+        "description": "Title for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "discardChangesDescription": "Máte neuložené změny. Chcete je zahodit a přejít zpět?",
+    "@discardChangesDescription": {
+        "description": "Description for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "discardChangesConfirmButton": "Zahodit změny",
+    "@discardChangesConfirmButton": {
+        "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
     }
 }
