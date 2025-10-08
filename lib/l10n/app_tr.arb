@@ -1419,7 +1419,7 @@
             }
         }
     },
-    "queueLoadingMessage": "Sıra geri yükleniyor...",
+    "queueLoadingMessage": "Sıra geri yükleniyor…",
     "@queueLoadingMessage": {
         "description": "Message displayed on now-playing bar when a saved queue is loading."
     },
@@ -1731,7 +1731,7 @@
     "@createPlaylistFromCurrentQueue": {
         "description": "Label for a button that adds the current queue to an existing or new playlist."
     },
-    "playingFrom": "Şurdan oynatılıyor;",
+    "playingFrom": "Şuradan oynatılıyor;",
     "@playingFrom": {
         "description": "Prefix shown before the name of the main queue source, like the album or playlist that was used to start playback. Example: \"Playing from {My Nice Playlist}\""
     },
@@ -1760,5 +1760,154 @@
     "genericToggleButtonTooltip": "Değiştirmek için tıklayın.",
     "@genericToggleButtonTooltip": {
         "description": "Tooltip for toggle buttons that can be tapped to toggle their state"
+    },
+    "deleteDownloadsPrompt": "{itemType, select, album{album} playlist{playlist} artist{artist} genre{genre} track{track} library{library} other{item}} '{itemName}' bu cihazdan silinceğine emin misin?",
+    "@deleteDownloadsPrompt": {
+        "placeholders": {
+            "itemName": {
+                "type": "String",
+                "example": "Abandon Ship"
+            },
+            "itemType": {
+                "type": "String",
+                "example": "album"
+            }
+        },
+        "description": "Confirmation prompt shown before deleting downloaded media from the local device, destructive action, doesn't affect the media on the server."
+    },
+    "shuffleCountButton": "Rastgele ({count,plural,=1{{count} Şarkı} other{{count} Şarkıları}}) oynat",
+    "@shuffleCountButton": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "playbackActionPageNewQueue": "Yeni oynatma sırası",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Sonraki şarkı",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageNextUp": "Sonraki şarkılara ekle",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "playbackActionPageAppendToQueue": "En son olarak çal",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "editItemTitle": "{itemType, select, playlist{oynatma sırasını} other{}} düzenle",
+    "@editItemTitle": {
+        "placeholders": {
+            "itemType": {
+                "type": "String"
+            }
+        }
+    },
+    "updatePlaylistButtonLabel": "Listeyi güncelle",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "Değişiklikler kayıt ediliyor…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "none": "Yok",
+    "@none": {},
+    "autoSwitchItemCurationTypeTitle": "Öğe Düzenleme Türünü otomatik değiştir",
+    "@autoSwitchItemCurationTypeTitle": {},
+    "autoSwitchItemCurationTypeSubtitle": "",
+    "@autoSwitchItemCurationTypeSubtitle": {},
+    "showArtistsTracksSection": "Şarkı seçimini göster",
+    "@showArtistsTracksSection": {},
+    "shuffleToQueue": "Sıraya rastgele ekle",
+    "@shuffleToQueue": {
+        "description": "Used for shuffling a list (album, playlist, etc.) to the end of the regular queue, to play after all prior tracks from the queue have played"
+    },
+    "shuffleSomeToNextUp": "Bir kaç tane sonrakilere rastgele ekle",
+    "@shuffleSomeToNextUp": {
+        "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
+    },
+    "shuffleSomeToQueue": "Bir kaç tane rastgele sıraya ekle",
+    "@shuffleSomeToQueue": {
+        "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
+    },
+    "confirmAddToNextUp": "{type, select, track{Şarkı} album{Albüm} artist{sanatçı} playlist{playlist} genre{tür} disc{disc} other{öğe}} sonrakilere eklendi",
+    "@confirmAddToNextUp": {
+        "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmAddToQueue": "{type, select, track{Şarkı} album{Albüm} artist{sanatçı} playlist{playlist} genre{tür} disc{disc} other{öğe}} sıraya eklendi",
+    "@confirmAddToQueue": {
+        "description": "A confirmation message that is shown after successfully adding a track to the end of the regular queue",
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmShuffleNext": "Sonraki olarak karıştır",
+    "@confirmShuffleNext": {
+        "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the front of the \"Next Up\" queue"
+    },
+    "shuffleSomeNext": "Sonradan bir kaç tane karıştır",
+    "@shuffleSomeNext": {
+        "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "shuffleToNextUp": "Sonrakilere rastgele ekle",
+    "@shuffleToNextUp": {
+        "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
+    },
+    "confirmShuffleToNextUp": "Sonrakilere rastgele eklenmiştir",
+    "@confirmShuffleToNextUp": {
+        "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue"
+    },
+    "tracksFormerNextUp": "Sonrakilere eklenmiş şarkılar",
+    "@tracksFormerNextUp": {
+        "description": "Title for the queue source for tracks that were once added to the queue via the \"Next Up\" feature, but have since been played"
+    },
+    "playingFromType": "{source, select, album{Album} playlist{Playlist} trackMix{Track Mix} artistMix{Artist Mix} albumMix{Album Mix} genreMix{Genre Mix} favorites{Favorites} allTracks{All Tracks} filteredList{Tracks} genre{Genre} artist{Artist} track{Track} nextUpAlbum{Album in Next Up} nextUpPlaylist{Playlist in Next Up} nextUpArtist{Artist in Next Up} nextUpGenre{Genre in Next Up} remoteClient{a Remote Client} other{}} dan çalınıyor",
+    "@playingFromType": {
+        "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "queueRestoreSubtitle2": "{count,plural,=1{1 Şarkı} other{{count} Şarkılar}}, {remaining} çalınmamış",
+    "@queueRestoreSubtitle2": {
+        "description": "Description of length of a saved queue",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "remaining": {
+                "type": "int"
+            }
+        }
+    },
+    "shuffleSome": "Bir kaç tane karıştır",
+    "@shuffleSome": {},
+    "formattedRelativeTime": "{type, select, just_now{biraz önce} minutes{{value} dakika önce} hours{{value} saat önce} yesterday{dün} days{{value, plural, =1{1 gün önce} other{{value} gün önce}}} other{value}}",
+    "@formattedRelativeTime": {
+        "description": "Returns a relative time string based on how long ago something happened. Used for various DateTime values such as Date Last Played and Date Added.",
+        "placeholders": {
+            "type": {
+                "type": "String",
+                "description": "The category of time passed: one of 'just_now', 'minutes', 'hours', 'yesterday', or 'days'."
+            },
+            "value": {
+                "type": "int",
+                "example": "5"
+            }
+        }
     }
 }
