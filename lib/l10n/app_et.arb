@@ -140,7 +140,7 @@
             }
         }
     },
-    "errorScreenError": "Vigade loendi saamisel tekkis viga! Siinkohal peaksid ilmselt lihtsalt looma probleemi GitHubis ja kustutama rakenduse andmed",
+    "errorScreenError": "Vigade loendi saamisel tekkis viga! Siinkohal peaksid ilmselt lihtsalt looma veateate GitHubis ja kustutama rakenduse andmed",
     "@errorScreenError": {},
     "failedToGetTrackFromDownloadId": "Allalaadimise ID-st laulu hankimine nurjus",
     "@failedToGetTrackFromDownloadId": {},
@@ -204,9 +204,9 @@
     "@logOut": {},
     "areYouSure": "Kas oled kindel?",
     "@areYouSure": {},
-    "enableTranscoding": "Luba transkodeerimine",
+    "enableTranscoding": "Luba transkoodimine",
     "@enableTranscoding": {},
-    "enableTranscodingSubtitle": "Transkodeerib muusikavooge serveri poolel.",
+    "enableTranscodingSubtitle": "Transkoodib muusikavooge serveri poolel.",
     "@enableTranscodingSubtitle": {},
     "customLocation": "Kohandatud asukoht",
     "@customLocation": {},
@@ -218,17 +218,17 @@
     "@selectDirectory": {},
     "unknownError": "Tundmatu viga",
     "@unknownError": {},
-    "enterLowPriorityStateOnPause": "Kasuta pausil madala prioriteediga olekut",
+    "enterLowPriorityStateOnPause": "Lülitu pausil madala prioriteediga olekule",
     "@enterLowPriorityStateOnPause": {},
     "enterLowPriorityStateOnPauseSubtitle": "Laseb pausi ajal märguande ära pühkida. Võimaldab Androidil ka teenuse pausi ajal lõpetada.",
     "@enterLowPriorityStateOnPauseSubtitle": {},
-    "shuffleAllTrackCountSubtitle": "Laaditavate lugude hulk, kui kasutada nuppu 'Sega kõik lood'.",
+    "shuffleAllTrackCountSubtitle": "Laaditavate lugude hulk, kui kasutada nuppu 'Sega kõik'.",
     "@shuffleAllTrackCountSubtitle": {},
     "viewType": "Vaate tüüp",
     "@viewType": {},
     "viewTypeSubtitle": "Muusikaekraani vaate tüüp",
     "@viewTypeSubtitle": {},
-    "landscape": "Lai pilt",
+    "landscape": "Horisontaalne",
     "@landscape": {},
     "pathReturnSlashErrorMessage": "Radu, mis tagastavad \"/\", ei saa kasutada",
     "@pathReturnSlashErrorMessage": {},
@@ -240,7 +240,7 @@
     "@useCoverAsBackground": {},
     "useCoverAsBackgroundSubtitle": "Kas kasutada mängija ekraanil taustaks hägustatud kaanekujundust või mitte.",
     "@useCoverAsBackgroundSubtitle": {},
-    "hideTrackArtistsIfSameAsAlbumArtistsSubtitle": "Kas näidata lugude esitajaid albumiekraanil, kui need ei erine albumi esitajatest.",
+    "hideTrackArtistsIfSameAsAlbumArtistsSubtitle": "Kas lugude esitajaid kuvada albumiekraanil, kui need ei erine albumi esitajatest.",
     "@hideTrackArtistsIfSameAsAlbumArtistsSubtitle": {},
     "theme": "Teema",
     "@theme": {},
@@ -256,7 +256,7 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "Ei",
     "@noButtonLabel": {},
-    "setSleepTimer": "Määra unetaimer",
+    "setSleepTimer": "Peata taasesitus pärast",
     "@setSleepTimer": {},
     "minutes": "minutit",
     "@minutes": {},
@@ -354,7 +354,7 @@
     "@list": {},
     "shuffleAllTrackCount": "'Sega kõik lood' arv",
     "@shuffleAllTrackCount": {},
-    "portrait": "Portree",
+    "portrait": "Vertikaalne",
     "@portrait": {},
     "grid": "Ruudustik",
     "@grid": {},
@@ -368,7 +368,7 @@
             }
         }
     },
-    "gridCrossAxisCountSubtitle": "Ruudustiku plaatide arv, mida kasutatakse rea kohta, kui {value}.",
+    "gridCrossAxisCountSubtitle": "Rea kohta kasutatavate ruudustiku klotside arv, kui kasutuses on {value}.",
     "@gridCrossAxisCountSubtitle": {
         "description": "List tile subtitle for grid cross axis count. Value will either be the portrait or landscape key.",
         "placeholders": {
@@ -378,15 +378,15 @@
             }
         }
     },
-    "hideTrackArtistsIfSameAsAlbumArtists": "Peida laulu esitajad, kui need on samad kui albumi esitajad",
+    "hideTrackArtistsIfSameAsAlbumArtists": "Peida loo esitajad, kui need on samad kui albumi esitajad",
     "@hideTrackArtistsIfSameAsAlbumArtists": {},
     "light": "Hele",
     "@light": {},
-    "disableGesture": "Keela žestid",
+    "disableGesture": "Keela viiped",
     "@disableGesture": {},
     "bufferDuration": "Puhvri kestus",
     "@bufferDuration": {},
-    "disableGestureSubtitle": "Kas keelata žestid.",
+    "disableGestureSubtitle": "Kas viiped tuleks keelata.",
     "@disableGestureSubtitle": {},
     "bufferDurationSubtitle": "Maksimaalne puhverdusaeg sekundites. Nõuab taaskäivitamist.",
     "@bufferDurationSubtitle": {},
@@ -568,7 +568,7 @@
     "@playbackSpeedControlSetting": {
         "description": "Title of the visibility setting of the playback speed controls"
     },
-    "playbackSpeedControlSettingSubtitle": "Määrab, kas taasesituse kiiruse nuppe näidatakse mängija vaate menüüs",
+    "playbackSpeedControlSettingSubtitle": "Kas taasesituse kiiruse juhtnupud kuvatakse pleieri menüüs",
     "@playbackSpeedControlSettingSubtitle": {
         "description": "Subtitle for the playback speed visibility setting"
     },
@@ -642,7 +642,7 @@
     },
     "exportLogs": "Salvesta logid",
     "@exportLogs": {},
-    "interactions": "Interaktsioonid",
+    "interactions": "Koostoimed",
     "@interactions": {},
     "playbackReporting": "Taasesituse raporteerimine",
     "@playbackReporting": {},
@@ -696,7 +696,7 @@
     },
     "seconds": "Sekundit",
     "@seconds": {},
-    "trackCountTooltip": "Lugu {currentTrackIndex}, kokku {totalTrackCount}",
+    "trackCountTooltip": "{currentTrackIndex} lugu {totalTrackCount} loost",
     "@trackCountTooltip": {
         "description": "Tooltip and accessibility label for the queue progress. {currentTrackIndex} and {totalTrackCount} are both numbers",
         "placeholders": {
@@ -816,7 +816,7 @@
             }
         }
     },
-    "playbackModeTranscoding": "Transkodeerimine",
+    "playbackModeTranscoding": "Transkoodimine",
     "@playbackModeTranscoding": {
         "description": "Feature chip that is shown when tracks are being transcoded by the server"
     },
@@ -824,7 +824,7 @@
     "@playbackModeLocal": {
         "description": "Feature chip that is shown when tracks are being played from local downloads, without using the server"
     },
-    "showFastScroller": "Näita kiirkerimisriba",
+    "showFastScroller": "Kuva kiirkerimisriba",
     "@showFastScroller": {},
     "goToGenre": "Mine žanri juurde",
     "@goToGenre": {},
@@ -923,5 +923,100 @@
         "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
     },
     "logoutButtonSubtitle": "Teise serverisse sisselogimine kustutab olemasolevad allalaadimised",
-    "@logoutButtonSubtitle": {}
+    "@logoutButtonSubtitle": {},
+    "formattedRelativeTime": "{type, select, just_now{praegu} minutes{{value} minutit tagasi} hours{{value} tundi tagasi} yesterday{eile} days{{value, plural, =1{1 päeva tagasi} other{{value} päeva tagasi}}} other{value}}",
+    "@formattedRelativeTime": {
+        "description": "Returns a relative time string based on how long ago something happened. Used for various DateTime values such as Date Last Played and Date Added.",
+        "placeholders": {
+            "type": {
+                "type": "String",
+                "description": "The category of time passed: one of 'just_now', 'minutes', 'hours', 'yesterday', or 'days'."
+            },
+            "value": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} lugu} other{{trackCount} lugu}}, {imageCount,plural,=1{{imageCount} pilt} other{{imageCount} pilti}}\n{syncCount,plural,=1{{syncCount} üksus sünkroonib} other{{syncCount} üksust sünkroonib}}{repairing, plural, =0{} other{\nPraegu parandamisel}}",
+    "@downloadedCountUnified": {
+        "description": "Display of downloaded track and image count on downloads screen.",
+        "placeholders": {
+            "trackCount": {
+                "type": "int"
+            },
+            "imageCount": {
+                "type": "int"
+            },
+            "syncCount": {
+                "type": "int"
+            },
+            "repairing": {
+                "type": "int"
+            }
+        }
+    },
+    "updatePlaylistButtonLabel": "Värskenda esitusloend",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "Muudatuste salvestamine…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "none": "Puudub",
+    "@none": {},
+    "autoSwitchItemCurationTypeTitle": "Üksuste kureerimistüübi automaatne vahetamine",
+    "@autoSwitchItemCurationTypeTitle": {},
+    "autoSwitchItemCurationTypeSubtitle": "Kui lubatud, lülituvad artisti ja žanri üksuste jaotised automaatselt teistsugusele kureerimistüübile, kui üksusi pole saadaval (nt konkreetse artisti lemmikuid pole).",
+    "@autoSwitchItemCurationTypeSubtitle": {},
+    "swipeInsertQueueNext": "Esita nipsatud lugu järgmisena",
+    "@swipeInsertQueueNext": {},
+    "swipeInsertQueueNextSubtitle": "Lubab loo lisamise järjekorra järgmise üksusena, kui lugude loendis nipsata, selle asemel, et see lõppu lisada.",
+    "@swipeInsertQueueNextSubtitle": {},
+    "sleepTimerRemainingTracks": "Uinu {time,plural,=1{pärast seda lugu} other{in {time} loo pärast}}",
+    "@sleepTimerRemainingTracks": {
+        "description": "Button label for sleep timer. {time} is the amount of minutes left.",
+        "placeholders": {
+            "time": {
+                "type": "int"
+            }
+        }
+    },
+    "createPlaylistFromCurrentQueue": "Salvesta järjekord esitusloendisse",
+    "@createPlaylistFromCurrentQueue": {
+        "description": "Label for a button that adds the current queue to an existing or new playlist."
+    },
+    "playbackHistory": "Taasesituse ajalugu",
+    "@playbackHistory": {
+        "description": "Title for the playback history screen, where the user can see a list of recently played tracks, sorted by "
+    },
+    "shareOfflineListens": "Jaga võrguühenduseta kuulamisi",
+    "@shareOfflineListens": {
+        "description": "Button for exporting the JSON file containing any playback events that couldn't be submitted to the server, either because offline mode was enabled or the connection failed"
+    },
+    "yourLikes": "Sulle meeldinud",
+    "@yourLikes": {
+        "description": "Title for the queue source when the user is playing their liked tracks"
+    },
+    "savedQueue": "Salvestatud järjekord",
+    "@savedQueue": {
+        "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
+    },
+    "shuffleAllQueueSource": "Sega kõik",
+    "@shuffleAllQueueSource": {
+        "description": "Title for the queue source when the user is shuffling all tracks. Should be capitalized (if applicable) to be more recognizable throughout the UI"
+    },
+    "playbackOrderLinearButtonLabel": "Esitatakse järjekorras",
+    "@playbackOrderLinearButtonLabel": {
+        "description": "Label for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in linear/in-order mode"
+    },
+    "playbackOrderLinearButtonTooltip": "Esitatakse järjekorras. Puuduta segamiseks.",
+    "@playbackOrderLinearButtonTooltip": {
+        "description": "Tooltip for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in linear/in-order mode"
+    },
+    "playbackOrderShuffledButtonLabel": "Lugude segamine",
+    "@playbackOrderShuffledButtonLabel": {
+        "description": "Label for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in shuffle mode"
+    }
 }
