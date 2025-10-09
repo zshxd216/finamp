@@ -8,40 +8,19 @@ import 'package:locale_names/locale_names.dart';
 
 import '../padded_custom_scrollview.dart';
 
-class LanguageList extends ConsumerStatefulWidget {
+class LanguageList extends StatelessWidget {
   const LanguageList({super.key});
 
   @override
-  ConsumerState<LanguageList> createState() => _LanguageListState();
-}
-
-class _LanguageListState extends ConsumerState<LanguageList> {
-  // yeah I'm a computer science student how could you tell
-  // (sorts locales without having to copy them into a list first)
-  final locales = SplayTreeMap<String?, Locale>.fromIterable(
-    AppLocalizations.supportedLocales,
-    key: (element) => (element as Locale).toLanguageTag(),
-    value: (element) => element as Locale,
-  );
-
-  @override
   Widget build(BuildContext context) {
-    ref.watch(finampSettingsProvider.locale);
+    final locales = SplayTreeMap<String?, Locale>.fromIterable(
+      AppLocalizations.supportedLocales,
+      key: (element) => (element as Locale).toLanguageTag(),
+      value: (element) => element as Locale,
+    );
     return PaddedCustomScrollview(
       slivers: [
-        // For some reason, setting the null (system) LanguageListTile to
-        // const stops it from switching when going to/from the same
-        // language as the system language (e.g., system to English on a
-        // device set to English)
-        // ignore: prefer_const_constructors
-        SliverList(
-          // ignore: prefer_const_constructors
-          delegate: SliverChildListDelegate.fixed([
-            // ignore: prefer_const_constructors
-            LanguageListTile(),
-            const Divider(),
-          ]),
-        ),
+        const SliverList(delegate: SliverChildListDelegate.fixed([LanguageListTile(), Divider()])),
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
             final locale = locales.values.elementAt(index);

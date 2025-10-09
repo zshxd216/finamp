@@ -189,7 +189,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             leading: const Icon(Icons.language),
             title: Text(AppLocalizations.of(context)!.language),
             subtitle: Text(
-              ref.read(finampSettingsProvider.locale)?.nativeDisplayLanguage ?? AppLocalizations.of(context)!.system,
+              ref.watch(finampSettingsProvider.locale)?.nativeDisplayLanguage ?? AppLocalizations.of(context)!.system,
             ),
             onTap: () => Navigator.of(context).pushNamed(LanguageSelectionScreen.routeName),
           ),

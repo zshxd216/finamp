@@ -40,6 +40,7 @@ class _FinampProviderBuilderState extends ConsumerState<FinampProviderBuilder> w
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    ref.listenManual(finampSettingsProvider.themeMode,(_,_) => didChangePlatformBrightness());
     Future.microtask(() {
       didChangePlatformBrightness();
       didChangeMetrics();
@@ -54,7 +55,7 @@ class _FinampProviderBuilderState extends ConsumerState<FinampProviderBuilder> w
 
   @override
   void didChangePlatformBrightness() {
-    final themeMode = ref.read(finampSettingsProvider.themeMode);
+    final themeMode = FinampSettingsHelper.finampSettings.themeMode;
     var theme = switch (themeMode) {
       ThemeMode.system => View.of(context).platformDispatcher.platformBrightness,
       ThemeMode.light => Brightness.light,

@@ -114,6 +114,7 @@ void main() async {
     _mainLog.info("Setup hive and isar");
     _migrateDownloadLocations();
     _migrateSortOptions();
+    await _migrateThemeModeLocale();
     _mainLog.info("Completed applicable migrations");
     await _trustAndroidUserCerts();
     _mainLog.info("Trusted Android user certs");
@@ -272,6 +273,8 @@ Future<void> setupHive() async {
 
   await Future.wait([
     Hive.openBox<FinampSettings>("FinampSettings", path: dir.path),
+    Hive.openBox<ThemeMode>("ThemeMode", path: dir.path), // keep for migration
+    Hive.openBox<Locale?>("Locale", path: dir.path), // keep for migration
     Hive.openBox<FinampStorableQueueInfo>("Queues", path: dir.path),
     Hive.openBox<OfflineListen>("OfflineListens", path: dir.path),
   ]);
@@ -469,6 +472,38 @@ Future<void> _migrateDownloadsFileOwner() async {
     });
     FinampSetters.setHasCompletedDownloadsFileOwnerMigration(true);
   }
+}
+
+/// Migrates the old ThemeMode and Locale Hive box values to FinampSettings fields
+Future<void> _migrateThemeModeLocale() async {
+  Box<ThemeMode> oldThemeModeBox = Hive.box<ThemeMode>("ThemeMode");
+  Box<Locale?> oldLocaleBox = Hive.box<Locale?>("Locale");
+
+  final finampSettings = FinampSettingsHelper.finampSettings;
+  bool needsUpdate = false;
+
+  if (oldThemeModeBox.isNotEmpty) {
+    var oldTheme = oldThemeModeBox.get("ThemeMode");
+    if (oldTheme != finampSettings.themeMode) {
+      finampSettings.themeMode = oldTheme!;
+      needsUpdate = true;
+    }
+  }
+
+  if (oldLocaleBox.isNotEmpty) {
+    var oldLocale = oldLocaleBox.get("Locale");
+    if (oldLocale != finampSettings.locale) {
+      finampSettings.locale = oldLocale;
+      needsUpdate = true;
+    }
+  }
+
+  if (needsUpdate) {
+    FinampSettingsHelper.overwriteFinampSettings(finampSettings);
+  }
+
+  await oldThemeModeBox.deleteFromDisk();
+  await oldLocaleBox.deleteFromDisk();
 }
 
 Future<void> _trustAndroidUserCerts() async {
