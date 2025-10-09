@@ -1,19 +1,64 @@
+import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_page_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final double playActionRowHeight = 96.0;
-final double playActionPageIndicatorHeight = 31.0;
+final double playActionRowHeightDefault = 96.0;
+final double playActionPageIndicatorHeightDefault = 31.0;
 
-class PlaybackActionRow extends ConsumerWidget {
-  const PlaybackActionRow({super.key, required this.controller, required this.playbackActionPages});
+class PlaybackActionRow extends ConsumerStatefulWidget {
+  const PlaybackActionRow({
+    super.key,
+    required this.item,
+    this.popContext = true,
+    this.compactLayout = false,
+    this.genreFilter,
+  });
 
-  final PageController controller;
-  final Map<String, Widget> playbackActionPages;
+  final PlayableItem item;
+  final bool popContext;
+  final bool compactLayout;
+  final BaseItemDto? genreFilter;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlaybackActionRow> createState() => _PlaybackActionRowState();
+}
+
+class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
+  late PageController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
+    final lastUsedPlaybackActionRowPage = ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPage);
+    final lastUsedPlaybackActionRowPageIndex = lastUsedPlaybackActionRowPage.pageIndexFor(
+      nextUpIsEmpty: !nextUpNotEmpty,
+    );
+    final initialPageViewIndex = ref.watch(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
+        ? lastUsedPlaybackActionRowPageIndex
+        : 0;
+    controller = PageController(initialPage: initialPageViewIndex);
+
+    final Map<String, Widget> playbackActionPages = getPlaybackActionPages(
+      context: context,
+      item: widget.item,
+      nextUpNotEmpty: nextUpNotEmpty,
+      popContext: widget.popContext,
+      compactLayout: widget.compactLayout,
+      genreFilter: widget.genreFilter,
+      preferNextUp: ref.watch(finampSettingsProvider.preferNextUpPrepending),
+    );
+
+    final double playActionRowHeight = widget.compactLayout ? 76.0 : playActionRowHeightDefault;
+    final rememberLastUsedPlaybackActionRowPage = ref.read(
+      finampSettingsProvider.rememberLastUsedPlaybackActionRowPage,
+    );
+
     return Column(
       verticalDirection: VerticalDirection.up,
       children: [
@@ -26,9 +71,32 @@ class PlaybackActionRow extends ConsumerWidget {
             allowImplicitScrolling: true,
             scrollDirection: Axis.horizontal,
             children: playbackActionPages.values.toList(),
+            onPageChanged: (index) {
+              if (!rememberLastUsedPlaybackActionRowPage) return;
+
+              final nextUpDefault = ref.read(finampSettingsProvider.preferNextUpPrepending)
+                  ? PlaybackActionRowPage.playNext
+                  : PlaybackActionRowPage.appendNext;
+
+              final pageMap = ref.read(QueueService.queueInfoStreamProvider).value?.nextUp.isEmpty ?? true
+                  ? {0: PlaybackActionRowPage.newQueue, 1: nextUpDefault, 2: PlaybackActionRowPage.playLast}
+                  : {
+                      0: PlaybackActionRowPage.newQueue,
+                      1: PlaybackActionRowPage.playNext,
+                      2: PlaybackActionRowPage.appendNext,
+                      3: PlaybackActionRowPage.playLast,
+                    };
+
+              final newPage = pageMap[index] ?? PlaybackActionRowPage.newQueue;
+              FinampSetters.setLastUsedPlaybackActionRowPage(newPage);
+            },
           ),
         ),
-        PlaybackActionPageIndicator(pages: playbackActionPages, pageController: controller),
+        PlaybackActionPageIndicator(
+          pages: playbackActionPages,
+          pageController: controller,
+          compactLayout: widget.compactLayout,
+        ),
       ],
     );
   }

@@ -1,7 +1,7 @@
 import 'package:balanced_text/balanced_text.dart';
+import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
-import 'package:finamp/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../models/finamp_models.dart';
@@ -23,7 +23,7 @@ class _PlayerScreenAppBarTitleState extends State<PlayerScreenAppBarTitle> {
   Widget build(BuildContext context) {
     final currentTrackStream = _queueService.getCurrentTrackStream();
 
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.widthOf(context);
 
     return StreamBuilder<FinampQueueItem?>(
       stream: currentTrackStream,
@@ -45,7 +45,7 @@ class _PlayerScreenAppBarTitleState extends State<PlayerScreenAppBarTitle> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w300,
-                    color: Theme.of(context).brightness == Brightness.dark
+                    color: Theme.brightnessOf(context) == Brightness.dark
                         ? Colors.white.withOpacity(0.7)
                         : Colors.black.withOpacity(0.8),
                   ),
@@ -57,7 +57,7 @@ class _PlayerScreenAppBarTitleState extends State<PlayerScreenAppBarTitle> {
                   queueItem.source.name.getLocalized(context),
                   style: TextStyle(
                     fontSize: 14,
-                    color: Theme.of(context).brightness == Brightness.dark
+                    color: Theme.brightnessOf(context) == Brightness.dark
                         ? Colors.white
                         : Colors.black.withOpacity(0.9),
                   ),

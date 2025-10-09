@@ -22,7 +22,7 @@ class CTALarge extends StatelessWidget {
         ),
         padding: WidgetStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.symmetric(horizontal: 24, vertical: 20)),
         backgroundColor: WidgetStateProperty.all<Color>(
-          Theme.of(context).brightness == Brightness.dark
+          Theme.brightnessOf(context) == Brightness.dark
               ? accentColor.withOpacity(0.3)
               : Color.alphaBlend(accentColor.withOpacity(0.8), Colors.white),
         ),
@@ -33,7 +33,7 @@ class CTALarge extends StatelessWidget {
           Icon(
             icon,
             size: 28,
-            color: Theme.of(context).brightness == Brightness.dark ? accentColor : Colors.white,
+            color: Theme.brightnessOf(context) == Brightness.dark ? accentColor : Colors.white,
             weight: 1.5,
           ),
           const SizedBox(width: 12),

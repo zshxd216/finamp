@@ -106,7 +106,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             ? true
             : fields[29] as bool,
         volumeNormalizationIOSBaseGain: fields[30] == null
-            ? -2.0
+            ? 6.0
             : (fields[30] as num).toDouble(),
         volumeNormalizationMode: fields[33] == null
             ? VolumeNormalizationMode.hybrid
@@ -123,7 +123,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         contentGridViewCrossAxisCountLandscape: fields[12] == null
             ? 3
             : (fields[12] as num).toInt(),
-        showTextOnGridView: fields[13] == null ? true : fields[13] as bool,
+        showTextOnGridView: fields[13] == null ? false : fields[13] as bool,
         downloadLocationsMap: fields[15] == null
             ? {}
             : (fields[15] as Map).cast<String, DownloadLocation>(),
@@ -406,6 +406,18 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         previousTracksExpaned: fields[127] == null
             ? false
             : fields[127] as bool,
+        autoplayRestoredQueue: fields[128] == null
+            ? false
+            : fields[128] as bool,
+        preferNextUpPrepending: fields[129] == null
+            ? true
+            : fields[129] as bool,
+        rememberLastUsedPlaybackActionRowPage: fields[130] == null
+            ? true
+            : fields[130] as bool,
+        lastUsedPlaybackActionRowPage: fields[131] == null
+            ? PlaybackActionRowPage.newQueue
+            : fields[131] as PlaybackActionRowPage,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -415,16 +427,16 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..autoExpandPlayerScreen = fields[125] == null
           ? false
           : fields[125] as bool
-      ..useRadio = fields[128] == null ? true : fields[128] as bool
-      ..radioMode = fields[129] == null
+      ..useRadio = fields[132] == null ? true : fields[132] as bool
+      ..radioMode = fields[133] == null
           ? RadioMode.random
-          : fields[129] as RadioMode;
+          : fields[133] as RadioMode;
   }
 
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(123)
+      ..writeByte(127)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -668,8 +680,16 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(127)
       ..write(obj.previousTracksExpaned)
       ..writeByte(128)
-      ..write(obj.useRadio)
+      ..write(obj.autoplayRestoredQueue)
       ..writeByte(129)
+      ..write(obj.preferNextUpPrepending)
+      ..writeByte(130)
+      ..write(obj.rememberLastUsedPlaybackActionRowPage)
+      ..writeByte(131)
+      ..write(obj.lastUsedPlaybackActionRowPage)
+      ..writeByte(132)
+      ..write(obj.useRadio)
+      ..writeByte(133)
       ..write(obj.radioMode);
   }
 
@@ -2885,9 +2905,54 @@ class DiscordRpcIconAdapter extends TypeAdapter<DiscordRpcIcon> {
           typeId == other.typeId;
 }
 
+class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
+  @override
+  final typeId = 107;
+
+  @override
+  PlaybackActionRowPage read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return PlaybackActionRowPage.newQueue;
+      case 1:
+        return PlaybackActionRowPage.playNext;
+      case 2:
+        return PlaybackActionRowPage.appendNext;
+      case 3:
+        return PlaybackActionRowPage.playLast;
+      default:
+        return PlaybackActionRowPage.newQueue;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, PlaybackActionRowPage obj) {
+    switch (obj) {
+      case PlaybackActionRowPage.newQueue:
+        writer.writeByte(0);
+      case PlaybackActionRowPage.playNext:
+        writer.writeByte(1);
+      case PlaybackActionRowPage.appendNext:
+        writer.writeByte(2);
+      case PlaybackActionRowPage.playLast:
+        writer.writeByte(3);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlaybackActionRowPageAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class RadioModeAdapter extends TypeAdapter<RadioMode> {
   @override
-  final typeId = 102;
+  final typeId = 108;
 
   @override
   RadioMode read(BinaryReader reader) {
@@ -4911,20 +4976,25 @@ const DownloadItemSchema = CollectionSchema(
 
       target: r'DownloadProfile',
     ),
-    r'type': PropertySchema(
+    r'themeColor': PropertySchema(
       id: 11,
+      name: r'themeColor',
+      type: IsarType.long,
+    ),
+    r'type': PropertySchema(
+      id: 12,
       name: r'type',
       type: IsarType.byte,
       enumMap: _DownloadItemtypeEnumValueMap,
     ),
     r'userTranscodingProfile': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'userTranscodingProfile',
       type: IsarType.object,
 
       target: r'DownloadProfile',
     ),
-    r'viewId': PropertySchema(id: 13, name: r'viewId', type: IsarType.string),
+    r'viewId': PropertySchema(id: 14, name: r'viewId', type: IsarType.string),
   },
 
   estimateSize: _downloadItemEstimateSize,
@@ -5094,14 +5164,15 @@ void _downloadItemSerialize(
     DownloadProfileSchema.serialize,
     object.syncTranscodingProfile,
   );
-  writer.writeByte(offsets[11], object.type.index);
+  writer.writeLong(offsets[11], object.themeColor);
+  writer.writeByte(offsets[12], object.type.index);
   writer.writeObject<DownloadProfile>(
-    offsets[12],
+    offsets[13],
     allOffsets,
     DownloadProfileSchema.serialize,
     object.userTranscodingProfile,
   );
-  writer.writeString(offsets[13], object.isarViewId);
+  writer.writeString(offsets[14], object.isarViewId);
 }
 
 DownloadItem _downloadItemDeserialize(
@@ -5137,15 +5208,16 @@ DownloadItem _downloadItemDeserialize(
       DownloadProfileSchema.deserialize,
       allOffsets,
     ),
+    themeColor: reader.readLongOrNull(offsets[11]),
     type:
-        _DownloadItemtypeValueEnumMap[reader.readByteOrNull(offsets[11])] ??
+        _DownloadItemtypeValueEnumMap[reader.readByteOrNull(offsets[12])] ??
         DownloadItemType.collection,
     userTranscodingProfile: reader.readObjectOrNull<DownloadProfile>(
-      offsets[12],
+      offsets[13],
       DownloadProfileSchema.deserialize,
       allOffsets,
     ),
-    isarViewId: reader.readStringOrNull(offsets[13]),
+    isarViewId: reader.readStringOrNull(offsets[14]),
   );
   return object;
 }
@@ -5196,17 +5268,19 @@ P _downloadItemDeserializeProp<P>(
           ))
           as P;
     case 11:
+      return (reader.readLongOrNull(offset)) as P;
+    case 12:
       return (_DownloadItemtypeValueEnumMap[reader.readByteOrNull(offset)] ??
               DownloadItemType.collection)
           as P;
-    case 12:
+    case 13:
       return (reader.readObjectOrNull<DownloadProfile>(
             offset,
             DownloadProfileSchema.deserialize,
             allOffsets,
           ))
           as P;
-    case 13:
+    case 14:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -6728,6 +6802,79 @@ extension DownloadItemQueryFilter
     });
   }
 
+  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
+  themeColorIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'themeColor'),
+      );
+    });
+  }
+
+  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
+  themeColorIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'themeColor'),
+      );
+    });
+  }
+
+  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
+  themeColorEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'themeColor', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
+  themeColorGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'themeColor',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
+  themeColorLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'themeColor',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
+  themeColorBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'themeColor',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition> typeEqualTo(
     DownloadItemType value,
   ) {
@@ -7337,6 +7484,19 @@ extension DownloadItemQuerySortBy
     });
   }
 
+  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> sortByThemeColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'themeColor', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
+  sortByThemeColorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'themeColor', Sort.desc);
+    });
+  }
+
   QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> sortByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -7478,6 +7638,19 @@ extension DownloadItemQuerySortThenBy
     });
   }
 
+  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> thenByThemeColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'themeColor', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
+  thenByThemeColorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'themeColor', Sort.desc);
+    });
+  }
+
   QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> thenByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -7568,6 +7741,12 @@ extension DownloadItemQueryWhereDistinct
   QueryBuilder<DownloadItem, DownloadItem, QDistinct> distinctByState() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'state');
+    });
+  }
+
+  QueryBuilder<DownloadItem, DownloadItem, QDistinct> distinctByThemeColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'themeColor');
     });
   }
 
@@ -7663,6 +7842,12 @@ extension DownloadItemQueryProperty
   syncTranscodingProfileProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'syncTranscodingProfile');
+    });
+  }
+
+  QueryBuilder<DownloadItem, int?, QQueryOperations> themeColorProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'themeColor');
     });
   }
 

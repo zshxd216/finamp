@@ -1,30 +1,30 @@
 import 'dart:async';
 
+import 'package:finamp/components/AlbumScreen/album_screen_content_flexible_space_bar.dart';
+import 'package:finamp/components/AlbumScreen/download_button.dart';
+import 'package:finamp/components/AlbumScreen/playlist_edit_button.dart';
+import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
+import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/MusicScreen/sort_by_menu_button.dart';
 import 'package:finamp/components/MusicScreen/sort_order_button.dart';
+import 'package:finamp/components/favorite_button.dart';
+import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/album_menu.dart';
 import 'package:finamp/menus/components/icon_button_with_semantics.dart';
+import 'package:finamp/menus/components/overflow_menu_button.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/album_screen_provider.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/permission_providers.dart';
+import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../menus/album_menu.dart';
-import '../../menus/components/overflow_menu_button.dart';
-import '../../models/finamp_models.dart';
-import '../../models/jellyfin_models.dart';
-import '../../services/finamp_settings_helper.dart';
-import '../../services/queue_service.dart';
-import '../Buttons/cta_medium.dart';
-import '../favorite_button.dart';
-import '../padded_custom_scrollview.dart';
-import 'album_screen_content_flexible_space_bar.dart';
-import 'download_button.dart';
-import 'playlist_edit_button.dart';
-import 'track_list_tile.dart';
 
 typedef BaseItemDtoCallback = void Function(BaseItemDto item);
 
@@ -120,8 +120,10 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
         SliverLayoutBuilder(
           builder: (context, constraints) {
             final actions = [
-              if (widget.parent.type == "Playlist" && !ref.watch(finampSettingsProvider.isOffline))
-                PlaylistNameEditButton(playlist: widget.parent),
+              if (widget.parent.type == "Playlist" &&
+                  !ref.watch(finampSettingsProvider.isOffline) &&
+                  ref.watch(canEditPlaylistProvider(widget.parent)))
+                PlaylistEditButton(playlist: widget.parent),
               if (widget.parent.type == "Playlist")
                 SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
               if (widget.parent.type == "Playlist")
@@ -136,13 +138,19 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
                       ? AppLocalizations.of(context)!.downloadButtonDisabledGenreFilterTooltip
                       : null,
                 ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  openItemMenu(context: context, item: widget.parent);
+                },
+              ),
             ];
 
             return SliverAppBar(
               title: (widget.parent.type != "Playlist")
                   ? Text(widget.parent.name ?? AppLocalizations.of(context)!.unknownName)
                   : null,
-              expandedHeight: kToolbarHeight + 125 + 18 + CTAMedium.predictedHeight(context),
+              expandedHeight: kToolbarHeight + 125 + 18 + 100,
               // collapsedHeight: kToolbarHeight + 125 + 80,
               pinned: true,
               centerTitle: false,
@@ -259,7 +267,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
             ),
             SliverToBoxAdapter(child: SizedBox(height: 16.0)),
           ]
-        else if (!isLoading && displayChildren.isNotEmpty)
+        else if (!isLoading)
           TracksSliverList(
             childrenForList: displayChildren,
             childrenForQueue: queueChildren,
@@ -312,13 +320,15 @@ class _TracksSliverListState extends ConsumerState<TracksSliverList> {
   @override
   Widget build(BuildContext context) {
     if (widget.childrenForList.isEmpty) {
-      return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-          child: Text(
-            AppLocalizations.of(context)!.emptyTopTracksList,
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
+      return SliverFillRemaining(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+            child: Text(
+              AppLocalizations.of(context)!.emptyAlbum,
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       );

@@ -42,6 +42,7 @@ class _AudioServiceSettingsScreenState extends State<AudioServiceSettingsScreen>
           const BufferDurationListTile(),
           const BufferDisableSizeConstraintsSelector(),
           const LoadQueueOnStartupSelector(),
+          const AutoplayRestoredQueueToggle(),
           const AutoReloadQueueToggle(),
           const ClearQueueOnStopToggle(),
           const RadioModeDropdownListTile(),
@@ -92,7 +93,7 @@ class _BufferSizeListTileState extends ConsumerState<BufferSizeListTile> {
       title: Text(AppLocalizations.of(context)!.bufferSizeTitle),
       subtitle: Text(AppLocalizations.of(context)!.bufferSizeSubtitle),
       trailing: SizedBox(
-        width: 50 * MediaQuery.of(context).textScaleFactor,
+        width: 50 * MediaQuery.textScaleFactorOf(context),
         child: TextField(
           controller: _controller,
           textAlign: TextAlign.center,
@@ -140,7 +141,7 @@ class _AudioFadeInDurationListTileState extends ConsumerState<AudioFadeInDuratio
       title: Text(AppLocalizations.of(context)!.audioFadeInDurationSettingTitle),
       subtitle: Text(AppLocalizations.of(context)!.audioFadeInDurationSettingSubtitle),
       trailing: SizedBox(
-        width: 50 * MediaQuery.of(context).textScaleFactor,
+        width: 50 * MediaQuery.textScaleFactorOf(context),
         child: TextField(
           controller: _controller,
           textAlign: TextAlign.center,
@@ -183,7 +184,7 @@ class _AudioFadeOutDurationListTileState extends ConsumerState<AudioFadeOutDurat
       title: Text(AppLocalizations.of(context)!.audioFadeOutDurationSettingTitle),
       subtitle: Text(AppLocalizations.of(context)!.audioFadeOutDurationSettingSubtitle),
       trailing: SizedBox(
-        width: 50 * MediaQuery.of(context).textScaleFactor,
+        width: 50 * MediaQuery.textScaleFactorOf(context),
         child: TextField(
           controller: _controller,
           textAlign: TextAlign.center,
@@ -215,6 +216,20 @@ class AutoReloadQueueToggle extends ConsumerWidget {
   }
 }
 
+class AutoplayRestoredQueueToggle extends ConsumerWidget {
+  const AutoplayRestoredQueueToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.autoplayRestoredQueueTitle),
+      subtitle: Text(AppLocalizations.of(context)!.autoplayRestoredQueueSubtitle),
+      value: ref.watch(finampSettingsProvider.autoplayRestoredQueue),
+      onChanged: FinampSetters.setAutoplayRestoredQueue,
+    );
+  }
+}
+
 class ClearQueueOnStopToggle extends ConsumerWidget {
   const ClearQueueOnStopToggle({super.key});
 
@@ -241,10 +256,10 @@ class RadioModeDropdownListTile extends ConsumerWidget {
         items: RadioMode.values
             .map(
               (e) => DropdownMenuItem<RadioMode>(
-            value: e,
-            child: Text(AppLocalizations.of(context)!.radioModeOption(e.name)),
-          ),
-        )
+                value: e,
+                child: Text(AppLocalizations.of(context)!.radioModeOption(e.name)),
+              ),
+            )
             .toList(),
         onChanged: FinampSetters.setRadioMode.ifNonNull,
       ),

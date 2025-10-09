@@ -192,7 +192,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
   void scrollToExtent(DraggableScrollableController scrollController, double? percentage) {
     var currentSize = scrollController.size;
     if ((percentage != null && currentSize < percentage) || scrollController.size == inputStep) {
-      if (MediaQuery.of(context).disableAnimations) {
+      if (MediaQuery.disableAnimationsOf(context)) {
         scrollController.jumpTo(percentage ?? oldExtent);
       } else {
         scrollController.animateTo(
@@ -264,6 +264,10 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       default:
         menuHeight = closedHeight;
     }
+
+    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
+    final preferNextUp = ref.watch(finampSettingsProvider.preferNextUpPrepending);
+
     return [
       if (widget.showPlaybackControls) ...[
         StreamBuilder<PlaybackBehaviorInfo>(
@@ -408,7 +412,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                       );
                     },
                     transitionBuilder: (child, animation) {
-                      if (MediaQuery.of(context).disableAnimations) {
+                      if (MediaQuery.disableAnimationsOf(context)) {
                         return child;
                       }
                       // Determine if this is the incoming or outgoing child
@@ -458,7 +462,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
           child: Padding(
             padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
             child: Divider(
-              color: Theme.of(context).brightness == Brightness.light
+              color: Theme.brightnessOf(context) == Brightness.light
                   ? Color.alphaBlend(Theme.of(context).primaryColor.withOpacity(0.6), Colors.black26)
                   : Color.alphaBlend(Theme.of(context).primaryColor.withOpacity(0.8), Colors.white),
               indent: 24.0,
@@ -477,8 +481,8 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               PlayPlaybackAction(item: widget.item),
-              if (_queueService.getQueue().nextUp.isNotEmpty) PlayNextPlaybackAction(item: widget.item),
-              AddToNextUpPlaybackAction(item: widget.item),
+              if (nextUpNotEmpty || !preferNextUp) PlayNextPlaybackAction(item: widget.item),
+              if (nextUpNotEmpty || preferNextUp) AddToNextUpPlaybackAction(item: widget.item),
               AddToQueuePlaybackAction(item: widget.item),
             ],
           ),

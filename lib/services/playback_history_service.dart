@@ -181,6 +181,7 @@ class PlaybackHistoryService {
   }
 
   List<FinampHistoryItem> get history => _history;
+
   BehaviorSubject<List<FinampHistoryItem>> get historyStream => _historyStream;
 
   void _resetPeriodicUpdates() {
@@ -359,6 +360,7 @@ class PlaybackHistoryService {
     //!!! always submit a "start" **AFTER** a "stop" to that Jellyfin knows there's still something playing
     if (previousTrackPlaybackData != null) {
       _playbackHistoryServiceLogger.info("Stopping playback progress for ${previousItem?.item.title}");
+      final playbackStopTime = DateTime.now();
       try {
         _resetPeriodicUpdates(); // delay next periodic update to avoid race conditions with old data
         //!!! allow reporting the same track here to skipping after looping a single track is reported correctly
@@ -368,7 +370,7 @@ class PlaybackHistoryService {
       } catch (e) {
         _playbackHistoryServiceLogger.warning(e);
         if (previousItem != null) {
-          await _offlineListenLogHelper.logOfflineListen(previousItem.item);
+          await _offlineListenLogHelper.logOfflineListen(previousItem.item, playbackStopTime);
         }
       }
     }
@@ -405,6 +407,7 @@ class PlaybackHistoryService {
         await _updatePlaybackInfo(playbackData: playbackData);
       } else {
         _playbackHistoryServiceLogger.info("Stopping playback progress for ${currentItem.item.title}");
+        final playbackStopTime = DateTime.now();
         try {
           _resetPeriodicUpdates(); // delay next periodic update to avoid race conditions with old data
           if (_lastReportedTrackStopped?.id != currentItem.id) {
@@ -413,7 +416,7 @@ class PlaybackHistoryService {
           }
         } catch (e) {
           _playbackHistoryServiceLogger.warning(e);
-          await _offlineListenLogHelper.logOfflineListen(currentItem.item);
+          await _offlineListenLogHelper.logOfflineListen(currentItem.item, playbackStopTime);
         }
       }
     }
@@ -440,6 +443,7 @@ class PlaybackHistoryService {
   Future<void> _reportPlaybackStopped() async {
     final playbackInfo = generateGenericPlaybackProgressInfo();
     if (playbackInfo != null) {
+      final playbackStopTime = DateTime.now();
       try {
         _resetPeriodicUpdates(); // delay next periodic update to avoid race conditions with old data
         if (_lastReportedTrackStopped?.id != _currentTrack?.item.id) {
@@ -452,7 +456,7 @@ class PlaybackHistoryService {
         }
       } catch (e) {
         _playbackHistoryServiceLogger.warning(e);
-        await _offlineListenLogHelper.logOfflineListen(_currentTrack!.item.item);
+        await _offlineListenLogHelper.logOfflineListen(_currentTrack!.item.item, playbackStopTime);
       }
       await DiscordRpc.updateRPC();
     }
@@ -517,7 +521,8 @@ class PlaybackHistoryService {
     try {
       return jellyfin_models.PlaybackProgressInfo(
         itemId: item.baseItem?.id ?? jellyfin_models.BaseItemId(""),
-        playSessionId: _queueService.getQueue().id,
+        playSessionId: item.item.extras?["playSessionId"] as String? ?? "",
+        sessionId: _queueService.getQueue().id,
         isPaused: isPaused,
         isMuted: isMuted,
         positionTicks: playerPosition.inMicroseconds * 10,
@@ -555,7 +560,8 @@ class PlaybackHistoryService {
     try {
       return jellyfin_models.PlaybackProgressInfo(
         itemId: currentTrack.baseItem?.id ?? jellyfin_models.BaseItemId(""),
-        playSessionId: _queueService.getQueue().id,
+        playSessionId: currentTrack.item.extras?["playSessionId"] as String? ?? "",
+        sessionId: _queueService.getQueue().id,
         canSeek: true,
         isPaused: _audioService.paused,
         isMuted: _audioService.volume == 0.0,

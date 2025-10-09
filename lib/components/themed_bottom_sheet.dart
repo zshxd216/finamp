@@ -33,15 +33,22 @@ Future<void> showThemedBottomSheet({
 }) async {
   FeedbackHelper.feedback(FeedbackType.heavy);
   var ref = GetIt.instance<ProviderContainer>();
-  var themeInfo = ref.read(localThemeInfoProvider);
+  final localThemeImage = ref.read(localImageProvider);
   bool useDefaultTheme = false;
-  ThemeImage? themeImage;
+  FinampImage? themeImage;
   // If we have a usable theme image for our item, propagate this information
-  if ((themeInfo?.largeThemeImage ?? false) && themeInfo?.item == item) {
+  if (localThemeImage.fullQuality && localThemeImage.item == item) {
     themeImage = ref.read(localImageProvider);
   } else if (item == null) {
     useDefaultTheme = true;
   }
+  final menu = ThemedBottomSheet(
+    key: ValueKey((item?.id?.raw ?? "") + routeName),
+    buildSlivers: buildSlivers,
+    buildWrapper: buildWrapper,
+    minDraggableHeight: minDraggableHeight,
+    showDragHandle: showDragHandle,
+  );
   await showModalBottomSheet<void>(
     context: context,
     backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -49,7 +56,7 @@ Future<void> showThemedBottomSheet({
     isScrollControlled: true,
     clipBehavior: Clip.hardEdge,
     constraints: BoxConstraints(
-      maxWidth: (Platform.isIOS || Platform.isAndroid) ? 500 : min(500, MediaQuery.sizeOf(context).width * 0.9),
+      maxWidth: (Platform.isIOS || Platform.isAndroid) ? 500 : min(500, MediaQuery.widthOf(context) * 0.9),
     ),
     isDismissible: true,
     enableDrag: true,
@@ -62,19 +69,12 @@ Future<void> showThemedBottomSheet({
     builder: (BuildContext context) {
       return ProviderScope(
         overrides: [
-          if (useDefaultTheme) localThemeProvider.overrideWithValue(getDefaultTheme(Theme.of(context).brightness)),
+          if (useDefaultTheme) localThemeProvider.overrideWithValue(getDefaultTheme(Theme.brightnessOf(context))),
           if (!useDefaultTheme && themeImage != null) localImageProvider.overrideWithValue(themeImage),
-          if (!useDefaultTheme && themeImage != null) localThemeInfoProvider.overrideWithValue(themeInfo),
           if (!useDefaultTheme && themeImage == null && item != null)
             localThemeInfoProvider.overrideWithValue(ThemeInfo(item, useIsolate: false)),
         ],
-        child: ThemedBottomSheet(
-          key: ValueKey((item?.id?.raw ?? "") + routeName),
-          buildSlivers: buildSlivers,
-          buildWrapper: buildWrapper,
-          minDraggableHeight: minDraggableHeight,
-          showDragHandle: showDragHandle,
-        ),
+        child: menu,
       );
     },
   );
@@ -105,7 +105,7 @@ class ThemedBottomSheet extends ConsumerStatefulWidget {
         menuEntries.where((element) => element.isVisible).length *
         (Theme.of(context).visualDensity == VisualDensity.compact ? 48 : 56);
     stackHeight += extraHeight ?? 0.0;
-    stackHeight += includePlaybackrow ? (playActionPageIndicatorHeight + playActionRowHeight) : 0;
+    stackHeight += includePlaybackrow ? (playActionPageIndicatorHeightDefault + playActionRowHeightDefault) : 0;
     return stackHeight;
   }
 
@@ -139,13 +139,14 @@ class _ThemedBottomSheetState extends ConsumerState<ThemedBottomSheet> {
   }
 
   Widget buildInternal(double stackHeight, List<Widget> slivers) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        stackHeight += widget.showDragHandle ? 29.5 : 0;
-        // Account for bottom padding in PaddedCustomscrollview
-        stackHeight += 32;
-        stackHeight += MediaQuery.paddingOf(context).bottom;
-        if (Platform.isIOS || Platform.isAndroid) {
+    stackHeight += widget.showDragHandle ? 29.5 : 0;
+    // Account for bottom padding in PaddedCustomscrollview
+    stackHeight += 32;
+    stackHeight += MediaQuery.paddingOf(context).bottom;
+
+    if (Platform.isIOS || Platform.isAndroid) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
           var size = (stackHeight / constraints.maxHeight).clamp(widget.minDraggableHeight, 1.0);
           return DraggableScrollableSheet(
             controller: dragController,
@@ -155,17 +156,22 @@ class _ThemedBottomSheetState extends ConsumerState<ThemedBottomSheet> {
             expand: false,
             builder: (context, scrollController) => menu(scrollController, slivers),
           );
-        } else {
+        },
+      );
+    } else {
+      final child = menu(_controller, slivers);
+      return LayoutBuilder(
+        builder: (context, constraints) {
           var minSize = widget.minDraggableHeight * constraints.maxHeight;
           return SizedBox(
             // This is an overestimate of stack height on desktop, but this widget
             // needs some bottom padding on large displays anyway.
             height: max(minSize, stackHeight),
-            child: menu(_controller, slivers),
+            child: child,
           );
-        }
-      },
-    );
+        },
+      );
+    }
   }
 
   Widget menu(ScrollController scrollController, List<Widget> slivers) {

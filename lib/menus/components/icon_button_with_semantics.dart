@@ -7,6 +7,7 @@ class IconButtonWithSemantics extends ConsumerWidget {
   final IconData icon;
   final Color? color;
   final String label;
+  final VisualDensity? visualDensity;
 
   const IconButtonWithSemantics({
     super.key,
@@ -14,6 +15,7 @@ class IconButtonWithSemantics extends ConsumerWidget {
     required this.label,
     required this.icon,
     this.color,
+    this.visualDensity,
   });
 
   @override
@@ -25,11 +27,13 @@ class IconButtonWithSemantics extends ConsumerWidget {
       child: IconTheme(
         data: IconThemeData(color: color ?? IconTheme.of(context).color, size: 24),
         child: IconButton(
+          tooltip: label,
           icon: Icon(icon),
-          visualDensity: VisualDensity.compact,
+          visualDensity: visualDensity ?? VisualDensity.compact,
           onPressed: () {
-            if (onPressed != null) {
-              onPressed?.call();
+            var callback = onPressed;
+            if (callback != null) {
+              callback();
               FeedbackHelper.feedback(FeedbackType.selection);
             }
           },

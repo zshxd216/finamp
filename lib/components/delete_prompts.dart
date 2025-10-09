@@ -18,7 +18,6 @@ Future<void> askBeforeDeleteDownloadFromDevice(BuildContext context, DownloadStu
     builder: (context) => ConfirmationPromptDialog(
       promptText: AppLocalizations.of(context)!.deleteFromTargetDialogText("", "device", type),
       confirmButtonText: AppLocalizations.of(context)!.deleteFromTargetConfirmButton("device"),
-      abortButtonText: AppLocalizations.of(context)!.genericCancel,
       onConfirmed: () async {
         try {
           await GetIt.instance<DownloadsService>().deleteDownload(stub: stub);
@@ -38,7 +37,6 @@ Future<void> askBeforeDeleteDownloadFromDevice(BuildContext context, DownloadStu
           refresh != null ? refresh() : null;
         }
       },
-      onAborted: () {},
       centerText: true,
     ),
   );
@@ -63,7 +61,6 @@ Future<void> askBeforeDeleteFromServerAndDevice(
     builder: (_) => ConfirmationPromptDialog(
       promptText: AppLocalizations.of(context)!.deleteFromTargetDialogText(deleteType.textForm, "server", type),
       confirmButtonText: AppLocalizations.of(context)!.deleteFromTargetConfirmButton("server"),
-      abortButtonText: AppLocalizations.of(context)!.genericCancel,
       onConfirmed: () async {
         try {
           await jellyfinApiHelper.deleteItem(BaseItemId(stub.id));
@@ -90,7 +87,6 @@ Future<void> askBeforeDeleteFromServerAndDevice(
           refresh != null ? refresh() : null;
         }
       },
-      onAborted: () {},
       centerText: true,
     ),
   );

@@ -200,13 +200,10 @@ class TrackListTile extends ConsumerWidget {
       parentItem: parentItem,
       listIndex: index,
       actualIndex: item.indexNumber,
-      showIndex: showIndex,
-      showCover: showCover,
       showArtists: (forceAlbumArtists || parentItem?.isArtist != true),
       forceAlbumArtists: forceAlbumArtists,
       adaptiveAdditionalInfoSortBy: adaptiveAdditionalInfoSortBy,
       isInPlaylist: isInPlaylist,
-      allowReorder: false,
       allowDismiss: allowDismiss,
       highlightCurrentTrack: highlightCurrentTrack,
       onRemoveFromList: onRemoveFromList,
@@ -230,6 +227,12 @@ class TrackListTile extends ConsumerWidget {
         iconSize: 40.0,
       ),
       playbackProgress: playbackProgress,
+      features: [
+        showIndex ? TrackListItemFeatures.parentIndex : null,
+        showCover ? TrackListItemFeatures.cover : null,
+        TrackListItemFeatures.duration,
+        TrackListItemFeatures.addToPlaylistOrFavorite,
+      ].nonNulls.toList(),
     );
   }
 }
@@ -375,8 +378,6 @@ class QueueListTile extends StatelessWidget {
   final BaseItemDto item;
   final BaseItemDto? parentItem;
   final int? listIndex;
-  final int actualIndex;
-  final int indexOffset;
   final bool isCurrentTrack;
   final bool isInPlaylist;
   final bool allowReorder;
@@ -386,12 +387,12 @@ class QueueListTile extends StatelessWidget {
   final void Function(bool playable) onTap;
   final VoidCallback? onRemoveFromList;
 
+  static const double height = 70.0;
+
   const QueueListTile({
     super.key,
     required this.item,
     required this.listIndex,
-    required this.actualIndex,
-    required this.indexOffset,
     required this.onTap,
     required this.isCurrentTrack,
     required this.isInPlaylist,
@@ -404,27 +405,72 @@ class QueueListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<bool> queueListTileConfirmDismiss(direction) async {
-      final queueService = GetIt.instance<QueueService>();
-      FeedbackHelper.feedback(FeedbackType.heavy);
-      unawaited(queueService.removeAtOffset(indexOffset));
-      return true;
-    }
-
     return TrackListItem(
       baseItem: item,
       parentItem: parentItem,
       listIndex: listIndex,
       actualIndex: item.indexNumber,
       isInPlaylist: isInPlaylist,
-      allowReorder: allowReorder,
       allowDismiss: allowDismiss,
       highlightCurrentTrack: highlightCurrentTrack,
       onRemoveFromList: onRemoveFromList,
       // This must be in ListTile instead of parent GestureDetecter to
       // enable hover color changes
       onTap: onTap,
-      confirmDismiss: queueListTileConfirmDismiss,
+      confirmDismiss: (DismissDirection direction) async {
+        FeedbackHelper.feedback(FeedbackType.heavy);
+        onRemoveFromList?.call();
+        return true;
+      },
+      features: [
+        TrackListItemFeatures.cover,
+        TrackListItemFeatures.duration,
+        TrackListItemFeatures.addToPlaylistOrFavorite,
+        allowReorder ? TrackListItemFeatures.dragHandle : null,
+      ].nonNulls.toList(),
+    );
+  }
+}
+
+class EditListTile extends StatelessWidget {
+  final BaseItemDto item;
+  final int? listIndex;
+  final bool restoreInsteadOfRemove;
+
+  final void Function(bool playable) onTap;
+  final VoidCallback? onRemoveOrRestore;
+
+  const EditListTile({
+    super.key,
+    required this.item,
+    required this.listIndex,
+    required this.onTap,
+    this.restoreInsteadOfRemove = false,
+    this.onRemoveOrRestore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TrackListItem(
+      baseItem: item,
+      listIndex: listIndex,
+      actualIndex: item.indexNumber,
+      isInPlaylist: false,
+      highlightCurrentTrack: false,
+      onRemoveFromList: onRemoveOrRestore,
+      onTap: onTap,
+      confirmDismiss: (DismissDirection direction) async {
+        FeedbackHelper.feedback(FeedbackType.heavy);
+        onRemoveOrRestore?.call();
+        return true;
+      },
+      features: [
+        restoreInsteadOfRemove ? null : TrackListItemFeatures.listIndex,
+        TrackListItemFeatures.cover,
+        TrackListItemFeatures.dragHandle,
+        TrackListItemFeatures.fullyDraggable,
+        restoreInsteadOfRemove ? TrackListItemFeatures.restoreButton : TrackListItemFeatures.removeFromListButton,
+      ].nonNulls.toList(),
     );
   }
 }
@@ -434,17 +480,16 @@ class TrackListItem extends ConsumerWidget {
   final BaseItemDto? parentItem;
   final int? listIndex;
   final int? actualIndex;
-  final bool showIndex;
-  final bool showCover;
   final bool showArtists;
   final bool forceAlbumArtists;
   final SortBy? adaptiveAdditionalInfoSortBy;
   final bool isInPlaylist;
-  final bool allowReorder;
   final bool allowDismiss;
   final bool highlightCurrentTrack;
   final Widget leftSwipeBackground;
   final Widget rightSwipeBackground;
+  final List<TrackListItemFeatures> features;
+
   final void Function(bool playable) onTap;
   final Future<bool> Function(DismissDirection direction) confirmDismiss;
   final VoidCallback? onRemoveFromList;
@@ -457,12 +502,10 @@ class TrackListItem extends ConsumerWidget {
     required this.actualIndex,
     required this.onTap,
     required this.confirmDismiss,
+    required this.features,
     this.parentItem,
     this.isInPlaylist = false,
-    this.allowReorder = false,
     this.allowDismiss = true,
-    this.showIndex = false,
-    this.showCover = true,
     this.showArtists = true,
     this.forceAlbumArtists = false,
     this.adaptiveAdditionalInfoSortBy,
@@ -493,22 +536,21 @@ class TrackListItem extends ConsumerWidget {
     );
 
     var listCard = Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0),
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0),
       child: TrackListItemTile(
         baseItem: baseItem,
         listIndex: listIndex,
         actualIndex: actualIndex,
-        showIndex: showIndex,
-        showCover: showCover,
         showArtists: showArtists,
         forceAlbumArtists: forceAlbumArtists,
         showAlbum: showAlbum,
         adaptiveAdditionalInfoSortBy: adaptiveAdditionalInfoSortBy,
         isCurrentTrack: isCurrentlyPlaying,
         highlightCurrentTrack: highlightCurrentTrack,
-        allowReorder: allowReorder,
         onTap: () => onTap(playable),
         playbackProgress: playbackProgress,
+        onRemoveFromList: onRemoveFromList,
+        features: features,
       ),
     );
 
@@ -518,7 +560,7 @@ class TrackListItem extends ConsumerWidget {
       builder: (context) {
         // Use potentially themed context in menu callback
         void menuCallback() async {
-          if (playable) {
+          if (playable && !features.contains(TrackListItemFeatures.fullyDraggable)) {
             FeedbackHelper.feedback(FeedbackType.selection);
             await showModalTrackMenu(
               context: context,
@@ -536,8 +578,12 @@ class TrackListItem extends ConsumerWidget {
             // Begin precalculating theme for song menu
             ref.listenManual(finampThemeProvider(ThemeInfo(baseItem)), (_, __) {});
           },
-          onLongPressStart: (details) => menuCallback(),
-          onSecondaryTapDown: (details) => menuCallback(),
+          onLongPressStart: features.contains(TrackListItemFeatures.fullyDraggable)
+              ? null
+              : (details) => menuCallback(),
+          onSecondaryTapDown: features.contains(TrackListItemFeatures.fullyDraggable)
+              ? null
+              : (details) => menuCallback(),
           child: !playable
               ? listItem
               : Dismissible(
@@ -561,7 +607,7 @@ class TrackListItem extends ConsumerWidget {
       },
     );
 
-    return isCurrentlyPlaying && highlightCurrentTrack
+    final fullTile = isCurrentlyPlaying && highlightCurrentTrack
         ? PlayerScreenTheme(
             themeTransitionDuration: const Duration(milliseconds: 500),
             themeOverride: (imageTheme) {
@@ -587,7 +633,24 @@ class TrackListItem extends ConsumerWidget {
             child: unthemedItem,
           )
         : unthemedItem;
+    return features.contains(TrackListItemFeatures.fullyDraggable)
+        ? ((Platform.isLinux || Platform.isMacOS || Platform.isWindows)
+              ? ReorderableDragStartListener(index: listIndex ?? 0, child: fullTile)
+              : ReorderableDelayedDragStartListener(index: listIndex ?? 0, child: fullTile))
+        : fullTile;
   }
+}
+
+enum TrackListItemFeatures {
+  listIndex,
+  parentIndex,
+  cover,
+  duration,
+  addToPlaylistOrFavorite,
+  dragHandle,
+  fullyDraggable,
+  removeFromListButton,
+  restoreButton,
 }
 
 class TrackListItemTile extends ConsumerWidget {
@@ -595,34 +658,32 @@ class TrackListItemTile extends ConsumerWidget {
     super.key,
     required this.baseItem,
     required this.isCurrentTrack,
-    required this.allowReorder,
     required this.onTap,
     required this.actualIndex,
+    required this.features,
     this.listIndex,
-    this.showIndex = false,
-    this.showCover = true,
     this.showArtists = true,
     this.forceAlbumArtists = false,
     this.showAlbum = true,
     this.adaptiveAdditionalInfoSortBy,
     this.highlightCurrentTrack = true,
     this.playbackProgress,
+    this.onRemoveFromList,
   });
 
   final BaseItemDto baseItem;
   final bool isCurrentTrack;
-  final bool allowReorder;
   final int? listIndex;
   final int? actualIndex;
-  final bool showIndex;
-  final bool showCover;
   final bool showArtists;
   final bool forceAlbumArtists;
   final bool showAlbum;
+  final List<TrackListItemFeatures> features;
   final SortBy? adaptiveAdditionalInfoSortBy;
   final bool highlightCurrentTrack;
   final void Function() onTap;
   final double? playbackProgress;
+  final void Function()? onRemoveFromList;
 
   static const double defaultTileHeight = 60.0;
   static const double defaultTitleGap = 10.0;
@@ -680,262 +741,315 @@ class TrackListItemTile extends ConsumerWidget {
 
     final showPlaybackProgress = !highlightCurrentTrack && playbackProgress != null && playbackProgress! < 0.99;
 
-    final listTile = ListTile(
-      visualDensity: const VisualDensity(horizontal: 0.0, vertical: 0.5),
-      minVerticalPadding: 0.0,
-      horizontalTitleGap: defaultTitleGap,
-      contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(albumCoverCornerRadius)),
-      tileColor: highlightTrack ? Theme.of(context).colorScheme.surfaceContainer : Colors.transparent,
-      leading: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showIndex && actualIndex != null)
-            Padding(
-              padding: showCover
-                  ? const EdgeInsets.only(left: 2.0, right: 8.0)
-                  : const EdgeInsets.only(left: 6.0, right: 0.0),
-              child: Container(
-                constraints: const BoxConstraints(minWidth: 22.0),
-                child: Text(
-                  actualIndex.toString(),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.clip,
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          if (showCover) AlbumImage(item: baseItem, borderRadius: BorderRadius.circular(albumCoverCornerRadius)),
-        ],
-      ),
-      title: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: defaultTileHeight),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Flexible(
-              fit: FlexFit.loose,
-              flex: 3,
+    final tileLead = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (features.contains(TrackListItemFeatures.listIndex) ||
+            (features.contains(TrackListItemFeatures.parentIndex) && actualIndex != null))
+          Padding(
+            padding: features.contains(TrackListItemFeatures.cover)
+                ? EdgeInsets.only(
+                    left:
+                        features.contains(TrackListItemFeatures.listIndex) ||
+                            features.contains(TrackListItemFeatures.parentIndex)
+                        ? 0.0
+                        : 2.0,
+                    right: 8.0,
+                  )
+                : const EdgeInsets.only(left: 6.0, right: 0.0),
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 22.0),
               child: Text(
-                baseItem.name ?? AppLocalizations.of(context)!.unknownName,
+                features.contains(TrackListItemFeatures.listIndex)
+                    ? (listIndex ?? 0 + 1).toString()
+                    : actualIndex.toString(),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.clip,
                 style: TextStyle(
-                  color: Theme.of(context).textTheme.bodyLarge!.color,
-                  fontSize: 15.5,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  height: 1.1,
                 ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
               ),
             ),
-            Flexible(
-              fit: FlexFit.loose,
-              flex: 2,
-              child: Text.rich(
-                overflow: TextOverflow.clip,
-                softWrap: false,
-                maxLines: 1,
-                TextSpan(
-                  children: [
+          ),
+        if (features.contains(TrackListItemFeatures.cover))
+          AlbumImage(item: baseItem, borderRadius: BorderRadius.circular(albumCoverCornerRadius)),
+      ],
+    );
+    final tileTitle = ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: defaultTileHeight),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Flexible(
+            fit: FlexFit.loose,
+            flex: 3,
+            child: Text(
+              baseItem.name ?? AppLocalizations.of(context)!.unknownName,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge!.color,
+                fontSize: 15.5,
+                fontWeight: FontWeight.w500,
+                height: 1.1,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ),
+          Flexible(
+            fit: FlexFit.loose,
+            flex: 2,
+            child: Text.rich(
+              overflow: TextOverflow.clip,
+              softWrap: false,
+              maxLines: 1,
+              TextSpan(
+                children: [
+                  WidgetSpan(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                      child: Transform.translate(
+                        offset: isOnDesktop ? Offset(-1.5, 1.7) : Offset(-1.5, 0.4),
+                        child: downloadedIndicator,
+                      ),
+                    ),
+                    alignment: PlaceholderAlignment.baseline,
+                    baseline: TextBaseline.alphabetic,
+                  ),
+                  if (downloadedIndicator.isVisible(ref) && (baseItem.hasLyrics == null || baseItem.hasLyrics == false))
+                    const WidgetSpan(child: SizedBox(width: 4.5)),
+                  if (baseItem.hasLyrics ?? false)
                     WidgetSpan(
                       child: Padding(
                         padding: const EdgeInsets.only(right: 2.0),
                         child: Transform.translate(
                           offset: isOnDesktop ? Offset(-1.5, 1.7) : Offset(-1.5, 0.4),
-                          child: downloadedIndicator,
+                          child: Icon(
+                            TablerIcons.microphone_2,
+                            size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1,
+                          ),
                         ),
                       ),
                       alignment: PlaceholderAlignment.baseline,
                       baseline: TextBaseline.alphabetic,
                     ),
-                    if (downloadedIndicator.isVisible(ref) &&
-                        (baseItem.hasLyrics == null || baseItem.hasLyrics == false))
-                      const WidgetSpan(child: SizedBox(width: 4.5)),
-                    if (baseItem.hasLyrics ?? false)
-                      WidgetSpan(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 2.0),
-                          child: Transform.translate(
-                            offset: isOnDesktop ? Offset(-1.5, 1.7) : Offset(-1.5, 0.4),
-                            child: Icon(
-                              TablerIcons.microphone_2,
-                              size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1,
-                            ),
-                          ),
-                        ),
-                        alignment: PlaceholderAlignment.baseline,
-                        baseline: TextBaseline.alphabetic,
+                  if (baseItem.hasLyrics ?? false) const WidgetSpan(child: SizedBox(width: 5)),
+                  if (addSpaceAfterSpecialIcons) const WidgetSpan(child: SizedBox(width: 5)),
+                  if (showPlayCount)
+                    TextSpan(
+                      text: AppLocalizations.of(context)!.playCountValue(baseItem.userData?.playCount ?? 0),
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
                       ),
-                    if (baseItem.hasLyrics ?? false) const WidgetSpan(child: SizedBox(width: 5)),
-                    if (addSpaceAfterSpecialIcons) const WidgetSpan(child: SizedBox(width: 5)),
-                    if (showPlayCount)
-                      TextSpan(
-                        text: AppLocalizations.of(context)!.playCountValue(baseItem.userData?.playCount ?? 0),
+                    ),
+                  if (showPlayCount) const WidgetSpan(child: SizedBox(width: 10.0)),
+                  if (showDateLastPlayed)
+                    WidgetSpan(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 2.0),
+                        child: Transform.translate(
+                          offset: isOnDesktop ? Offset(-1.5, 1.8) : Offset(-1.5, 0.3),
+                          child: Icon(TablerIcons.clock, size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1),
+                        ),
+                      ),
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                    ),
+                  if (showDateLastPlayed)
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                      child: RelativeDateTimeTextFromString(
+                        dateString: baseItem.userData?.lastPlayedDate,
+                        fallback: AppLocalizations.of(context)!.noDateLastPlayed,
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),
+                        disableTextScaling: true,
                       ),
-                    if (showPlayCount) const WidgetSpan(child: SizedBox(width: 10.0)),
-                    if (showDateLastPlayed)
-                      WidgetSpan(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 2.0),
-                          child: Transform.translate(
-                            offset: isOnDesktop ? Offset(-1.5, 1.8) : Offset(-1.5, 0.3),
-                            child: Icon(TablerIcons.clock, size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1),
-                          ),
-                        ),
-                        alignment: PlaceholderAlignment.baseline,
-                        baseline: TextBaseline.alphabetic,
+                    ),
+                  if (showDateLastPlayed) const WidgetSpan(child: SizedBox(width: 10.0)),
+                  if (showReleaseDate)
+                    TextSpan(
+                      text: (ReleaseDateHelper.autoFormat(baseItem) ?? AppLocalizations.of(context)!.noReleaseDate),
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
                       ),
-                    if (showDateLastPlayed)
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.baseline,
-                        baseline: TextBaseline.alphabetic,
-                        child: RelativeDateTimeTextFromString(
-                          dateString: baseItem.userData?.lastPlayedDate,
-                          fallback: AppLocalizations.of(context)!.noDateLastPlayed,
-                          style: TextStyle(
+                    ),
+                  if (showReleaseDate) const WidgetSpan(child: SizedBox(width: 10.0)),
+                  if (showDateAdded)
+                    WidgetSpan(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 3),
+                        child: Transform.translate(
+                          offset: isOnDesktop ? Offset(-1.5, 1.28) : Offset(-1.5, 0),
+                          child: Icon(
+                            TablerIcons.calendar_plus,
+                            size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1,
                             color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
                           ),
-                          disableTextScaling: true,
                         ),
                       ),
-                    if (showDateLastPlayed) const WidgetSpan(child: SizedBox(width: 10.0)),
-                    if (showReleaseDate)
-                      TextSpan(
-                        text: (ReleaseDateHelper.autoFormat(baseItem) ?? AppLocalizations.of(context)!.noReleaseDate),
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                    ),
+                  if (showDateAdded)
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                      child: RelativeDateTimeTextFromString(
+                        dateString: baseItem.dateCreated,
+                        fallback: AppLocalizations.of(context)!.noDateAdded,
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),
+                        disableTextScaling: true,
                       ),
-                    if (showReleaseDate) const WidgetSpan(child: SizedBox(width: 10.0)),
-                    if (showDateAdded)
-                      WidgetSpan(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 3),
-                          child: Transform.translate(
-                            offset: isOnDesktop ? Offset(-1.5, 1.28) : Offset(-1.5, 0),
-                            child: Icon(
-                              TablerIcons.calendar_plus,
-                              size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1,
-                              color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
-                            ),
-                          ),
-                        ),
-                        alignment: PlaceholderAlignment.baseline,
-                        baseline: TextBaseline.alphabetic,
+                    ),
+                  if (showDateAdded) const WidgetSpan(child: SizedBox(width: 10.0)),
+                  if (showArtists)
+                    TextSpan(
+                      text: artistsString,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    if (showDateAdded)
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.baseline,
-                        baseline: TextBaseline.alphabetic,
-                        child: RelativeDateTimeTextFromString(
-                          dateString: baseItem.dateCreated,
-                          fallback: AppLocalizations.of(context)!.noDateAdded,
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          disableTextScaling: true,
-                        ),
+                    ),
+                  if (!secondRowNeeded)
+                    // show the artist anyway if nothing else is shown
+                    TextSpan(
+                      text: artistsString,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
                       ),
-                    if (showDateAdded) const WidgetSpan(child: SizedBox(width: 10.0)),
-                    if (showArtists)
-                      TextSpan(
-                        text: artistsString,
-                        style: TextStyle(
-                          color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                    ),
+                  if (showArtists) const WidgetSpan(child: SizedBox(width: 10.0)),
+                  if (showAlbum)
+                    TextSpan(
+                      text: baseItem.album,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.6),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
                       ),
-                    if (!secondRowNeeded)
-                      // show the artist anyway if nothing else is shown
-                      TextSpan(
-                        text: artistsString,
-                        style: TextStyle(
-                          color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.75),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                    if (showArtists) const WidgetSpan(child: SizedBox(width: 10.0)),
-                    if (showAlbum)
-                      TextSpan(
-                        text: baseItem.album,
-                        style: TextStyle(
-                          color: Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.6),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      trailing: Container(
-        margin: const EdgeInsets.only(right: 0.0),
-        padding: const EdgeInsets.only(right: 4.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              printDuration(baseItem.runTimeTicksDuration(), leadingZeroes: false),
-              semanticsLabel: durationLabelString,
-              textAlign: TextAlign.end,
-              style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color),
-            ),
-            Semantics(
-              excludeSemantics: true,
-              child: AddToPlaylistButton(item: baseItem, size: 24, visualDensity: const VisualDensity(horizontal: -4)),
-            ),
-            if (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
-              OverflowMenuButton(
-                onPressed: () => showModalTrackMenu(context: context, item: baseItem),
-                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
-                label: AppLocalizations.of(context)!.menuButtonLabel,
-              ),
-            if (allowReorder)
-              ReorderableDragStartListener(
-                index:
-                    listIndex ??
-                    0, // will briefly use 0 as index, but should resolve quickly enough for user not to notice
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6.0),
-                  child: IconButtonWithSemantics(
-                    icon: TablerIcons.menu_order,
-                    onPressed: null,
-                    label: AppLocalizations.of(context)!.dragToReorder,
-                    color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+    );
+    final listTile = OverflowBuilder(
+      hasOverflowed: (BoxConstraints constraints) => constraints.maxWidth > 750,
+      builder: (context, showOverflowMenu) {
+        return ListTile(
+          visualDensity: const VisualDensity(horizontal: 0.0, vertical: 0.5),
+          minVerticalPadding: 0.0,
+          horizontalTitleGap: defaultTitleGap,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(albumCoverCornerRadius)),
+          tileColor: highlightTrack ? Theme.of(context).colorScheme.surfaceContainer : Colors.transparent,
+          leading: tileLead,
+          title: tileTitle,
+          trailing: Padding(
+            padding: const EdgeInsets.only(right: 4.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (features.contains(TrackListItemFeatures.duration))
+                  Text(
+                    printDuration(baseItem.runTimeTicksDuration(), leadingZeroes: false),
+                    semanticsLabel: durationLabelString,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color),
                   ),
-                ),
-              ),
-          ],
-        ),
-      ),
-      onTap: onTap,
+                if (features.contains(TrackListItemFeatures.addToPlaylistOrFavorite))
+                  Semantics(
+                    excludeSemantics: true,
+                    child: AddToPlaylistButton(
+                      item: baseItem,
+                      size: 24,
+                      visualDensity: const VisualDensity(horizontal: -4),
+                    ),
+                  ),
+                if (features.contains(TrackListItemFeatures.removeFromListButton))
+                  IconButton(
+                    visualDensity: VisualDensity(horizontal: -4),
+                    icon: Icon(
+                      TablerIcons.x,
+                      color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                      size: 24.0,
+                      weight: 1.5,
+                    ),
+                    tooltip: AppLocalizations.of(context)!.removeFromPlaylistTooltip,
+                    onPressed: () {
+                      FeedbackHelper.feedback(FeedbackType.heavy);
+                      onRemoveFromList?.call();
+                    },
+                  ),
+                if (features.contains(TrackListItemFeatures.restoreButton))
+                  IconButton(
+                    visualDensity: VisualDensity(horizontal: -4),
+                    icon: Icon(
+                      TablerIcons.arrow_back_up,
+                      color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                      size: 24.0,
+                      weight: 1.5,
+                    ),
+                    tooltip: AppLocalizations.of(context)!.restoreTrack,
+                    onPressed: () {
+                      FeedbackHelper.feedback(FeedbackType.heavy);
+                      onRemoveFromList?.call();
+                    },
+                  ),
+                if (showOverflowMenu)
+                  OverflowMenuButton(
+                    onPressed: () => showModalTrackMenu(context: context, item: baseItem),
+                    color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                    label: AppLocalizations.of(context)!.menuButtonLabel,
+                  ),
+                if (features.contains(TrackListItemFeatures.dragHandle))
+                  ReorderableDragStartListener(
+                    index:
+                        listIndex ??
+                        0, // will briefly use 0 as index, but should resolve quickly enough for user not to notice
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: IconButtonWithSemantics(
+                        visualDensity: VisualDensity(horizontal: -4),
+                        icon: TablerIcons.menu_order,
+                        onPressed: null,
+                        label: AppLocalizations.of(context)!.dragToReorder,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          onTap: onTap,
+        );
+      },
     );
 
     return showPlaybackProgress
@@ -962,5 +1076,28 @@ class TrackListItemTile extends ConsumerWidget {
             ],
           )
         : listTile;
+  }
+}
+
+class OverflowBuilder extends StatelessWidget {
+  const OverflowBuilder({super.key, required this.hasOverflowed, required this.builder});
+
+  final bool Function(BoxConstraints constraints) hasOverflowed;
+  final Widget Function(BuildContext context, bool hasOverflowed) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget? child;
+    bool? overflowState;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool newOverflow = hasOverflowed(constraints);
+        if (overflowState != newOverflow || child == null) {
+          child = builder(context, newOverflow);
+          overflowState = newOverflow;
+        }
+        return child!;
+      },
+    );
   }
 }

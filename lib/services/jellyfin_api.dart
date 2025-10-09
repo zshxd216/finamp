@@ -8,6 +8,7 @@ import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/http_aggregate_logging_interceptor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' show MultipartFile;
 import 'package:http/io_client.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -59,6 +60,17 @@ abstract class JellyfinApi extends ChopperService {
   @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
   @Get(path: "/Items/{id}/Images/Primary")
   Future<dynamic> getAlbumPrimaryImage({@Path() required BaseItemId id, @Query() String format = "webp"});
+
+  @POST(path: "/Items/{itemId}/Images/Primary")
+  Future<Response> setItemPrimaryImage({
+    @Header("Content-Type") String contentType = "image/jpeg",
+    @Path() required BaseItemId itemId,
+    @Body() required String base64Image,
+  });
+
+  @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
+  @GET(path: "/Users/Me")
+  Future<dynamic> getUser();
 
   @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
   @Get(path: "/Users/{id}/Views")
@@ -219,8 +231,35 @@ abstract class JellyfinApi extends ChopperService {
   });
 
   @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
+  @Get(path: "/Playlists/{playlistId}/Users/{userId}")
+  Future<dynamic> getPlaylistUser({
+    /// User id.
+    @Path() required String userId,
+
+    /// Playlist id.
+    @Path() required BaseItemId playlistId,
+  });
+
+  @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
+  @Get(path: "/Playlists/{playlistId}/Users")
+  Future<dynamic> getPlaylistUsers({
+    /// User id.
+    @Path() required String userId,
+
+    /// Playlist id.
+    @Path() required BaseItemId playlistId,
+  });
+
+  @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
   @Get(path: "/Items/{id}/PlaybackInfo")
   Future<dynamic> getPlaybackInfo({@Path() required BaseItemId id, @Query() required String userId});
+
+  @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
+  @POST(path: "/Items/{id}/PlaybackInfo")
+  Future<dynamic> submitPlaybackInfo({
+    @Path() required BaseItemId id,
+    @Body() required PlaybackInfoRequest playbackInfoRequest,
+  });
 
   @FactoryConverter(request: JsonConverter.requestFactory)
   @Post(path: "/Items/{itemId}")
@@ -560,7 +599,11 @@ class JellyfinInterceptor implements Interceptor {
     // Add the request path on to the baseUrl
     baseUri = baseUri.replace(pathSegments: baseUri.pathSegments.followedBy(request.uri.pathSegments));
 
-    return request.copyWith(uri: baseUri, headers: {"Content-Type": "application/json", "Authorization": authHeader});
+    // Preserve an existing multipart/form-data or other explicit Content-Type (e.g., for file uploads)
+    // Do NOT force a Content-Type here; let Chopper/converters set JSON, and leave
+    // multipart or raw uploads (e.g., image POST) untouched so the server
+    // receives the correct boundary or image media type.
+    return request.copyWith(uri: baseUri, headers: {...request.headers, "Authorization": authHeader});
   }
 }
 
@@ -583,7 +626,7 @@ class JellyfinSpecificInterceptor implements Interceptor {
 
     return request.copyWith(
       uri: baseUri,
-      headers: {"Content-Type": "application/json", "Authorization": finampUserHelper.authorizationHeader},
+      headers: {...request.headers, "Authorization": finampUserHelper.authorizationHeader},
     );
   }
 }

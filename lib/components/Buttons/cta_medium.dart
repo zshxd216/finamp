@@ -32,7 +32,7 @@ class CTAMedium extends StatelessWidget {
           EdgeInsets.only(left: 8 + paddingHorizontal, right: 8, top: paddingVertical, bottom: paddingVertical),
         ),
         backgroundColor: WidgetStateProperty.all<Color>(
-          Theme.of(context).brightness == Brightness.dark ? accentColor.withOpacity(0.3) : accentColor,
+          Theme.brightnessOf(context) == Brightness.dark ? accentColor.withOpacity(0.3) : accentColor,
         ),
       ),
       child: Container(
@@ -45,7 +45,7 @@ class CTAMedium extends StatelessWidget {
             Icon(
               icon,
               size: 24,
-              color: Theme.of(context).brightness == Brightness.dark ? accentColor : Colors.white,
+              color: Theme.brightnessOf(context) == Brightness.dark ? accentColor : Colors.white,
               weight: 1.5,
             ),
             const SizedBox(width: 8),
@@ -62,7 +62,7 @@ class CTAMedium extends StatelessWidget {
   static double predictedHeight(BuildContext context) {
     final densityAdj = VisualDensity.adaptivePlatformDensity.baseSizeAdjustment.dy;
     return max(
-      MediaQuery.sizeOf(context).height * 0.03 + 24 + densityAdj + densityAdj,
+      MediaQuery.heightOf(context) * 0.03 + 24 + densityAdj + densityAdj,
       kMinInteractiveDimension + densityAdj,
     );
   }

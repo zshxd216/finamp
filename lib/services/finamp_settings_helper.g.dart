@@ -1105,6 +1105,44 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setAutoplayRestoredQueue(bool newAutoplayRestoredQueue) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.autoplayRestoredQueue = newAutoplayRestoredQueue;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setPreferNextUpPrepending(bool newPreferNextUpPrepending) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.preferNextUpPrepending = newPreferNextUpPrepending;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setRememberLastUsedPlaybackActionRowPage(
+    bool newRememberLastUsedPlaybackActionRowPage,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.rememberLastUsedPlaybackActionRowPage =
+        newRememberLastUsedPlaybackActionRowPage;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setLastUsedPlaybackActionRowPage(
+    PlaybackActionRowPage newLastUsedPlaybackActionRowPage,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.lastUsedPlaybackActionRowPage =
+        newLastUsedPlaybackActionRowPage;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setUseRadio(bool newUseRadio) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.useRadio = newUseRadio;
@@ -1509,6 +1547,18 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       );
   ProviderListenable<bool> get previousTracksExpaned => finampSettingsProvider
       .select((value) => value.requireValue.previousTracksExpaned);
+  ProviderListenable<bool> get autoplayRestoredQueue => finampSettingsProvider
+      .select((value) => value.requireValue.autoplayRestoredQueue);
+  ProviderListenable<bool> get preferNextUpPrepending => finampSettingsProvider
+      .select((value) => value.requireValue.preferNextUpPrepending);
+  ProviderListenable<bool> get rememberLastUsedPlaybackActionRowPage =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.rememberLastUsedPlaybackActionRowPage,
+      );
+  ProviderListenable<PlaybackActionRowPage> get lastUsedPlaybackActionRowPage =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.lastUsedPlaybackActionRowPage,
+      );
   ProviderListenable<bool> get useRadio =>
       finampSettingsProvider.select((value) => value.requireValue.useRadio);
   ProviderListenable<RadioMode> get radioMode =>

@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/material.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../models/finamp_models.dart';
@@ -53,7 +53,7 @@ class DownloadsOverview extends StatelessWidget {
                   child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: Column(
@@ -73,10 +73,16 @@ class DownloadsOverview extends StatelessWidget {
                                 ),
                                 style: const TextStyle(color: Colors.grey),
                               ),
+                              if (downloadsService.serverMissingBlurhash)
+                                Text(
+                                  AppLocalizations.of(context)!.missingBlurhashWarning,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
                             ],
                           ),
                         ),
-                        Expanded(
+                        Padding(
+                          padding: const EdgeInsets.only(left: 50),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [

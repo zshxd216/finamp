@@ -8,7 +8,28 @@
 
 bool SendAppLinkToInstance(const std::wstring& title) {
   // Find our exact window
-  HWND hwnd = ::FindWindow(L"FLUTTER_RUNNER_WIN32_WINDOW", title.c_str());
+  HWND hwnd = nullptr;
+  struct EnumData {
+    std::wstring needle;
+    HWND found = nullptr;
+  } data{title, nullptr};
+
+  EnumWindows([](HWND w, LPARAM lp) -> BOOL {
+    auto* d = reinterpret_cast<EnumData*>(lp);
+    if (!IsWindowVisible(w)) return TRUE;
+    wchar_t cls[256];
+    if (!GetClassName(w, cls, 256)) return TRUE;
+    if (wcscmp(cls, L"FLUTTER_RUNNER_WIN32_WINDOW") != 0) return TRUE;
+    wchar_t buf[512];
+    if (!GetWindowText(w, buf, 512)) return TRUE;
+    if (std::wstring(buf).find(d->needle) != std::wstring::npos) {
+      d->found = w;
+      return FALSE; // stop enumeration
+    }
+    return TRUE; // continue
+  }, reinterpret_cast<LPARAM>(&data));
+
+  hwnd = data.found;
 
   if (hwnd) {
     // Dispatch new link to current window

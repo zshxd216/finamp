@@ -105,18 +105,15 @@ class DefaultSettings {
   static const onlyShowFavorites = false;
   static const trackShuffleItemCount = 250;
   static const volumeNormalizationActive = true;
-  // 80% volume in dB. In my testing, most tracks were louder than the default target
-  // of -18.0 LUFS, so the gain rarely needed to be increased. -2.0 gives us a bit of
-  // headroom in case we need to boost a track (since volume can't go above 1.0),
-  // without reducing the volume too much.
-  // Ideally the maximum gain in each library should be fetched from the server, and this volume should be adjusted accordingly
-  static const volumeNormalizationIOSBaseGain = -2.0;
+  // Set the base gain to 6.0 dB, which will work against any tracks that have a normalization gain of -6.0 dB or lower. For higher gains this will cause the actual volume to be lower than it should be, since we can't compensate the volume upwards beyond 100%
+  // Ideally the maximum gain in each library should be fetched from the server, and this volume should be adjusted accordingly to be the exact inverse, so that the quietest track in the library plays at 100% volume, and only louder tracks get their volume reduced
+  static const volumeNormalizationIOSBaseGain = 6.0;
   static const volumeNormalizationMode = VolumeNormalizationMode.hybrid;
   static const contentViewType = ContentViewType.list;
   static const playbackSpeedVisibility = PlaybackSpeedVisibility.automatic;
   static const contentGridViewCrossAxisCountPortrait = 2;
   static const contentGridViewCrossAxisCountLandscape = 3;
-  static const showTextOnGridView = true;
+  static const showTextOnGridView = false;
   static const sleepTimerDurationSeconds = 60 * 30;
   static const useCoverAsBackground = true;
   static const playerScreenCoverMinimumPadding = 1.5;
@@ -231,6 +228,10 @@ class DefaultSettings {
   static const rpcIcon = DiscordRpcIcon.transparent;
   static const preferAddingToFavoritesOverPlaylists = false;
   static const previousTracksExpaned = false;
+  static const autoplayRestoredQueue = false;
+  static const preferNextUpPrepending = true;
+  static const rememberLastUsedPlaybackActionRowPage = true;
+  static const lastUsedPlaybackActionRowPage = PlaybackActionRowPage.newQueue;
   static const radioMode = RadioMode.random;
   static const useRadio = true;
 }
@@ -359,6 +360,10 @@ class FinampSettings {
     this.rpcIcon = DefaultSettings.rpcIcon,
     this.preferAddingToFavoritesOverPlaylists = DefaultSettings.preferAddingToFavoritesOverPlaylists,
     this.previousTracksExpaned = DefaultSettings.previousTracksExpaned,
+    this.autoplayRestoredQueue = DefaultSettings.autoplayRestoredQueue,
+    this.preferNextUpPrepending = DefaultSettings.preferNextUpPrepending,
+    this.rememberLastUsedPlaybackActionRowPage = DefaultSettings.rememberLastUsedPlaybackActionRowPage,
+    this.lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -758,10 +763,22 @@ class FinampSettings {
   @HiveField(127, defaultValue: DefaultSettings.previousTracksExpaned)
   bool previousTracksExpaned = DefaultSettings.previousTracksExpaned;
 
-  @HiveField(128, defaultValue: DefaultSettings.useRadio)
+  @HiveField(128, defaultValue: DefaultSettings.autoplayRestoredQueue)
+  bool autoplayRestoredQueue = DefaultSettings.autoplayRestoredQueue;
+
+  @HiveField(129, defaultValue: DefaultSettings.preferNextUpPrepending)
+  bool preferNextUpPrepending = DefaultSettings.preferNextUpPrepending;
+
+  @HiveField(130, defaultValue: DefaultSettings.rememberLastUsedPlaybackActionRowPage)
+  bool rememberLastUsedPlaybackActionRowPage = DefaultSettings.rememberLastUsedPlaybackActionRowPage;
+
+  @HiveField(131, defaultValue: DefaultSettings.lastUsedPlaybackActionRowPage)
+  PlaybackActionRowPage lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage;
+
+  @HiveField(132, defaultValue: DefaultSettings.useRadio)
   bool useRadio = DefaultSettings.useRadio;
 
-  @HiveField(129, defaultValue: DefaultSettings.radioMode)
+  @HiveField(133, defaultValue: DefaultSettings.radioMode)
   RadioMode radioMode = DefaultSettings.radioMode;
 
   static Future<FinampSettings> create() async {
@@ -1347,6 +1364,7 @@ class DownloadStub {
       userTranscodingProfile: null,
       syncTranscodingProfile: transcodingProfile,
       fileTranscodingProfile: null,
+      themeColor: null,
     );
   }
 
@@ -1375,6 +1393,7 @@ class DownloadItem extends DownloadStub {
     required this.userTranscodingProfile,
     required this.syncTranscodingProfile,
     required this.fileTranscodingProfile,
+    required this.themeColor,
   }) : super._build() {
     assert(!(type == DownloadItemType.collection && baseItemType == BaseItemDtoType.playlist) || viewId == null);
   }
@@ -1418,6 +1437,10 @@ class DownloadItem extends DownloadStub {
   DownloadProfile? syncTranscodingProfile;
   DownloadProfile? fileTranscodingProfile;
 
+  /// The primary color of an image used for theming, stored as an ARGB32 int.
+  /// This should only be non-null for images with a blurhash id.
+  int? themeColor;
+
   @ignore
   DownloadLocation? get fileDownloadLocation =>
       FinampSettingsHelper.finampSettings.downloadLocationsMap[fileTranscodingProfile?.downloadLocationId];
@@ -1448,35 +1471,47 @@ class DownloadItem extends DownloadStub {
     required bool forceCopy,
   }) {
     String? json;
+    String? imageName;
+    List<int>? newOrderedChildren;
     if (type == DownloadItemType.image) {
-      // Images do not have any attributes we might want to update
-      return null;
-    }
-    if (item != null) {
-      if (baseItemType != BaseItemDtoType.fromItem(item) || baseItem == null) {
+      // The only relevant attribute for an image is the imageid.  If it is unchanged, do not update.
+      if (item == null) {
+        return null;
+      }
+      if ((item.blurHash ?? item.imageId) != id) {
         throw "Could not update $name - incompatible new item $item";
       }
-      if (item.id != id) {
-        throw "Could not update $name - incompatible new item $item";
+      if (item.imageId == baseItem!.imageId) {
+        return null;
       }
-      // Not all BaseItemDto are requested with mediaSources, mediaStreams or childCount.  Do not
-      // overwrite with null if the new item does not have them.
-      item.mediaSources ??= baseItem?.mediaSources;
-      item.mediaStreams ??= baseItem?.mediaStreams;
-      item.sortName ??= baseItem?.sortName;
-    }
-    assert(
-      item == null ||
-          ((item.mediaSources == null || item.mediaSources!.isNotEmpty) &&
-              (item.mediaStreams == null || item.mediaStreams!.isNotEmpty)),
-    );
-    var orderedChildren = orderedChildItems?.map((e) => e.isarId).toList();
-    if (!forceCopy) {
-      if (viewId == null || viewId == this.viewId) {
-        if (item == null || baseItem!.mostlyEqual(item)) {
-          var equal = const DeepCollectionEquality().equals;
-          if (equal(orderedChildren, this.orderedChildren)) {
-            return null;
+      imageName = "Image for ${item.name}";
+    } else {
+      if (item != null) {
+        if (baseItemType != BaseItemDtoType.fromItem(item) || baseItem == null) {
+          throw "Could not update $name - incompatible new item $item";
+        }
+        if (item.id.raw != id) {
+          throw "Could not update $name - incompatible new item $item";
+        }
+        // Not all BaseItemDto are requested with mediaSources, mediaStreams or childCount.  Do not
+        // overwrite with null if the new item does not have them.
+        item.mediaSources ??= baseItem?.mediaSources;
+        item.mediaStreams ??= baseItem?.mediaStreams;
+        item.sortName ??= baseItem?.sortName;
+      }
+      assert(
+        item == null ||
+            ((item.mediaSources == null || item.mediaSources!.isNotEmpty) &&
+                (item.mediaStreams == null || item.mediaStreams!.isNotEmpty)),
+      );
+      newOrderedChildren = orderedChildItems?.map((e) => e.isarId).toList();
+      if (!forceCopy) {
+        if (viewId == null || viewId == this.viewId) {
+          if (item == null || baseItem!.mostlyEqual(item)) {
+            var equal = const DeepCollectionEquality().equals;
+            if (equal(newOrderedChildren, orderedChildren)) {
+              return null;
+            }
           }
         }
       }
@@ -1490,8 +1525,8 @@ class DownloadItem extends DownloadStub {
       id: id,
       isarId: isarId,
       jsonItem: json ?? jsonItem,
-      name: item?.name ?? name,
-      orderedChildren: orderedChildren ?? this.orderedChildren,
+      name: imageName ?? item?.name ?? name,
+      orderedChildren: newOrderedChildren ?? orderedChildren,
       parentIndexNumber: item?.parentIndexNumber ?? parentIndexNumber,
       path: path,
       state: state,
@@ -1500,6 +1535,7 @@ class DownloadItem extends DownloadStub {
       userTranscodingProfile: userTranscodingProfile,
       syncTranscodingProfile: syncTranscodingProfile,
       fileTranscodingProfile: fileTranscodingProfile,
+      themeColor: themeColor,
     );
   }
 }
@@ -3501,10 +3537,71 @@ enum DiscordRpcIcon {
   }
 }
 
-@HiveType(typeId: 102)
+@HiveType(typeId: 107)
+enum PlaybackActionRowPage {
+  @HiveField(0)
+  newQueue,
+  @HiveField(1)
+  playNext,
+  @HiveField(2)
+  appendNext,
+  @HiveField(3)
+  playLast;
+
+  /// Human-readable version of this enum.
+  @override
+  @Deprecated("Use toLocalisedString when possible")
+  String toString() => _humanReadableName(this);
+
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableName(PlaybackActionRowPage playbackActionRowPage) {
+    switch (playbackActionRowPage) {
+      case PlaybackActionRowPage.newQueue:
+        return "New Queue";
+      case PlaybackActionRowPage.playNext:
+        return "Play Next";
+      case PlaybackActionRowPage.appendNext:
+        return "Append Next";
+      case PlaybackActionRowPage.playLast:
+        return "Play Last";
+    }
+  }
+
+  String _humanReadableLocalisedName(PlaybackActionRowPage playbackActionRowPage, BuildContext context) {
+    switch (playbackActionRowPage) {
+      case PlaybackActionRowPage.newQueue:
+        return AppLocalizations.of(context)!.playbackActionPageNewQueue;
+      case PlaybackActionRowPage.playNext:
+        return AppLocalizations.of(context)!.playbackActionPageNext;
+      case PlaybackActionRowPage.appendNext:
+        return AppLocalizations.of(context)!.playbackActionPageNextUp;
+      case PlaybackActionRowPage.playLast:
+        return AppLocalizations.of(context)!.playbackActionPageAppendToQueue;
+    }
+  }
+
+  int pageIndexFor({required bool nextUpIsEmpty}) {
+    if (!nextUpIsEmpty) {
+      return index;
+    }
+
+    switch (this) {
+      case PlaybackActionRowPage.newQueue:
+        return 0;
+      case PlaybackActionRowPage.playNext:
+      case PlaybackActionRowPage.appendNext:
+        return 1;
+      case PlaybackActionRowPage.playLast:
+        return 2;
+    }
+  }
+}
+
+@HiveType(typeId: 108)
 enum RadioMode {
   @HiveField(0)
   shuffle,
   @HiveField(1)
-  random;
+  random,
 }

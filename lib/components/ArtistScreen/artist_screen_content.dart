@@ -1,24 +1,23 @@
 import 'dart:async';
 
-import 'package:finamp/components/Buttons/cta_medium.dart';
+import 'package:finamp/components/AlbumScreen/download_button.dart';
+import 'package:finamp/components/ArtistScreen/artist_screen_content_flexible_space_bar.dart';
+import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/curated_item_filter_row.dart';
+import 'package:finamp/components/favorite_button.dart';
+import 'package:finamp/components/padded_custom_scrollview.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/artist_content_provider.dart';
 import 'package:finamp/components/curated_item_sections.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/services/downloads_service.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../models/finamp_models.dart';
-import '../../models/jellyfin_models.dart';
-import '../../services/downloads_service.dart';
-import '../../services/finamp_settings_helper.dart';
-import '../../services/jellyfin_api_helper.dart';
-import '../AlbumScreen/download_button.dart';
-import '../favorite_button.dart';
-import '../padded_custom_scrollview.dart';
-import 'artist_screen_content_flexible_space_bar.dart';
 
 class ArtistScreenContent extends ConsumerStatefulWidget {
   const ArtistScreenContent({super.key, required this.parent, this.library, this.genreFilter});
@@ -147,10 +146,10 @@ class _ArtistScreenContentState extends ConsumerState<ArtistScreenContent> {
         slivers: <Widget>[
           SliverAppBar(
             title: Text(widget.parent.name ?? AppLocalizations.of(context)!.unknownName),
-            // 125 + 116 is the total height of the widget we use as a
-            // FlexibleSpaceBar. We add the toolbar height since the widget
+            // This is the total height of the widget we use as a
+            // FlexibleSpaceBar. We add the toolbar height ([kToolbarHeight]) since the widget
             // should appear below the appbar.
-            expandedHeight: kToolbarHeight + 125 + 24 + CTAMedium.predictedHeight(context),
+            expandedHeight: kToolbarHeight + 125 + 24 + 100,
             centerTitle: false,
             pinned: true,
             flexibleSpace: ArtistScreenContentFlexibleSpaceBar(
@@ -177,9 +176,14 @@ class _ArtistScreenContentState extends ConsumerState<ArtistScreenContent> {
                       ? AppLocalizations.of(context)!.downloadButtonDisabledGenreFilterTooltip
                       : null,
                 ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  openItemMenu(context: context, item: widget.parent);
+                },
+              ),
             ],
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 10)),
           if (!isLoading)
             ...artistItemSectionsOrder.map((type) {
               switch (type) {
