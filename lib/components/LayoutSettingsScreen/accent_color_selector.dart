@@ -1,6 +1,6 @@
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
-import 'package:finamp/color_extensions.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,22 +26,24 @@ class AccentColorSelector extends ConsumerWidget {
             ),
           ),
           SizedBox(width: 16),
-          Container(
-            width: 56,
-            height: 32,
-            margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
-            decoration: BoxDecoration(
-              color: color ?? Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: isSet ? Colors.transparent : Theme.of(context).colorScheme.outline, width: 2),
+          GestureDetector(
+            onTap: () => _showAccentColorSheet(context, ref, color),
+            child: Container(
+              width: 56,
+              height: 32,
+              margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
+              decoration: BoxDecoration(
+                color: color ?? Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: isSet ? Colors.transparent : Theme.of(context).colorScheme.outline, width: 2),
+              ),
+              child: !isSet
+                  ? Icon(Icons.color_lens_outlined, size: 24, color: Theme.of(context).colorScheme.outline)
+                  : null,
             ),
-            child: !isSet
-                ? Icon(Icons.color_lens_outlined, size: 24, color: Theme.of(context).colorScheme.outline)
-                : null,
           ),
         ],
       ),
-      onTap: () => _showAccentColorSheet(context, ref, color),
     );
   }
 
