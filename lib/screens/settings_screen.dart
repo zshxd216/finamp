@@ -16,7 +16,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../components/SettingsScreen/logout_list_tile.dart';
 import '../services/finamp_settings_helper.dart';
-import '../services/locale_helper.dart';
 import 'audio_service_settings_screen.dart';
 import 'downloads_settings_screen.dart';
 import 'language_selection_screen.dart';
@@ -189,7 +188,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(AppLocalizations.of(context)!.language),
-            subtitle: Text(LocaleHelper.locale?.nativeDisplayLanguage ?? AppLocalizations.of(context)!.system),
+            subtitle: Text(
+              ref.read(finampSettingsProvider.locale)?.nativeDisplayLanguage ?? AppLocalizations.of(context)!.system,
+            ),
             onTap: () => Navigator.of(context).pushNamed(LanguageSelectionScreen.routeName),
           ),
           Divider(),

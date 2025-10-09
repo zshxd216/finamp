@@ -98,7 +98,8 @@ class DefaultSettings {
   // These consts are so that we can easily keep the same default for
   // FinampSettings's constructor and Hive's defaultValue.
   static const isOffline = false;
-  static const theme = ThemeMode.system;
+  static const themeMode = ThemeMode.system;
+  static const Locale? locale = null;
   static const Color? accentColor = null;
   static const shouldTranscode = false;
   static const transcodeBitrate = 320000;
@@ -364,6 +365,8 @@ class FinampSettings {
     this.rememberLastUsedPlaybackActionRowPage = DefaultSettings.rememberLastUsedPlaybackActionRowPage,
     this.lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage,
     this.accentColor = DefaultSettings.accentColor,
+    this.themeMode = DefaultSettings.themeMode,
+    this.locale = DefaultSettings.locale,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -777,6 +780,12 @@ class FinampSettings {
 
   @HiveField(132, defaultValue: DefaultSettings.accentColor)
   Color? accentColor = DefaultSettings.accentColor;
+
+  @HiveField(133, defaultValue: DefaultSettings.themeMode)
+  ThemeMode themeMode = DefaultSettings.themeMode;
+
+  @HiveField(134, defaultValue: DefaultSettings.locale)
+  Locale? locale = DefaultSettings.locale;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(

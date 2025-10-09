@@ -94,9 +94,7 @@ import 'screens/view_selector.dart';
 import 'screens/volume_normalization_settings_screen.dart';
 import 'services/audio_service_helper.dart';
 import 'services/jellyfin_api_helper.dart';
-import 'services/locale_helper.dart';
 import 'services/music_player_background_task.dart';
-import 'services/theme_mode_helper.dart';
 import 'setup_logging.dart';
 
 final _mainLog = Logger("Main()");
@@ -274,9 +272,7 @@ Future<void> setupHive() async {
 
   await Future.wait([
     Hive.openBox<FinampSettings>("FinampSettings", path: dir.path),
-    Hive.openBox<ThemeMode>("ThemeMode", path: dir.path),
     Hive.openBox<FinampStorableQueueInfo>("Queues", path: dir.path),
-    Hive.openBox<Locale?>(LocaleHelper.boxName, path: dir.path),
     Hive.openBox<OfflineListen>("OfflineListens", path: dir.path),
   ]);
 
@@ -285,10 +281,6 @@ Future<void> setupHive() async {
   if (finampSettingsBox.isEmpty) {
     await finampSettingsBox.put("FinampSettings", await FinampSettings.create());
   }
-
-  // If no ThemeMode is set, we set it to the default (system)
-  Box<ThemeMode> themeModeBox = Hive.box("ThemeMode");
-  if (themeModeBox.isEmpty) ThemeModeHelper.setThemeMode(DefaultSettings.theme);
 
   final compactFile = File(path_helper.join(dir.path, "$isarDatabaseName.isar.compact}"));
   if (compactFile.existsSync()) {
@@ -563,34 +555,7 @@ class _FinampState extends State<Finamp> with WindowListener {
             FocusManager.instance.primaryFocus?.unfocus();
           }
         },
-        // We awkwardly have two ValueListenableBuilders for the locale and
-        // theme because I didn't want every FinampSettings change to rebuild
-        // the whole app
-        child: FinampProviderBuilder(
-          child: ValueListenableBuilder(
-            valueListenable: LocaleHelper.localeListener,
-            builder: (_, __, ___) {
-              final transitionBuilder = MediaQuery.disableAnimationsOf(context)
-                  ? PageTransitionsTheme(
-                      // Disable page transitions on all platforms if [disableAnimations] is true, otherwise use default transitions
-                      builders: TargetPlatform.values.fold(
-                        <TargetPlatform, PageTransitionsBuilder>{},
-                        (previousValue, element) =>
-                            previousValue..[element] = const NoTransitionPageTransitionsBuilder(),
-                      ),
-                    )
-                  : null;
-
-              return ValueListenableBuilder<Box<ThemeMode>>(
-                valueListenable: ThemeModeHelper.themeModeListener,
-                builder: (context, box, _) {
-                  final themeMode = box.get("ThemeMode");
-                  return FinampApp(themeMode: themeMode, transitionBuilder: transitionBuilder);
-                },
-              );
-            },
-          ),
-        ),
+        child: FinampProviderBuilder(child: FinampApp()),
       ),
     );
   }
@@ -622,14 +587,22 @@ class _FinampState extends State<Finamp> with WindowListener {
 }
 
 class FinampApp extends ConsumerWidget {
-  const FinampApp({super.key, required this.themeMode, required this.transitionBuilder});
-
-  final PageTransitionsTheme? transitionBuilder;
-  final ThemeMode? themeMode;
+  const FinampApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accentColor = ref.watch(finampSettingsProvider.accentColor);
+    final themeMode = ref.watch(finampSettingsProvider.themeMode);
+    final locale = ref.watch(finampSettingsProvider.locale);
+    final transitionBuilder = MediaQuery.disableAnimationsOf(context)
+        ? PageTransitionsTheme(
+            // Disable page transitions on all platforms if [disableAnimations] is true, otherwise use default transitions
+            builders: TargetPlatform.values.fold(
+              <TargetPlatform, PageTransitionsBuilder>{},
+              (previousValue, element) => previousValue..[element] = const NoTransitionPageTransitionsBuilder(),
+            ),
+          )
+        : null;
     return MaterialApp(
       title: "Finamp",
       routes: {
@@ -725,7 +698,7 @@ class FinampApp extends ConsumerWidget {
       // the first language in supportedLocales (Arabic as of writing)
       localeListResolutionCallback: (locales, supportedLocales) =>
           basicLocaleListResolution(locales, [const Locale("en")].followedBy(supportedLocales)),
-      locale: LocaleHelper.locale,
+      locale: locale,
       scaffoldMessengerKey: GlobalSnackbar.materialAppScaffoldKey,
       navigatorKey: GlobalSnackbar.materialAppNavigatorKey,
     );

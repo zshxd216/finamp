@@ -1,8 +1,6 @@
 import 'package:finamp/components/confirmation_prompt_dialog.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
-import 'package:finamp/services/locale_helper.dart';
-import 'package:finamp/services/theme_mode_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -124,7 +122,7 @@ class FinampSettingsHelper {
   static void resetLayoutSettings() {
     FinampSettings finampSettingsTemp = finampSettings;
 
-    ThemeModeHelper.setThemeMode(DefaultSettings.theme);
+    FinampSetters.setThemeMode(DefaultSettings.themeMode);
     FinampSetters.setAccentColor(null);
     FinampSetters.setContentViewType(DefaultSettings.contentViewType);
     finampSettingsTemp.useFixedSizeGridTiles = DefaultSettings.useFixedSizeGridTiles;
@@ -244,6 +242,10 @@ class FinampSettingsHelper {
     FinampSetters.setEnableVibration(DefaultSettings.enableVibration);
   }
 
+  static void resetLocale() {
+    FinampSetters.setLocale(DefaultSettings.locale);
+  }
+
   static void resetAllSettings() {
     resetTranscodingSettings();
     resetDownloadSettings();
@@ -260,8 +262,7 @@ class FinampSettingsHelper {
     resetGenreSettings();
     resetTabsSettings();
     resetNetworkSettings();
-
-    LocaleHelper.setLocale(null); // Reset to System Language
+    resetLocale();
   }
 
   static IconButton makeSettingsResetButtonWithDialog(

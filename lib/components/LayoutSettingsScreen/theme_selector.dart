@@ -1,8 +1,7 @@
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:finamp/l10n/app_localizations.dart';
-import 'package:hive_ce/hive.dart';
-
-import '../../services/theme_mode_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 extension LocalisedName on ThemeMode {
   String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
@@ -19,29 +18,25 @@ extension LocalisedName on ThemeMode {
   }
 }
 
-class ThemeSelector extends StatelessWidget {
+class ThemeSelector extends ConsumerWidget {
   const ThemeSelector({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<Box<ThemeMode>>(
-      valueListenable: ThemeModeHelper.themeModeListener,
-      builder: (_, box, __) {
-        return ListTile(
-          title: Text(AppLocalizations.of(context)!.theme),
-          trailing: DropdownButton<ThemeMode>(
-            value: box.get("ThemeMode"),
-            items: ThemeMode.values
-                .map((e) => DropdownMenuItem<ThemeMode>(value: e, child: Text(e.toLocalisedString(context))))
-                .toList(),
-            onChanged: (value) {
-              if (value != null) {
-                ThemeModeHelper.setThemeMode(value);
-              }
-            },
-          ),
-        );
-      },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(finampSettingsProvider.themeMode);
+    return ListTile(
+      title: Text(AppLocalizations.of(context)!.theme),
+      trailing: DropdownButton<ThemeMode>(
+        value: themeMode,
+        items: ThemeMode.values
+            .map((e) => DropdownMenuItem<ThemeMode>(value: e, child: Text(e.toLocalisedString(context))))
+            .toList(),
+        onChanged: (value) {
+          if (value != null) {
+            FinampSetters.setThemeMode(value);
+          }
+        },
+      ),
     );
   }
 }
