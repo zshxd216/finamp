@@ -200,32 +200,28 @@ class PlayNextPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
-    return Visibility(
-      visible: queueService.getQueue().nextUp.isNotEmpty || preferNextUpPrepending,
-      child: PlaybackAction(
-        enabled: !(Platform.isWindows || Platform.isLinux),
-        icon: TablerIcons.corner_right_down,
-        label: AppLocalizations.of(context)!.playNext,
-        compactLayout: compactLayout,
-        onPressed: () async {
-          if (popContext) {
-            Navigator.pop(context);
-          }
+    return PlaybackAction(
+      enabled: !(Platform.isWindows || Platform.isLinux),
+      icon: TablerIcons.corner_right_down,
+      label: AppLocalizations.of(context)!.playNext,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
 
-          await queueService.addNext(
-            items: await loadChildTracks(item: item, genreFilter: genreFilter),
-            source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
-          );
+        await queueService.addNext(
+          items: await loadChildTracks(item: item, genreFilter: genreFilter),
+          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+        );
 
-          GlobalSnackbar.message(
-            (scaffold) => AppLocalizations.of(scaffold)!.confirmPlayNext(BaseItemDtoType.fromPlayableItem(item).name),
-            isConfirmation: true,
-          );
-        },
-        iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
-      ),
+        GlobalSnackbar.message(
+          (scaffold) => AppLocalizations.of(scaffold)!.confirmPlayNext(BaseItemDtoType.fromPlayableItem(item).name),
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
   }
 }
@@ -376,33 +372,29 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
-    return Visibility(
-      visible: queueService.getQueue().nextUp.isNotEmpty || preferNextUpPrepending,
-      child: PlaybackAction(
-        enabled: !(Platform.isWindows || Platform.isLinux),
-        icon: TablerIcons.corner_right_down,
-        addShuffleIcon: true,
-        label: (itemType == BaseItemDtoType.genre)
-            ? AppLocalizations.of(context)!.shuffleSomeNext
-            : AppLocalizations.of(context)!.shuffleNext,
-        compactLayout: compactLayout,
-        onPressed: () async {
-          if (popContext) {
-            Navigator.pop(context);
-          }
+    return PlaybackAction(
+      enabled: !(Platform.isWindows || Platform.isLinux),
+      icon: TablerIcons.corner_right_down,
+      addShuffleIcon: true,
+      label: (itemType == BaseItemDtoType.genre)
+          ? AppLocalizations.of(context)!.shuffleSomeNext
+          : AppLocalizations.of(context)!.shuffleNext,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
 
-          await queueService.addNext(
-            items: await loadChildTracks(item: item, genreFilter: genreFilter),
-            source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
-            order: FinampPlaybackOrder.shuffled,
-          );
+        await queueService.addNext(
+          items: await loadChildTracks(item: item, genreFilter: genreFilter),
+          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          order: FinampPlaybackOrder.shuffled,
+        );
 
-          GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
-        },
-        iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
-      ),
+        GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
   }
 }
@@ -426,36 +418,32 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
-    return Visibility(
-      visible: queueService.getQueue().nextUp.isNotEmpty || !preferNextUpPrepending,
-      child: PlaybackAction(
-        enabled: !(Platform.isWindows || Platform.isLinux),
-        icon: TablerIcons.corner_right_down_double,
-        addShuffleIcon: true,
-        label: (itemType == BaseItemDtoType.genre)
-            ? AppLocalizations.of(context)!.shuffleSomeToNextUp
-            : AppLocalizations.of(context)!.shuffleToNextUp,
-        compactLayout: compactLayout,
-        onPressed: () async {
-          if (popContext) {
-            Navigator.pop(context);
-          }
+    return PlaybackAction(
+      enabled: !(Platform.isWindows || Platform.isLinux),
+      icon: TablerIcons.corner_right_down_double,
+      addShuffleIcon: true,
+      label: (itemType == BaseItemDtoType.genre)
+          ? AppLocalizations.of(context)!.shuffleSomeToNextUp
+          : AppLocalizations.of(context)!.shuffleToNextUp,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
 
-          await queueService.addToNextUp(
-            items: await loadChildTracks(item: item, genreFilter: genreFilter),
-            source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
-            order: FinampPlaybackOrder.shuffled,
-          );
+        await queueService.addToNextUp(
+          items: await loadChildTracks(item: item, genreFilter: genreFilter),
+          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          order: FinampPlaybackOrder.shuffled,
+        );
 
-          GlobalSnackbar.message(
-            (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
-            isConfirmation: true,
-          );
-        },
-        iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
-      ),
+        GlobalSnackbar.message(
+          (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
   }
 }
@@ -576,40 +564,36 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
-    return Visibility(
-      visible: queueService.getQueue().nextUp.isNotEmpty || preferNextUpPrepending,
-      child: PlaybackAction(
-        enabled: !(Platform.isWindows || Platform.isLinux),
-        icon: TablerIcons.corner_right_down,
-        addShuffleIcon: true,
-        label: (itemType == BaseItemDtoType.genre)
-            ? AppLocalizations.of(context)!.shuffleSomeAlbumsNext
-            : AppLocalizations.of(context)!.shuffleAlbumsNext,
-        compactLayout: compactLayout,
-        onPressed: () async {
-          if (popContext) {
-            Navigator.pop(context);
-          }
+    return PlaybackAction(
+      enabled: !(Platform.isWindows || Platform.isLinux),
+      icon: TablerIcons.corner_right_down,
+      addShuffleIcon: true,
+      label: (itemType == BaseItemDtoType.genre)
+          ? AppLocalizations.of(context)!.shuffleSomeAlbumsNext
+          : AppLocalizations.of(context)!.shuffleAlbumsNext,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
 
-          await queueService.addNext(
-            items: groupItems(
-              items: await loadChildTracks(
-                item: item,
-                genreFilter: genreFilter,
-                shuffleGenreAlbums: itemType == BaseItemDtoType.genre,
-              ),
-              groupListBy: (element) => element.albumId?.toString(),
-              manuallyShuffle: true,
+        await queueService.addNext(
+          items: groupItems(
+            items: await loadChildTracks(
+              item: item,
+              genreFilter: genreFilter,
+              shuffleGenreAlbums: itemType == BaseItemDtoType.genre,
             ),
-            source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
-          );
+            groupListBy: (element) => element.albumId?.toString(),
+            manuallyShuffle: true,
+          ),
+          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+        );
 
-          GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
-        },
-        iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
-      ),
+        GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
   }
 }
@@ -633,43 +617,39 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final preferNextUpPrepending = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
-    return Visibility(
-      visible: queueService.getQueue().nextUp.isNotEmpty || !preferNextUpPrepending,
-      child: PlaybackAction(
-        enabled: !(Platform.isWindows || Platform.isLinux),
-        icon: TablerIcons.corner_right_down_double,
-        addShuffleIcon: true,
-        label: (itemType == BaseItemDtoType.genre)
-            ? AppLocalizations.of(context)!.shuffleSomeAlbumsToNextUp
-            : AppLocalizations.of(context)!.shuffleAlbumsToNextUp,
-        compactLayout: compactLayout,
-        onPressed: () async {
-          if (popContext) {
-            Navigator.pop(context);
-          }
+    return PlaybackAction(
+      enabled: !(Platform.isWindows || Platform.isLinux),
+      icon: TablerIcons.corner_right_down_double,
+      addShuffleIcon: true,
+      label: (itemType == BaseItemDtoType.genre)
+          ? AppLocalizations.of(context)!.shuffleSomeAlbumsToNextUp
+          : AppLocalizations.of(context)!.shuffleAlbumsToNextUp,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
 
-          await queueService.addToNextUp(
-            items: groupItems(
-              items: await loadChildTracks(
-                item: item,
-                genreFilter: genreFilter,
-                shuffleGenreAlbums: itemType == BaseItemDtoType.genre,
-              ),
-              groupListBy: (element) => element.albumId?.toString(),
-              manuallyShuffle: true,
+        await queueService.addToNextUp(
+          items: groupItems(
+            items: await loadChildTracks(
+              item: item,
+              genreFilter: genreFilter,
+              shuffleGenreAlbums: itemType == BaseItemDtoType.genre,
             ),
-            source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
-          );
+            groupListBy: (element) => element.albumId?.toString(),
+            manuallyShuffle: true,
+          ),
+          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+        );
 
-          GlobalSnackbar.message(
-            (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
-            isConfirmation: true,
-          );
-        },
-        iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
-      ),
+        GlobalSnackbar.message(
+          (scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleToNextUp,
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
     );
   }
 }
