@@ -184,9 +184,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             ? true
             : fields[37] as bool,
         maxConcurrentDownloads: fields[38] == null
-            ? 10
+            ? 5
             : (fields[38] as num).toInt(),
-        downloadWorkers: fields[39] == null ? 5 : (fields[39] as num).toInt(),
+        downloadWorkers: fields[39] == null ? 1 : (fields[39] as num).toInt(),
         resyncOnStartup: fields[40] == null ? true : fields[40] as bool,
         preferQuickSyncs: fields[41] == null ? true : fields[41] as bool,
         hasCompletedIsarUserMigration: fields[42] == null

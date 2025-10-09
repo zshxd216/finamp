@@ -190,8 +190,8 @@ class ConcurentDownloadsSelector extends ConsumerWidget {
           children: [
             Slider(
               min: 1,
-              max: 100,
-              value: ref.watch(finampSettingsProvider.maxConcurrentDownloads).clamp(1, 100).toDouble(),
+              max: 25,
+              value: ref.watch(finampSettingsProvider.maxConcurrentDownloads).clamp(1, 25).toDouble(),
               label: AppLocalizations.of(
                 context,
               )!.maxConcurrentDownloadsLabel(ref.watch(finampSettingsProvider.maxConcurrentDownloads).toString()),
@@ -230,8 +230,8 @@ class DownloadWorkersSelector extends ConsumerWidget {
           children: [
             Slider(
               min: 1,
-              max: 10,
-              value: workers.clamp(1, 10).toDouble(),
+              max: 5,
+              value: workers.clamp(1, 5).toDouble(),
               label: AppLocalizations.of(context)!.downloadsWorkersSettingLabel(workers.toString()),
               onChanged: (value) => FinampSetters.setDownloadWorkers(value.toInt()),
               autofocus: false,

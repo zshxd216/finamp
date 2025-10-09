@@ -183,8 +183,8 @@ class DefaultSettings {
   static const onlyShowFullyDownloaded = false;
   static const preferQuickSyncs = true;
   static const showDownloadsWithUnknownLibrary = true;
-  static const downloadWorkers = 5;
-  static const maxConcurrentDownloads = 10;
+  static const downloadWorkers = 1;
+  static const maxConcurrentDownloads = 5;
   static const downloadSizeWarningCutoff = 150;
   static const allowDeleteFromServer = false;
   static const oneLineMarqueeTextButton = false;
