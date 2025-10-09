@@ -88,10 +88,10 @@ const darkColorScheme = ColorScheme(
 /// If [color] is provided -> returns a generated color scheme
 /// otherwise falls back to default color schemes
 /// [lightColorScheme] or [darkColorScheme]
-ColorScheme getColorScheme(Color? color ,{bool dark = false}) {
+ColorScheme getColorScheme(Color? color, Brightness brightness) {
   if (color != null) {
-    return ColorScheme.fromSeed(seedColor: color, brightness: dark ? Brightness.dark : Brightness.light);
+    return ColorScheme.fromSeed(seedColor: color, brightness: brightness);
   }
 
-  return dark ? darkColorScheme : lightColorScheme;
+  return brightness == Brightness.dark ? darkColorScheme : lightColorScheme;
 }

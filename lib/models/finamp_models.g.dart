@@ -418,6 +418,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         lastUsedPlaybackActionRowPage: fields[131] == null
             ? PlaybackActionRowPage.newQueue
             : fields[131] as PlaybackActionRowPage,
+        accentColor: fields[132] == null
+            ? DefaultSettings.accentColor
+            : fields[132] as Color?,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -432,7 +435,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(125)
+      ..writeByte(126)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -682,7 +685,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(130)
       ..write(obj.rememberLastUsedPlaybackActionRowPage)
       ..writeByte(131)
-      ..write(obj.lastUsedPlaybackActionRowPage);
+      ..write(obj.lastUsedPlaybackActionRowPage)
+      ..writeByte(132)
+      ..write(obj.accentColor);
   }
 
   @override

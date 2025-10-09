@@ -99,6 +99,7 @@ class DefaultSettings {
   // FinampSettings's constructor and Hive's defaultValue.
   static const isOffline = false;
   static const theme = ThemeMode.system;
+  static const Color? accentColor = null;
   static const shouldTranscode = false;
   static const transcodeBitrate = 320000;
   static const androidStopForegroundOnPause = true;
@@ -362,6 +363,7 @@ class FinampSettings {
     this.preferNextUpPrepending = DefaultSettings.preferNextUpPrepending,
     this.rememberLastUsedPlaybackActionRowPage = DefaultSettings.rememberLastUsedPlaybackActionRowPage,
     this.lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage,
+    this.accentColor = DefaultSettings.accentColor,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -772,6 +774,9 @@ class FinampSettings {
 
   @HiveField(131, defaultValue: DefaultSettings.lastUsedPlaybackActionRowPage)
   PlaybackActionRowPage lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage;
+
+  @HiveField(132, defaultValue: DefaultSettings.accentColor)
+  Color? accentColor = DefaultSettings.accentColor;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(

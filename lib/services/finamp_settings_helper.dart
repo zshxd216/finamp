@@ -1,6 +1,5 @@
 import 'package:finamp/components/confirmation_prompt_dialog.dart';
 import 'package:finamp/l10n/app_localizations.dart';
-import 'package:finamp/services/accent_color_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/locale_helper.dart';
 import 'package:finamp/services/theme_mode_helper.dart';
@@ -126,7 +125,7 @@ class FinampSettingsHelper {
     FinampSettings finampSettingsTemp = finampSettings;
 
     ThemeModeHelper.setThemeMode(DefaultSettings.theme);
-    AccentColorHelper.saveAccentColor(null);
+    FinampSetters.setAccentColor(null);
     FinampSetters.setContentViewType(DefaultSettings.contentViewType);
     finampSettingsTemp.useFixedSizeGridTiles = DefaultSettings.useFixedSizeGridTiles;
     FinampSetters.setContentGridViewCrossAxisCountPortrait(DefaultSettings.contentGridViewCrossAxisCountPortrait);

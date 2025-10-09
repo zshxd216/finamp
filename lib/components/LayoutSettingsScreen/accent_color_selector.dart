@@ -1,26 +1,32 @@
 import 'package:finamp/l10n/app_localizations.dart';
-import 'package:finamp/services/accent_color_helper.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/color_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_ce/hive.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AccentColorSelector extends StatefulWidget {
+class AccentColorSelector extends ConsumerWidget {
   const AccentColorSelector({super.key});
 
   @override
-  State<AccentColorSelector> createState() => _AccentColorSelectorState();
-}
-
-class _AccentColorSelectorState extends State<AccentColorSelector> {
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<Box<Color?>>(
-      valueListenable: AccentColorHelper.accentColorListener,
-      builder: (context, box, _) {
-        final color = box.get(AccentColorHelper.key);
-        final isSet = color != null;
-        return ListTile(
-          title: Text(AppLocalizations.of(context)!.accentColor),
-          trailing: Container(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final color = ref.watch(finampSettingsProvider.accentColor);
+    final isSet = color != null;
+    return ListTile(
+      title: Text(AppLocalizations.of(context)!.accentColor),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            ColorExtensions.toHex(color) ?? AppLocalizations.of(context)!.defaultWord,
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+              fontSize: 16,
+            ),
+          ),
+          SizedBox(width: 16),
+          Container(
             width: 56,
             height: 32,
             margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
@@ -33,17 +39,15 @@ class _AccentColorSelectorState extends State<AccentColorSelector> {
                 ? Icon(Icons.color_lens_outlined, size: 24, color: Theme.of(context).colorScheme.outline)
                 : null,
           ),
-          onTap: () => _showAccentColorSheet(context, color),
-        );
-      },
+        ],
+      ),
+      onTap: () => _showAccentColorSheet(context, ref, color),
     );
   }
 
-  void _showAccentColorSheet(BuildContext context, Color? currentColor) {
-    final controller = TextEditingController(text: AccentColorHelper.toHex(currentColor));
+  void _showAccentColorSheet(BuildContext context, WidgetRef ref, Color? currentColor) {
+    final controller = TextEditingController(text: ColorExtensions.toHex(currentColor));
     Color? previewColor = currentColor ?? Colors.transparent;
-
-    final suggestedColors = [Colors.pink, Colors.teal, Colors.amber, Colors.cyan];
 
     showModalBottomSheet<void>(
       context: context,
@@ -56,7 +60,7 @@ class _AccentColorSelectorState extends State<AccentColorSelector> {
           child: StatefulBuilder(
             builder: (context, setState) {
               void updatePreview(String value) {
-                final color = AccentColorHelper.fromHex(value);
+                final color = ColorExtensions.fromHex(value);
                 setState(() => previewColor = color);
               }
 
@@ -76,24 +80,6 @@ class _AccentColorSelectorState extends State<AccentColorSelector> {
                     ),
                   ),
                   Text(AppLocalizations.of(context)!.accentColor, style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: suggestedColors.map((c) {
-                      return GestureDetector(
-                        onTap: () {
-                          controller.text = AccentColorHelper.toHex(c)!;
-                          updatePreview(controller.text);
-                        },
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-                        ),
-                      );
-                    }).toList(),
-                  ),
                   const SizedBox(height: 24),
                   TextField(
                     controller: controller,
@@ -122,7 +108,7 @@ class _AccentColorSelectorState extends State<AccentColorSelector> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          AccentColorHelper.saveAccentColor(null);
+                          FinampSetters.setAccentColor(null);
                           Navigator.pop(context);
                         },
                         child: Text(AppLocalizations.of(context)!.reset),
@@ -131,9 +117,9 @@ class _AccentColorSelectorState extends State<AccentColorSelector> {
                         onPressed: previewColor == null
                             ? null
                             : () {
-                                final color = AccentColorHelper.fromHex(controller.text);
+                                final color = ColorExtensions.fromHex(controller.text);
                                 if (color != null) {
-                                  AccentColorHelper.saveAccentColor(color);
+                                  FinampSetters.setAccentColor(color);
                                   Navigator.pop(context);
                                 }
                               },

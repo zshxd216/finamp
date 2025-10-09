@@ -720,6 +720,8 @@
   "@accentColor": {
     "description": "Title of the accent color setting"
   },
+  "defaultWord": "Default",
+  "@defaultWord": {},
   "hexColorCode": "Hex Color Code (RRGGBB or AARRGGBB)",
   "@hexColorCode": {
     "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
