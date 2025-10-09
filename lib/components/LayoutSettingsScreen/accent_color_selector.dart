@@ -1,6 +1,7 @@
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/extensions/color_extensions.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -49,7 +50,7 @@ class AccentColorSelector extends ConsumerWidget {
 
   void _showAccentColorSheet(BuildContext context, WidgetRef ref, Color? currentColor) {
     final controller = TextEditingController(text: ColorExtensions.toHex(currentColor));
-    Color? previewColor = currentColor ?? Colors.transparent;
+    Color? previewColor = currentColor;
 
     showModalBottomSheet<void>(
       context: context,
@@ -58,80 +59,92 @@ class AccentColorSelector extends ConsumerWidget {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 24),
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              void updatePreview(String value) {
-                final color = ColorExtensions.fromHex(value);
-                setState(() => previewColor = color);
-              }
+          padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 6,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              Text(AppLocalizations.of(context)!.accentColor, style: Theme.of(context).textTheme.titleLarge),
+              StatefulBuilder(
+                builder: (context, setState) {
+                  void updatePreview(String value) {
+                    setState(() => previewColor = ColorExtensions.fromHex(value));
+                  }
 
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 48,
-                      height: 6,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  Text(AppLocalizations.of(context)!.accentColor, style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: controller,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.hexColorCode,
-                      prefixText: "#",
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: updatePreview,
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: previewColor ?? Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                    ),
-                    alignment: Alignment.center,
-                    child: previewColor == null ? Text(AppLocalizations.of(context)!.invalidColorCode) : null,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          FinampSetters.setAccentColor(null);
-                          Navigator.pop(context);
-                        },
-                        child: Text(AppLocalizations.of(context)!.reset),
-                      ),
-                      FilledButton(
-                        onPressed: previewColor == null
-                            ? null
-                            : () {
-                                final color = ColorExtensions.fromHex(controller.text);
-                                if (color != null) {
-                                  FinampSetters.setAccentColor(color);
+                  void changeColor(Color color) => setState(() {
+                    previewColor = color;
+                    controller.text = ColorExtensions.toHex(color)!;
+                  });
+
+                  return ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: controller,
+                            decoration: InputDecoration(
+                              filled: true,
+                              labelText: AppLocalizations.of(context)!.colorCode,
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                            ),
+                            onChanged: updatePreview,
+                          ),
+                          ColorPicker(
+                            onColorChanged: changeColor,
+                            color: previewColor ?? Theme.of(context).colorScheme.primary,
+                            pickersEnabled: {
+                              ColorPickerType.wheel: true,
+                              ColorPickerType.primary: false,
+                              ColorPickerType.accent: false,
+                            },
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  FinampSetters.setAccentColor(null);
                                   Navigator.pop(context);
-                                }
-                              },
-                        child: Text(AppLocalizations.of(context)!.save),
+                                },
+                                child: Text(AppLocalizations.of(context)!.reset),
+                              ),
+                              FilledButton(
+                                onPressed: previewColor == null
+                                    ? null
+                                    : () {
+                                        final color = ColorExtensions.fromHex(controller.text);
+                                        if (color != null) {
+                                          FinampSetters.setAccentColor(color);
+                                          Navigator.pop(context);
+                                        }
+                                      },
+                                child: Text(AppLocalizations.of(context)!.save),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
-              );
-            },
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         );
       },

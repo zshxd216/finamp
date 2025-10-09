@@ -722,8 +722,8 @@
   },
   "defaultWord": "Default",
   "@defaultWord": {},
-  "hexColorCode": "Hex Color Code (RRGGBB or AARRGGBB)",
-  "@hexColorCode": {
+  "colorCode": "Color Code",
+  "@colorCode": {
     "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
   },
   "save": "Save",
