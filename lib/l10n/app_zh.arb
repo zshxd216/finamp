@@ -2505,7 +2505,7 @@
     "@autoOfflineOptionUnreachable": {
         "description": "This is shown when the autoOffline feature is set to Unreachable, this means offline mode will be automatically enabled when - after a network change - the server cant be pinged"
     },
-    "itemCount": "{childType, select,track{{amount, plural, =1{1 首歌曲} other{{amount} 首歌曲}}album{{amount, plural, =1{1 张专辑} other{{amount} 张专辑}}other{{amount, plural, =1{1 个项目}other{{amount} 项目}｝}",
+    "itemCount": "{childType, select, track{{amount, plural, =1{1 首歌曲} other{{amount} 首歌曲}}} album{{amount, plural, =1{1 张专辑} other{{amount} 张专辑}}} other{{amount, plural, =1{1 个项目} other{{amount} 个项目}}}}",
     "@itemCount": {
         "description": "Amount of various child item, like artist albums, performing artist tracks, or genre albums. Shown for example in the menu headers.",
         "placeholders": {
