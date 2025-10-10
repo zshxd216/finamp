@@ -1,3 +1,4 @@
+import 'package:finamp/extensions/string.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/extensions/color_extensions.dart';
@@ -19,7 +20,7 @@ class AccentColorSelector extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            ColorExtensions.toHex(color) ?? AppLocalizations.of(context)!.defaultWord,
+            color?.toHex() ?? AppLocalizations.of(context)!.defaultWord,
             style: TextStyle(
               fontStyle: FontStyle.italic,
               color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
@@ -49,7 +50,7 @@ class AccentColorSelector extends ConsumerWidget {
   }
 
   void _showAccentColorSheet(BuildContext context, WidgetRef ref, Color? currentColor) {
-    final controller = TextEditingController(text: ColorExtensions.toHex(currentColor));
+    final controller = TextEditingController(text: currentColor?.toHex());
     Color? previewColor = currentColor;
 
     showModalBottomSheet<void>(
@@ -79,12 +80,12 @@ class AccentColorSelector extends ConsumerWidget {
               StatefulBuilder(
                 builder: (context, setState) {
                   void updatePreview(String value) {
-                    setState(() => previewColor = ColorExtensions.fromHex(value));
+                    setState(() => previewColor = value.toColorOrNull());
                   }
 
                   void changeColor(Color color) => setState(() {
                     previewColor = color;
-                    controller.text = ColorExtensions.toHex(color)!;
+                    controller.text = color.toHex();
                   });
 
                   return ScrollConfiguration(
@@ -128,7 +129,7 @@ class AccentColorSelector extends ConsumerWidget {
                                 onPressed: previewColor == null
                                     ? null
                                     : () {
-                                        final color = ColorExtensions.fromHex(controller.text);
+                                        final color = controller.text.toColorOrNull();
                                         if (color != null) {
                                           FinampSetters.setAccentColor(color);
                                           Navigator.pop(context);

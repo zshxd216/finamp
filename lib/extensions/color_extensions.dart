@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-extension ColorExtensions on Color {
+extension AtContrast on Color {
   static const double _tolerance = 0.05;
 
   static final _atContrastLogger = Logger("AtContrast");
@@ -50,36 +50,18 @@ extension ColorExtensions on Color {
 
     return hslColor.toColor();
   }
+}
 
+extension ColorToHex on Color {
   /// Converts a [Color] to a hex string.
   ///
   /// Example: Color(0xFF2196F3) to "2196F3" or "FF2196F3"
   ///
   /// Note: the toARGB32 method used here might be imprecise on
   /// different platforms because of floating-point math
-  static String? toHex(Color? color, {bool includeAlpha = false}) {
-    if (color == null) return null;
-    final value = color.toARGB32();
+  String toHex({bool includeAlpha = false}) {
+    final value = toARGB32();
     final hex = value.toRadixString(16).padLeft(8, '0').toUpperCase();
     return includeAlpha ? '#$hex' : '#${hex.substring(2)}';
-  }
-
-  /// Converts a hex string like "#RRGGBB" or "#AARRGGBB" to a [Color]
-  ///
-  /// Returns null if [hex] is invalid
-  static Color? fromHex(String? hex) {
-    if (hex == null) return null;
-
-    hex = hex.replaceFirst('#', '');
-
-    if (hex.length != 6 && hex.length != 8) return null;
-
-    if (hex.length == 6) hex = 'FF$hex';
-
-    try {
-      return Color(int.parse(hex, radix: 16));
-    } catch (_) {
-      return null;
-    }
   }
 }
