@@ -15,15 +15,15 @@
     "@enterLowPriorityStateOnPause": {},
     "shuffleAllTrackCount": "Перемішати всі треки",
     "@shuffleAllTrackCount": {},
-    "shuffleAllTrackCountSubtitle": "Кількість треків для завантаження під час використання кнопки перемішування всіх треків на вкладці треків або екрані жанрів.",
+    "shuffleAllTrackCountSubtitle": "Кількість треків, які завантажуються під час використання кнопки «Перемішати все» на вкладці «Треки» або «Жанри».",
     "@shuffleAllTrackCountSubtitle": {},
-    "viewTypeSubtitle": "Тип перегляду для музичного екрану",
+    "viewTypeSubtitle": "Тип перегляду головного екрану",
     "@viewTypeSubtitle": {},
     "list": "Список",
     "@list": {},
     "landscape": "Альбомний",
     "@landscape": {},
-    "gridCrossAxisCount": "{value} Підрахунок поперечних осей сітки",
+    "gridCrossAxisCount": "{value} Кількість стовпців у сітці",
     "@gridCrossAxisCount": {
         "description": "List tile title for grid cross axis count. Value will either be the portrait or landscape key.",
         "placeholders": {
@@ -33,9 +33,9 @@
             }
         }
     },
-    "showTextOnGridView": "Показати текст при перегляді сіткою",
+    "showTextOnGridView": "Показати текст у режимі сітки",
     "@showTextOnGridView": {},
-    "useCoverAsBackgroundSubtitle": "Використовувати або ні розмиту обкладинку як фон на екрані відтворювача.",
+    "useCoverAsBackgroundSubtitle": "Чи використовувати розмиту обкладинку альбому як фон у різних частинах застосунку.",
     "@useCoverAsBackgroundSubtitle": {},
     "disableGestureSubtitle": "Чи вимикати жести.",
     "@disableGestureSubtitle": {},
@@ -43,7 +43,7 @@
     "@theme": {},
     "system": "Системна",
     "@system": {},
-    "tabs": "Закладки",
+    "tabs": "Вкладки",
     "@tabs": {},
     "cancelSleepTimer": "Скасувати таймер сну?",
     "@cancelSleepTimer": {},
@@ -53,19 +53,19 @@
     "@noButtonLabel": {},
     "minutes": "Хвилини",
     "@minutes": {},
-    "addToPlaylistTitle": "Додати до плейлисту",
+    "addToPlaylistTitle": "Додати до Плейлісту",
     "@addToPlaylistTitle": {},
-    "removeFromPlaylistTooltip": "Видалити зі списку відтворення",
+    "removeFromPlaylistTooltip": "Видалити з плейлісту",
     "@removeFromPlaylistTooltip": {},
     "createButtonLabel": "Створити",
     "@createButtonLabel": {},
-    "playlistCreated": "Плейлист створено.",
+    "playlistCreated": "Плейліст створено.",
     "@playlistCreated": {},
-    "noAlbum": "Альбом невідомий",
+    "noAlbum": "Без альбому",
     "@noAlbum": {},
-    "noItem": "Невідомий елемент",
+    "noItem": "Немає елемента",
     "@noItem": {},
-    "noArtist": "Невідомий виконавець",
+    "noArtist": "Немає Виконавця",
     "@noArtist": {},
     "unknownArtist": "Невідомий виконавець",
     "@unknownArtist": {},
@@ -73,13 +73,13 @@
     "@queue": {},
     "replaceQueue": "Замінити чергу",
     "@replaceQueue": {},
-    "instantMix": "Швидкий мікс",
+    "instantMix": "Миттєвий мікс",
     "@instantMix": {},
-    "goToAlbum": "До альбому",
+    "goToAlbum": "Перейти до альбому",
     "@goToAlbum": {},
     "addedToQueue": "Додано в чергу.",
     "@addedToQueue": {},
-    "queueReplaced": "Черга змінена.",
+    "queueReplaced": "Чергу змінено.",
     "@queueReplaced": {},
     "startingInstantMix": "Початок миттєвого міксу.",
     "@startingInstantMix": {},
@@ -102,7 +102,7 @@
     "@removeFromMix": {},
     "addToMix": "Додати до міксу",
     "@addToMix": {},
-    "bufferDurationSubtitle": "Максимальна тривалість, яка може бути буферизована, у секундах. Вимагає перезавантаження.",
+    "bufferDurationSubtitle": "Максимальна тривалість буфера (у секундах). Потрібен перезапуск.",
     "@bufferDurationSubtitle": {},
     "language": "Мова",
     "@language": {},
@@ -261,7 +261,7 @@
     "@enterLowPriorityStateOnPauseSubtitle": {},
     "viewType": "Тип перегляду",
     "@viewType": {},
-    "gridCrossAxisCountSubtitle": "Кількість плиток сітки для використання в рядку, коли {value}.",
+    "gridCrossAxisCountSubtitle": "Кількість плиток у сітці в одному рядку, коли {value}.",
     "@gridCrossAxisCountSubtitle": {
         "description": "List tile subtitle for grid cross axis count. Value will either be the portrait or landscape key.",
         "placeholders": {
@@ -273,21 +273,21 @@
     },
     "customLocationsBuggy": "Користувацькі розташування можуть працювати з помилками, тому в більшості випадків їх не рекомендується використовувати. Розташування в системній папці «Музика» не дозволяють зберігати обкладинки альбомів через обмеження ОС.",
     "@customLocationsBuggy": {},
-    "grid": "Таблиця",
+    "grid": "Сітка",
     "@grid": {},
     "portrait": "Портретний",
     "@portrait": {},
-    "showTextOnGridViewSubtitle": "Показувати чи ні текст (назву, виконавця тощо) на музичному екрані сітки.",
+    "showTextOnGridViewSubtitle": "Чи показувати текст (назву, виконавця тощо) на головному екрані сітки.",
     "@showTextOnGridViewSubtitle": {},
-    "hideTrackArtistsIfSameAsAlbumArtistsSubtitle": "Чи показувати виконавців композицій на екрані альбому, якщо вони не відрізняються від виконавців альбому.",
+    "hideTrackArtistsIfSameAsAlbumArtistsSubtitle": "Чи показувати виконавців треку на екрані альбому, якщо вони не відрізняються від виконавців альбому.",
     "@hideTrackArtistsIfSameAsAlbumArtistsSubtitle": {},
     "disableGesture": "Вимкнути жести",
     "@disableGesture": {},
-    "useCoverAsBackground": "Показати розмиту обкладинку як фон гравця",
+    "useCoverAsBackground": "Використовувати розмиту обкладинку як фон",
     "@useCoverAsBackground": {},
     "light": "Світла",
     "@light": {},
-    "hideTrackArtistsIfSameAsAlbumArtists": "Приховати виконавців композицій, якщо вони збігаються з виконавцями альбомів",
+    "hideTrackArtistsIfSameAsAlbumArtists": "Приховувати виконавців треку, якщо вони збігаються з виконавцями альбому",
     "@hideTrackArtistsIfSameAsAlbumArtists": {},
     "setSleepTimer": "Призупинити відтворення після",
     "@setSleepTimer": {},
@@ -295,11 +295,11 @@
     "@sleepTimerTooltip": {},
     "invalidNumber": "Некоректне число",
     "@invalidNumber": {},
-    "addToPlaylistTooltip": "Додати до плейлисту",
+    "addToPlaylistTooltip": "Додати до плейлісту",
     "@addToPlaylistTooltip": {},
-    "removeFromPlaylistTitle": "Видалити з цього списку відтворення",
+    "removeFromPlaylistTitle": "Видалити з цього плейлісту",
     "@removeFromPlaylistTitle": {},
-    "newPlaylist": "Новий список відтворення",
+    "newPlaylist": "Новий Плейліст",
     "@newPlaylist": {},
     "addToQueue": "Додати до черги",
     "@addToQueue": {},
@@ -316,9 +316,9 @@
             }
         }
     },
-    "removedFromPlaylist": "Видалено зі списку відтворення.",
+    "removedFromPlaylist": "Видалено з плейлісту.",
     "@removedFromPlaylist": {},
-    "redownloadedItems": "{count,plural, =0{Повторне завантаження не потрібне.} =1{Повторно завантажено {count} елемент} other{Повторно завантажено {count} елементів}}",
+    "redownloadedItems": "{count,plural, =0{Повторне завантаження не потрібне.} =1{Повторно завантажено {count} елемент} few{Повторно завантажено {count} елементи} other{Повторно завантажено {count} елементів}}",
     "@redownloadedItems": {
         "placeholders": {
             "count": {
@@ -404,7 +404,7 @@
     "@confirm": {},
     "showUncensoredLogMessage": "Цей журнал містить ваші дані для входу. Показати?",
     "@showUncensoredLogMessage": {},
-    "insertedIntoQueue": "Вставлено в чергу.",
+    "insertedIntoQueue": "Додано до черги.",
     "@insertedIntoQueue": {
         "description": "Snackbar message that shows when the user successfully inserts items into the play queue at a location that is not necessarily the end."
     },
@@ -430,7 +430,7 @@
     "@about": {
         "description": "Label for the about/info button on the settings screen"
     },
-    "finampTagline": "Музичний плеєр Jellyfin з відкритим кодом",
+    "finampTagline": "Музичний програвач Jellyfin з відкритим кодом",
     "@finampTagline": {
         "description": "Tagline / short description for the app"
     },
@@ -442,7 +442,7 @@
     "@aboutReleaseNotes": {
         "description": "Link to the release notes, shown in the about screen."
     },
-    "aboutTranslations": "Допомогти перекласти Finmap на вашу мову:",
+    "aboutTranslations": "Допомогти перекласти Finamp на вашу мову:",
     "@aboutTranslations": {
         "description": "Link to the translation project, shown in the about screen."
     },
@@ -530,7 +530,7 @@
     "@apply": {
         "description": "Used for a button in the playback speed menu"
     },
-    "trackCountTooltip": "Композиція {currentTrackIndex} з {totalTrackCount}",
+    "trackCountTooltip": "Трек {currentTrackIndex} з {totalTrackCount}",
     "@trackCountTooltip": {
         "description": "Tooltip and accessibility label for the queue progress. {currentTrackIndex} and {totalTrackCount} are both numbers",
         "placeholders": {
@@ -548,9 +548,9 @@
     "@timeFractionTooltip": {
         "description": "Tooltip and accessibility label for the track progress. {currentTime} is the current position within the track, as a translated string like '2 minutes 40 seconds', and {totalTime} is the total duration of the track, also a translated string."
     },
-    "addToMorePlaylistsTooltip": "Додати до інших списків відтворення",
+    "addToMorePlaylistsTooltip": "Додати до інших плейлістів",
     "@addToMorePlaylistsTooltip": {},
-    "removeFromPlaylistNamedTooltip": "Видалити зі списку відтворення '{playlistName}'",
+    "removeFromPlaylistNamedTooltip": "Видалити зі плейліст '{playlistName}'",
     "@removeFromPlaylistNamedTooltip": {
         "description": "Tooltip for the action that removes a track from a specific playlist. The playlist name is a placeholder.",
         "placeholders": {
@@ -564,25 +564,25 @@
     "@playbackModeLocal": {
         "description": "Feature chip that is shown when tracks are being played from local downloads, without using the server"
     },
-    "goToArtist": "До Виконавця",
+    "goToArtist": "Перейти до виконавця",
     "@goToArtist": {},
-    "goToGenre": "До жанру",
+    "goToGenre": "Перейти до жанру",
     "@goToGenre": {},
-    "confirmFavoriteAdded": "Додано Обране",
+    "confirmFavoriteAdded": "Додано до Улюблених",
     "@confirmFavoriteAdded": {},
     "skipToNextTrackButtonTooltip": "На наступний трек",
     "@skipToNextTrackButtonTooltip": {
         "description": "Tooltip for the button that skips to the next track"
     },
-    "nextUp": "Наступне",
+    "nextUp": "Далі в черзі",
     "@nextUp": {
         "description": "Description in the queue panel for the list of tracks were manually added to be played after the current track. This should be capitalized (if applicable) to be more recognizable throughout the UI"
     },
-    "confirmShuffleNext": "Буде перемішано наступним",
+    "confirmShuffleNext": "Буде перемішано далі",
     "@confirmShuffleNext": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the front of the \"Next Up\" queue"
     },
-    "confirmShuffleToNextUp": "Перемішано до наступного",
+    "confirmShuffleToNextUp": "Перемішано до \"Далі в черзі\"",
     "@confirmShuffleToNextUp": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue"
     },
@@ -590,11 +590,11 @@
     "@confirmShuffleToQueue": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the end of the regular queue"
     },
-    "shareOfflineListens": "Поділитись офлайн прослуховуваннями",
+    "shareOfflineListens": "Експортувати офлайн-прослуховування",
     "@shareOfflineListens": {
         "description": "Button for exporting the JSON file containing any playback events that couldn't be submitted to the server, either because offline mode was enabled or the connection failed"
     },
-    "yourLikes": "Ваші вподобання",
+    "yourLikes": "Ваші Улюблені",
     "@yourLikes": {
         "description": "Title for the queue source when the user is playing their liked tracks"
     },
@@ -602,7 +602,7 @@
     "@playbackHistory": {
         "description": "Title for the playback history screen, where the user can see a list of recently played tracks, sorted by "
     },
-    "shuffleAllQueueSource": "Перемішати усе",
+    "shuffleAllQueueSource": "Перемішати Все",
     "@shuffleAllQueueSource": {
         "description": "Title for the queue source when the user is shuffling all tracks. Should be capitalized (if applicable) to be more recognizable throughout the UI"
     },
@@ -695,13 +695,13 @@
     },
     "removeFromPlaylistConfirm": "Вилучити",
     "@removeFromPlaylistConfirm": {},
-    "confirmFavoriteRemoved": "Вилучено Обране",
+    "confirmFavoriteRemoved": "Вилучено з Улюблених",
     "@confirmFavoriteRemoved": {},
-    "confirmAddedToPlaylist": "Додано до списку відтворення.",
+    "confirmAddedToPlaylist": "Додано до плейлісту.",
     "@confirmAddedToPlaylist": {
         "description": "Snackbar message that shows when the user successfully adds items to a playlist."
     },
-    "removeFromPlaylistNamedTitle": "Видалити зі Списку Відтворення '{playlistName}'",
+    "removeFromPlaylistNamedTitle": "Видалити з Плейлісту '{playlistName}'",
     "@removeFromPlaylistNamedTitle": {
         "description": "Tooltip for the action that removes a track from a specific playlist. The playlist name is a placeholder.",
         "placeholders": {
@@ -715,7 +715,7 @@
     "@shuffleNext": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
-    "previousTracks": "Попередня композиція",
+    "previousTracks": "Попередні треки",
     "@previousTracks": {
         "description": "Description in the queue panel for the list of tracks that come before the current track in the queue. The tracks might not actually have been played (e.g. if the user skipped ahead to a specific track)."
     },
@@ -723,7 +723,7 @@
     "@loginFlowQuickConnectPrompt": {
         "description": "Text shown above the quick connect code. The full message will be 'Use Quick Connect code {code}'. The code will be a 6-digit number. Ideally, 'Quick Connect' should be capitalized and translated exactly as it is in the Jellyfin web UI."
     },
-    "playbackSpeedControlSetting": "Видимість швидкості відтворення",
+    "playbackSpeedControlSetting": "Видимість елементів керування швидкістю відтворення",
     "@playbackSpeedControlSetting": {
         "description": "Title of the visibility setting of the playback speed controls"
     },
@@ -791,7 +791,7 @@
             }
         }
     },
-    "playbackSpeedControlSettingSubtitle": "Чи відображаються елементи керування швидкістю відтворення в екранному меню відтворювача",
+    "playbackSpeedControlSettingSubtitle": "Чи відображати елементи керування швидкістю відтворення на екрані програвача",
     "@playbackSpeedControlSettingSubtitle": {
         "description": "Subtitle for the playback speed visibility setting"
     },
@@ -813,7 +813,7 @@
             }
         }
     },
-    "playerScreenMinimumCoverPaddingEditorTitle": "Мінімальний відступ обкладинки альбому",
+    "playerScreenMinimumCoverPaddingEditorTitle": "Мінімальні відступи обкладинки альбому",
     "@playerScreenMinimumCoverPaddingEditorTitle": {
         "description": "Title for the editor that allows the user to set the minimum padding around the album cover on the player screen."
     },
@@ -821,11 +821,11 @@
     "@playbackModeDirectPlaying": {
         "description": "Feature chip that is shown when tracks are being played directly from the server, without transcoding"
     },
-    "addToNextUp": "Додати до наступного",
+    "addToNextUp": "Додати до \"Далі в черзі\"",
     "@addToNextUp": {
         "description": "Used for adding a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
     },
-    "clearNextUp": "Очистити наступне",
+    "clearNextUp": "Очистити \"Далі в черзі\"",
     "@clearNextUp": {
         "description": "Label for the action that deletes all tracks added to Next Up"
     },
@@ -900,7 +900,7 @@
     "@preferQuickSyncSwitchSubtitle": {
         "description": "Description of setting that skips completed albums while syncing."
     },
-    "confirmPlayNext": "{type, select, track{Композиція} album{Альбом} artist{Виконавець} playlist{Список відтворення} genre{Жанр} other{Об'єкт}} відтворюватиметься наступним",
+    "confirmPlayNext": "{type, select, track{Трек} album{Альбом} artist{Виконавець} playlist{Плейліст} genre{Жанр} other{Об'єкт}} відтворюватиметься наступним",
     "@confirmPlayNext": {
         "description": "A confirmation message that is shown after successfully adding a track to the front of the \"Next Up\" queue",
         "placeholders": {
@@ -933,7 +933,7 @@
     "@queueRestoreButtonLabel": {
         "description": "Button to restore archived now playing queue, overwriting current queue"
     },
-    "confirmAddToNextUp": "Додано {type, select, track{Трек} album{альбом} artist{виконавець} playlist{плейлист} genre{жанр} disc{диск} other{елемент}} до наступного",
+    "confirmAddToNextUp": "Додано {type, select, track{Трек} album{альбом} artist{виконавець} playlist{плейліст} genre{жанр} disc{диск} other{елемент}} до наступного",
     "@confirmAddToNextUp": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
         "placeholders": {
@@ -1025,7 +1025,7 @@
             }
         }
     },
-    "playbackSpeedControlSettingDescription": "Автоматично:\nFinmap намагається ідентифікувати, чи є відтворюваний трек подкастом, чи аудіокнигою (її частиною). Це визначається у випадках коли трек довший за {trackDuration} хв., альбом трека довший за {albumDuration} год., чи трек має хоча б один із перерахованих жанрів: {genreList}\nЕлементи керування швидкістю з'являться в меню програвача.\n\nПоказувати:\nЕлементи керування швидкістю завжди відображатимуться в меню програвача.\n\nПриховувати:\nЕлементи керування швидкістю завжди приховані.",
+    "playbackSpeedControlSettingDescription": "Автоматично:\nFinamp намагається визначити, чи є відтворюваний трек подкастом, чи аудіокнигою (ЇЇ частиною). Це визначається як таке, якщо трек довший за {trackDuration} хв., альбом трека довший за {albumDuration} год., або чи трек має хоча б один із перерахованих жанрів: {genreList}\nЕлементи керування швидкістю з'являться в меню програвача.\n\nПоказувати:\nЗавжди показувати елементи керування швидкості.\n\nПриховувати:\nЗавжди приховувати елементи керування швидкості.",
     "@playbackSpeedControlSettingDescription": {
         "description": "Description for the dropdown that selects the replay gain mode, shown in a dialog that opens when the user presses the info icon next to the dropdown",
         "placeholders": {
@@ -1043,7 +1043,7 @@
             }
         }
     },
-    "playerScreenMinimumCoverPaddingEditorSubtitle": "Мінімальний відступ навколо обкладинки альбому на екрані відтворювача, у % від довжини екрану.",
+    "playerScreenMinimumCoverPaddingEditorSubtitle": "Мінімальний відступ навколо обкладинки альбому на екрані програвача, у % від ширини екрана.",
     "@playerScreenMinimumCoverPaddingEditorSubtitle": {
         "description": "Subtitle for the editor that allows the user to set the minimum padding around the album cover on the player screen."
     },
@@ -1092,7 +1092,7 @@
         },
         "description": "Dropdown option to download original version of tracks"
     },
-    "playingFromType": "Відтворення з {source, select, album{Альбом} playlist{Список відтворення} trackMix{Мікс треків} artistMix{Мікс виконавців} albumMix{Мікс альбомів} genreMix{Жанровий мікс} favorites{Улюблені} allTracks{Усі треки} filteredList{Треки} genre{Жанр} artist{Артист} track{Трек} nextUpAlbum{Альбом у розділі «Далі»} nextUpPlaylist{Список відтворення у розділі «Далі»} nextUpArtist{Виконавець у Next Up} nextUpGenre{Жанр у Next Up} remoteClient{Віддалений клієнт} other{}}",
+    "playingFromType": "Відтворення з {source, select, album{альбому} playlist{плейлісту} trackMix{міксу треку} artistMix{міксу виконавця} albumMix{міксу альбому} genreMix{міксу жанру} favorites{Улюблених} allTracks{усіх треків} filteredList{треків} genre{жанру} artist{виконавця} track{треку} nextUpAlbum{альбому  у  «Далі в черзі»} nextUpPlaylist{плейлісту  в «Далі в черзі»} nextUpArtist{виконавця в «Далі в черзі»} nextUpGenre{жанру в «Далі в черзі»} remoteClient{віддаленого клієнту} other{}}",
     "@playingFromType": {
         "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
         "placeholders": {
@@ -1105,11 +1105,11 @@
     "@queueLoadingMessage": {
         "description": "Message displayed on now-playing bar when a saved queue is loading."
     },
-    "autoloadLastQueueOnStartupSubtitle": "Після запуску застосунку намагається відновити відтворювану востаннє чергу.",
+    "autoloadLastQueueOnStartupSubtitle": "Після запуску застосунку намагатися відновити відтворювану востаннє чергу.",
     "@autoloadLastQueueOnStartupSubtitle": {
         "description": "Description of the setting to restore last queue on startup"
     },
-    "reportQueueToServerSubtitle": "Якщо ввімкнено, Finamp надішле поточну чергу на сервер. Це може покращити дистанційне керування та дозволити відновлення черги на стороні сервера. Завжди ввімкнено, якщо ввімкнено функцію «Відтворити».",
+    "reportQueueToServerSubtitle": "Якщо ввімкнено, Finamp надсилатиме поточну чергу на сервер. Це може покращити дистанційне керування та дозволить відновлювати чергу на стороні сервері. Завжди ввімкнено, якщо активовано функцію «Play On».",
     "@reportQueueToServerSubtitle": {
         "description": "Description of the setting that toggles reporting of the current queue to the Jellyfin server"
     },
@@ -1117,7 +1117,7 @@
     "@shuffleAlbums": {
         "description": "Label for action that shuffles all albums of an artist or genre"
     },
-    "periodicPlaybackSessionUpdateFrequencyDetails": "Якщо сервер Jellyfin не отримував жодних оновлень від клієнта протягом останніх 5 хвилин, він вважатиме, що відтворення завершилося. Це означає, що для треків тривалістю понад 5 хвилин відтворення може бути неправильно позначено як завершене, що знижує якість даних звітів про відтворення.",
+    "periodicPlaybackSessionUpdateFrequencyDetails": "Якщо сервер Jellyfin не отримував жодних оновлень від клієнта протягом останніх 5 хвилин, він вважатиме, що відтворення завершилося. Через це для треків тривалістю понад 5 хвилин відтворення може бути помилково позначене як завершене, що знижує точність даних про відтворення.",
     "@periodicPlaybackSessionUpdateFrequencyDetails": {
         "description": "Additional details for the setting that controls how frequently (in seconds) the current playback session is reported to the Jellyfin server"
     },
@@ -1129,7 +1129,7 @@
     "@volumeNormalizationModeSelectorSubtitle": {
         "description": "Subtitle for the dropdown that selects the replay gain mode"
     },
-    "couldNotLoad": "Не вдалось завантажити {source, select, album{альбом} playlist{плейлист} trackMix{мікс трека} artistMix{мікс виконавця} albumMix{мікс альбому} genreMix{мікс жанру} favorites{улюблене} allTracks{усі треки} filteredList{треки} genre{жанр} artist{виконавець} track{трек} nextUpAlbum{альбом у «Далі в черзі»} nextUpPlaylist{плейлист у «Далі в черзі»} nextUpArtist{виконавець у «Далі в черзі»} other{}}",
+    "couldNotLoad": "Не вдалось завантажити {source, select, album{альбом} playlist{плейліст} trackMix{мікс трека} artistMix{мікс виконавця} albumMix{мікс альбому} genreMix{мікс жанру} favorites{улюблене} allTracks{усі треки} filteredList{треки} genre{жанр} artist{виконавець} track{трек} nextUpAlbum{альбом у «Далі в черзі»} nextUpPlaylist{плейлист у «Далі в черзі»} nextUpArtist{виконавець у «Далі в черзі»} other{}}",
     "@couldNotLoad": {
         "placeholders": {
             "source": {
@@ -1169,15 +1169,15 @@
     "@reset": {
         "description": "Used for buttons in the playback speed menu and the settings"
     },
-    "playerScreen": "Екран відтворювача",
+    "playerScreen": "Програвач",
     "@playerScreen": {
         "description": "Name for the expanded player"
     },
     "seconds": "Секунди",
     "@seconds": {},
-    "addToMorePlaylistsTitle": "Додати до \"Інші Списки Відтворення\"",
+    "addToMorePlaylistsTitle": "Додати до інших Плейлістів",
     "@addToMorePlaylistsTitle": {},
-    "playlistActionsMenuButtonTooltip": "Натиснути для додавання до списку відтворення. Утримувати для додавання до Обраного.",
+    "playlistActionsMenuButtonTooltip": "Натисніть для додавання до плейлісту. Утримуйте, щоб додати/видалити з Улюбленого.",
     "@playlistActionsMenuButtonTooltip": {
         "description": "Tooltip for the (currently heart) button that opens the playlist actions menu / playlist picker by default and can toggle the favorite status on long press"
     },
@@ -1189,7 +1189,7 @@
     "@skipToPreviousTrackButtonTooltip": {
         "description": "Tooltip for the button that skips to the beginning of the current track or to the previous track"
     },
-    "togglePlaybackButtonTooltip": "Перемкнути відтворення",
+    "togglePlaybackButtonTooltip": "Відтворити/Пауза",
     "@togglePlaybackButtonTooltip": {
         "description": "Tooltip for the button that toggles playback"
     },
@@ -1197,11 +1197,11 @@
     "@playingFrom": {
         "description": "Prefix shown before the name of the main queue source, like the album or playlist that was used to start playback. Example: \"Playing from {My Nice Playlist}\""
     },
-    "shuffleToNextUp": "Перемішати до наступного",
+    "shuffleToNextUp": "Перемішати до \"Далі в черзі\"",
     "@shuffleToNextUp": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
-    "shuffleToQueue": "Перемішати до Черги",
+    "shuffleToQueue": "Перемішати до черги",
     "@shuffleToQueue": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the regular queue, to play after all prior tracks from the queue have played"
     },
@@ -1227,7 +1227,7 @@
     "@savedQueue": {
         "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
     },
-    "confirmAddToQueue": "{type, select, track{track} album{Альбом} artist{Виконавця} playlist{Список відтворення} genre{Жанр} disc{диск} other{Об'єкт}} додано до черги",
+    "confirmAddToQueue": "{type, select, track{Трек} album{Альбом} artist{Виконавця} playlist{Плейліст} genre{Жанр} disc{Диск} other{Об'єкт}} додано до черги",
     "@confirmAddToQueue": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the regular queue",
         "placeholders": {
@@ -1383,11 +1383,11 @@
             }
         }
     },
-    "playbackOrderLinearButtonTooltip": "Відтворення за порядком. Натисніть щоб перемішати.",
+    "playbackOrderLinearButtonTooltip": "Відтворення за порядком. Натисніть, щоб перемішати.",
     "@playbackOrderLinearButtonTooltip": {
         "description": "Tooltip for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in linear/in-order mode"
     },
-    "playbackOrderShuffledButtonLabel": "Перемішування композицій",
+    "playbackOrderShuffledButtonLabel": "Перемішування треків",
     "@playbackOrderShuffledButtonLabel": {
         "description": "Label for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in shuffle mode"
     },
@@ -1395,7 +1395,7 @@
     "@playbackOrderShuffledButtonTooltip": {
         "description": "Tooltip for the button that toggles the playback order between linear/in-order and shuffle, while the queue is in shuffle mode"
     },
-    "playbackSpeedFeatureText": "швидкість x{speed}",
+    "playbackSpeedFeatureText": "Швидкість x{speed}",
     "@playbackSpeedFeatureText": {
         "description": "Label for the feature chip that is shown if the playback speed is different from x1, {speed} is the current playback speed.",
         "placeholders": {
@@ -1416,15 +1416,15 @@
     "@loopModeNoneButtonLabel": {
         "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop off mode"
     },
-    "loopModeOneButtonLabel": "Повторювати цю композицію",
+    "loopModeOneButtonLabel": "Повторювати цей трек",
     "@loopModeOneButtonLabel": {
         "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop one mode"
     },
-    "loopModeAllButtonLabel": "Повторювати усе",
+    "loopModeAllButtonLabel": "Повторювати все",
     "@loopModeAllButtonLabel": {
         "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop all mode"
     },
-    "queuesScreen": "Відновити \"Відтворюється зараз\"",
+    "queuesScreen": "Відновити попередні черги відтворення",
     "@queuesScreen": {
         "description": "Title for the screen where older now playing queues can be restored"
     },
@@ -1448,7 +1448,7 @@
             }
         }
     },
-    "queueRestoreSubtitle2": "{count,plural,=1{1 Композиція} other{{count} Композицій}}, {remaining} не відтворено",
+    "queueRestoreSubtitle2": "{count,plural,=1{1 Трек} few{{count} Треки} other{{count} Треків}}, {remaining} не відтворено",
     "@queueRestoreSubtitle2": {
         "description": "Description of length of a saved queue",
         "placeholders": {
@@ -1468,11 +1468,11 @@
     "@autoloadLastQueueOnStartup": {
         "description": "Setting to restore last queue on startup"
     },
-    "reportQueueToServer": "Звітувати про поточну чергу на сервер?",
+    "reportQueueToServer": "Надсилати поточну чергу на сервер?",
     "@reportQueueToServer": {
         "description": "Label for the setting that toggles reporting of the current queue to the Jellyfin server"
     },
-    "periodicPlaybackSessionUpdateFrequencySubtitle": "Як часто надсилати поточний статус відтворення до серверу, у секундах. Повинно бути менше 5 хвилин (300 секунд) щоб уникнути передчасного завершення сесії.",
+    "periodicPlaybackSessionUpdateFrequencySubtitle": "Як часто надсилати поточний статус відтворення до серверу (у секундах). Має бути менше ніж 5 хвилин (300 секунд), щоб запобігти завершенню сеансу.",
     "@periodicPlaybackSessionUpdateFrequencySubtitle": {
         "description": "Description of the setting that controls how frequently (in seconds) the current playback session is reported to the Jellyfin server"
     },
@@ -1786,7 +1786,7 @@
     "@showProgressOnNowPlayingBarSubtitle": {
         "description": "Subtitle for the setting that controls if the now playing bar / miniplayer at the botton of the music screen functions as a progress bar"
     },
-    "bufferDisableSizeConstraintsSubtitle": "Вимикає обмеження розміру буфера ('Розмір буферу'). Буфер завжди завантажуватиметься протягом заданої тривалості ('Тривалість буферу'), навіть для дуже великих файлів. Може спричиняти збої. Потребує перезапуску.",
+    "bufferDisableSizeConstraintsSubtitle": "Вимикає обмеження розміру буфера. Буфер завжди завантажуватиметься до заданої тривалості, навіть для дуже великих файлів. Може спричинити збої. Вимагає перезапуску.",
     "@bufferDisableSizeConstraintsSubtitle": {},
     "bufferDisableSizeConstraintsTitle": "Не обмежувати розмір буферу",
     "@bufferDisableSizeConstraintsTitle": {},
@@ -1798,7 +1798,7 @@
     "@marqueeOrTruncateButton": {},
     "oneLineMarqueeTextButton": "Довгі заголовки з автоматичним прокручуванням",
     "@oneLineMarqueeTextButton": {},
-    "hideQueueButtonSubtitle": "Приховати кнопку черги на екрані плеєра. Проведіть пальцем угору, щоб отримати доступ до черги.",
+    "hideQueueButtonSubtitle": "Приховувати кнопку черги на екрані програвача. Проведіть угору, щоб відкрити черги.",
     "@hideQueueButtonSubtitle": {},
     "itemDeletedSnackbar": "{itemType, select, album{Album} playlist{Playlist} artist{Artist} genre{Genre} track{Track} library{Library} other{Item}} видалено з {deviceType, select, device{Device} server{сервера} other{unknown}}",
     "@itemDeletedSnackbar": {
@@ -1865,7 +1865,7 @@
     "@releaseDateFormatYear": {
         "description": "Date format option for the release date of an album, showing only the year"
     },
-    "showAlbumReleaseDateOnPlayerScreenSubtitle": "Показати дату випуску альбому на екрані плеєра за назвою альбому.",
+    "showAlbumReleaseDateOnPlayerScreenSubtitle": "Показувати дату випуску альбому на екрані програвача поруч із його назвою.",
     "@showAlbumReleaseDateOnPlayerScreenSubtitle": {
         "description": "Subtitle for the setting that controls if the release date of an album is shown on the player screen"
     },
@@ -1973,11 +1973,11 @@
     },
     "playbackReporting": "Звіт про відтворення",
     "@playbackReporting": {},
-    "playOnStaleDelay": "'Час очікування сеансу відтворення",
+    "playOnStaleDelay": "Тайм-аут сесії «Play On»",
     "@playOnStaleDelay": {
         "description": "Label for the setting that controls how long a PlayOn remote session is considered active"
     },
-    "enablePlayonTitle": "Увімкніть підтримку «Відтворення»",
+    "enablePlayonTitle": "Увімкніть підтримку «Play On»",
     "@enablePlayonTitle": {
         "description": "Label for the setting to enable Jellyfin's 'Play On' feature (remote control)"
     },
@@ -2001,7 +2001,7 @@
     "@outputMenuVolumeSectionTitle": {
         "description": "Title for the volume section in the output menu"
     },
-    "currentVolumeFeatureText": "{volume}% обсягу",
+    "currentVolumeFeatureText": "{volume}% гучності",
     "@currentVolumeFeatureText": {
         "description": "Label for the feature chip that is shown if the volume is not 100%",
         "placeholders": {
@@ -2011,11 +2011,11 @@
             }
         }
     },
-    "playOnStaleDelaySubtitle": "Скільки часу віддалений сеанс «Відтворення» вважається активним після отримання команди. Коли відтворення вважається активним, повідомляється частіше, що може призвести до збільшення використання пропускної здатності.",
+    "playOnStaleDelaySubtitle": "Скільки часу віддалений сеанс «Play On» буде вважатися активним після отримання команди. Коли вважається активним, відтворення повідомляється частіше, що може призвести до збільшення використання трафіку.",
     "@playOnStaleDelaySubtitle": {
         "description": "Description of the setting that controls how long a PlayOn remote session is considered active"
     },
-    "playOnReconnectionDelay": "Затримка повторного підключення сеансу «Відтворення»",
+    "playOnReconnectionDelay": "Частота спроб повторного підключення cеансу «Play On»",
     "@playOnReconnectionDelay": {
         "description": "Label for the setting that controls the reconnection attempts frequency of a disconnected PlayOn session"
     },
@@ -2150,7 +2150,7 @@
     "@randomAlbums": {},
     "randomFavoritesFirst": "Випадково (спочатку уподобання)",
     "@randomFavoritesFirst": {},
-    "showArtistsTracksSectionSubtitle": "Чи показувати розділ із максимум п’ятьма треками. Якщо ввімкнено, можна вибрати між Найчастіше відтворюваними, Улюбленими, Випадковими, Найновішими релізами, Нещодавно доданими та Нещодавно відтвореними треками.",
+    "showArtistsTracksSectionSubtitle": "Чи показувати розділ із п’ятьма треками. Якщо ввімкнено, на сторінці виконавця з’являться секції з Найчастіше відтворюваними, Улюбленими, Випадковими, Останніми релізами, Нещодавно доданими та Нещодавно відтвореними треками.",
     "@showArtistsTracksSectionSubtitle": {},
     "latestAlbums": "Найновіші альбоми",
     "@latestAlbums": {},
@@ -2164,11 +2164,11 @@
     "@noGenres": {
         "description": "Gets shown when there are no genres available for an album or artist"
     },
-    "autoSwitchItemCurationTypeTitle": "Тип кураторства товарів з автоматичним перемиканням",
+    "autoSwitchItemCurationTypeTitle": "Автоматично перемикати тип добору елементів",
     "@autoSwitchItemCurationTypeTitle": {},
-    "autoSwitchItemCurationTypeSubtitle": "Якщо цю функцію ввімкнено, розділи елементів на екранах виконавців і жанрів автоматично перемикаються на інший тип кураторства, якщо елементи недоступні (наприклад, немає обраного для певного виконавця).",
+    "autoSwitchItemCurationTypeSubtitle": "Якщо ввімкнено, розділи елементів на сторінках виконавця та жанру автоматично перемикаються на інший тип добору, якщо немає доступних елементів (наприклад, немає улюблених для певного виконавця).",
     "@autoSwitchItemCurationTypeSubtitle": {},
-    "showArtistsTracksSection": "Розділ «Показати треки»",
+    "showArtistsTracksSection": "Показати розділ треків",
     "@showArtistsTracksSection": {},
     "genreItemSectionFilterChipOrderTitle": "Розділи елементів Порядок фільтра",
     "@genreItemSectionFilterChipOrderTitle": {
@@ -2260,9 +2260,9 @@
     },
     "duration": "Тривалість",
     "@duration": {},
-    "removeFavorite": "Видалити з обраного",
+    "removeFavorite": "Видалити з Улюблених",
     "@removeFavorite": {},
-    "addFavorite": "Додати до обраного",
+    "addFavorite": "Додати до Улюблених",
     "@addFavorite": {},
     "recentlyAddedAlbums": "Нещодавно додані альбоми",
     "@recentlyAddedAlbums": {
@@ -2360,7 +2360,7 @@
     "@applyFilterOnGenreChipTapPromptButton": {
         "description": "The button for the snackbar that is shown to the user if a genre filter was applied due to their selected settings"
     },
-    "browsePlaylists": "Переглянути списки відтворення",
+    "browsePlaylists": "Переглянути плейлісти",
     "@browsePlaylists": {
         "description": "Label for a button on the genre screen that brings you to a list of genre-filtered playlists."
     },
@@ -2469,7 +2469,7 @@
     "@preferLocalNetworkTargetAddressLocalSettingTitle": {},
     "preferLocalNetworkTargetAddressLocalSettingDescription": "Цільова адреса сервера Jellyfin у вашій локальній мережі",
     "@preferLocalNetworkTargetAddressLocalSettingDescription": {},
-    "sleepTimerRemainingTime": "Сон у {time,plural,=1{<1 хвилина} other{{time} хвилин}}",
+    "sleepTimerRemainingTime": "Засне через {time,plural,=1{<1 хвилини} few{{time} хвилини} other{{time} хвилин}}",
     "@sleepTimerRemainingTime": {
         "description": "Button label for sleep timer. {time} is the amount of minutes left.",
         "placeholders": {
@@ -2482,7 +2482,7 @@
     "@clearQueueOnStopEventTitle": {
         "description": "Title for the setting that controls if OS stop commands clear the queue."
     },
-    "sleepTimerRemainingTracks": "Сон {time,plural,=1{після цього треку} other{in {time} треки}}",
+    "sleepTimerRemainingTracks": "Засне {time,plural,=1{після цього треку} other{in {time} треки}}",
     "@sleepTimerRemainingTracks": {
         "description": "Button label for sleep timer. {time} is the amount of minutes left.",
         "placeholders": {
@@ -2583,7 +2583,7 @@
     "@quickConnectAuthorizationMenuDescription": {
         "description": "Description for the quick connect authorization menu, shown at the bottom"
     },
-    "createPlaylistFromCurrentQueue": "Зберегти чергу до списку відтворення",
+    "createPlaylistFromCurrentQueue": "Зберегти чергу до плейлісту",
     "@createPlaylistFromCurrentQueue": {
         "description": "Label for a button that creates a new playlist from the current queue."
     },
@@ -2669,7 +2669,7 @@
     "@autoExpandPlayerScreenSubtitle": {
         "description": "Subtitle for the setting that controls if the player screen is opened directly after starting a new queue"
     },
-    "confirmAddCollectionItemToPlaylist": "Ви впевнені, що хочете додати всі треки з {itemType, select, album{альбом} playlist{плейлист} artist{артист} genre{жанр} other{item}} '{itemName}' до цього списку відтворення? Їх можна видалити лише окремо.",
+    "confirmAddCollectionItemToPlaylist": "Ви впевнені, що хочете додати всі треки з {itemType, select, album{альбом} playlist{плейліст} artist{артист} genre{жанр} other{item}} '{itemName}' до цього плейлісту? Їх можна видалити лише окремо.",
     "@confirmAddCollectionItemToPlaylist": {
         "description": "Warning dialog for adding an album, artist, etc. or multiple tracks to a playlist, clarifying that this cannot be undone without removing all tracks individually and manually.",
         "placeholders": {
@@ -2782,15 +2782,15 @@
     "@playbackActionPageAppendToQueue": {
         "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
     },
-    "shuffleSomeNext": "Далі перемішайте",
+    "shuffleSomeNext": "Перемішати кілька наступних",
     "@shuffleSomeNext": {
         "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
-    "shuffleSomeToNextUp": "Перемішати деякі до наступного",
+    "shuffleSomeToNextUp": "Перемішати кілька до \"Далі в черзі\"",
     "@shuffleSomeToNextUp": {
         "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
-    "shuffleSomeToQueue": "Перемішати деякі до черги",
+    "shuffleSomeToQueue": "Перемішати кілька до черги",
     "@shuffleSomeToQueue": {
         "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
     },
