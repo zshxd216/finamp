@@ -427,6 +427,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         locale: fields[134] == null
             ? DefaultSettings.locale
             : fields[134] as Locale?,
+        hasCompletedThemeModeLocaleMigration: fields[135] == null
+            ? false
+            : fields[135] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -441,7 +444,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(128)
+      ..writeByte(129)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -697,7 +700,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(133)
       ..write(obj.themeMode)
       ..writeByte(134)
-      ..write(obj.locale);
+      ..write(obj.locale)
+      ..writeByte(135)
+      ..write(obj.hasCompletedThemeModeLocaleMigration);
   }
 
   @override

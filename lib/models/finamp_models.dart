@@ -367,6 +367,8 @@ class FinampSettings {
     this.accentColor = DefaultSettings.accentColor,
     this.themeMode = DefaultSettings.themeMode,
     this.locale = DefaultSettings.locale,
+    // !!! Don't touch this default value, it's supposed to be hard coded to run the migration only once
+    this.hasCompletedThemeModeLocaleMigration = true,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -786,6 +788,10 @@ class FinampSettings {
 
   @HiveField(134, defaultValue: DefaultSettings.locale)
   Locale? locale = DefaultSettings.locale;
+
+  // !!! don't touch this default value, it's supposed to be hard coded to run the migration only once
+  @HiveField(135, defaultValue: false)
+  bool hasCompletedThemeModeLocaleMigration;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(

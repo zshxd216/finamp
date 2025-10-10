@@ -273,8 +273,6 @@ Future<void> setupHive() async {
 
   await Future.wait([
     Hive.openBox<FinampSettings>("FinampSettings", path: dir.path),
-    Hive.openBox<ThemeMode>("ThemeMode", path: dir.path), // keep for migration
-    Hive.openBox<Locale?>("Locale", path: dir.path), // keep for migration
     Hive.openBox<FinampStorableQueueInfo>("Queues", path: dir.path),
     Hive.openBox<OfflineListen>("OfflineListens", path: dir.path),
   ]);
@@ -476,34 +474,21 @@ Future<void> _migrateDownloadsFileOwner() async {
 
 /// Migrates the old ThemeMode and Locale Hive box values to FinampSettings fields
 Future<void> _migrateThemeModeLocale() async {
-  Box<ThemeMode> oldThemeModeBox = Hive.box<ThemeMode>("ThemeMode");
-  Box<Locale?> oldLocaleBox = Hive.box<Locale?>("Locale");
+  if (!FinampSettingsHelper.finampSettings.hasCompletedThemeModeLocaleMigration) {
+    Box<ThemeMode> oldThemeModeBox = await Hive.openBox<ThemeMode>("ThemeMode");
+    Box<Locale?> oldLocaleBox = await Hive.openBox<Locale?>("Locale");
 
-  final finampSettings = FinampSettingsHelper.finampSettings;
-  bool needsUpdate = false;
-
-  if (oldThemeModeBox.isNotEmpty) {
-    var oldTheme = oldThemeModeBox.get("ThemeMode");
-    if (oldTheme != finampSettings.themeMode) {
-      finampSettings.themeMode = oldTheme!;
-      needsUpdate = true;
-    }
-  }
-
-  if (oldLocaleBox.isNotEmpty) {
+    var oldThemeMode = oldThemeModeBox.get("ThemeMode");
     var oldLocale = oldLocaleBox.get("Locale");
-    if (oldLocale != finampSettings.locale) {
-      finampSettings.locale = oldLocale;
-      needsUpdate = true;
-    }
-  }
 
-  if (needsUpdate) {
-    FinampSettingsHelper.overwriteFinampSettings(finampSettings);
-  }
+    FinampSetters.setThemeMode(oldThemeMode ?? ThemeMode.system);
+    FinampSetters.setLocale(oldLocale);
 
-  await oldThemeModeBox.deleteFromDisk();
-  await oldLocaleBox.deleteFromDisk();
+    await oldThemeModeBox.deleteFromDisk();
+    await oldLocaleBox.deleteFromDisk();
+
+    FinampSetters.setHasCompletedThemeModeLocaleMigration(true);
+  }
 }
 
 Future<void> _trustAndroidUserCerts() async {
