@@ -53,10 +53,11 @@ extension AtContrast on Color {
 }
 
 extension ColorToHex on Color {
-  /// Converts a [Color] to a hex string.
-  ///
-  /// Example: Color(0xFF2196F3) to "2196F3" or "FF2196F3"
-  ///
+  /// Converts to a hex string.
+  ///```
+  /// Color(0xFF2196F3).toHex() // "#2196F3"
+  /// Color(0xFF2196F3).toHex(includeAlpha: true)  // "#FF2196F3"
+  ///```
   /// Note: the toARGB32 method used here might be imprecise on
   /// different platforms because of floating-point math
   String toHex({bool includeAlpha = false}) {

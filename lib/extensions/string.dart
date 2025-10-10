@@ -20,9 +20,22 @@ extension NullableJoin on Iterable<String?> {
 }
 
 extension StringToColor on String {
-  /// Converts a hex string like "#RRGGBB" or "#AARRGGBB" to a [Color]
+  /// Converts a hex color string to a [Color] object.
   ///
-  /// Returns null if [hex] is invalid
+  /// Accepts strings in the format:
+  /// - "#RRGGBB" (without alpha channel; assumes full opacity)
+  /// - "#AARRGGBB"
+  ///
+  /// Returns:
+  /// - A [Color] if the string is valid.
+  /// - `null` if the string does not match the expected length.
+  ///
+  /// Examples:
+  /// ```
+  /// "#FF5733".toColorOrNull();   // Color(0xFFFF5733)
+  /// "#80FF5733".toColorOrNull(); // Color(0x80FF5733)
+  /// "#XYZ".toColorOrNull();      // null
+  /// ```
   Color? toColorOrNull() {
     final hex = replaceFirst('#', '');
     if (hex.length == 6) {
