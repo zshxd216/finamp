@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:collection/collection.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/now_playing_bar.dart';
 import 'package:finamp/gen/assets.gen.dart';
@@ -70,7 +71,6 @@ class QueueService {
   FinampLoopMode _loopMode = FinampLoopMode.none;
   double _playbackSpeed = 1.0;
   double _playbackPitch = 1.0;
-  bool _useRadio = true;
 
   final _currentTrackStream = BehaviorSubject<FinampQueueItem?>.seeded(null);
   final _queueStream = BehaviorSubject<FinampQueueInfo?>.seeded(null);
@@ -107,8 +107,6 @@ class QueueService {
 
     _shuffleOrder = NextUpShuffleOrder(queueService: this);
     _queueAudioSource = ConcatenatingAudioSource(children: [], shuffleOrder: _shuffleOrder);
-
-    _useRadio = finampSettings.useRadio;
 
     _audioHandler.playbackState.listen((event) async {
       // int indexDifference = (event.currentIndex ?? 0) - _queueAudioSourceIndex;
@@ -165,7 +163,7 @@ class QueueService {
     // TODO: Add setting to control how full the queue should be.
     final queueMinimum = 5;
     final queueSize = _queueNextUp.length + _queue.length;
-    if (_currentTrack != null && queueSize < queueMinimum && _useRadio) {
+    if (_currentTrack != null && queueSize < queueMinimum && FinampSettingsHelper.finampSettings.radioEnabled) {
       final minNumSongs = queueMinimum - queueSize;
       List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(minNumSongs);
       await addToQueue(
@@ -180,10 +178,10 @@ class QueueService {
     }
   }
 
-  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int minNumSongs) async {
+  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int minNumTracks) async {
     List<jellyfin_models.BaseItemDto> itemsOut = [];
     switch (FinampSettingsHelper.finampSettings.radioMode) {
-      case RadioMode.shuffle:
+      case RadioMode.reshuffle:
         // Adds songs in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
         // the order.
         // Songs added to the queue manually will throw things off, though!
@@ -198,7 +196,7 @@ class QueueService {
         // Items in the currently playing source
         final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
         final numItems = items.length;
-        for (var i = 0; i < minNumSongs; i++) {
+        for (var i = 0; i < minNumTracks; i++) {
           final fullIterations = (fullQueue.length / numItems).toInt();
           // Gets the list of songs already played or enqueued this iteration
           var currentIteration = fullQueue.sublist(fullIterations * numItems, fullQueue.length);
@@ -224,10 +222,20 @@ class QueueService {
         break;
       case RadioMode.random:
         final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
-        for (var i = 0; i < minNumSongs; i++) {
+        for (var i = 0; i < minNumTracks; i++) {
           // Pick an item to add
           int nextIndex = _radioRandom.nextInt(items.length);
           itemsOut.add(items[nextIndex]);
+        }
+        break;
+      case RadioMode.similar:
+        final items = await _jellyfinApiHelper.getInstantMix(
+          getQueue().fullQueue.last.baseItem,
+          limit: minNumTracks + 1,
+        );
+        if (items != null) {
+          // Instant mixes always return the track itself as the first item
+          itemsOut.addAll(items.slice(1, minNumTracks + 1));
         }
         break;
     }
@@ -1017,15 +1025,6 @@ class QueueService {
 
   void refreshQueueStream() {
     _queueStream.add(getQueue());
-  }
-
-  bool getUseRadio() {
-    return _useRadio;
-  }
-
-  void setUseRadio(bool useRadio) {
-    _useRadio = useRadio;
-    FinampSetters.setUseRadio(useRadio);
   }
 
   /// Returns the entire queue (Next Up + regular queue)

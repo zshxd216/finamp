@@ -427,7 +427,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..autoExpandPlayerScreen = fields[125] == null
           ? false
           : fields[125] as bool
-      ..useRadio = fields[132] == null ? true : fields[132] as bool
+      ..radioEnabled = fields[132] == null ? true : fields[132] as bool
       ..radioMode = fields[133] == null
           ? RadioMode.random
           : fields[133] as RadioMode;
@@ -688,7 +688,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(131)
       ..write(obj.lastUsedPlaybackActionRowPage)
       ..writeByte(132)
-      ..write(obj.useRadio)
+      ..write(obj.radioEnabled)
       ..writeByte(133)
       ..write(obj.radioMode);
   }
@@ -2958,21 +2958,25 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
   RadioMode read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return RadioMode.shuffle;
+        return RadioMode.reshuffle;
       case 1:
         return RadioMode.random;
+      case 2:
+        return RadioMode.similar;
       default:
-        return RadioMode.shuffle;
+        return RadioMode.reshuffle;
     }
   }
 
   @override
   void write(BinaryWriter writer, RadioMode obj) {
     switch (obj) {
-      case RadioMode.shuffle:
+      case RadioMode.reshuffle:
         writer.writeByte(0);
       case RadioMode.random:
         writer.writeByte(1);
+      case RadioMode.similar:
+        writer.writeByte(2);
     }
   }
 

@@ -1143,9 +1143,9 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
-  static void setUseRadio(bool newUseRadio) {
+  static void setRadioEnabled(bool newRadioEnabled) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
-    finampSettingsTemp.useRadio = newUseRadio;
+    finampSettingsTemp.radioEnabled = newRadioEnabled;
     Hive.box<FinampSettings>(
       "FinampSettings",
     ).put("FinampSettings", finampSettingsTemp);
@@ -1559,8 +1559,8 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select(
         (value) => value.requireValue.lastUsedPlaybackActionRowPage,
       );
-  ProviderListenable<bool> get useRadio =>
-      finampSettingsProvider.select((value) => value.requireValue.useRadio);
+  ProviderListenable<bool> get radioEnabled =>
+      finampSettingsProvider.select((value) => value.requireValue.radioEnabled);
   ProviderListenable<RadioMode> get radioMode =>
       finampSettingsProvider.select((value) => value.requireValue.radioMode);
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>

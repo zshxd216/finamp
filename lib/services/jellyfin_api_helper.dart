@@ -643,12 +643,12 @@ class JellyfinApiHelper {
   }
 
   /// Starts an instant mix using the data from the item provided.
-  Future<List<BaseItemDto>?> getInstantMix(BaseItemDto? parentItem) async {
+  Future<List<BaseItemDto>?> getInstantMix(BaseItemDto? parentItem, {int? limit}) async {
     assert(_verifyCallable());
     var response = await jellyfinApi.getInstantMix(
       id: parentItem!.id,
       userId: _finampUserHelper.currentUser!.id,
-      limit: FinampSettingsHelper.finampSettings.trackShuffleItemCount,
+      limit: limit ?? FinampSettingsHelper.finampSettings.trackShuffleItemCount,
     );
 
     return (QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items);

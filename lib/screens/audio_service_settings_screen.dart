@@ -45,7 +45,6 @@ class _AudioServiceSettingsScreenState extends State<AudioServiceSettingsScreen>
           const AutoplayRestoredQueueToggle(),
           const AutoReloadQueueToggle(),
           const ClearQueueOnStopToggle(),
-          const RadioModeDropdownListTile(),
         ],
       ),
     );
@@ -240,29 +239,6 @@ class ClearQueueOnStopToggle extends ConsumerWidget {
       subtitle: Text(AppLocalizations.of(context)!.clearQueueOnStopEventSubtitle),
       value: ref.watch(finampSettingsProvider.clearQueueOnStopEvent),
       onChanged: FinampSetters.setClearQueueOnStopEvent,
-    );
-  }
-}
-
-class RadioModeDropdownListTile extends ConsumerWidget {
-  const RadioModeDropdownListTile({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ListTile(
-      title: Text(AppLocalizations.of(context)!.radioModeTitle),
-      trailing: DropdownButton<RadioMode>(
-        value: ref.watch(finampSettingsProvider.radioMode),
-        items: RadioMode.values
-            .map(
-              (e) => DropdownMenuItem<RadioMode>(
-                value: e,
-                child: Text(AppLocalizations.of(context)!.radioModeOption(e.name)),
-              ),
-            )
-            .toList(),
-        onChanged: FinampSetters.setRadioMode.ifNonNull,
-      ),
     );
   }
 }

@@ -233,7 +233,7 @@ class DefaultSettings {
   static const rememberLastUsedPlaybackActionRowPage = true;
   static const lastUsedPlaybackActionRowPage = PlaybackActionRowPage.newQueue;
   static const radioMode = RadioMode.random;
-  static const useRadio = true;
+  static const radioEnabled = true;
 }
 
 @HiveType(typeId: 28)
@@ -775,8 +775,8 @@ class FinampSettings {
   @HiveField(131, defaultValue: DefaultSettings.lastUsedPlaybackActionRowPage)
   PlaybackActionRowPage lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage;
 
-  @HiveField(132, defaultValue: DefaultSettings.useRadio)
-  bool useRadio = DefaultSettings.useRadio;
+  @HiveField(132, defaultValue: DefaultSettings.radioEnabled)
+  bool radioEnabled = DefaultSettings.radioEnabled;
 
   @HiveField(133, defaultValue: DefaultSettings.radioMode)
   RadioMode radioMode = DefaultSettings.radioMode;
@@ -3601,7 +3601,9 @@ enum PlaybackActionRowPage {
 @HiveType(typeId: 108)
 enum RadioMode {
   @HiveField(0)
-  shuffle,
+  reshuffle,
   @HiveField(1)
   random,
+  @HiveField(2)
+  similar,
 }

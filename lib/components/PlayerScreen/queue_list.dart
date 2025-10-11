@@ -5,6 +5,8 @@ import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dar
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
+import 'package:finamp/components/choosable_toggleable_list_tile.dart';
+import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/components/toggleable_list_tile.dart';
@@ -43,7 +45,7 @@ class QueueListStreamState {
   final FinampQueueInfo? queueInfo;
 }
 
-class QueueList extends StatefulWidget {
+class QueueList extends ConsumerStatefulWidget {
   static const routeName = "/queue";
 
   const QueueList({
@@ -62,7 +64,7 @@ class QueueList extends StatefulWidget {
   final GlobalKey<JumpToCurrentButtonState> jumpToCurrentKey;
 
   @override
-  State<QueueList> createState() => _QueueListState();
+  ConsumerState<QueueList> createState() => _QueueListState();
 }
 
 void scrollToKey({required GlobalKey key, Duration duration = const Duration(milliseconds: 500)}) async {
@@ -79,7 +81,13 @@ void scrollToKey({required GlobalKey key, Duration duration = const Duration(mil
   );
 }
 
-class _QueueListState extends State<QueueList> {
+IconData getRadioModeIcon(RadioMode mode) => switch (mode) {
+  RadioMode.reshuffle => TablerIcons.arrows_shuffle,
+  RadioMode.random => TablerIcons.help_hexagon,
+  RadioMode.similar => TablerIcons.ear,
+};
+
+class _QueueListState extends ConsumerState<QueueList> {
   final _queueService = GetIt.instance<QueueService>();
 
   QueueItemSource? _source;
@@ -127,7 +135,9 @@ class _QueueListState extends State<QueueList> {
 
   @override
   Widget build(BuildContext context) {
-    var useRadio = _queueService.getUseRadio();
+    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
+
+    final radioMode = ref.watch(finampSettingsProvider.radioMode);
 
     if (_performInitialJump) {
       _performInitialJump = false;
@@ -145,15 +155,10 @@ class _QueueListState extends State<QueueList> {
 
     _contents = <Widget>[
       // Previous Tracks
-      Consumer(
-        builder: (context, ref, child) {
-          if (ref.watch(finampSettingsProvider.previousTracksExpaned)) {
-            return PreviousTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey);
-          } else {
-            return const SliverToBoxAdapter();
-          }
-        },
-      ),
+      if (ref.watch(finampSettingsProvider.previousTracksExpaned))
+        PreviousTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey)
+      else
+        const SliverToBoxAdapter(),
       SliverPersistentHeader(
         key: widget.previousTracksHeaderKey,
         delegate: PreviousTracksSectionHeader(
@@ -220,24 +225,61 @@ class _QueueListState extends State<QueueList> {
       ),
       // Radio mode
       SliverToBoxAdapter(
-        child: ToggleableListTile(
-          title: AppLocalizations.of(context)!.usingRadioModeTitle(useRadio.toString()),
-          subtitle: useRadio
-              ? AppLocalizations.of(context)!.usingRadioModeSubtitle(FinampSettingsHelper.finampSettings.radioMode.name)
-              : "",
+        child: ChooseableToggleableListTile(
+          title: radioEnabled
+              ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+              : AppLocalizations.of(context)!.radioModeDisabledTitle,
+          subtitle: radioEnabled
+              ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
+              : AppLocalizations.of(context)!.radioModeDisabledSubtitle,
+          menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
+          choices: 
+              RadioMode.values
+              .map(
+                (radioModeOption) => ChoiceListTile(
+                  title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
+                  description: AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name),
+                  icon: getRadioModeIcon(radioModeOption),
+                  isSelected: radioEnabled && radioMode == radioModeOption,
+                  onSelect: () async {
+                    FinampSetters.setRadioMode(radioModeOption);
+                    FinampSetters.setRadioEnabled(true);
+                    FeedbackHelper.feedback(FeedbackType.success);
+                    Navigator.of(context).pop();
+                    GlobalSnackbar.message(
+                      (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
+                      isConfirmation: true,
+                    );
+                  },
+                ),
+              )
+              .followedBy(<ChoiceListTile>[
+                ChoiceListTile(
+                  title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
+                  icon: TablerIcons.radio_off,
+                  isSelected: !radioEnabled,
+                  onSelect: () async {
+                    FinampSetters.setRadioEnabled(false);
+                    FeedbackHelper.feedback(FeedbackType.success);
+                    Navigator.of(context).pop();
+                    GlobalSnackbar.message(
+                      (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
+                      isConfirmation: true,
+                    );
+                  },
+                ),
+              ])
+              .toList(),
           leading: Padding(
             padding: const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 8.0),
-            child: const Icon(TablerIcons.radio, size: 36.0),
+            child: Icon(getRadioModeIcon(radioMode), size: 36.0),
           ),
-          state: _queueService.getUseRadio(),
-          onToggle: (val) async {
-            // TODO: Put menu to choose radio mode here
-          },
+          state: radioEnabled,
           trailing: Switch.adaptive(
-            value: _queueService.getUseRadio(),
-            onChanged: (val) {
+            value: radioEnabled,
+            onChanged: (newValue) {
               setState(() {
-                _queueService.setUseRadio(val);
+                FinampSetters.setRadioEnabled(newValue);
               });
             },
             padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: -8.0),

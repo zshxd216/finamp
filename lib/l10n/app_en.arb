@@ -2600,29 +2600,72 @@
   "@clearQueueOnStopEventSubtitle": {
     "description": "Subtitle for the setting that controls if OS stop commands clear the queue."
   },
-  "radioModeTitle": "Radio Mode",
-  "@radioModeTitle": {
+  "radioModeSettingsTitle": "Radio Mode",
+  "@radioModeSettingsTitle": {
     "description": "Title for the setting that controls the radio mode/algorithm."
   },
-  "radioModeSubtitle": "Sets the method that the radio feature uses to pick songs to add.",
-  "@radioModeSubtitle": {
+  "radioModeSettingsSubtitle": "Sets the method that the radio feature uses to pick songs to add.",
+  "@radioModeSettingsSubtitle": {
     "description": "Subtitle for the setting that controls the radio mode/algorithm."
   },
-  "radioModeOption": "{option, select, shuffle{Shuffle} random{Random} other{{option}} }",
-  "@radioModeOption": {
+  "radioModeMenuTitle": "Choose Radio Mode",
+  "@radioModeMenuTitle": {
+    "description": "Title for menu that allows users to choose the radio mode."
+  },
+  "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} other{{option}}}",
+  "@radioModeOptionName": {
     "placeholders": {
       "option": {
-        "type": "String"
+        "type": "String",
+        "description": "Corresponds to RadioMode.name"
       }
     },
-    "description": "Options in radio mode/algorithm dropdown"
+    "description": "Radio mode names in radio mode/algorithm dropdown"
   },
-  "usingRadioModeTitle": "Radio {state, select, true{Enabled} false{Disabled} other{not used}}",
-  "@usingRadioModeTitle": {
-    "description": "Title displayed in the queue to show if radio mode is enabled."
+  "radioModeOptionTitle": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} other{{option}}} Mode Enabled",
+  "@radioModeOptionTitle": {
+    "placeholders": {
+      "option": {
+        "type": "String",
+        "description": "Corresponds to RadioMode.name"
+      }
+    },
+    "description": "Title displayed in the queue, showing which radio mode/algorithm is currently being used."
   },
-  "usingRadioModeSubtitle": " {state, select, shuffle{Adding tracks like an infinite shuffle} random{Adding more tracks randomly} other{not used}}",
-  "@usingRadioModeSubtitle": {
+  "radioModeDisabledTitle": "Radio Disabled",
+  "@radioModeDisabledTitle": {
+    "description": "Title displayed in the queue to show that radio mode is disabled."
+  },
+  "radioModeDisabledButtonTitle": "Disable Radio",
+  "@radioModeDisabledButtonTitle": {
+    "description": "Title for the option that disables radio mode."
+  },
+  "radioModeOptionConfirmation": "Switched to {option, select, reshuffle{Reshuffle} random{Random} similar{Similar} other{{option}}} mode",
+  "@radioModeOptionConfirmation": {
+    "placeholders": {
+      "option": {
+        "type": "String",
+        "description": "Corresponds to RadioMode.name"
+      }
+    },
+    "description": "Confirmation displayed when the radio mode is changed."
+  },
+  "radioModeEnabledSubtitle": "Tap to configure",
+  "@radioModeEnabledSubtitle": {
+    "description": "Subtitle displayed in the queue to show when radio mode is enabled."
+  },
+  "radioModeDisabledSubtitle": "Toggle to enable",
+  "@radioModeDisabledSubtitle": {
+    "description": "Subtitle displayed in the queue to show that radio mode is disabled."
+  },
+  "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the queue} similar{Append sonically similar tracks} other{}}",
+  "@radioModeDescription": {
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "description": "Corresponds to RadioMode.name"
+      }
+    },
     "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
   },
   "autoReloadPrompt": "Reload queue to apply new {type, select, network{network settings} transcoding{transcoding settings} other{settings}}",
