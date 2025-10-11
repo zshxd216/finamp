@@ -410,7 +410,7 @@
     "@refresh": {},
     "confirm": "確認",
     "@confirm": {},
-    "playNext": "下一首",
+    "playNext": "加入下一首",
     "@playNext": {
         "description": "Popup menu item title for inserting an item into the play queue after the currently-playing item."
     },
@@ -933,15 +933,15 @@
             }
         }
     },
-    "confirmShuffleNext": "已隨機排序並加入下一首",
+    "confirmShuffleNext": "已隨機加入下一首",
     "@confirmShuffleNext": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the front of the \"Next Up\" queue"
     },
-    "confirmShuffleToNextUp": "已隨機排序並加入即將播放",
+    "confirmShuffleToNextUp": "已隨機加入即將播放",
     "@confirmShuffleToNextUp": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue"
     },
-    "confirmShuffleToQueue": "已隨機排序並加入播放佇列",
+    "confirmShuffleToQueue": "已隨機加入播放佇列",
     "@confirmShuffleToQueue": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the end of the regular queue"
     },
@@ -2770,11 +2770,11 @@
     "@emptyAlbum": {
         "description": "Message shown as a placeholder when an album or playlist is empty."
     },
-    "preferNextUpPrependingTitle": "優先插入至下一首",
+    "preferNextUpPrependingTitle": "優先插入至即將播放",
     "@preferNextUpPrependingTitle": {
         "description": "Title for the setting to prefer prepending to Next Up over appending"
     },
-    "preferNextUpPrependingSubtitle": "啟用後，當「即將播放」清單為空時，會顯示「下一首播放」按鈕；否則預設為「加入至即將播放」。",
+    "preferNextUpPrependingSubtitle": "啟用後，當「即將播放」佇列為空時，將顯示「加入下一首」按鈕；否則預設顯示「加入即將播放」。",
     "@preferNextUpPrependingSubtitle": {
         "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
     },
@@ -2825,5 +2825,41 @@
     "missingBlurhashWarning": "警告：偵測到 Jellyfin 伺服器未正確生成 BlurHash。這會使 Finamp 無法辨識重複圖片並導致重複下載。請修正伺服器設定並執行下載修復以清理下載項目。",
     "@missingBlurhashWarning": {
         "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
+    },
+    "updatePlaylistButtonLabel": "更新播放清單",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "正在儲存變更…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "noPermissionToEditMetadata": "需具管理員權限才能編輯中繼資料圖片。",
+    "@noPermissionToEditMetadata": {
+        "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
+    },
+    "removedTracks": "已移除的歌曲",
+    "@removedTracks": {
+        "description": "Section header for the list of removed tracks on the playlist edit screen"
+    },
+    "removedTracksEmptyListPlaceholder": "已移除的歌曲將顯示在此",
+    "@removedTracksEmptyListPlaceholder": {
+        "description": "Placeholder text shown when there are no removed tracks"
+    },
+    "restoreTrack": "還原歌曲",
+    "@restoreTrack": {
+        "description": "Button title for restoring a track that was marked to be removed"
+    },
+    "discardChangesTitle": "取消變更？",
+    "@discardChangesTitle": {
+        "description": "Title for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "discardChangesDescription": "你有尚未儲存的變更。是否要取消並返回？",
+    "@discardChangesDescription": {
+        "description": "Description for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "discardChangesConfirmButton": "取消變更",
+    "@discardChangesConfirmButton": {
+        "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
     }
 }
