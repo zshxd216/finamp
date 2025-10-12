@@ -309,23 +309,31 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
   }
 
   ColorScheme _getColorScheme(RawThemeResult colors, Brightness brightness) {
-    final lighter = brightness == Brightness.dark;
+    final isDark = brightness == Brightness.dark;
 
     final background = Color.alphaBlend(
-      lighter ? Colors.black.withOpacity(0.675) : Colors.white.withOpacity(0.675),
+      isDark ? Colors.black.withOpacity(0.675) : Colors.white.withOpacity(0.675),
       colors.background,
     );
 
     final accent = colors.highlight.atContrast(
       ref.watch(finampSettingsProvider.useHighContrastColors) ? 8.0 : 4.5,
       background,
-      lighter,
+      isDark,
+    );
+
+    final surfaceText = Color.alphaBlend(
+      isDark ? Colors.white.withOpacity(0.92) : Colors.black.withOpacity(0.85),
+      colors.highlight,
     );
 
     return ColorScheme.fromSeed(
       seedColor: accent,
       brightness: brightness,
       surface: background,
+      // We should probably set this ourselves, as otherwise it will be set based on the default
+      // surface color for the seed instead of our overridden value.
+      onSurface: surfaceText,
       dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
     );
   }

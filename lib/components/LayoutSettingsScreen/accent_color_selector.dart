@@ -1,8 +1,8 @@
 import 'package:finamp/color_schemes.g.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/extensions/string.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
-import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,19 @@ class AccentColorSelector extends ConsumerWidget {
     return ListTile(
       title: Text(AppLocalizations.of(context)!.accentColor),
       trailing: GestureDetector(
-        onTap: () => _showAccentColorSheet(context, ref, color),
+        onTap: () {
+          showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: true,
+            builder: (context) {
+              return ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                child: SingleChildScrollView(child: const AccentColorPopup()),
+              );
+            },
+          );
+        },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -50,121 +62,109 @@ class AccentColorSelector extends ConsumerWidget {
       ),
     );
   }
+}
 
-  void _showAccentColorSheet(BuildContext context, WidgetRef ref, Color? previewColor) {
-    final controller = TextEditingController(text: previewColor?.toHex());
+class AccentColorPopup extends ConsumerStatefulWidget {
+  const AccentColorPopup({super.key});
 
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) {
-        return ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: SingleChildScrollView(
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                void updatePreview(String value) {
-                  setState(() => previewColor = value.toColorOrNull());
-                }
+  @override
+  ConsumerState<AccentColorPopup> createState() => _AccentColorPopupState();
+}
 
-                void changeColor(Color color) => setState(() {
-                  previewColor = color;
-                  controller.text = color.toHex();
-                });
+class _AccentColorPopupState extends ConsumerState<AccentColorPopup> {
+  Color? previewColor = FinampSettingsHelper.finampSettings.accentColor;
+  late final controller = TextEditingController(text: previewColor?.toHex());
 
-                final previewTheme = Theme.of(
-                  context,
-                ).copyWith(colorScheme: getColorScheme(previewColor, ref.read(brightnessProvider)));
+  void updatePreview(String value) => setState(() {
+    previewColor = value.toColorOrNull();
+  });
 
-                return Theme(
-                  data: previewTheme,
-                  child: Container(
-                    padding: EdgeInsets.only(
-                      left: 24,
-                      right: 24,
-                      top: 16,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                      color: previewTheme.colorScheme.surface,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Container(
-                            width: 36,
-                            height: 4,
-                            margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: previewTheme.colorScheme.outline,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        ),
-                        Text(AppLocalizations.of(context)!.accentColor, style: previewTheme.textTheme.titleLarge),
-                        SizedBox(height: 16),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextField(
-                              controller: controller,
-                              decoration: InputDecoration(
-                                filled: true,
-                                labelText: AppLocalizations.of(context)!.colorCode,
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                              ),
-                              onChanged: updatePreview,
-                            ),
-                            ColorPicker(
-                              onColorChanged: changeColor,
-                              color: previewColor ?? Theme.of(context).colorScheme.primary,
-                              pickersEnabled: {
-                                ColorPickerType.wheel: true,
-                                ColorPickerType.primary: false,
-                                ColorPickerType.accent: false,
-                              },
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    FinampSetters.setAccentColor(null);
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(AppLocalizations.of(context)!.reset),
-                                ),
-                                FilledButton(
-                                  onPressed: previewColor == null
-                                      ? null
-                                      : () {
-                                          final color = controller.text.toColorOrNull();
-                                          if (color != null) {
-                                            FinampSetters.setAccentColor(color);
-                                            Navigator.pop(context);
-                                          }
-                                        },
-                                  child: Text(AppLocalizations.of(context)!.save),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+  void changeColor(Color color) => setState(() {
+    previewColor = color;
+    controller.text = color.toHex();
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final previewTheme = Theme.of(context).withColorScheme(getColorScheme(previewColor, ref.watch(brightnessProvider)));
+
+    return Theme(
+      data: previewTheme,
+      child: Container(
+        padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: MediaQuery.viewPaddingOf(context).bottom + 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          color: previewTheme.colorScheme.surface,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: previewTheme.colorScheme.outline,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
             ),
-          ),
-        );
-      },
+            Text(AppLocalizations.of(context)!.accentColor, style: previewTheme.textTheme.titleLarge),
+            SizedBox(height: 16),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    filled: true,
+                    labelText: AppLocalizations.of(context)!.colorCode,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  ),
+                  onChanged: updatePreview,
+                ),
+                ColorPicker(
+                  onColorChanged: changeColor,
+                  color: previewColor ?? Theme.of(context).colorScheme.primary,
+                  pickersEnabled: {
+                    ColorPickerType.wheel: true,
+                    ColorPickerType.primary: false,
+                    ColorPickerType.accent: false,
+                  },
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        FinampSetters.setAccentColor(null);
+                        Navigator.pop(context);
+                      },
+                      child: Text(AppLocalizations.of(context)!.reset),
+                    ),
+                    FilledButton(
+                      onPressed: previewColor == null
+                          ? null
+                          : () {
+                              final color = controller.text.toColorOrNull();
+                              if (color != null) {
+                                FinampSetters.setAccentColor(color);
+                                Navigator.pop(context);
+                              }
+                            },
+                      child: Text(AppLocalizations.of(context)!.save),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -68,17 +68,29 @@ extension ColorToHex on Color {
 }
 
 extension WithColorScheme on ThemeData {
+  /// Apply a colorScheme to ThemeData.  This applies the colorscheme to all values it impacts
+  /// when building a default material3 color scheme, based on the ThemeData() constructor.
   ThemeData withColorScheme(ColorScheme scheme) {
+    bool isDark = brightness == Brightness.dark;
+    final newPrimary = isDark ? scheme.surface : scheme.primary;
+    final bool primaryIsDark = ThemeData.estimateBrightnessForColor(newPrimary) == Brightness.dark;
+    final Color light = isDark ? scheme.onSurface : scheme.surface;
+    final Color dark = isDark ? scheme.surface : scheme.onSurface;
+    TextTheme applyLight(TextTheme old) => old.apply(displayColor: light, bodyColor: light, decorationColor: light);
+    TextTheme applyDark(TextTheme old) => old.apply(displayColor: dark, bodyColor: dark, decorationColor: dark);
     return copyWith(
       colorScheme: scheme,
       buttonTheme: buttonTheme.copyWith(colorScheme: scheme),
       iconTheme: iconTheme.copyWith(color: scheme.primary),
-      primaryColor: brightness == Brightness.dark ? scheme.surface : scheme.primary,
+      primaryColor: newPrimary,
       canvasColor: scheme.surface,
       scaffoldBackgroundColor: scheme.surface,
       cardColor: scheme.surface,
       dividerColor: scheme.outline,
       applyElevationOverlayColor: brightness == Brightness.dark,
+      typography: typography.copyWith(black: applyDark(typography.black), white: applyLight(typography.white)),
+      textTheme: isDark ? applyLight(textTheme) : applyDark(textTheme),
+      primaryTextTheme: primaryIsDark ? applyLight(primaryTextTheme) : applyDark(primaryTextTheme),
     );
   }
 }
