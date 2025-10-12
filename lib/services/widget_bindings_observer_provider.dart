@@ -40,7 +40,7 @@ class _FinampProviderBuilderState extends ConsumerState<FinampProviderBuilder> w
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    ref.listenManual(finampSettingsProvider.themeMode,(_,_) => didChangePlatformBrightness());
+    ref.listenManual(finampSettingsProvider.themeMode, (_, _) => didChangePlatformBrightness());
     Future.microtask(() {
       didChangePlatformBrightness();
       didChangeMetrics();
