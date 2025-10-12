@@ -275,6 +275,7 @@ Future<void> setupHive() async {
     Hive.openBox<FinampSettings>("FinampSettings", path: dir.path),
     Hive.openBox<FinampStorableQueueInfo>("Queues", path: dir.path),
     Hive.openBox<OfflineListen>("OfflineListens", path: dir.path),
+    Hive.openBox<RawThemeResult>("CachedThemes", path: dir.path),
   ]);
 
   // If the settings box is empty, we add an initial settings value here.

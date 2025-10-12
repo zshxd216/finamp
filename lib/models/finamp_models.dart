@@ -1376,7 +1376,6 @@ class DownloadStub {
       userTranscodingProfile: null,
       syncTranscodingProfile: transcodingProfile,
       fileTranscodingProfile: null,
-      themeColor: null,
     );
   }
 
@@ -1405,7 +1404,6 @@ class DownloadItem extends DownloadStub {
     required this.userTranscodingProfile,
     required this.syncTranscodingProfile,
     required this.fileTranscodingProfile,
-    required this.themeColor,
   }) : super._build() {
     assert(!(type == DownloadItemType.collection && baseItemType == BaseItemDtoType.playlist) || viewId == null);
   }
@@ -1448,14 +1446,6 @@ class DownloadItem extends DownloadStub {
   DownloadProfile? userTranscodingProfile;
   DownloadProfile? syncTranscodingProfile;
   DownloadProfile? fileTranscodingProfile;
-
-  /// The primary color of an image used for theming, stored as an ARGB32 int.
-  /// This should only be non-null for images with a blurhash id.
-  int? themeColor;
-
-  /// The background color of an image used for theming, stored as an ARGB32 int.
-  /// This should only be non-null for images with a blurhash id.
-  int? backgroundColor;
 
   @ignore
   DownloadLocation? get fileDownloadLocation =>
@@ -1551,7 +1541,6 @@ class DownloadItem extends DownloadStub {
       userTranscodingProfile: userTranscodingProfile,
       syncTranscodingProfile: syncTranscodingProfile,
       fileTranscodingProfile: fileTranscodingProfile,
-      themeColor: themeColor,
     );
   }
 }
@@ -3606,4 +3595,19 @@ enum PlaybackActionRowPage {
         return 2;
     }
   }
+}
+
+@HiveType(typeId: 108)
+class RawThemeResult {
+  RawThemeResult(this._highlightInt, this._backgroundInt);
+  RawThemeResult.fromColors(Color highlight, Color background)
+    : _highlightInt = highlight.toARGB32(),
+      _backgroundInt = background.toARGB32();
+
+  @HiveField(0)
+  final int _highlightInt;
+  Color get highlight => Color(_highlightInt);
+  @HiveField(1)
+  final int _backgroundInt;
+  Color get background => Color(_backgroundInt);
 }

@@ -1584,39 +1584,6 @@ class DownloadsService {
     return _getDownloadByID(imageId, DownloadItemType.image);
   }
 
-  /// Retrieve the primary theme colors of an image.  Only images stored by blurhash are supported to avoid the theoretical
-  /// possibility of the color and image file becoming desynced.  The returned value is (image is downloaded,theme color).
-  /// The first color is the highlight, the second color is the background.
-  (bool, Color?, Color?) getImageTheme(String? blurHash) {
-    if (blurHash == null) {
-      return (false, null, null);
-    }
-    var item = _isar.downloadItems.getSync(DownloadStub.getHash(blurHash, DownloadItemType.image));
-    assert(item == null || item.baseItem!.blurHash == blurHash);
-    return (
-      item != null,
-      item?.themeColor != null ? Color(item!.themeColor!) : null,
-      item?.backgroundColor != null ? Color(item!.backgroundColor!) : null,
-    );
-  }
-
-  /// Set the primary theme colors of an image.  Only images stored by blurhash are supported to avoid the theoretical
-  /// possibility of the color and image file becoming desynced.
-  void setImageTheme(String? blurHash, Color themeColor, Color backgroundColor) {
-    if (blurHash == null) {
-      return;
-    }
-    _isar.writeTxnSync(() {
-      final item = _isar.downloadItems.getSync(DownloadStub.getHash(blurHash, DownloadItemType.image));
-      if (item != null) {
-        assert(item.baseItem!.blurHash == blurHash);
-        item.themeColor = themeColor.toARGB32();
-        item.backgroundColor = backgroundColor.toARGB32();
-        _isar.downloadItems.putSync(item, saveLinks: false);
-      }
-    });
-  }
-
   /// Get DownloadedLyrics by the corresponding track's BaseItemDto.
   Future<DownloadedLyrics?> getLyricsDownload({required BaseItemDto baseItem}) async {
     var item = _isar.downloadedLyrics.getSync(DownloadStub.getHash(baseItem.id.raw, DownloadItemType.track));

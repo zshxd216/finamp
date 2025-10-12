@@ -1484,6 +1484,43 @@ class SleepTimerAdapter extends TypeAdapter<SleepTimer> {
           typeId == other.typeId;
 }
 
+class RawThemeResultAdapter extends TypeAdapter<RawThemeResult> {
+  @override
+  final typeId = 108;
+
+  @override
+  RawThemeResult read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return RawThemeResult(
+      (fields[0] as num).toInt(),
+      (fields[1] as num).toInt(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, RawThemeResult obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj._highlightInt)
+      ..writeByte(1)
+      ..write(obj._backgroundInt);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RawThemeResultAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class TabContentTypeAdapter extends TypeAdapter<TabContentType> {
   @override
   final typeId = 36;
@@ -4894,79 +4931,69 @@ const DownloadItemSchema = CollectionSchema(
   name: r'DownloadItem',
   id: 3470061580579511306,
   properties: {
-    r'backgroundColor': PropertySchema(
-      id: 0,
-      name: r'backgroundColor',
-      type: IsarType.long,
-    ),
     r'baseIndexNumber': PropertySchema(
-      id: 1,
+      id: 0,
       name: r'baseIndexNumber',
       type: IsarType.long,
     ),
     r'baseItemType': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'baseItemType',
       type: IsarType.byte,
       enumMap: _DownloadItembaseItemTypeEnumValueMap,
     ),
     r'fileTranscodingProfile': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'fileTranscodingProfile',
       type: IsarType.object,
 
       target: r'DownloadProfile',
     ),
-    r'id': PropertySchema(id: 4, name: r'id', type: IsarType.string),
+    r'id': PropertySchema(id: 3, name: r'id', type: IsarType.string),
     r'jsonItem': PropertySchema(
-      id: 5,
+      id: 4,
       name: r'jsonItem',
       type: IsarType.string,
     ),
-    r'name': PropertySchema(id: 6, name: r'name', type: IsarType.string),
+    r'name': PropertySchema(id: 5, name: r'name', type: IsarType.string),
     r'orderedChildren': PropertySchema(
-      id: 7,
+      id: 6,
       name: r'orderedChildren',
       type: IsarType.longList,
     ),
     r'parentIndexNumber': PropertySchema(
-      id: 8,
+      id: 7,
       name: r'parentIndexNumber',
       type: IsarType.long,
     ),
-    r'path': PropertySchema(id: 9, name: r'path', type: IsarType.string),
+    r'path': PropertySchema(id: 8, name: r'path', type: IsarType.string),
     r'state': PropertySchema(
-      id: 10,
+      id: 9,
       name: r'state',
       type: IsarType.byte,
       enumMap: _DownloadItemstateEnumValueMap,
     ),
     r'syncTranscodingProfile': PropertySchema(
-      id: 11,
+      id: 10,
       name: r'syncTranscodingProfile',
       type: IsarType.object,
 
       target: r'DownloadProfile',
     ),
-    r'themeColor': PropertySchema(
-      id: 12,
-      name: r'themeColor',
-      type: IsarType.long,
-    ),
     r'type': PropertySchema(
-      id: 13,
+      id: 11,
       name: r'type',
       type: IsarType.byte,
       enumMap: _DownloadItemtypeEnumValueMap,
     ),
     r'userTranscodingProfile': PropertySchema(
-      id: 14,
+      id: 12,
       name: r'userTranscodingProfile',
       type: IsarType.object,
 
       target: r'DownloadProfile',
     ),
-    r'viewId': PropertySchema(id: 15, name: r'viewId', type: IsarType.string),
+    r'viewId': PropertySchema(id: 13, name: r'viewId', type: IsarType.string),
   },
 
   estimateSize: _downloadItemEstimateSize,
@@ -5115,37 +5142,35 @@ void _downloadItemSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.backgroundColor);
-  writer.writeLong(offsets[1], object.baseIndexNumber);
-  writer.writeByte(offsets[2], object.baseItemType.index);
+  writer.writeLong(offsets[0], object.baseIndexNumber);
+  writer.writeByte(offsets[1], object.baseItemType.index);
   writer.writeObject<DownloadProfile>(
-    offsets[3],
+    offsets[2],
     allOffsets,
     DownloadProfileSchema.serialize,
     object.fileTranscodingProfile,
   );
-  writer.writeString(offsets[4], object.id);
-  writer.writeString(offsets[5], object.jsonItem);
-  writer.writeString(offsets[6], object.name);
-  writer.writeLongList(offsets[7], object.orderedChildren);
-  writer.writeLong(offsets[8], object.parentIndexNumber);
-  writer.writeString(offsets[9], object.path);
-  writer.writeByte(offsets[10], object.state.index);
+  writer.writeString(offsets[3], object.id);
+  writer.writeString(offsets[4], object.jsonItem);
+  writer.writeString(offsets[5], object.name);
+  writer.writeLongList(offsets[6], object.orderedChildren);
+  writer.writeLong(offsets[7], object.parentIndexNumber);
+  writer.writeString(offsets[8], object.path);
+  writer.writeByte(offsets[9], object.state.index);
   writer.writeObject<DownloadProfile>(
-    offsets[11],
+    offsets[10],
     allOffsets,
     DownloadProfileSchema.serialize,
     object.syncTranscodingProfile,
   );
-  writer.writeLong(offsets[12], object.themeColor);
-  writer.writeByte(offsets[13], object.type.index);
+  writer.writeByte(offsets[11], object.type.index);
   writer.writeObject<DownloadProfile>(
-    offsets[14],
+    offsets[12],
     allOffsets,
     DownloadProfileSchema.serialize,
     object.userTranscodingProfile,
   );
-  writer.writeString(offsets[15], object.isarViewId);
+  writer.writeString(offsets[13], object.isarViewId);
 }
 
 DownloadItem _downloadItemDeserialize(
@@ -5155,44 +5180,42 @@ DownloadItem _downloadItemDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = DownloadItem(
-    baseIndexNumber: reader.readLongOrNull(offsets[1]),
+    baseIndexNumber: reader.readLongOrNull(offsets[0]),
     baseItemType:
         _DownloadItembaseItemTypeValueEnumMap[reader.readByteOrNull(
-          offsets[2],
+          offsets[1],
         )] ??
         BaseItemDtoType.noItem,
     fileTranscodingProfile: reader.readObjectOrNull<DownloadProfile>(
-      offsets[3],
+      offsets[2],
       DownloadProfileSchema.deserialize,
       allOffsets,
     ),
-    id: reader.readString(offsets[4]),
+    id: reader.readString(offsets[3]),
     isarId: id,
-    jsonItem: reader.readStringOrNull(offsets[5]),
-    name: reader.readString(offsets[6]),
-    orderedChildren: reader.readLongList(offsets[7]),
-    parentIndexNumber: reader.readLongOrNull(offsets[8]),
-    path: reader.readStringOrNull(offsets[9]),
+    jsonItem: reader.readStringOrNull(offsets[4]),
+    name: reader.readString(offsets[5]),
+    orderedChildren: reader.readLongList(offsets[6]),
+    parentIndexNumber: reader.readLongOrNull(offsets[7]),
+    path: reader.readStringOrNull(offsets[8]),
     state:
-        _DownloadItemstateValueEnumMap[reader.readByteOrNull(offsets[10])] ??
+        _DownloadItemstateValueEnumMap[reader.readByteOrNull(offsets[9])] ??
         DownloadItemState.notDownloaded,
     syncTranscodingProfile: reader.readObjectOrNull<DownloadProfile>(
-      offsets[11],
+      offsets[10],
       DownloadProfileSchema.deserialize,
       allOffsets,
     ),
-    themeColor: reader.readLongOrNull(offsets[12]),
     type:
-        _DownloadItemtypeValueEnumMap[reader.readByteOrNull(offsets[13])] ??
+        _DownloadItemtypeValueEnumMap[reader.readByteOrNull(offsets[11])] ??
         DownloadItemType.collection,
     userTranscodingProfile: reader.readObjectOrNull<DownloadProfile>(
-      offsets[14],
+      offsets[12],
       DownloadProfileSchema.deserialize,
       allOffsets,
     ),
-    isarViewId: reader.readStringOrNull(offsets[15]),
+    isarViewId: reader.readStringOrNull(offsets[13]),
   );
-  object.backgroundColor = reader.readLongOrNull(offsets[0]);
   return object;
 }
 
@@ -5206,57 +5229,53 @@ P _downloadItemDeserializeProp<P>(
     case 0:
       return (reader.readLongOrNull(offset)) as P;
     case 1:
-      return (reader.readLongOrNull(offset)) as P;
-    case 2:
       return (_DownloadItembaseItemTypeValueEnumMap[reader.readByteOrNull(
                 offset,
               )] ??
               BaseItemDtoType.noItem)
           as P;
-    case 3:
+    case 2:
       return (reader.readObjectOrNull<DownloadProfile>(
             offset,
             DownloadProfileSchema.deserialize,
             allOffsets,
           ))
           as P;
+    case 3:
+      return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
-    case 6:
       return (reader.readString(offset)) as P;
-    case 7:
+    case 6:
       return (reader.readLongList(offset)) as P;
-    case 8:
+    case 7:
       return (reader.readLongOrNull(offset)) as P;
-    case 9:
+    case 8:
       return (reader.readStringOrNull(offset)) as P;
-    case 10:
+    case 9:
       return (_DownloadItemstateValueEnumMap[reader.readByteOrNull(offset)] ??
               DownloadItemState.notDownloaded)
           as P;
-    case 11:
+    case 10:
       return (reader.readObjectOrNull<DownloadProfile>(
             offset,
             DownloadProfileSchema.deserialize,
             allOffsets,
           ))
           as P;
-    case 12:
-      return (reader.readLongOrNull(offset)) as P;
-    case 13:
+    case 11:
       return (_DownloadItemtypeValueEnumMap[reader.readByteOrNull(offset)] ??
               DownloadItemType.collection)
           as P;
-    case 14:
+    case 12:
       return (reader.readObjectOrNull<DownloadProfile>(
             offset,
             DownloadProfileSchema.deserialize,
             allOffsets,
           ))
           as P;
-    case 15:
+    case 13:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -5680,79 +5699,6 @@ extension DownloadItemQueryWhere
 
 extension DownloadItemQueryFilter
     on QueryBuilder<DownloadItem, DownloadItem, QFilterCondition> {
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  backgroundColorIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'backgroundColor'),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  backgroundColorIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'backgroundColor'),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  backgroundColorEqualTo(int? value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'backgroundColor', value: value),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  backgroundColorGreaterThan(int? value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'backgroundColor',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  backgroundColorLessThan(int? value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'backgroundColor',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  backgroundColorBetween(
-    int? lower,
-    int? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'backgroundColor',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-        ),
-      );
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
   baseIndexNumberIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -6851,79 +6797,6 @@ extension DownloadItemQueryFilter
     });
   }
 
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'themeColor'),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'themeColor'),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorEqualTo(int? value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'themeColor', value: value),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorGreaterThan(int? value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'themeColor',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorLessThan(int? value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'themeColor',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorBetween(
-    int? lower,
-    int? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'themeColor',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-        ),
-      );
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition> typeEqualTo(
     DownloadItemType value,
   ) {
@@ -7433,20 +7306,6 @@ extension DownloadItemQueryLinks
 extension DownloadItemQuerySortBy
     on QueryBuilder<DownloadItem, DownloadItem, QSortBy> {
   QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
-  sortByBackgroundColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'backgroundColor', Sort.asc);
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
-  sortByBackgroundColorDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'backgroundColor', Sort.desc);
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
   sortByBaseIndexNumber() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'baseIndexNumber', Sort.asc);
@@ -7547,19 +7406,6 @@ extension DownloadItemQuerySortBy
     });
   }
 
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> sortByThemeColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'themeColor', Sort.asc);
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
-  sortByThemeColorDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'themeColor', Sort.desc);
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> sortByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -7588,20 +7434,6 @@ extension DownloadItemQuerySortBy
 
 extension DownloadItemQuerySortThenBy
     on QueryBuilder<DownloadItem, DownloadItem, QSortThenBy> {
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
-  thenByBackgroundColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'backgroundColor', Sort.asc);
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
-  thenByBackgroundColorDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'backgroundColor', Sort.desc);
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
   thenByBaseIndexNumber() {
     return QueryBuilder.apply(this, (query) {
@@ -7715,19 +7547,6 @@ extension DownloadItemQuerySortThenBy
     });
   }
 
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> thenByThemeColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'themeColor', Sort.asc);
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
-  thenByThemeColorDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'themeColor', Sort.desc);
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> thenByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -7756,13 +7575,6 @@ extension DownloadItemQuerySortThenBy
 
 extension DownloadItemQueryWhereDistinct
     on QueryBuilder<DownloadItem, DownloadItem, QDistinct> {
-  QueryBuilder<DownloadItem, DownloadItem, QDistinct>
-  distinctByBackgroundColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'backgroundColor');
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QDistinct>
   distinctByBaseIndexNumber() {
     return QueryBuilder.apply(this, (query) {
@@ -7828,12 +7640,6 @@ extension DownloadItemQueryWhereDistinct
     });
   }
 
-  QueryBuilder<DownloadItem, DownloadItem, QDistinct> distinctByThemeColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'themeColor');
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QDistinct> distinctByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'type');
@@ -7854,12 +7660,6 @@ extension DownloadItemQueryProperty
   QueryBuilder<DownloadItem, int, QQueryOperations> isarIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isarId');
-    });
-  }
-
-  QueryBuilder<DownloadItem, int?, QQueryOperations> backgroundColorProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'backgroundColor');
     });
   }
 
@@ -7932,12 +7732,6 @@ extension DownloadItemQueryProperty
   syncTranscodingProfileProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'syncTranscodingProfile');
-    });
-  }
-
-  QueryBuilder<DownloadItem, int?, QQueryOperations> themeColorProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'themeColor');
     });
   }
 
