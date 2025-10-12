@@ -90,7 +90,11 @@ const darkColorScheme = ColorScheme(
 /// [lightColorScheme] or [darkColorScheme]
 ColorScheme getColorScheme(Color? color, Brightness brightness) {
   if (color != null) {
-    return ColorScheme.fromSeed(seedColor: color, brightness: brightness);
+    return ColorScheme.fromSeed(
+      seedColor: color,
+      brightness: brightness,
+      dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+    );
   }
 
   return brightness == Brightness.dark ? darkColorScheme : lightColorScheme;
