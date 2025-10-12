@@ -66,3 +66,19 @@ extension ColorToHex on Color {
     return includeAlpha ? '#$hex' : '#${hex.substring(2)}';
   }
 }
+
+extension WithColorScheme on ThemeData {
+  ThemeData withColorScheme(ColorScheme scheme) {
+    return copyWith(
+      colorScheme: scheme,
+      buttonTheme: buttonTheme.copyWith(colorScheme: scheme),
+      iconTheme: iconTheme.copyWith(color: scheme.primary),
+      primaryColor: brightness == Brightness.dark ? scheme.surface : scheme.primary,
+      canvasColor: scheme.surface,
+      scaffoldBackgroundColor: scheme.surface,
+      cardColor: scheme.surface,
+      dividerColor: scheme.outline,
+      applyElevationOverlayColor: brightness == Brightness.dark,
+    );
+  }
+}

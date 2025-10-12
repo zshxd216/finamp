@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/services/album_image_provider.dart';
@@ -54,10 +53,7 @@ class PlayerScreenTheme extends StatelessWidget {
               ref.listen(finampThemeProvider(ThemeInfo(base, useLargeImage: true)), (_, __) {});
             }
           }
-          var theme = Theme.of(context).copyWith(
-            colorScheme: ref.watch(localThemeProvider),
-            iconTheme: Theme.of(context).iconTheme.copyWith(color: ref.watch(localThemeProvider).primary),
-          );
+          var theme = Theme.of(context).withColorScheme(ref.watch(localThemeProvider));
           if (themeOverride != null) {
             theme = themeOverride!(theme);
           }
@@ -93,10 +89,7 @@ class ItemTheme extends StatelessWidget {
       overrides: [localThemeInfoProvider.overrideWithValue(ThemeInfo(item))],
       child: Consumer(
         builder: (context, ref, child) {
-          var theme = Theme.of(context).copyWith(
-            colorScheme: ref.watch(localThemeProvider),
-            iconTheme: Theme.of(context).iconTheme.copyWith(color: ref.watch(localThemeProvider).primary),
-          );
+          var theme = Theme.of(context).withColorScheme(ref.watch(localThemeProvider));
           if (themeOverride != null) {
             theme = themeOverride!(theme);
           }
@@ -180,9 +173,9 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
     if (theme.image == null) {
       return getGrayTheme(brightness);
     }
-    final (isDownloaded, downloadedColor) = _downloadService.getImageTheme(theme.blurHash);
-    if (downloadedColor != null) {
-      return _getColorScheme(downloadedColor, brightness);
+    final (isDownloaded, downloadedAccent, downloadedBackground) = _downloadService.getImageTheme(theme.blurHash);
+    if (downloadedAccent != null && downloadedBackground != null) {
+      return _getColorScheme(downloadedAccent, downloadedBackground, brightness);
     }
 
     Future.sync(() async {
@@ -197,20 +190,20 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       }
       // TODO this calculation can take several seconds for very large images.  Scale before using or
       // switch to ColorScheme.fromImageProvider, which has this built in.
-      final color = await _getColorForImage(image, theme.useIsolate);
-      if (color == null) {
+      final colors = await _getColorsForImage(image, theme.useIsolate);
+      if (colors == null) {
         return getDefaultTheme(brightness);
       }
       // If image is downloaded but no theme is cached, and we are using the full size player image, attempt to cache value.
       if (isDownloaded && theme.fullQuality) {
-        _downloadService.setImageTheme(theme.blurHash, color);
+        _downloadService.setImageTheme(theme.blurHash, colors.$1, colors.$2);
       }
       if (theme.fullQuality) {
         // Keep cached player themes until app closure, as they can take several seconds to calculate
         ref.keepAlive();
       }
-      themeProviderLogger.finer("Calculated theme color $color for image $image");
-      return _getColorScheme(color, brightness);
+      themeProviderLogger.finer("Calculated theme color ${colors.$1} for image $image");
+      return _getColorScheme(colors.$1, colors.$2, brightness);
     }).then((value) => state = value);
     return getGrayTheme(brightness);
   }
@@ -242,7 +235,7 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
     return completer.future;
   }
 
-  Future<Color?> _getColorForImage(ImageInfo image, bool useIsolate) async {
+  Future<(Color, Color)?> _getColorsForImage(ImageInfo image, bool useIsolate) async {
     final PaletteGenerator palette;
     try {
       palette = await PaletteGenerator.fromImage(image.image, useIsolate: useIsolate);
@@ -253,15 +246,36 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       image.dispose();
     }
 
-    return palette.vibrantColor?.color ?? palette.dominantColor?.color ?? const Color.fromARGB(255, 0, 164, 220);
+    // Calculate image average color
+    int population = 0;
+    double r = 0;
+    double g = 0;
+    double b = 0;
+    for (var color in palette.paletteColors) {
+      population += color.population;
+      r += color.color.r * color.population;
+      g += color.color.g * color.population;
+      b += color.color.b * color.population;
+    }
+    Color background;
+    if (population == 0) {
+      background = Color.fromARGB(255, 0, 164, 220);
+    } else {
+      background = Color.from(alpha: 1.0, red: r / population, green: g / population, blue: b / population);
+    }
+
+    return (
+      palette.vibrantColor?.color ?? palette.dominantColor?.color ?? const Color.fromARGB(255, 0, 164, 220),
+      background,
+    );
   }
 
-  ColorScheme _getColorScheme(Color accent, Brightness brightness) {
+  ColorScheme _getColorScheme(Color accent, Color background, Brightness brightness) {
     final lighter = brightness == Brightness.dark;
 
-    final background = Color.alphaBlend(
+    background = Color.alphaBlend(
       lighter ? Colors.black.withOpacity(0.675) : Colors.white.withOpacity(0.675),
-      accent,
+      background,
     );
 
     accent = accent.atContrast(
@@ -269,11 +283,12 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       background,
       lighter,
     );
-    return ColorScheme.fromSwatch(
-      primarySwatch: generateMaterialColor(accent),
-      accentColor: accent,
+
+    return ColorScheme.fromSeed(
+      seedColor: accent,
       brightness: brightness,
-      backgroundColor: background,
+      surface: background,
+      dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
     );
   }
 }
@@ -294,10 +309,10 @@ ColorScheme getGrayTheme(Brightness brightness) {
           true,
         );
 
-  return ColorScheme.fromSwatch(
-    primarySwatch: generateMaterialColor(accent),
-    accentColor: accent,
+  return ColorScheme.fromSeed(
+    seedColor: accent,
     brightness: brightness,
+    dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
   );
 }
 
@@ -313,31 +328,6 @@ final defaultThemeLight = ColorScheme.fromSeed(
 
 ColorScheme getDefaultTheme(Brightness brightness) =>
     brightness == Brightness.dark ? defaultThemeDark : defaultThemeLight;
-
-MaterialColor generateMaterialColor(Color color) {
-  return MaterialColor(color.value, {
-    50: tintColor(color, 0.9),
-    100: tintColor(color, 0.8),
-    200: tintColor(color, 0.6),
-    300: tintColor(color, 0.4),
-    400: tintColor(color, 0.2),
-    500: color,
-    600: shadeColor(color, 0.1),
-    700: shadeColor(color, 0.2),
-    800: shadeColor(color, 0.3),
-    900: shadeColor(color, 0.4),
-  });
-}
-
-int tintValue(int value, double factor) => max(0, min((value + ((255 - value) * factor)).round(), 255));
-
-Color tintColor(Color color, double factor) =>
-    Color.fromRGBO(tintValue(color.red, factor), tintValue(color.green, factor), tintValue(color.blue, factor), 1);
-
-int shadeValue(int value, double factor) => max(0, min(value - (value * factor).round(), 255));
-
-Color shadeColor(Color color, double factor) =>
-    Color.fromRGBO(shadeValue(color.red, factor), shadeValue(color.green, factor), shadeValue(color.blue, factor), 1);
 
 @immutable
 class ThemeInfo {

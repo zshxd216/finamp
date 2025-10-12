@@ -10,7 +10,6 @@ import 'package:finamp/services/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
 
 import '../menus/components/menuEntries/menu_entry.dart';
 import '../models/jellyfin_models.dart';
@@ -32,16 +31,7 @@ Future<void> showThemedBottomSheet({
   bool showDragHandle = true,
 }) async {
   FeedbackHelper.feedback(FeedbackType.heavy);
-  var ref = GetIt.instance<ProviderContainer>();
-  final localThemeImage = ref.read(localImageProvider);
   bool useDefaultTheme = false;
-  FinampImage? themeImage;
-  // If we have a usable theme image for our item, propagate this information
-  if (localThemeImage.fullQuality && localThemeImage.item == item) {
-    themeImage = ref.read(localImageProvider);
-  } else if (item == null) {
-    useDefaultTheme = true;
-  }
   final menu = ThemedBottomSheet(
     key: ValueKey((item?.id?.raw ?? "") + routeName),
     buildSlivers: buildSlivers,
@@ -51,7 +41,6 @@ Future<void> showThemedBottomSheet({
   );
   await showModalBottomSheet<void>(
     context: context,
-    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
     isScrollControlled: true,
     clipBehavior: Clip.hardEdge,
@@ -69,9 +58,9 @@ Future<void> showThemedBottomSheet({
     builder: (BuildContext context) {
       return ProviderScope(
         overrides: [
-          if (useDefaultTheme) localThemeProvider.overrideWithValue(getDefaultTheme(Theme.brightnessOf(context))),
-          if (!useDefaultTheme && themeImage != null) localImageProvider.overrideWithValue(themeImage),
-          if (!useDefaultTheme && themeImage == null && item != null)
+          if (useDefaultTheme || item == null)
+            localThemeProvider.overrideWithValue(getDefaultTheme(Theme.brightnessOf(context))),
+          if (!useDefaultTheme && item != null)
             localThemeInfoProvider.overrideWithValue(ThemeInfo(item, useIsolate: false)),
         ],
         child: menu,
@@ -127,12 +116,14 @@ class _ThemedBottomSheetState extends ConsumerState<ThemedBottomSheet> {
       data: ThemeData(colorScheme: ref.watch(localThemeProvider)),
       child: Builder(
         builder: (BuildContext context) {
+          Widget child;
           if (widget.buildWrapper != null) {
-            return widget.buildWrapper!(context, dragController, (height, slivers) => buildInternal(height, slivers));
+            child = widget.buildWrapper!(context, dragController, (height, slivers) => buildInternal(height, slivers));
           } else {
             var (height, slivers) = widget.buildSlivers!(context);
-            return buildInternal(height, slivers);
+            child = buildInternal(height, slivers);
           }
+          return ColoredBox(color: Theme.of(context).scaffoldBackgroundColor, child: child);
         },
       ),
     );

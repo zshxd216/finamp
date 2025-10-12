@@ -1453,6 +1453,10 @@ class DownloadItem extends DownloadStub {
   /// This should only be non-null for images with a blurhash id.
   int? themeColor;
 
+  /// The background color of an image used for theming, stored as an ARGB32 int.
+  /// This should only be non-null for images with a blurhash id.
+  int? backgroundColor;
+
   @ignore
   DownloadLocation? get fileDownloadLocation =>
       FinampSettingsHelper.finampSettings.downloadLocationsMap[fileTranscodingProfile?.downloadLocationId];
