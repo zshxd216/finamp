@@ -354,7 +354,7 @@
     "@tracks": {},
     "albums": "Альбоми",
     "@albums": {},
-    "artists": "Виконавці",
+    "artists": "Виконавців",
     "@artists": {},
     "genres": "Жанри",
     "@genres": {},
@@ -773,7 +773,7 @@
     "@orDivider": {
         "description": "Text that separates two different ways to log in. For example, after selecting a server during the login flow, the other can either use Quick Connect, *or* select an account from a list. The text is stylized by wrapping it in dashes: '- or -'."
     },
-    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} трек} few{{value} трека} other{{trackCount} треків}}, {imageCount,plural,=1{{imageCount} зображення} few{{value} зображення}other{{imageCount} зображень}}\n{syncCount,plural,=1{{syncCount} синхронізація вузла} other{{syncCount} синхронізація вузлів}}{repairing, plural, =0{} other{\nНаразі виправляється}}",
+    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} трек} other{{trackCount} треки}}, {imageCount,plural,=1{{imageCount} зображення} other{{imageCount} зображення}}\n{syncCount,plural,=1{{syncCount} синхронізація вузла} other{{syncCount} вузли синхронізуються}}{repairing, plural, =0{} other{\nНаразі відновлюються}}",
     "@downloadedCountUnified": {
         "description": "Display of downloaded track and image count on downloads screen.",
         "placeholders": {
@@ -1092,7 +1092,7 @@
         },
         "description": "Dropdown option to download original version of tracks"
     },
-    "playingFromType": "Відтворення з {source, select, album{альбому} playlist{плейлісту} trackMix{міксу треку} artistMix{міксу виконавця} albumMix{міксу альбому} genreMix{міксу жанру} favorites{Улюблених} allTracks{усіх треків} filteredList{треків} genre{жанру} artist{виконавця} track{треку} nextUpAlbum{альбому  у  «Далі в черзі»} nextUpPlaylist{плейлісту  в «Далі в черзі»} nextUpArtist{виконавця в «Далі в черзі»} nextUpGenre{жанру в «Далі в черзі»} remoteClient{віддаленого клієнту} other{}}",
+    "playingFromType": "Відтворення з {source, select, album{альбому} playlist{плейлісту} trackMix{міксу треку} artistMix{міксу виконавця} albumMix{міксу альбому} genreMix{міксу жанру} favorites{Улюблених} allTracks{усіх треків} filteredList{треків} genre{жанру} artist{виконавця} track{треку} nextUpAlbum{альбому у «Далі в черзі»} nextUpPlaylist{плейлісту в «Далі в черзі»} nextUpArtist{виконавця в «Далі в черзі»} nextUpGenre{жанру в «Далі в черзі»} remoteClient{віддаленого клієнту} other{}}",
     "@playingFromType": {
         "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
         "placeholders": {
@@ -1959,7 +1959,7 @@
     "@autoOfflineSettingTitle": {},
     "appearsOnAlbums": "З'являється на",
     "@appearsOnAlbums": {},
-    "performingArtists": "Виконавці",
+    "performingArtists": "Виконавчий",
     "@performingArtists": {},
     "albumArtists": "Виконавці альбому",
     "@albumArtists": {},
@@ -2350,7 +2350,7 @@
     "@genreFilterPlaylistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
-    "performingArtist": "Виконавець",
+    "performingArtist": "Виконання Артистів",
     "@performingArtist": {},
     "recentlyPlayedTracks": "Нещодавно відтворені треки",
     "@recentlyPlayedTracks": {},
@@ -2861,5 +2861,31 @@
     "discardChangesConfirmButton": "Скасувати зміни",
     "@discardChangesConfirmButton": {
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "accentColor": "Акцентний колір",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Виберіть акцентний колір",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "За замовчуванням",
+    "@defaultWord": {},
+    "useDefaultButton": "Скинути до кольору акценту за замовчуванням",
+    "@useDefaultButton": {},
+    "colorCode": "Код кольору (шістнадцятковий)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "наприклад, #FFFFFF або #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "Зберегти",
+    "@save": {},
+    "invalidColorCode": "Недійсний код кольору",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
     }
 }
