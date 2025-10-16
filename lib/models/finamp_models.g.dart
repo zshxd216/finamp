@@ -418,6 +418,18 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         lastUsedPlaybackActionRowPage: fields[131] == null
             ? PlaybackActionRowPage.newQueue
             : fields[131] as PlaybackActionRowPage,
+        accentColor: fields[132] == null
+            ? DefaultSettings.accentColor
+            : fields[132] as Color?,
+        themeMode: fields[133] == null
+            ? ThemeMode.system
+            : fields[133] as ThemeMode,
+        locale: fields[134] == null
+            ? DefaultSettings.locale
+            : fields[134] as Locale?,
+        hasCompletedThemeModeLocaleMigration: fields[135] == null
+            ? false
+            : fields[135] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -432,7 +444,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(125)
+      ..writeByte(129)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -682,7 +694,15 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(130)
       ..write(obj.rememberLastUsedPlaybackActionRowPage)
       ..writeByte(131)
-      ..write(obj.lastUsedPlaybackActionRowPage);
+      ..write(obj.lastUsedPlaybackActionRowPage)
+      ..writeByte(132)
+      ..write(obj.accentColor)
+      ..writeByte(133)
+      ..write(obj.themeMode)
+      ..writeByte(134)
+      ..write(obj.locale)
+      ..writeByte(135)
+      ..write(obj.hasCompletedThemeModeLocaleMigration);
   }
 
   @override
@@ -1460,6 +1480,43 @@ class SleepTimerAdapter extends TypeAdapter<SleepTimer> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SleepTimerAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class RawThemeResultAdapter extends TypeAdapter<RawThemeResult> {
+  @override
+  final typeId = 108;
+
+  @override
+  RawThemeResult read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return RawThemeResult(
+      (fields[0] as num).toInt(),
+      (fields[1] as num).toInt(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, RawThemeResult obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj._highlightInt)
+      ..writeByte(1)
+      ..write(obj._backgroundInt);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RawThemeResultAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -4923,25 +4980,20 @@ const DownloadItemSchema = CollectionSchema(
 
       target: r'DownloadProfile',
     ),
-    r'themeColor': PropertySchema(
-      id: 11,
-      name: r'themeColor',
-      type: IsarType.long,
-    ),
     r'type': PropertySchema(
-      id: 12,
+      id: 11,
       name: r'type',
       type: IsarType.byte,
       enumMap: _DownloadItemtypeEnumValueMap,
     ),
     r'userTranscodingProfile': PropertySchema(
-      id: 13,
+      id: 12,
       name: r'userTranscodingProfile',
       type: IsarType.object,
 
       target: r'DownloadProfile',
     ),
-    r'viewId': PropertySchema(id: 14, name: r'viewId', type: IsarType.string),
+    r'viewId': PropertySchema(id: 13, name: r'viewId', type: IsarType.string),
   },
 
   estimateSize: _downloadItemEstimateSize,
@@ -5111,15 +5163,14 @@ void _downloadItemSerialize(
     DownloadProfileSchema.serialize,
     object.syncTranscodingProfile,
   );
-  writer.writeLong(offsets[11], object.themeColor);
-  writer.writeByte(offsets[12], object.type.index);
+  writer.writeByte(offsets[11], object.type.index);
   writer.writeObject<DownloadProfile>(
-    offsets[13],
+    offsets[12],
     allOffsets,
     DownloadProfileSchema.serialize,
     object.userTranscodingProfile,
   );
-  writer.writeString(offsets[14], object.isarViewId);
+  writer.writeString(offsets[13], object.isarViewId);
 }
 
 DownloadItem _downloadItemDeserialize(
@@ -5155,16 +5206,15 @@ DownloadItem _downloadItemDeserialize(
       DownloadProfileSchema.deserialize,
       allOffsets,
     ),
-    themeColor: reader.readLongOrNull(offsets[11]),
     type:
-        _DownloadItemtypeValueEnumMap[reader.readByteOrNull(offsets[12])] ??
+        _DownloadItemtypeValueEnumMap[reader.readByteOrNull(offsets[11])] ??
         DownloadItemType.collection,
     userTranscodingProfile: reader.readObjectOrNull<DownloadProfile>(
-      offsets[13],
+      offsets[12],
       DownloadProfileSchema.deserialize,
       allOffsets,
     ),
-    isarViewId: reader.readStringOrNull(offsets[14]),
+    isarViewId: reader.readStringOrNull(offsets[13]),
   );
   return object;
 }
@@ -5215,19 +5265,17 @@ P _downloadItemDeserializeProp<P>(
           ))
           as P;
     case 11:
-      return (reader.readLongOrNull(offset)) as P;
-    case 12:
       return (_DownloadItemtypeValueEnumMap[reader.readByteOrNull(offset)] ??
               DownloadItemType.collection)
           as P;
-    case 13:
+    case 12:
       return (reader.readObjectOrNull<DownloadProfile>(
             offset,
             DownloadProfileSchema.deserialize,
             allOffsets,
           ))
           as P;
-    case 14:
+    case 13:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -6749,79 +6797,6 @@ extension DownloadItemQueryFilter
     });
   }
 
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'themeColor'),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'themeColor'),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorEqualTo(int? value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'themeColor', value: value),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorGreaterThan(int? value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'themeColor',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorLessThan(int? value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'themeColor',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition>
-  themeColorBetween(
-    int? lower,
-    int? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'themeColor',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-        ),
-      );
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QAfterFilterCondition> typeEqualTo(
     DownloadItemType value,
   ) {
@@ -7431,19 +7406,6 @@ extension DownloadItemQuerySortBy
     });
   }
 
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> sortByThemeColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'themeColor', Sort.asc);
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
-  sortByThemeColorDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'themeColor', Sort.desc);
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> sortByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -7585,19 +7547,6 @@ extension DownloadItemQuerySortThenBy
     });
   }
 
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> thenByThemeColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'themeColor', Sort.asc);
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy>
-  thenByThemeColorDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'themeColor', Sort.desc);
-    });
-  }
-
   QueryBuilder<DownloadItem, DownloadItem, QAfterSortBy> thenByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -7688,12 +7637,6 @@ extension DownloadItemQueryWhereDistinct
   QueryBuilder<DownloadItem, DownloadItem, QDistinct> distinctByState() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'state');
-    });
-  }
-
-  QueryBuilder<DownloadItem, DownloadItem, QDistinct> distinctByThemeColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'themeColor');
     });
   }
 
@@ -7789,12 +7732,6 @@ extension DownloadItemQueryProperty
   syncTranscodingProfileProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'syncTranscodingProfile');
-    });
-  }
-
-  QueryBuilder<DownloadItem, int?, QQueryOperations> themeColorProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'themeColor');
     });
   }
 

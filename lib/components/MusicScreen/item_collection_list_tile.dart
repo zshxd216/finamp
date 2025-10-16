@@ -206,7 +206,6 @@ class ItemCollectionListTile extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 6.0, right: 6.0),
           child: ListTile(
             textColor: Theme.of(context).textTheme.bodyLarge?.color,
-            tileColor: Theme.of(context).colorScheme.surfaceContainer,
             contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: !showSubtitle ? 8.0 : 0.0),
             onTap: onTap,
             leading: AlbumImage(item: item),

@@ -1143,6 +1143,41 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setAccentColor(Color? newAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.accentColor = newAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setThemeMode(ThemeMode newThemeMode) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.themeMode = newThemeMode;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setLocale(Locale? newLocale) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.locale = newLocale;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setHasCompletedThemeModeLocaleMigration(
+    bool newHasCompletedThemeModeLocaleMigration,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.hasCompletedThemeModeLocaleMigration =
+        newHasCompletedThemeModeLocaleMigration;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1542,6 +1577,16 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
   ProviderListenable<PlaybackActionRowPage> get lastUsedPlaybackActionRowPage =>
       finampSettingsProvider.select(
         (value) => value.requireValue.lastUsedPlaybackActionRowPage,
+      );
+  ProviderListenable<Color?> get accentColor =>
+      finampSettingsProvider.select((value) => value.requireValue.accentColor);
+  ProviderListenable<ThemeMode> get themeMode =>
+      finampSettingsProvider.select((value) => value.requireValue.themeMode);
+  ProviderListenable<Locale?> get locale =>
+      finampSettingsProvider.select((value) => value.requireValue.locale);
+  ProviderListenable<bool> get hasCompletedThemeModeLocaleMigration =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.hasCompletedThemeModeLocaleMigration,
       );
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(

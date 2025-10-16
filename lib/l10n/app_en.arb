@@ -716,6 +716,32 @@
   "@light": {},
   "dark": "Dark",
   "@dark": {},
+  "accentColor": "Accent Color",
+  "@accentColor": {
+    "description": "Title of the accent color setting"
+  },
+  "accentColorTitle": "Pick an Accent Color",
+  "@accentColorTitle": {
+    "description": "Title for the accent color picker sheet"
+  },
+  "defaultWord": "Default",
+  "@defaultWord": {},
+  "useDefaultButton": "Reset to Default Accent Color",
+  "@useDefaultButton": {},
+  "colorCode": "Color Code (Hex)",
+  "@colorCode": {
+    "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+  },
+  "colorCodeHint": "e.g. #FFFFFF or #coffee",
+  "@colorCodeHint": {
+    "description": "Hint text for the color code input field"
+  },
+  "save": "Save",
+  "@save": {},
+  "invalidColorCode": "Invalid color code",
+  "@invalidColorCode": {
+    "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+  },
   "tabs": "Tabs",
   "@tabs": {},
   "playerScreen": "Player Screen",
