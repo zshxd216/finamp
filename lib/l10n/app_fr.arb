@@ -2871,5 +2871,31 @@
     "discardChangesConfirmButton": "Annuler les modifications",
     "@discardChangesConfirmButton": {
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "accentColor": "Couleur d'accentuation",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Choisissez une couleur d'accentuation",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "Défaut",
+    "@defaultWord": {},
+    "useDefaultButton": "Réinitialiser la couleur d'accentuation par défaut",
+    "@useDefaultButton": {},
+    "colorCode": "Code couleur (Hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "e.g. #FFFFFF or #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "Sauvegarder",
+    "@save": {},
+    "invalidColorCode": "Code couleur invalide",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
     }
 }
