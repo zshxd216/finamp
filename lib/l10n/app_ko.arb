@@ -945,7 +945,7 @@
     "@nextUp": {
         "description": "Description in the queue panel for the list of tracks were manually added to be played after the current track. This should be capitalized (if applicable) to be more recognizable throughout the UI"
     },
-    "shuffleToQueue": "대기열 끝에 임의 재생 추가",
+    "shuffleToQueue": "대기열에 임의 재생을 추가함",
     "@shuffleToQueue": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the regular queue, to play after all prior tracks from the queue have played"
     },
@@ -1085,7 +1085,7 @@
     "@savedQueue": {
         "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
     },
-    "shuffleAlbumsToNextUp": "앨범 셔플하여 우선재생에 추가",
+    "shuffleAlbumsToNextUp": "대기열 바로 다음 차례에 임의 재생 앨범들을 추가함",
     "@shuffleAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of Next Up"
     },
@@ -1093,7 +1093,7 @@
     "@shuffleAlbumsNext": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the start of Next Up"
     },
-    "shuffleAlbumsToQueue": "앨범 셔플하여 재생목록에 추가",
+    "shuffleAlbumsToQueue": "대기열에 임의 재생 앨범들을 추가함",
     "@shuffleAlbumsToQueue": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of the regular queue"
     },
@@ -1945,7 +1945,7 @@
     "@enableAutoScroll": {
         "description": "Tooltip for button that can be used to re-enable auto scroll on the lyrics view after the user manually scrolled"
     },
-    "numberAsKiloHertz": "{kiloHertz} kHz",
+    "numberAsKiloHertz": "{kiloHertz} 킬로헤르츠",
     "@numberAsKiloHertz": {
         "description": "Value for the sample rate of a track, in kilohertz",
         "placeholders": {
@@ -2058,5 +2058,41 @@
     "showStopButtonOnMediaNotificationTitle": "미디어 알림에 정지 버튼을 표시합니다",
     "@showStopButtonOnMediaNotificationTitle": {
         "description": "Title for the setting that controls if the media notification has a stop button."
-    }
+    },
+    "shuffleSome": "임의 재생",
+    "@shuffleSome": {},
+    "playbackActionPageNewQueue": "새 대기열",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "다음 곡 재생",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageNextUp": "바로 다음 재생에 곡 추가",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "playbackActionPageAppendToQueue": "재생 대기열 끝에 곡 추가",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "updatePlaylistButtonLabel": "플레이리스트 갱신하기",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "변경사항 저장중…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "accentColor": "강조 색상",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "강조 색상 선택하기",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "기본값",
+    "@defaultWord": {}
 }
