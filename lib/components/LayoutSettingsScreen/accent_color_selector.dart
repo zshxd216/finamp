@@ -38,8 +38,9 @@ class AccentColorSelector extends ConsumerWidget {
             Text(
               color?.toHex() ?? AppLocalizations.of(context)!.defaultWord,
               style: TextStyle(
-                fontStyle: FontStyle.italic,
-                color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+                // fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w400,
+                color: Theme.of(context).textTheme.bodySmall?.color,
                 fontSize: 16,
               ),
             ),
@@ -53,9 +54,7 @@ class AccentColorSelector extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: isSet ? Colors.transparent : Theme.of(context).colorScheme.outline, width: 2),
               ),
-              child: !isSet
-                  ? Icon(Icons.color_lens_outlined, size: 24, color: Theme.of(context).colorScheme.outline)
-                  : null,
+              child: !isSet ? Icon(Icons.color_lens_outlined, size: 24) : null,
             ),
           ],
         ),
@@ -111,7 +110,16 @@ class _AccentColorPopupState extends ConsumerState<AccentColorPopup> {
                 ),
               ),
             ),
-            Text(AppLocalizations.of(context)!.accentColor, style: previewTheme.textTheme.titleLarge),
+            Center(
+              child: Text(
+                AppLocalizations.of(context)!.accentColorTitle,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge!.color!,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
             SizedBox(height: 16),
             Column(
               mainAxisSize: MainAxisSize.min,
@@ -122,6 +130,7 @@ class _AccentColorPopupState extends ConsumerState<AccentColorPopup> {
                   decoration: InputDecoration(
                     filled: true,
                     labelText: AppLocalizations.of(context)!.colorCode,
+                    hintText: AppLocalizations.of(context)!.colorCodeHint,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   ),
@@ -144,7 +153,7 @@ class _AccentColorPopupState extends ConsumerState<AccentColorPopup> {
                         FinampSetters.setAccentColor(null);
                         Navigator.pop(context);
                       },
-                      child: Text(AppLocalizations.of(context)!.reset),
+                      child: Text(AppLocalizations.of(context)!.useDefaultButton),
                     ),
                     FilledButton(
                       onPressed: previewColor == null

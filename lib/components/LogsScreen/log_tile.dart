@@ -117,21 +117,21 @@ class _LogTileState extends State<LogTile> {
 
   Color _logColor(Level level, BuildContext context) {
     if (level == Level.WARNING) {
-      return Theme.of(context).colorScheme.tertiaryContainer;
+      return Theme.brightnessOf(context) == Brightness.light ? Colors.orange.shade200 : Colors.orange.shade900;
     } else if (level == Level.SEVERE) {
-      return Theme.of(context).colorScheme.errorContainer;
+      return Theme.brightnessOf(context) == Brightness.light ? Colors.red.shade200 : Colors.red.shade900;
     } else {
-      return Theme.of(context).colorScheme.primaryContainer;
+      return Theme.brightnessOf(context) == Brightness.light ? Colors.lightBlue.shade50 : Colors.lightBlue.shade900;
     }
   }
 
   Color _logTextColor(Level level, BuildContext context) {
     if (level == Level.WARNING) {
-      return Theme.of(context).colorScheme.onTertiaryContainer;
+      return ColorScheme.of(context).onSurface;
     } else if (level == Level.SEVERE) {
-      return Theme.of(context).colorScheme.onErrorContainer;
+      return ColorScheme.of(context).onSurface;
     } else {
-      return Theme.of(context).colorScheme.onPrimaryContainer;
+      return ColorScheme.of(context).onSurface;
     }
   }
 }
