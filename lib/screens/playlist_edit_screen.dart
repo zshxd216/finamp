@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -12,6 +13,7 @@ import 'package:finamp/menus/components/icon_button_with_semantics.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/album_screen_provider.dart';
+import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
@@ -41,7 +43,6 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
 
   late BaseItemDto playlist;
   bool _isLoading = true;
-  ProviderSubscription? _playlistTracksSubscription;
 
   String? _name;
   bool? _publicVisibility;
@@ -118,20 +119,20 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
       setState(() => _isLoading = false);
     } else {
       // wait for playlist tracks, then mark loading as false
-      _playlistTracksSubscription = ref.listenManual<AsyncValue<(List<BaseItemDto>, List<BaseItemDto>)>>(
-        getSortedPlaylistTracksProvider(playlist),
-        (_, tracksAsyncLoaded) {
-          if (mounted) {
-            final (allTracksLoaded, playableTracksLoaded) =
-                tracksAsyncLoaded.valueOrNull ?? (<BaseItemDto>[], <BaseItemDto>[]);
-            setState(() {
-              playlistTracks = List.from(allTracksLoaded);
-              _initialTrackIdsOrder = playlistTracks.map((t) => t.id.raw).toList();
-              _isLoading = false;
-            });
-          }
-        },
-      );
+      ref.listenManual<AsyncValue<(List<BaseItemDto>, List<BaseItemDto>)>>(getSortedPlaylistTracksProvider(playlist), (
+        _,
+        tracksAsyncLoaded,
+      ) {
+        if (mounted) {
+          final (allTracksLoaded, playableTracksLoaded) =
+              tracksAsyncLoaded.valueOrNull ?? (<BaseItemDto>[], <BaseItemDto>[]);
+          setState(() {
+            playlistTracks = List.from(allTracksLoaded);
+            _initialTrackIdsOrder = playlistTracks.map((t) => t.id.raw).toList();
+            _isLoading = false;
+          });
+        }
+      });
     }
     _initialName = _name ?? '';
     _initialVisibility = _publicVisibility ?? false;
@@ -186,6 +187,15 @@ class _PlaylistEditScreenState extends ConsumerState<PlaylistEditScreen> {
         }
         musicScreenRefreshStream.add(null); // refresh playlist content
         ref.invalidate(getAlbumOrPlaylistTracksProvider(playlist));
+        final downloadsService = GetIt.instance<DownloadsService>();
+        unawaited(
+          downloadsService.resync(
+            DownloadStub.fromItem(type: DownloadItemType.collection, item: playlist),
+            null,
+            keepSlow: true,
+            forceSync: true,
+          ),
+        );
         if (!mounted) return;
         // GlobalSnackbar.message((context) => AppLocalizations.of(context)!.playlistUpdated, isConfirmation: true);
         // Trigger success flash before pop
