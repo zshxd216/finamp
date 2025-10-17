@@ -34,11 +34,37 @@
     </screenshot>
     <screenshot type="default">
       <image type="source">https://raw.githubusercontent.com/jmshrv/finamp/e9a274e599abca628aec014a07f7f4fa6b47bbf8/images/screenshots/linux/album_playing_view_mobile.png</image>
-      <caption>List of albums on mobile</caption>
+      <caption>Album view on mobile</caption>
     </screenshot>
   </screenshots>
   <launchable type="desktop-id">com.unicornsonlsd.finamp.desktop</launchable>
   <releases>
+    <release version="0.9.20-beta" date="2025-10-18">
+      <url type="details">https://github.com/jmshrv/finamp/releases/tag/0.9.20-beta</url>
+      <description>
+        <p>
+          New Features
+        </p>
+        <ul>
+          <li>Edit playlists, including reordering tracks</li>
+          <li>Redesigned playback options</li>
+          <li>Custom accent colors</li>
+        </ul>
+        <p>
+          Bug Fixes
+        </p>
+        <ul>
+          <li>Fixed automatic offline mode not resuming in some scenarios</li>
+          <li>Fixed playing wrong track when sorting randomly while offline</li>
+          <li>Fixed gray overlay when reordering tracks</li>
+          <li>Fixed lyrics not updating during a downloads repair</li>
+          <li>Fixed various startup errors</li>
+        </ul>
+        <p>
+          <em>Thank you for using Finamp!</em>
+        </p>
+      </description>
+    </release>
     <release version="0.9.19-beta" date="2025-07-28">
       <url type="details">https://github.com/jmshrv/finamp/releases/tag/0.9.19-beta</url>
       <description>
