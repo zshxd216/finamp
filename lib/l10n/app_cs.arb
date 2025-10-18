@@ -2859,5 +2859,31 @@
     "discardChangesConfirmButton": "Zahodit změny",
     "@discardChangesConfirmButton": {
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "accentColor": "Barva rozhraní",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Vyberte barvu rozhraní",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "Výchozí",
+    "@defaultWord": {},
+    "useDefaultButton": "Resetovat na výchozí barvu rozhraní",
+    "@useDefaultButton": {},
+    "colorCode": "Kód barvy (hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "např. #FFFFFF nebo #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "Uložit",
+    "@save": {},
+    "invalidColorCode": "Neplatný kód barvy",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
     }
 }
