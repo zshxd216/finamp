@@ -234,8 +234,8 @@ class DefaultSettings {
   static const preferNextUpPrepending = true;
   static const rememberLastUsedPlaybackActionRowPage = true;
   static const lastUsedPlaybackActionRowPage = PlaybackActionRowPage.newQueue;
-  static const radioMode = RadioMode.random;
-  static const radioEnabled = true;
+  static const radioMode = RadioMode.similar;
+  static const radioEnabled = false;
 }
 
 @HiveType(typeId: 28)
@@ -2158,6 +2158,17 @@ class FinampQueueInfo {
     return Duration(microseconds: total);
   }
 
+  int getTrackCountWithinDuration(Duration duration, {bool includeUpcoming = true}) {
+    var totalDuration = Duration.zero;
+    var trackCount = 0;
+    (includeUpcoming ? fullQueue : previousTracks).reversed.takeWhile((item) {
+      totalDuration += item.item.duration ?? Duration.zero;
+      trackCount += 1;
+      return totalDuration < duration;
+    }).toList();
+    return trackCount;
+  }
+
   int? getTrackIndexAfter(Duration offset) {
     var total = 0;
     for (var (index, item) in CombinedIterableView([nextUp, queue]).indexed) {
@@ -3634,4 +3645,6 @@ enum RadioMode {
   random,
   @HiveField(2)
   similar,
+  @HiveField(3)
+  continuous,
 }

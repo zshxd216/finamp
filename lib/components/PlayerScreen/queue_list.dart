@@ -85,6 +85,7 @@ IconData getRadioModeIcon(RadioMode mode) => switch (mode) {
   RadioMode.reshuffle => TablerIcons.arrows_shuffle,
   RadioMode.random => TablerIcons.help_hexagon,
   RadioMode.similar => TablerIcons.ear,
+  RadioMode.continuous => TablerIcons.route,
 };
 
 class _QueueListState extends ConsumerState<QueueList> {

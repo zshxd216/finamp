@@ -2638,7 +2638,7 @@
   "@radioModeMenuTitle": {
     "description": "Title for menu that allows users to choose the radio mode."
   },
-  "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} other{{option}}}",
+  "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} continuous{Continuous} other{{option}}}",
   "@radioModeOptionName": {
     "placeholders": {
       "option": {
@@ -2648,7 +2648,7 @@
     },
     "description": "Radio mode names in radio mode/algorithm dropdown"
   },
-  "radioModeOptionTitle": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} other{{option}}} Mode Enabled",
+  "radioModeOptionTitle": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} continuous{Continuous} other{{option}}} Mode Enabled",
   "@radioModeOptionTitle": {
     "placeholders": {
       "option": {
@@ -2666,7 +2666,7 @@
   "@radioModeDisabledButtonTitle": {
     "description": "Title for the option that disables radio mode."
   },
-  "radioModeOptionConfirmation": "Switched to {option, select, reshuffle{Reshuffle} random{Random} similar{Similar} other{{option}}} mode",
+  "radioModeOptionConfirmation": "Switched to {option, select, reshuffle{reshuffle} random{random} similar{similar} continuous{continuous} other{{option}}} mode",
   "@radioModeOptionConfirmation": {
     "placeholders": {
       "option": {
@@ -2684,7 +2684,7 @@
   "@radioModeDisabledSubtitle": {
     "description": "Subtitle displayed in the queue to show that radio mode is disabled."
   },
-  "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the queue} similar{Append sonically similar tracks} other{}}",
+  "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the queue} similar{Append based on the original queue} continuous{Append based on the current track} other{}}",
   "@radioModeDescription": {
     "placeholders": {
       "mode": {

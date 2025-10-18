@@ -45,6 +45,7 @@ class QueueService {
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
   final _downloadsService = GetIt.instance<DownloadsService>();
   final _queueServiceLogger = Logger("QueueService");
+  final _radioLogger = Logger("Radio");
   final _queuesBox = Hive.box<FinampStorableQueueInfo>("Queues");
   final _radioRandom = Random();
   final _providers = GetIt.instance<ProviderContainer>();
@@ -174,12 +175,16 @@ class QueueService {
           id: _order.originalSource.item!.id,
         ),
       );
-      _queueServiceLogger.finer("Added ${songs.map((song) => song.name).toList().join(", ")} to the queue for radio.");
+      _radioLogger.finer("Added ${songs.map((song) => song.name).toList().join(", ")} to the queue for radio.");
     }
   }
 
   Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int minNumTracks) async {
-    List<jellyfin_models.BaseItemDto> itemsOut = [];
+    final currentQueue = getQueue();
+    List<jellyfin_models.BaseItemDto> tracksOut = [];
+    _radioLogger.finer(
+      "Generating $minNumTracks radio tracks for queue source '${currentQueue.source.item?.artists?.first} - ${currentQueue.source.item?.name}', current track '${_currentTrack?.baseItem?.artists?.first} - ${_currentTrack?.baseItem?.name}', last track '${currentQueue.fullQueue.last.baseItem?.artists?.first} - ${currentQueue.fullQueue.last.baseItem?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
+    );
     switch (FinampSettingsHelper.finampSettings.radioMode) {
       case RadioMode.reshuffle:
         // Adds songs in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
@@ -192,7 +197,7 @@ class QueueService {
             currentlyPlaying +
             List.of(_queueNextUp.map((item) => item.baseItem!)) +
             List.of(_queue.map((item) => item.baseItem!)) +
-            itemsOut;
+            tracksOut;
         // Items in the currently playing source
         final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
         final numItems = items.length;
@@ -215,7 +220,7 @@ class QueueService {
           });
           // Add a new song based on the results
           int nextIndex = _radioRandom.nextInt(itemsNotAlreadyPicked.length);
-          itemsOut.add(itemsNotAlreadyPicked[nextIndex]);
+          tracksOut.add(itemsNotAlreadyPicked[nextIndex]);
           // And add it to the fullQueue for the next iteration of the loop
           fullQueue.add(itemsNotAlreadyPicked[nextIndex]);
         }
@@ -225,19 +230,118 @@ class QueueService {
         for (var i = 0; i < minNumTracks; i++) {
           // Pick an item to add
           int nextIndex = _radioRandom.nextInt(items.length);
-          itemsOut.add(items[nextIndex]);
+          tracksOut.add(items[nextIndex]);
         }
         break;
       case RadioMode.similar:
-        final items = await _jellyfinApiHelper.getInstantMix(
-          getQueue().fullQueue.last.baseItem,
-          limit: minNumTracks + 1,
+        const offsetExtraTracks = 1; // extra track to exclude the current track
+        const filterExtraTracks = 10; // extra tracks in case duplicates are removed
+        // const repetitionThresholdTracks = 50; // filter out X recent tracks
+        // filter out ALL duplicates, otherwise things will start repeating too often since the base item never changes
+        final repetitionThresholdTracks = currentQueue.fullQueue.length;
+        // extra tracks to randomly choose from to introduce non-determinism
+        final randomnessExtraTracks = 8 + (minNumTracks * 1.5).ceil();
+        tracksOut = await _getSimilarTracks(
+          referenceItem: currentQueue.source.item ?? currentQueue.fullQueue.first.baseItem!,
+          minNumTracks: minNumTracks,
+          offsetExtraTracks: offsetExtraTracks,
+          filterExtraTracks: filterExtraTracks,
+          randomnessExtraTracks: randomnessExtraTracks,
+          repetitionThresholdTracks: repetitionThresholdTracks,
         );
-        if (items != null) {
-          // Instant mixes always return the track itself as the first item
-          itemsOut.addAll(items.slice(1, minNumTracks + 1));
+        int attempt = 0;
+        while (tracksOut.length < minNumTracks) {
+          attempt++;
+          final additionalTracks = attempt * 10;
+          _radioLogger.warning("No similar tracks found. Retrying with $additionalTracks more extra tracks.");
+          tracksOut = await _getSimilarTracks(
+            referenceItem: currentQueue.source.item ?? currentQueue.fullQueue.first.baseItem!,
+            minNumTracks: minNumTracks,
+            offsetExtraTracks: offsetExtraTracks,
+            filterExtraTracks: filterExtraTracks + additionalTracks,
+            randomnessExtraTracks: randomnessExtraTracks,
+            repetitionThresholdTracks: repetitionThresholdTracks,
+          );
+        }
+
+        break;
+      case RadioMode.continuous:
+        // like [RadioMode.similar], but based on the last track in the queue, not the original source
+        const offsetExtraTracks = 1; // extra track to exclude the current track
+        const filterExtraTracks = 10; // extra tracks in case duplicates are removed
+        // const repetitionThresholdTracks = 50; // filter out X recent tracks
+        // filter out recent tracks within 90 minutes
+        final repetitionThresholdTracks = currentQueue.getTrackCountWithinDuration(
+          Duration(minutes: 90),
+          includeUpcoming: true,
+        );
+        // extra tracks to randomly choose from to introduce non-determinism
+        final randomnessExtraTracks = 5 + (minNumTracks * 1.5).ceil();
+
+        tracksOut = await _getSimilarTracks(
+          referenceItem: currentQueue.currentTrack!.baseItem!,
+          minNumTracks: minNumTracks,
+          offsetExtraTracks: offsetExtraTracks,
+          filterExtraTracks: filterExtraTracks,
+          randomnessExtraTracks: randomnessExtraTracks,
+          repetitionThresholdTracks: repetitionThresholdTracks,
+        );
+        int attempt = 0;
+        while (tracksOut.length < minNumTracks) {
+          attempt++;
+          final additionalTracks = attempt * 10;
+          _radioLogger.warning("No similar tracks found. Retrying with $additionalTracks more extra tracks.");
+          tracksOut = await _getSimilarTracks(
+            referenceItem: currentQueue.currentTrack!.baseItem!,
+            minNumTracks: minNumTracks,
+            // we add the extra tracks as an offset since tracks at the start of the instant mix are most likely already included
+            offsetExtraTracks: offsetExtraTracks + additionalTracks,
+            filterExtraTracks: filterExtraTracks,
+            randomnessExtraTracks: randomnessExtraTracks,
+            repetitionThresholdTracks: repetitionThresholdTracks,
+          );
         }
         break;
+    }
+    _radioLogger.finer(
+      "Selected ${tracksOut.length} tracks for '${FinampSettingsHelper.finampSettings.radioMode.name}' mode: ${tracksOut.map((e) => "'${e.artists?.first} - ${e.name}'").join(", ")}",
+    );
+    return tracksOut;
+  }
+
+  Future<List<jellyfin_models.BaseItemDto>> _getSimilarTracks({
+    required jellyfin_models.BaseItemDto referenceItem,
+    required int minNumTracks,
+    required int offsetExtraTracks,
+    required int filterExtraTracks,
+    required int randomnessExtraTracks,
+    required int repetitionThresholdTracks,
+  }) async {
+    final currentQueue = getQueue();
+    List<jellyfin_models.BaseItemDto> itemsOut = [];
+    final items = await _jellyfinApiHelper.getInstantMix(
+      referenceItem,
+      limit: minNumTracks + offsetExtraTracks + filterExtraTracks + randomnessExtraTracks,
+    );
+    if (items != null) {
+      itemsOut.addAll(items);
+      _radioLogger.finer(
+        "Fetched ${itemsOut.length} similar radio candidates: ${itemsOut.map((e) => "'${e.artists?.first} - ${e.name}'").join(", ")}",
+      );
+      // instant mixes always return the track itself as the first item, filter it out
+      itemsOut.removeRange(0, offsetExtraTracks);
+      // filter out duplicate tracks, including upcoming ones
+      final recentlyPlayedIds = currentQueue.fullQueue.reversed
+          .take(repetitionThresholdTracks)
+          .map((item) => item.baseItem!.id)
+          .toSet();
+      itemsOut.removeWhere((item) => recentlyPlayedIds.contains(item.id));
+      _radioLogger.finer(
+        "Filtered candidates (${itemsOut.length}): ${itemsOut.map((e) => "'${e.artists?.first} - ${e.name}'").join(", ")}",
+      );
+      // pick a random subset of tracks to ensure non-determinism
+      // itemsOut = itemsOut.sample(minNumTracks).toList();
+      itemsOut = itemsOut.take(minNumTracks).toList();
     }
     return itemsOut;
   }

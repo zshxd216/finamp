@@ -439,9 +439,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..autoExpandPlayerScreen = fields[125] == null
           ? false
           : fields[125] as bool
-      ..radioEnabled = fields[136] == null ? true : fields[136] as bool
+      ..radioEnabled = fields[136] == null ? false : fields[136] as bool
       ..radioMode = fields[137] == null
-          ? RadioMode.random
+          ? RadioMode.similar
           : fields[137] as RadioMode;
   }
 
@@ -3020,6 +3020,8 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
         return RadioMode.random;
       case 2:
         return RadioMode.similar;
+      case 3:
+        return RadioMode.continuous;
       default:
         return RadioMode.reshuffle;
     }
@@ -3034,6 +3036,8 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
         writer.writeByte(1);
       case RadioMode.similar:
         writer.writeByte(2);
+      case RadioMode.continuous:
+        writer.writeByte(3);
     }
   }
 
