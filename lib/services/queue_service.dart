@@ -141,7 +141,10 @@ class QueueService {
       } else {
         _saveUpdateCycleCount++;
       }
-      maybeAddRadioSong();
+    });
+
+    _queueStream.listen((_) {
+      unawaited(maybeAddRadioSong());
     });
 
     // Schedule for after queue service is registered
