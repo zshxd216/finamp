@@ -606,7 +606,7 @@
     "@shuffleAllQueueSource": {
         "description": "Title for the queue source when the user is shuffling all tracks. Should be capitalized (if applicable) to be more recognizable throughout the UI"
     },
-    "topTracks": "Найліпші треки",
+    "topTracks": "Найкращі треки",
     "@topTracks": {},
     "shuffleAlbumsNext": "Перемішати альбоми наступними",
     "@shuffleAlbumsNext": {
@@ -773,7 +773,7 @@
     "@orDivider": {
         "description": "Text that separates two different ways to log in. For example, after selecting a server during the login flow, the other can either use Quick Connect, *or* select an account from a list. The text is stylized by wrapping it in dashes: '- or -'."
     },
-    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} трек} other{{trackCount} треки}}, {imageCount,plural,=1{{imageCount} зображення} other{{imageCount} зображення}}\n{syncCount,plural,=1{{syncCount} синхронізація вузла} other{{syncCount} вузли синхронізуються}}{repairing, plural, =0{} other{\nНаразі відновлюються}}",
+    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} трек} few{{trackCount} треки} other{{trackCount} треків}}, {imageCount,plural,=1{{imageCount} зображення} few{{imageCount}} other{{imageCount} зображень}}\n{syncCount,plural,=1{{syncCount} синхронізація вузла} other{{syncCount} вузли синхронізуються}}{repairing, plural, =0{} other{\nНаразі відновлюються}}",
     "@downloadedCountUnified": {
         "description": "Display of downloaded track and image count on downloads screen.",
         "placeholders": {
@@ -2023,7 +2023,7 @@
     "@outputMenuDevicesSectionTitle": {
         "description": "Title for the available devices section in the output menu"
     },
-    "playOnReconnectionDelaySubtitle": "Контролює затримку між спробами повторного підключення до веб-сокета PlayOn після його відключення (у секундах). Менша затримка збільшує використання пропускної здатності.",
+    "playOnReconnectionDelaySubtitle": "Керує затримкою між спробами знову під’єднатися до PlayOn WebSocket після роз’єднання (у секундах). Менша затримка збільшує використання пропускної здатності.",
     "@playOnReconnectionDelaySubtitle": {
         "description": "Description of the setting that controls the reconnection attempts frequency of a disconnected PlayOn session"
     },
@@ -2148,7 +2148,7 @@
     },
     "randomAlbums": "Альбоми (випадковий вибір)",
     "@randomAlbums": {},
-    "randomFavoritesFirst": "Випадково (спочатку уподобання)",
+    "randomFavoritesFirst": "Випадково (спочатку Улюблені)",
     "@randomFavoritesFirst": {},
     "showArtistsTracksSectionSubtitle": "Чи показувати розділ із п’ятьма треками. Якщо ввімкнено, на сторінці виконавця з’являться секції з Найчастіше відтворюваними, Улюбленими, Випадковими, Останніми релізами, Нещодавно доданими та Нещодавно відтвореними треками.",
     "@showArtistsTracksSectionSubtitle": {},
@@ -2170,19 +2170,19 @@
     "@autoSwitchItemCurationTypeSubtitle": {},
     "showArtistsTracksSection": "Показати розділ треків",
     "@showArtistsTracksSection": {},
-    "genreItemSectionFilterChipOrderTitle": "Розділи елементів Порядок фільтра",
+    "genreItemSectionFilterChipOrderTitle": "Порядок фільтрів розділів елементів",
     "@genreItemSectionFilterChipOrderTitle": {
         "description": "Label for the setting that controls the order of item sections filter chips."
     },
     "randomTracks": "Треки (випадковий вибір)",
     "@randomTracks": {},
-    "mostPlayed": "Найпопулярніші",
+    "mostPlayed": "Найчастіше відтворювані",
     "@mostPlayed": {},
     "artistScreen": "Екран виконавця",
     "@artistScreen": {
         "description": "Name for the view/screen that shows artists"
     },
-    "itemSectionsOrder": "Порядок розділів елемента",
+    "itemSectionsOrder": "Порядок розділів елементів",
     "@itemSectionsOrder": {
         "description": "Label for the setting that controls the order of item sections on the screens."
     },
@@ -2190,11 +2190,11 @@
     "@artistItemSectionFilterChipOrderTitle": {
         "description": "Label for the setting that controls the order of the tracks sections filter chips."
     },
-    "seeAll": "Дивитися все",
+    "seeAll": "Переглянути всі",
     "@seeAll": {
         "description": ""
     },
-    "genreFilterArtistScreensSubtitle": "Якщо увімкнено, у розділі \"Виконавці\" (доступ до якого здійснюється через жанр) відображатимуться лише композиції та альбоми, що відповідають жанру, який ви зараз переглядаєте. (Завжди можна вручну вимкнути фільтр за жанром, щоб показати всі композиції та альбоми.)",
+    "genreFilterArtistScreensSubtitle": "Якщо увімкнено, на сторінці виконавця (якщо була відкрита через сторінку жанру) відображатимуться лише ті треки та альбоми, які відповідають жанру, який ви зараз переглядаєте. (Завжди можна вручну вимкнути фільтр за жанром, щоб показати всі треки та альбоми.)",
     "@genreFilterArtistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
     },
@@ -2270,11 +2270,11 @@
     },
     "recentlyPlayedArtists": "Нещодавно відтворені виконавці",
     "@recentlyPlayedArtists": {},
-    "recentlyPlayed": "Нещодавно зіграно",
+    "recentlyPlayed": "Нещодавно відтворені",
     "@recentlyPlayed": {},
     "unknown": "Невідомо",
     "@unknown": {},
-    "genreFilterPlaylistScreens": "Фільтрувати списки відтворення",
+    "genreFilterPlaylistScreens": "Фільтрувати плейлісти",
     "@genreFilterPlaylistScreens": {
         "description": "Label for the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
@@ -2346,7 +2346,7 @@
     "@applyFilterOnGenreChipTapPrompt": {
         "description": "A snackbar that is shown to the user if a genre filter was applied due to their selected settings"
     },
-    "genreFilterPlaylistScreensSubtitle": "Якщо цю функцію ввімкнено, у списках відтворення (доступних через жанр) відображатимуться лише треки, що відповідають жанру, який ви зараз переглядаєте. (Завжди можна вручну видалити фільтр жанрів, щоб відобразити всі треки.)",
+    "genreFilterPlaylistScreensSubtitle": "Якщо увімкнено, на сторінці плейлісту (якщо була відкрита через сторінку жанру) відображатимуться лише ті треки, які відповідають жанру, який ви зараз переглядаєте. (Завжди можна вручну вимкнути фільтр за жанром, щоб показати всі треки)",
     "@genreFilterPlaylistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
