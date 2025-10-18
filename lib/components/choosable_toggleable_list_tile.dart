@@ -42,14 +42,14 @@ class ChooseableToggleableListTile extends ConsumerWidget {
     assert(icon != null || trailing != null, "Either icon or trailing must be provided.");
     var themeColor = Theme.of(context).colorScheme.primary;
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 4.0, bottom: 4.0),
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
       child: Container(
         decoration: ShapeDecoration(
           color: themeColor.withOpacity(state ? 0.3 : 0.1),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         clipBehavior: Clip.antiAlias,
-        padding: EdgeInsets.only(bottom: 8.0),
+        padding: EdgeInsets.only(bottom: 6.0),
         child: ListTile(
           enableFeedback: true,
           enabled: enabled,

@@ -9,7 +9,6 @@ import 'package:finamp/components/choosable_toggleable_list_tile.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/print_duration.dart';
-import 'package:finamp/components/toggleable_list_tile.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
 import 'package:finamp/menus/track_menu.dart';
@@ -136,10 +135,6 @@ class _QueueListState extends ConsumerState<QueueList> {
 
   @override
   Widget build(BuildContext context) {
-    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
-
-    final radioMode = ref.watch(finampSettingsProvider.radioMode);
-
     if (_performInitialJump) {
       _performInitialJump = false;
       // DraggableScrollableSheet does not expose ScrollController.onAttach or initialScrollOffset for us, so we must
@@ -223,68 +218,6 @@ class _QueueListState extends ConsumerState<QueueList> {
           scrollController: widget.scrollController,
         ),
         sliver: QueueTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey),
-      ),
-      // Radio mode
-      SliverToBoxAdapter(
-        child: ChooseableToggleableListTile(
-          title: radioEnabled
-              ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
-              : AppLocalizations.of(context)!.radioModeDisabledTitle,
-          subtitle: radioEnabled
-              ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
-              : AppLocalizations.of(context)!.radioModeDisabledSubtitle,
-          menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
-          choices: RadioMode.values
-              .map(
-                (radioModeOption) => ChoiceListTile(
-                  title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
-                  description: AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name),
-                  icon: getRadioModeIcon(radioModeOption),
-                  isSelected: radioEnabled && radioMode == radioModeOption,
-                  onSelect: () async {
-                    FinampSetters.setRadioMode(radioModeOption);
-                    FinampSetters.setRadioEnabled(true);
-                    FeedbackHelper.feedback(FeedbackType.success);
-                    Navigator.of(context).pop();
-                    GlobalSnackbar.message(
-                      (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
-                      isConfirmation: true,
-                    );
-                  },
-                ),
-              )
-              .followedBy(<ChoiceListTile>[
-                ChoiceListTile(
-                  title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
-                  icon: TablerIcons.radio_off,
-                  isSelected: !radioEnabled,
-                  onSelect: () async {
-                    FinampSetters.setRadioEnabled(false);
-                    FeedbackHelper.feedback(FeedbackType.success);
-                    Navigator.of(context).pop();
-                    GlobalSnackbar.message(
-                      (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
-                      isConfirmation: true,
-                    );
-                  },
-                ),
-              ])
-              .toList(),
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 8.0),
-            child: Icon(getRadioModeIcon(radioMode), size: 36.0),
-          ),
-          state: radioEnabled,
-          trailing: Switch.adaptive(
-            value: radioEnabled,
-            onChanged: (newValue) {
-              setState(() {
-                FinampSetters.setRadioEnabled(newValue);
-              });
-            },
-            padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: -8.0),
-          ),
-        ),
       ),
     ];
 
@@ -1002,7 +935,7 @@ class PlaybackBehaviorInfo {
   PlaybackBehaviorInfo(this.order, this.loop, this.speed);
 }
 
-class QueueSectionHeader extends StatelessWidget {
+class QueueSectionHeader extends ConsumerWidget {
   final Widget title;
   final QueueItemSource? source;
   final bool controls;
@@ -1018,114 +951,184 @@ class QueueSectionHeader extends StatelessWidget {
     this.controls = false,
   });
 
-  static MenuMaskHeight defaultHeight = MenuMaskHeight(132.0);
+  // queue header + radio chooser tile height
+  static MenuMaskHeight defaultHeight = MenuMaskHeight(132.0 + 63.0);
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
+    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: GestureDetector(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 8.0, top: 12.5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    title,
-                    StreamBuilder(
-                      stream: queueService.getQueueStream(),
-                      initialData: queueService.getQueue(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          var remaining = snapshot.data!.remainingDuration;
-                          var remainText = printDuration(remaining, leadingZeroes: false);
-                          final remainingLabelFullHours = (remaining.inHours);
-                          final remainingLabelFullMinutes = (remaining.inMinutes) % 60;
-                          final remainingLabelSeconds = (remaining.inSeconds) % 60;
-                          final remainingLabelString =
-                              "${remainingLabelFullHours > 0 ? "$remainingLabelFullHours ${AppLocalizations.of(context)!.hours} " : ""}${remainingLabelFullMinutes > 0 ? "$remainingLabelFullMinutes ${AppLocalizations.of(context)!.minutes} " : ""}$remainingLabelSeconds ${AppLocalizations.of(context)!.seconds}";
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 4.0, right: 8.0),
-                            child: Text(
-                              "${snapshot.data!.currentTrackIndex} / ${snapshot.data!.trackCount}  (${AppLocalizations.of(context)!.remainingDuration(remainText)})",
-                              semanticsLabel:
-                                  "${AppLocalizations.of(context)!.trackCountTooltip(snapshot.data!.currentTrackIndex, snapshot.data!.trackCount)} (${AppLocalizations.of(context)!.remainingDuration(remainingLabelString)})",
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
+    final radioMode = ref.watch(finampSettingsProvider.radioMode);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0, top: 12.5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        title,
+                        StreamBuilder(
+                          stream: queueService.getQueueStream(),
+                          initialData: queueService.getQueue(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              var remaining = snapshot.data!.remainingDuration;
+                              var remainText = printDuration(remaining, leadingZeroes: false);
+                              final remainingLabelFullHours = (remaining.inHours);
+                              final remainingLabelFullMinutes = (remaining.inMinutes) % 60;
+                              final remainingLabelSeconds = (remaining.inSeconds) % 60;
+                              final remainingLabelString =
+                                  "${remainingLabelFullHours > 0 ? "$remainingLabelFullHours ${AppLocalizations.of(context)!.hours} " : ""}${remainingLabelFullMinutes > 0 ? "$remainingLabelFullMinutes ${AppLocalizations.of(context)!.minutes} " : ""}$remainingLabelSeconds ${AppLocalizations.of(context)!.seconds}";
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 4.0, right: 8.0),
+                                child: Text(
+                                  "${snapshot.data!.currentTrackIndex} / ${snapshot.data!.trackCount}  (${AppLocalizations.of(context)!.remainingDuration(remainText)})",
+                                  semanticsLabel:
+                                      "${AppLocalizations.of(context)!.trackCountTooltip(snapshot.data!.currentTrackIndex, snapshot.data!.trackCount)} (${AppLocalizations.of(context)!.remainingDuration(remainingLabelString)})",
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  onTap: () {
+                    if (source != null) {
+                      navigateToSource(context, source!);
+                    }
+                  },
                 ),
               ),
-              onTap: () {
-                if (source != null) {
-                  navigateToSource(context, source!);
-                }
-              },
+              if (controls)
+                StreamBuilder(
+                  stream: Rx.combineLatest3(
+                    queueService.getPlaybackOrderStream(),
+                    queueService.getLoopModeStream(),
+                    queueService.getPlaybackSpeedStream(),
+                    (a, b, c) => PlaybackBehaviorInfo(a, b, c),
+                  ),
+                  initialData: PlaybackBehaviorInfo(
+                    queueService.playbackOrder,
+                    queueService.loopMode,
+                    queueService.playbackSpeed,
+                  ),
+                  builder: (context, snapshot) {
+                    PlaybackBehaviorInfo? info = snapshot.data;
+                    return Row(
+                      children: [
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 28.0,
+                          icon: info?.order == FinampPlaybackOrder.shuffled
+                              ? (const Icon(TablerIcons.arrows_shuffle))
+                              : (const Icon(TablerIcons.arrows_right)),
+                          color: info?.order == FinampPlaybackOrder.shuffled
+                              ? IconTheme.of(context).color!
+                              : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
+                          onPressed: () async {
+                            await queueService.togglePlaybackOrder();
+                            FeedbackHelper.feedback(FeedbackType.selection);
+                            scrollToKey(key: queueHeaderKey);
+                          },
+                        ),
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 28.0,
+                          icon: info?.loop != FinampLoopMode.none
+                              ? (info?.loop == FinampLoopMode.one
+                                    ? (const Icon(TablerIcons.repeat_once))
+                                    : (const Icon(TablerIcons.repeat)))
+                              : (const Icon(TablerIcons.repeat_off)),
+                          color: info?.loop != FinampLoopMode.none
+                              ? IconTheme.of(context).color!
+                              : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
+                          onPressed: () {
+                            queueService.toggleLoopMode();
+                            FeedbackHelper.feedback(FeedbackType.selection);
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+        // Radio mode
+        ChooseableToggleableListTile(
+          title: radioEnabled
+              ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+              : AppLocalizations.of(context)!.radioModeDisabledTitle,
+          subtitle: radioEnabled
+              ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
+              : AppLocalizations.of(context)!.radioModeDisabledSubtitle,
+          menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
+          choices: RadioMode.values
+              .map(
+                (radioModeOption) => ChoiceListTile(
+                  title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
+                  description: AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name),
+                  icon: getRadioModeIcon(radioModeOption),
+                  isSelected: radioEnabled && radioMode == radioModeOption,
+                  onSelect: () async {
+                    FinampSetters.setRadioMode(radioModeOption);
+                    FinampSetters.setRadioEnabled(true);
+                    FeedbackHelper.feedback(FeedbackType.success);
+                    Navigator.of(context).pop();
+                    GlobalSnackbar.message(
+                      (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
+                      isConfirmation: true,
+                    );
+                  },
+                ),
+              )
+              .followedBy(<ChoiceListTile>[
+                ChoiceListTile(
+                  title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
+                  icon: TablerIcons.radio_off,
+                  isSelected: !radioEnabled,
+                  onSelect: () async {
+                    FinampSetters.setRadioEnabled(false);
+                    FeedbackHelper.feedback(FeedbackType.success);
+                    Navigator.of(context).pop();
+                    GlobalSnackbar.message(
+                      (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
+                      isConfirmation: true,
+                    );
+                  },
+                ),
+              ])
+              .toList(),
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 6.0, top: 6.0),
+            child: Icon(
+              getRadioModeIcon(radioMode),
+              size: 36.0,
+              color: radioEnabled ? IconTheme.of(context).color : null,
             ),
           ),
-          if (controls)
-            StreamBuilder(
-              stream: Rx.combineLatest3(
-                queueService.getPlaybackOrderStream(),
-                queueService.getLoopModeStream(),
-                queueService.getPlaybackSpeedStream(),
-                (a, b, c) => PlaybackBehaviorInfo(a, b, c),
-              ),
-              initialData: PlaybackBehaviorInfo(
-                queueService.playbackOrder,
-                queueService.loopMode,
-                queueService.playbackSpeed,
-              ),
-              builder: (context, snapshot) {
-                PlaybackBehaviorInfo? info = snapshot.data;
-                return Row(
-                  children: [
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      iconSize: 28.0,
-                      icon: info?.order == FinampPlaybackOrder.shuffled
-                          ? (const Icon(TablerIcons.arrows_shuffle))
-                          : (const Icon(TablerIcons.arrows_right)),
-                      color: info?.order == FinampPlaybackOrder.shuffled
-                          ? IconTheme.of(context).color!
-                          : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                      onPressed: () async {
-                        await queueService.togglePlaybackOrder();
-                        FeedbackHelper.feedback(FeedbackType.selection);
-                        scrollToKey(key: queueHeaderKey);
-                      },
-                    ),
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      iconSize: 28.0,
-                      icon: info?.loop != FinampLoopMode.none
-                          ? (info?.loop == FinampLoopMode.one
-                                ? (const Icon(TablerIcons.repeat_once))
-                                : (const Icon(TablerIcons.repeat)))
-                          : (const Icon(TablerIcons.repeat_off)),
-                      color: info?.loop != FinampLoopMode.none
-                          ? IconTheme.of(context).color!
-                          : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                      onPressed: () {
-                        queueService.toggleLoopMode();
-                        FeedbackHelper.feedback(FeedbackType.selection);
-                      },
-                    ),
-                  ],
-                );
-              },
-            ),
-        ],
-      ),
+          state: radioEnabled,
+          trailing: Switch.adaptive(
+            value: radioEnabled,
+            onChanged: (newValue) {
+              FinampSetters.setRadioEnabled(newValue);
+            },
+            padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: -8.0),
+          ),
+        ),
+      ],
     );
   }
 }
