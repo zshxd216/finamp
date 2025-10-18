@@ -98,7 +98,9 @@ class DefaultSettings {
   // These consts are so that we can easily keep the same default for
   // FinampSettings's constructor and Hive's defaultValue.
   static const isOffline = false;
-  static const theme = ThemeMode.system;
+  static const themeMode = ThemeMode.system;
+  static const Locale? locale = null;
+  static const Color? accentColor = null;
   static const shouldTranscode = false;
   static const transcodeBitrate = 320000;
   static const androidStopForegroundOnPause = true;
@@ -183,8 +185,8 @@ class DefaultSettings {
   static const onlyShowFullyDownloaded = false;
   static const preferQuickSyncs = true;
   static const showDownloadsWithUnknownLibrary = true;
-  static const downloadWorkers = 5;
-  static const maxConcurrentDownloads = 10;
+  static const downloadWorkers = 1;
+  static const maxConcurrentDownloads = 5;
   static const downloadSizeWarningCutoff = 150;
   static const allowDeleteFromServer = false;
   static const oneLineMarqueeTextButton = false;
@@ -364,6 +366,11 @@ class FinampSettings {
     this.preferNextUpPrepending = DefaultSettings.preferNextUpPrepending,
     this.rememberLastUsedPlaybackActionRowPage = DefaultSettings.rememberLastUsedPlaybackActionRowPage,
     this.lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage,
+    this.accentColor = DefaultSettings.accentColor,
+    this.themeMode = DefaultSettings.themeMode,
+    this.locale = DefaultSettings.locale,
+    // !!! Don't touch this default value, it's supposed to be hard coded to run the migration only once
+    this.hasCompletedThemeModeLocaleMigration = true,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -775,10 +782,23 @@ class FinampSettings {
   @HiveField(131, defaultValue: DefaultSettings.lastUsedPlaybackActionRowPage)
   PlaybackActionRowPage lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage;
 
-  @HiveField(132, defaultValue: DefaultSettings.radioEnabled)
+  @HiveField(132, defaultValue: DefaultSettings.accentColor)
+  Color? accentColor = DefaultSettings.accentColor;
+
+  @HiveField(133, defaultValue: DefaultSettings.themeMode)
+  ThemeMode themeMode = DefaultSettings.themeMode;
+
+  @HiveField(134, defaultValue: DefaultSettings.locale)
+  Locale? locale = DefaultSettings.locale;
+
+  // !!! don't touch this default value, it's supposed to be hard coded to run the migration only once
+  @HiveField(135, defaultValue: false)
+  bool hasCompletedThemeModeLocaleMigration;
+
+  @HiveField(136, defaultValue: DefaultSettings.radioEnabled)
   bool radioEnabled = DefaultSettings.radioEnabled;
 
-  @HiveField(133, defaultValue: DefaultSettings.radioMode)
+  @HiveField(137, defaultValue: DefaultSettings.radioMode)
   RadioMode radioMode = DefaultSettings.radioMode;
 
   static Future<FinampSettings> create() async {
@@ -1364,7 +1384,6 @@ class DownloadStub {
       userTranscodingProfile: null,
       syncTranscodingProfile: transcodingProfile,
       fileTranscodingProfile: null,
-      themeColor: null,
     );
   }
 
@@ -1393,7 +1412,6 @@ class DownloadItem extends DownloadStub {
     required this.userTranscodingProfile,
     required this.syncTranscodingProfile,
     required this.fileTranscodingProfile,
-    required this.themeColor,
   }) : super._build() {
     assert(!(type == DownloadItemType.collection && baseItemType == BaseItemDtoType.playlist) || viewId == null);
   }
@@ -1436,10 +1454,6 @@ class DownloadItem extends DownloadStub {
   DownloadProfile? userTranscodingProfile;
   DownloadProfile? syncTranscodingProfile;
   DownloadProfile? fileTranscodingProfile;
-
-  /// The primary color of an image used for theming, stored as an ARGB32 int.
-  /// This should only be non-null for images with a blurhash id.
-  int? themeColor;
 
   @ignore
   DownloadLocation? get fileDownloadLocation =>
@@ -1535,7 +1549,6 @@ class DownloadItem extends DownloadStub {
       userTranscodingProfile: userTranscodingProfile,
       syncTranscodingProfile: syncTranscodingProfile,
       fileTranscodingProfile: fileTranscodingProfile,
-      themeColor: themeColor,
     );
   }
 }
@@ -3599,6 +3612,21 @@ enum PlaybackActionRowPage {
 }
 
 @HiveType(typeId: 108)
+class RawThemeResult {
+  RawThemeResult(this._highlightInt, this._backgroundInt);
+  RawThemeResult.fromColors(Color highlight, Color background)
+    : _highlightInt = highlight.toARGB32(),
+      _backgroundInt = background.toARGB32();
+
+  @HiveField(0)
+  final int _highlightInt;
+  Color get highlight => Color(_highlightInt);
+  @HiveField(1)
+  final int _backgroundInt;
+  Color get background => Color(_backgroundInt);
+}
+
+@HiveType(typeId: 109)
 enum RadioMode {
   @HiveField(0)
   reshuffle,

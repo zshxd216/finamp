@@ -233,8 +233,7 @@ class _QueueListState extends ConsumerState<QueueList> {
               ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
               : AppLocalizations.of(context)!.radioModeDisabledSubtitle,
           menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
-          choices: 
-              RadioMode.values
+          choices: RadioMode.values
               .map(
                 (radioModeOption) => ChoiceListTile(
                   title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),

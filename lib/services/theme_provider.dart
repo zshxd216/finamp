@@ -1,16 +1,15 @@
 import 'dart:async';
-import 'dart:math';
 
-import 'package:finamp/at_contrast.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
-import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -54,10 +53,7 @@ class PlayerScreenTheme extends StatelessWidget {
               ref.listen(finampThemeProvider(ThemeInfo(base, useLargeImage: true)), (_, __) {});
             }
           }
-          var theme = Theme.of(context).copyWith(
-            colorScheme: ref.watch(localThemeProvider),
-            iconTheme: Theme.of(context).iconTheme.copyWith(color: ref.watch(localThemeProvider).primary),
-          );
+          var theme = Theme.of(context).withColorScheme(ref.watch(localThemeProvider));
           if (themeOverride != null) {
             theme = themeOverride!(theme);
           }
@@ -93,10 +89,7 @@ class ItemTheme extends StatelessWidget {
       overrides: [localThemeInfoProvider.overrideWithValue(ThemeInfo(item))],
       child: Consumer(
         builder: (context, ref, child) {
-          var theme = Theme.of(context).copyWith(
-            colorScheme: ref.watch(localThemeProvider),
-            iconTheme: Theme.of(context).iconTheme.copyWith(color: ref.watch(localThemeProvider).primary),
-          );
+          var theme = Theme.of(context).withColorScheme(ref.watch(localThemeProvider));
           if (themeOverride != null) {
             theme = themeOverride!(theme);
           }
@@ -172,17 +165,15 @@ FinampThemeImage themeImage(Ref ref, ThemeInfo request) {
 
 @riverpod
 class FinampThemeFromImage extends _$FinampThemeFromImage {
-  final _downloadService = GetIt.instance<DownloadsService>();
-
   @override
   ColorScheme build(ThemeColorRequest theme) {
     var brightness = ref.watch(brightnessProvider);
     if (theme.image == null) {
       return getGrayTheme(brightness);
     }
-    final (isDownloaded, downloadedColor) = _downloadService.getImageTheme(theme.blurHash);
-    if (downloadedColor != null) {
-      return _getColorScheme(downloadedColor, brightness);
+    final cachedColors = _getImageTheme(theme.blurHash);
+    if (cachedColors != null) {
+      return _getColorScheme(cachedColors, brightness);
     }
 
     Future.sync(() async {
@@ -197,22 +188,38 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       }
       // TODO this calculation can take several seconds for very large images.  Scale before using or
       // switch to ColorScheme.fromImageProvider, which has this built in.
-      final color = await _getColorForImage(image, theme.useIsolate);
-      if (color == null) {
+      final colors = await _getColorsForImage(image, theme.useIsolate);
+      if (colors == null) {
         return getDefaultTheme(brightness);
       }
-      // If image is downloaded but no theme is cached, and we are using the full size player image, attempt to cache value.
-      if (isDownloaded && theme.fullQuality) {
-        _downloadService.setImageTheme(theme.blurHash, color);
-      }
       if (theme.fullQuality) {
+        // If image is downloaded but no theme is cached, and we are using the full size player image, attempt to cache value.
+        _setImageTheme(theme.blurHash, colors);
         // Keep cached player themes until app closure, as they can take several seconds to calculate
         ref.keepAlive();
       }
-      themeProviderLogger.finer("Calculated theme color $color for image $image");
-      return _getColorScheme(color, brightness);
+      themeProviderLogger.finer("Calculated theme color ${colors.highlight} for image $image");
+      return _getColorScheme(colors, brightness);
     }).then((value) => state = value);
     return getGrayTheme(brightness);
+  }
+
+  RawThemeResult? _getImageTheme(String? blurHash) {
+    if (blurHash == null) {
+      return null;
+    }
+    final box = Hive.box<RawThemeResult>("CachedThemes");
+    return box.get(blurHash);
+  }
+
+  // Only images with a blurhash can have themes cached, because it might be possible for images
+  // with only an imageId to be updated and require a retheme.
+  void _setImageTheme(String? blurHash, RawThemeResult colors) {
+    if (blurHash == null) {
+      return;
+    }
+    final box = Hive.box<RawThemeResult>("CachedThemes");
+    box.put(blurHash, colors);
   }
 
   Future<ImageInfo?> _fetchImage(ImageProvider image) {
@@ -242,7 +249,7 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
     return completer.future;
   }
 
-  Future<Color?> _getColorForImage(ImageInfo image, bool useIsolate) async {
+  Future<RawThemeResult?> _getColorsForImage(ImageInfo image, bool useIsolate) async {
     final PaletteGenerator palette;
     try {
       palette = await PaletteGenerator.fromImage(image.image, useIsolate: useIsolate);
@@ -253,27 +260,81 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
       image.dispose();
     }
 
-    return palette.vibrantColor?.color ?? palette.dominantColor?.color ?? const Color.fromARGB(255, 0, 164, 220);
+    // Calculate image average color
+    int population = 0;
+    double r = 0;
+    double g = 0;
+    double b = 0;
+    for (var color in palette.paletteColors) {
+      population += color.population;
+      r += color.color.r * color.population;
+      g += color.color.g * color.population;
+      b += color.color.b * color.population;
+    }
+    HSLColor average;
+    if (population == 0) {
+      return RawThemeResult.fromColors(Color.fromARGB(255, 0, 164, 220), Color.fromARGB(255, 0, 164, 220));
+    } else {
+      average = HSLColor.fromColor(
+        Color.from(alpha: 1.0, red: r / population, green: g / population, blue: b / population),
+      );
+    }
+
+    // Find the palette color most similar to average, disregarding brightness
+    double maxScore = 0.93;
+    Color? bestMatch;
+    for (var color in palette.paletteColors) {
+      final hslColor = HSLColor.fromColor(color.color);
+      final saturationScore = 0.4 * (1.0 - (hslColor.saturation - average.saturation).abs());
+      final hueScore = 0.6 * (1.0 - ((hslColor.hue - average.hue).abs() / 360.0));
+      final score = saturationScore + hueScore;
+      if (score > maxScore) {
+        maxScore = score;
+        bestMatch = color.color;
+      }
+    }
+    Color background;
+    // If we found a match beyond our minimum similarity score, use that at the target brightness instead of the average
+    // This can sometimes help with the background color feeling slightly off
+    if (bestMatch == null) {
+      background = average.toColor();
+    } else {
+      background = HSLColor.fromColor(bestMatch).withLightness(average.lightness).toColor();
+    }
+
+    return RawThemeResult.fromColors(
+      palette.vibrantColor?.color ?? palette.dominantColor?.color ?? const Color.fromARGB(255, 0, 164, 220),
+      background,
+    );
   }
 
-  ColorScheme _getColorScheme(Color accent, Brightness brightness) {
-    final lighter = brightness == Brightness.dark;
+  ColorScheme _getColorScheme(RawThemeResult colors, Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
 
     final background = Color.alphaBlend(
-      lighter ? Colors.black.withOpacity(0.675) : Colors.white.withOpacity(0.675),
-      accent,
+      isDark ? Colors.black.withOpacity(0.675) : Colors.white.withOpacity(0.675),
+      colors.background,
     );
 
-    accent = accent.atContrast(
+    final accent = colors.highlight.atContrast(
       ref.watch(finampSettingsProvider.useHighContrastColors) ? 8.0 : 4.5,
       background,
-      lighter,
+      isDark,
     );
-    return ColorScheme.fromSwatch(
-      primarySwatch: generateMaterialColor(accent),
-      accentColor: accent,
+
+    final surfaceText = Color.alphaBlend(
+      isDark ? Colors.white.withOpacity(0.92) : Colors.black.withOpacity(0.85),
+      colors.highlight,
+    );
+
+    return ColorScheme.fromSeed(
+      seedColor: accent,
       brightness: brightness,
-      backgroundColor: background,
+      surface: background,
+      // We should probably set this ourselves, as otherwise it will be set based on the default
+      // surface color for the seed instead of our overridden value.
+      onSurface: surfaceText,
+      dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
     );
   }
 }
@@ -294,10 +355,10 @@ ColorScheme getGrayTheme(Brightness brightness) {
           true,
         );
 
-  return ColorScheme.fromSwatch(
-    primarySwatch: generateMaterialColor(accent),
-    accentColor: accent,
+  return ColorScheme.fromSeed(
+    seedColor: accent,
     brightness: brightness,
+    dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
   );
 }
 
@@ -313,31 +374,6 @@ final defaultThemeLight = ColorScheme.fromSeed(
 
 ColorScheme getDefaultTheme(Brightness brightness) =>
     brightness == Brightness.dark ? defaultThemeDark : defaultThemeLight;
-
-MaterialColor generateMaterialColor(Color color) {
-  return MaterialColor(color.value, {
-    50: tintColor(color, 0.9),
-    100: tintColor(color, 0.8),
-    200: tintColor(color, 0.6),
-    300: tintColor(color, 0.4),
-    400: tintColor(color, 0.2),
-    500: color,
-    600: shadeColor(color, 0.1),
-    700: shadeColor(color, 0.2),
-    800: shadeColor(color, 0.3),
-    900: shadeColor(color, 0.4),
-  });
-}
-
-int tintValue(int value, double factor) => max(0, min((value + ((255 - value) * factor)).round(), 255));
-
-Color tintColor(Color color, double factor) =>
-    Color.fromRGBO(tintValue(color.red, factor), tintValue(color.green, factor), tintValue(color.blue, factor), 1);
-
-int shadeValue(int value, double factor) => max(0, min(value - (value * factor).round(), 255));
-
-Color shadeColor(Color color, double factor) =>
-    Color.fromRGBO(shadeValue(color.red, factor), shadeValue(color.green, factor), shadeValue(color.blue, factor), 1);
 
 @immutable
 class ThemeInfo {

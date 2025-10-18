@@ -24,7 +24,6 @@ import 'package:rxdart/rxdart.dart';
 
 import 'android_auto_helper.dart';
 import 'finamp_settings_helper.dart';
-import 'locale_helper.dart';
 import 'metadata_provider.dart';
 
 enum FadeDirection { fadeIn, fadeOut, none }
@@ -821,7 +820,9 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
   Future<List<MediaItem>> getChildren(String parentMediaId, [Map<String, dynamic>? options]) async {
     // display root category/parent
     if (parentMediaId == AudioService.browsableRootId) {
-      _appLocalizations ??= await AppLocalizations.delegate.load(LocaleHelper.locale ?? const Locale("en", "US"));
+      _appLocalizations ??= await AppLocalizations.delegate.load(
+        FinampSettingsHelper.finampSettings.locale ?? const Locale("en", "US"),
+      );
 
       return _getRootMenu();
     } else if (parentMediaId == AudioService.recentRootId) {
