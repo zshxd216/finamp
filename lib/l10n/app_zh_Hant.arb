@@ -2861,5 +2861,31 @@
     "discardChangesConfirmButton": "取消變更",
     "@discardChangesConfirmButton": {
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "accentColor": "強調色",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "選擇強調色",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "預設",
+    "@defaultWord": {},
+    "useDefaultButton": "重設為預設強調色",
+    "@useDefaultButton": {},
+    "colorCode": "色碼（Hex）",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "例如：#FFFFFF 或 #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "儲存",
+    "@save": {},
+    "invalidColorCode": "無效的色碼",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
     }
 }
