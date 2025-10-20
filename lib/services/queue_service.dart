@@ -144,6 +144,7 @@ class QueueService {
     });
 
     _queueStream.listen((_) {
+      //FIXME this might fire too early when replacing the queue, reusing the old queue source before it is updated
       unawaited(maybeAddRadioSong());
     });
 
@@ -161,24 +162,35 @@ class QueueService {
     // );
   }
 
-  Future<void> maybeAddRadioSong() async {
-    // TODO: Have this work even if songs are less than 10 seconds and finish naturally
-    // TODO: Prevent repeat all alongside radio being enabled?
+  int _radioTracksNeeded() {
     // TODO: Add setting to control how full the queue should be.
-    final queueMinimum = 5;
+    final minUpcomingRadioTracks = 5;
     final queueSize = _queueNextUp.length + _queue.length;
-    if (_currentTrack != null && queueSize < queueMinimum && FinampSettingsHelper.finampSettings.radioEnabled) {
-      final minNumSongs = queueMinimum - queueSize;
-      List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(minNumSongs);
-      await addToQueue(
-        items: songs,
-        source: QueueItemSource(
-          type: QueueItemSourceType.radio,
-          name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
-          id: _order.originalSource.item!.id,
-        ),
-      );
-      _radioLogger.finer("Added ${songs.map((song) => song.name).toList().join(", ")} to the queue for radio.");
+    if (_currentTrack != null &&
+        queueSize < minUpcomingRadioTracks &&
+        FinampSettingsHelper.finampSettings.radioEnabled) {
+      return minUpcomingRadioTracks - queueSize;
+    }
+    return 0;
+  }
+
+  Future<void> maybeAddRadioSong() async {
+    // TODO: Prevent repeat all alongside radio being enabled?
+    final radioTracksNeeded = _radioTracksNeeded();
+    if (radioTracksNeeded > 0) {
+      List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(radioTracksNeeded);
+      // check if we still need to add tracks after awaiting the generation
+      if (_radioTracksNeeded() > 0) {
+        await addToQueue(
+          items: songs,
+          source: QueueItemSource(
+            type: QueueItemSourceType.radio,
+            name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
+            id: _order.originalSource.item!.id,
+          ),
+        );
+        _radioLogger.finer("Added ${songs.map((song) => song.name).toList().join(", ")} to the queue for radio.");
+      }
     }
   }
 
@@ -186,7 +198,7 @@ class QueueService {
     final currentQueue = getQueue();
     List<jellyfin_models.BaseItemDto> tracksOut = [];
     _radioLogger.finer(
-      "Generating $minNumTracks radio tracks for queue source '${currentQueue.source.item?.artists?.first} - ${currentQueue.source.item?.name}', current track '${_currentTrack?.baseItem?.artists?.first} - ${_currentTrack?.baseItem?.name}', last track '${currentQueue.fullQueue.last.baseItem?.artists?.first} - ${currentQueue.fullQueue.last.baseItem?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
+      "Generating $minNumTracks radio tracks for queue source '${currentQueue.source.item?.artists?.firstOrNull} - ${currentQueue.source.item?.name}', current track '${_currentTrack?.baseItem?.artists?.firstOrNull} - ${_currentTrack?.baseItem?.name}', last track '${currentQueue.fullQueue.last.baseItem?.artists?.firstOrNull} - ${currentQueue.fullQueue.last.baseItem?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
     );
     switch (FinampSettingsHelper.finampSettings.radioMode) {
       case RadioMode.reshuffle:
@@ -245,7 +257,7 @@ class QueueService {
         // extra tracks to randomly choose from to introduce non-determinism
         final randomnessExtraTracks = 8 + (minNumTracks * 1.5).ceil();
         tracksOut = await _getSimilarTracks(
-          referenceItem: currentQueue.source.item ?? currentQueue.fullQueue.first.baseItem!,
+          referenceItem: _order.originalSource.item ?? currentQueue.fullQueue.first.baseItem!,
           minNumTracks: minNumTracks,
           offsetExtraTracks: offsetExtraTracks,
           filterExtraTracks: filterExtraTracks,
@@ -258,7 +270,7 @@ class QueueService {
           final additionalTracks = attempt * 10;
           _radioLogger.warning("No similar tracks found. Retrying with $additionalTracks more extra tracks.");
           tracksOut = await _getSimilarTracks(
-            referenceItem: currentQueue.source.item ?? currentQueue.fullQueue.first.baseItem!,
+            referenceItem: _order.originalSource.item ?? currentQueue.fullQueue.first.baseItem!,
             minNumTracks: minNumTracks,
             offsetExtraTracks: offsetExtraTracks,
             filterExtraTracks: filterExtraTracks + additionalTracks,
@@ -307,7 +319,7 @@ class QueueService {
         break;
     }
     _radioLogger.finer(
-      "Selected ${tracksOut.length} tracks for '${FinampSettingsHelper.finampSettings.radioMode.name}' mode: ${tracksOut.map((e) => "'${e.artists?.first} - ${e.name}'").join(", ")}",
+      "Selected ${tracksOut.length} tracks for '${FinampSettingsHelper.finampSettings.radioMode.name}' mode: ${tracksOut.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
     );
     return tracksOut;
   }
@@ -329,7 +341,7 @@ class QueueService {
     if (items != null) {
       itemsOut.addAll(items);
       _radioLogger.finer(
-        "Fetched ${itemsOut.length} similar radio candidates: ${itemsOut.map((e) => "'${e.artists?.first} - ${e.name}'").join(", ")}",
+        "Fetched ${itemsOut.length} similar radio candidates: ${itemsOut.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
       );
       // instant mixes always return the track itself as the first item, filter it out
       itemsOut.removeRange(0, offsetExtraTracks);
@@ -340,11 +352,10 @@ class QueueService {
           .toSet();
       itemsOut.removeWhere((item) => recentlyPlayedIds.contains(item.id));
       _radioLogger.finer(
-        "Filtered candidates (${itemsOut.length}): ${itemsOut.map((e) => "'${e.artists?.first} - ${e.name}'").join(", ")}",
+        "Filtered candidates (${itemsOut.length}): ${itemsOut.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
       );
       // pick a random subset of tracks to ensure non-determinism
-      // itemsOut = itemsOut.sample(minNumTracks).toList();
-      itemsOut = itemsOut.take(minNumTracks).toList();
+      itemsOut = itemsOut.sample(minNumTracks).toList();
     }
     return itemsOut;
   }
@@ -1248,7 +1259,7 @@ class QueueService {
       mode = AudioServiceShuffleMode.none;
     }
     await _audioHandler.setShuffleMode(mode);
-    //await _audioHandler.playbackState.where((event) => event.shuffleMode == mode).first;
+    //await _audioHandler.playbackState.where((event) => event.shuffleMode == mode).firstOrNull;
     _queueFromConcatenatingAudioSource();
   }
 
@@ -1300,7 +1311,7 @@ class QueueService {
 
     // generate string for `_queueAudioSource`
     // String queueAudioSourceString = "";
-    // queueAudioSourceString += "[${_queueAudioSource.sequence.first.toString()}], ";
+    // queueAudioSourceString += "[${_queueAudioSource.sequence.firstOrNull?.toString()}], ";
     // for (AudioSource queueItem in _queueAudioSource.sequence.sublist(1)) {
     //   queueAudioSourceString += "${queueItem.toString()}, ";
     // }
