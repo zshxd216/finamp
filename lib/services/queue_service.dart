@@ -143,15 +143,21 @@ class QueueService {
       }
     });
 
+    // check if new radio tracks are needed whenever the queue changes in some way
     _queueStream.listen((_) {
       //FIXME this might fire too early when replacing the queue, reusing the old queue source before it is updated
-      unawaited(maybeAddRadioSong());
+      // 
+      unawaited(maybeAddRadioTracks());
     });
 
     // Schedule for after queue service is registered
     Future.microtask(() {
       // Keep currentAlbumImageProvider alive to provide precaching
       _providers.listen(currentAlbumImageProvider, (_, _) {});
+
+      // check if new radio tracks are needed whenever the radio mode is changed
+      _providers.listen(finampSettingsProvider.radioEnabled, (_, _) => unawaited(maybeAddRadioTracks()));
+      _providers.listen(finampSettingsProvider.radioMode, (_, _) => unawaited(maybeAddRadioTracks()));
     });
 
     // register callbacks
@@ -162,6 +168,7 @@ class QueueService {
     // );
   }
 
+  /// Returns the amount of tracks that are needed to fill up the radio queue
   int _radioTracksNeeded() {
     // TODO: Add setting to control how full the queue should be.
     final minUpcomingRadioTracks = 5;
@@ -174,7 +181,7 @@ class QueueService {
     return 0;
   }
 
-  Future<void> maybeAddRadioSong() async {
+  Future<void> maybeAddRadioTracks() async {
     // TODO: Prevent repeat all alongside radio being enabled?
     final radioTracksNeeded = _radioTracksNeeded();
     if (radioTracksNeeded > 0) {
