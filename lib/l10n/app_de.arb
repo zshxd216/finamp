@@ -183,7 +183,7 @@
     "@updateButtonLabel": {},
     "downloadsDeleted": "Downloads gelöscht.",
     "@downloadsDeleted": {},
-    "addDownloads": "Download hinzufügen",
+    "addDownloads": "Downloads hinzufügen",
     "@addDownloads": {},
     "location": "Ort",
     "@location": {},
@@ -2503,7 +2503,7 @@
             }
         }
     },
-    "logoutButtonSubtitle": "Wenn du dich bei einem anderen Server einloggst, werden existierende Downloads gelöscht",
+    "logoutButtonSubtitle": "Das Anmelden an einem anderen Server löscht die aktuellen Downloads.",
     "@logoutButtonSubtitle": {},
     "none": "Nichts",
     "@none": {},
