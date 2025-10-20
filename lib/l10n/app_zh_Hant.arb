@@ -1961,7 +1961,7 @@
     "@appearsOnAlbums": {},
     "albumArtists": "專輯藝人",
     "@albumArtists": {},
-    "performingArtists": "演出者",
+    "performingArtists": "歌曲藝人",
     "@performingArtists": {},
     "playbackReporting": "播放分析",
     "@playbackReporting": {},
@@ -2078,7 +2078,7 @@
     "@notAvailable": {},
     "autoSwitchItemCurationTypeSubtitle": "若無可用內容，將自動切換為其他類型以持續顯示推薦內容。",
     "@autoSwitchItemCurationTypeSubtitle": {},
-    "performingArtist": "演出者",
+    "performingArtist": "歌曲藝人",
     "@performingArtist": {},
     "formattedRelativeTime": "{type, select, just_now{剛剛} minutes{{value} 分鐘前} hours{{value} 小時前} yesterday{昨天} days{{value, plural, =1{1 天前} other{{value} 天前}}} other{{value}}}",
     "@formattedRelativeTime": {
