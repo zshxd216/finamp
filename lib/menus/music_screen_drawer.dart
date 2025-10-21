@@ -1,3 +1,4 @@
+import 'package:finamp/components/FinampIcon.dart';
 import 'package:finamp/components/MusicScreen/offline_mode_switch_list_tile.dart';
 import 'package:finamp/components/MusicScreen/view_list_tile.dart';
 import 'package:finamp/screens/downloads_screen.dart';
@@ -37,7 +38,7 @@ class MusicScreenDrawer extends StatelessWidget {
                         alignment: Alignment.topCenter,
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: SvgPicture.asset('images/finamp_cropped.svg', width: 56, height: 56),
+                          child: FinampIcon(56, 56),
                         ),
                       ),
                       Align(

@@ -1,4 +1,5 @@
 import 'package:finamp/components/Buttons/simple_button.dart';
+import 'package:finamp/components/FinampIcon.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/feedback_helper.dart';
@@ -75,7 +76,7 @@ class _LoginUserSelectionPageState extends State<LoginUserSelectionPage> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 32.0, bottom: 20.0),
-                child: SvgPicture.asset('images/finamp_cropped.svg', width: 75, height: 75),
+                child: FinampIcon(75, 75),
               ),
               Text(
                 AppLocalizations.of(context)!.loginFlowAccountSelectionHeading,
