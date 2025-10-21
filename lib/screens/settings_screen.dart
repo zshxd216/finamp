@@ -66,10 +66,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   context: context,
                   applicationName: packageInfo.appName,
                   applicationVersion: packageInfo.version,
-                  applicationIcon: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: FinampIcon(56, 56),
-                  ),
+                  applicationIcon: Padding(padding: const EdgeInsets.only(top: 8.0), child: FinampIcon(56, 56)),
                   applicationLegalese: applicationLegalese,
                   children: [
                     const SizedBox(height: 20),

@@ -53,10 +53,7 @@ class _LoginAuthenticationPageState extends State<LoginAuthenticationPage> {
         child: Center(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 32.0, bottom: 20.0),
-                child: FinampIcon(75, 75),
-              ),
+              Padding(padding: const EdgeInsets.only(top: 32.0, bottom: 20.0), child: FinampIcon(75, 75)),
               Text(
                 AppLocalizations.of(context)!.loginFlowAuthenticationHeading,
                 style: Theme.of(context).textTheme.headlineMedium,

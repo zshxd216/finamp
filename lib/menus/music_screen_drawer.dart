@@ -36,10 +36,7 @@ class MusicScreenDrawer extends StatelessWidget {
                     children: [
                       Align(
                         alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: FinampIcon(56, 56),
-                        ),
+                        child: Padding(padding: const EdgeInsets.all(16.0), child: FinampIcon(56, 56)),
                       ),
                       Align(
                         alignment: Alignment.bottomCenter - const Alignment(0, 0.2),

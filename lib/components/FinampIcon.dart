@@ -1,5 +1,5 @@
-  import 'package:finamp/color_schemes.g.dart';
-  import 'package:finamp/extensions/color_extensions.dart';
+import 'package:finamp/color_schemes.g.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/material.dart';
@@ -11,18 +11,13 @@ class FinampIcon extends ConsumerWidget {
   final double width;
   const FinampIcon(this.width, this.height, {super.key});
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accent = ref.watch(finampSettingsProvider.accentColor);
 
-    final icon = SvgPicture.asset(
-        "images/finamp_cropped.svg",
-        width: width,
-        height: height
-      );
+    final icon = SvgPicture.asset("images/finamp_cropped.svg", width: width, height: height);
 
-    if (accent==null) {
+    if (accent == null) {
       return icon;
     }
 
@@ -30,9 +25,6 @@ class FinampIcon extends ConsumerWidget {
     final colorScheme = getColorScheme(accent, brightness);
     final color = colorScheme.onSurface;
 
-    return ColorFiltered(
-      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-      child: icon,
-    );
+    return ColorFiltered(colorFilter: ColorFilter.mode(color, BlendMode.srcIn), child: icon);
   }
 }

@@ -24,10 +24,7 @@ class LoginSplashPage extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 80.0, bottom: 40.0),
-                child: Hero(
-                  tag: "finamp_logo",
-                  child: FinampIcon(150, 150),
-                ),
+                child: Hero(tag: "finamp_logo", child: FinampIcon(150, 150)),
               ),
               RichText(
                 text: TextSpan(

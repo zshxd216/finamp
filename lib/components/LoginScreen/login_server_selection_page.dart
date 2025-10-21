@@ -75,10 +75,7 @@ class _LoginServerSelectionPageState extends State<LoginServerSelectionPage> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 32.0, bottom: 20.0),
-                child: Hero(
-                  tag: "finamp_logo",
-                  child: FinampIcon(75, 75),
-                ),
+                child: Hero(tag: "finamp_logo", child: FinampIcon(75, 75)),
               ),
               Text(
                 AppLocalizations.of(context)!.loginFlowServerSelectionHeading,
