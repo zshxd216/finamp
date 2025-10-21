@@ -1,5 +1,5 @@
-import 'package:finamp/color_schemes.g.dart';
-import 'package:finamp/extensions/color_extensions.dart';
+  import 'package:finamp/color_schemes.g.dart';
+  import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +28,7 @@ class FinampIcon extends ConsumerWidget {
 
     final brightness = ref.watch(brightnessProvider);
     final colorScheme = getColorScheme(accent, brightness);
-    final color = colorScheme.primary;
+    final color = colorScheme.onSurface;
 
     return ColorFiltered(
       colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
