@@ -574,7 +574,7 @@
     "@skipToNextTrackButtonTooltip": {
         "description": "Tooltip for the button that skips to the next track"
     },
-    "nextUp": "Далі в черзі",
+    "nextUp": "Наступне",
     "@nextUp": {
         "description": "Description in the queue panel for the list of tracks were manually added to be played after the current track. This should be capitalized (if applicable) to be more recognizable throughout the UI"
     },
@@ -582,7 +582,7 @@
     "@confirmShuffleNext": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the front of the \"Next Up\" queue"
     },
-    "confirmShuffleToNextUp": "Перемішано до \"Далі в черзі\"",
+    "confirmShuffleToNextUp": "Перемішано до «Наступне»",
     "@confirmShuffleToNextUp": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue"
     },
@@ -821,11 +821,11 @@
     "@playbackModeDirectPlaying": {
         "description": "Feature chip that is shown when tracks are being played directly from the server, without transcoding"
     },
-    "addToNextUp": "Додати до \"Далі в черзі\"",
+    "addToNextUp": "Додати до наступного",
     "@addToNextUp": {
         "description": "Used for adding a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
     },
-    "clearNextUp": "Очистити \"Далі в черзі\"",
+    "clearNextUp": "Очистити «Наступне»",
     "@clearNextUp": {
         "description": "Label for the action that deletes all tracks added to Next Up"
     },
@@ -933,7 +933,7 @@
     "@queueRestoreButtonLabel": {
         "description": "Button to restore archived now playing queue, overwriting current queue"
     },
-    "confirmAddToNextUp": "Додано {type, select, track{Трек} album{альбом} artist{виконавець} playlist{плейліст} genre{жанр} disc{диск} other{елемент}} до наступного",
+    "confirmAddToNextUp": "Додано {type, select, track{Трек} album{альбом} artist{виконавця} playlist{плейліст} genre{жанр} disc{диск} other{елемент}} до «Наступне»",
     "@confirmAddToNextUp": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
         "placeholders": {
@@ -1197,7 +1197,7 @@
     "@playingFrom": {
         "description": "Prefix shown before the name of the main queue source, like the album or playlist that was used to start playback. Example: \"Playing from {My Nice Playlist}\""
     },
-    "shuffleToNextUp": "Перемішати до \"Далі в черзі\"",
+    "shuffleToNextUp": "Перемішати до «Наступне»",
     "@shuffleToNextUp": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
@@ -2774,7 +2774,7 @@
     "@playbackActionPageNext": {
         "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
     },
-    "playbackActionPageNextUp": "Додати наступним",
+    "playbackActionPageNextUp": "Додати до «Наступне»",
     "@playbackActionPageNextUp": {
         "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
     },
@@ -2786,7 +2786,7 @@
     "@shuffleSomeNext": {
         "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
-    "shuffleSomeToNextUp": "Перемішати кілька до \"Далі в черзі\"",
+    "shuffleSomeToNextUp": "Перемішати кілька треків до «Наступне»",
     "@shuffleSomeToNextUp": {
         "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
