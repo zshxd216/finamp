@@ -284,7 +284,7 @@ Future<void> setupHive() async {
     await finampSettingsBox.put("FinampSettings", await FinampSettings.create());
   }
 
-  final compactFile = File(path_helper.join(dir.path, "$isarDatabaseName.isar.compact}"));
+  final compactFile = File(path_helper.join(dir.path, "$isarDatabaseName.isar.compact"));
   if (compactFile.existsSync()) {
     compactFile.deleteSync();
   }
