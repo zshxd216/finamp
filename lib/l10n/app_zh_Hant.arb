@@ -2064,7 +2064,7 @@
     "@duration": {},
     "autoSwitchItemCurationTypeTitle": "自動調整內容推薦方式",
     "@autoSwitchItemCurationTypeTitle": {},
-    "showArtistsTracksSection": "顯示歌曲區域",
+    "showArtistsTracksSection": "顯示歌曲區塊",
     "@showArtistsTracksSection": {},
     "showShuffleButtonOnMediaNotificationSubtitle": "控制媒體通知中是否顯示「隨機播放」按鈕，讓您無需開啟應用程式即可開啟或關閉隨機播放。",
     "@showShuffleButtonOnMediaNotificationSubtitle": {
@@ -2174,7 +2174,7 @@
     "@testConnectionButtonLabel": {
         "description": "Button to test the public and local url inside the network settings tab"
     },
-    "genreFilterPlaylistScreensSubtitle": "啟用後，透過類型進入的播放清單將僅顯示符合目前所瀏覽類型的歌曲。(你仍可手動移除「類型篩選器」，以查看該播放清單中的所有歌曲。)",
+    "genreFilterPlaylistScreensSubtitle": "啟用後，於「類型介面」瀏覽時，透過「瀏覽播放清單」進入的「播放清單」將僅顯示符合目前所選音樂類型的歌曲。（您仍可手動移除「類型篩選」，以檢視該播放清單中的所有歌曲。）",
     "@genreFilterPlaylistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
@@ -2244,7 +2244,7 @@
     "@recentlyAddedArtists": {
         "description": "Label for the genre section that shows artists that were recently added to the library, sorted by the date they were added."
     },
-    "genreItemSectionFilterChipOrderSubtitle": "控制項目區域中篩選器的顯示順序。",
+    "genreItemSectionFilterChipOrderSubtitle": "控制項目區塊中篩選器的顯示順序。",
     "@genreItemSectionFilterChipOrderSubtitle": {
         "description": "Description of the setting that controls the order of item sections filter chips."
     },
@@ -2256,13 +2256,13 @@
     },
     "randomTracks": "隨機推薦的歌曲",
     "@randomTracks": {},
-    "showArtistsTracksSectionSubtitle": "是否顯示最多五首歌曲的區域。啟用後，您可以在「經常播放」、「收藏」、「隨機」、「最新發行」、「最近新增」與「最近播放」之間選擇要顯示的內容。",
+    "showArtistsTracksSectionSubtitle": "顯示最多五首歌曲的區塊。啟用後，您可以選擇「最常播放」、「收藏」、「隨機」、「最新發行」、「最近新增」或「最近播放」。",
     "@showArtistsTracksSectionSubtitle": {},
-    "itemSectionsOrder": "項目區域顯示順序",
+    "itemSectionsOrder": "項目區塊顯示順序",
     "@itemSectionsOrder": {
         "description": "Label for the setting that controls the order of item sections on the screens."
     },
-    "genreFilterArtistScreensSubtitle": "啟用後，透過類型進入的藝人介面將僅顯示符合目前所瀏覽類型的歌曲與專輯。(你仍可手動移除「類型篩選器」，以查看該藝人的所有歌曲與專輯。)",
+    "genreFilterArtistScreensSubtitle": "啟用後，於「類型介面」瀏覽時，透過「藝人項目」進入的「藝人頁面」將僅顯示符合目前所選音樂類型的歌曲與專輯。（您仍可手動移除「類型篩選」，以檢視該藝人的所有歌曲與專輯。）",
     "@genreFilterArtistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
     },
@@ -2326,19 +2326,19 @@
     "@topAlbums": {},
     "latestArtists": "最新藝人",
     "@latestArtists": {},
-    "itemSectionsOrderSubtitle": "控制項目區域的顯示順序。",
+    "itemSectionsOrderSubtitle": "控制項目區塊的顯示順序。",
     "@itemSectionsOrderSubtitle": {
         "description": "Description of the setting that controls the order of item sections on the screens."
     },
-    "genreItemSectionFilterChipOrderTitle": "項目區域篩選器順序",
+    "genreItemSectionFilterChipOrderTitle": "項目區塊篩選器順序",
     "@genreItemSectionFilterChipOrderTitle": {
         "description": "Label for the setting that controls the order of item sections filter chips."
     },
-    "artistItemSectionFilterChipOrderTitle": "歌曲區域篩選器順序",
+    "artistItemSectionFilterChipOrderTitle": "歌曲區塊篩選器順序",
     "@artistItemSectionFilterChipOrderTitle": {
         "description": "Label for the setting that controls the order of the tracks sections filter chips."
     },
-    "artistItemSectionFilterChipOrderSubtitle": "控制歌曲區域中篩選器的顯示順序。",
+    "artistItemSectionFilterChipOrderSubtitle": "控制歌曲區塊中篩選器的顯示順序。",
     "@artistItemSectionFilterChipOrderSubtitle": {
         "description": "Description of the setting that controls the order of the tracks sections filter chips."
     },
