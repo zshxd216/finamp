@@ -773,7 +773,7 @@
     "@shuffleSome": {},
     "performingArtist": "表演中的藝人",
     "@performingArtist": {},
-    "formattedRelativeTime": "{型態, 選擇, 剛才{just now} 分鐘{{value} 分鐘前} 小時{{value} 小時前} 昨天{yesterday} 日{{值, plural, =1{一日前} 其他{{value} 日前}}} 其他{value}}",
+    "formattedRelativeTime": "{type, select, just_now{剛才} minutes{{value} 分鐘前} hours{{value} 小時前} yesterday{昨天} days{{value, plural, =1{一日前} other{{value} 日前}}} other{value}}",
     "@formattedRelativeTime": {
         "description": "Returns a relative time string based on how long ago something happened. Used for various DateTime values such as Date Last Played and Date Added.",
         "placeholders": {
