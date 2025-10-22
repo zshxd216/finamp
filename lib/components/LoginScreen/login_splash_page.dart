@@ -1,5 +1,5 @@
 import 'package:finamp/components/Buttons/cta_large.dart';
-import 'package:finamp/components/FinampIcon.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';

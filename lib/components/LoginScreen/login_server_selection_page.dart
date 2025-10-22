@@ -1,5 +1,5 @@
 import 'package:finamp/components/Buttons/simple_button.dart';
-import 'package:finamp/components/FinampIcon.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:flutter/material.dart';

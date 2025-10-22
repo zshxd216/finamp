@@ -1,6 +1,6 @@
 import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
-import 'package:finamp/components/FinampIcon.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/components/LoginScreen/login_user_selection_page.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';

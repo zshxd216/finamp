@@ -1,5 +1,5 @@
 import 'package:finamp/components/Buttons/simple_button.dart';
-import 'package:finamp/components/FinampIcon.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/feedback_helper.dart';

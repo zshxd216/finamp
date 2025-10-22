@@ -1,4 +1,4 @@
-import 'package:finamp/components/FinampIcon.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/components/MusicScreen/offline_mode_switch_list_tile.dart';
 import 'package:finamp/components/MusicScreen/view_list_tile.dart';
 import 'package:finamp/screens/downloads_screen.dart';
