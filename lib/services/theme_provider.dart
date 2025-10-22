@@ -480,7 +480,7 @@ class _ThemeTransitionCalculator {
       },
       onResume: () {
         unawaited(fetchSystemPalette());
-      }
+      },
     );
     GetIt.instance<QueueService>().getCurrentTrackStream().listen((value) {
       _skipAllTransitions = false;

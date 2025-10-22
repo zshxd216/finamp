@@ -615,9 +615,9 @@ class FinampApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final useSystemTheme = ref.watch(finampSettingsProvider.useSystemAccentColor);
-    Color? accentColor = ref.watch(useSystemTheme
-     ? finampSettingsProvider.systemAccentColor
-     : finampSettingsProvider.accentColor);
+    Color? accentColor = ref.watch(
+      useSystemTheme ? finampSettingsProvider.systemAccentColor : finampSettingsProvider.accentColor,
+    );
     final themeMode = ref.watch(finampSettingsProvider.themeMode);
     final locale = ref.watch(finampSettingsProvider.locale);
     final transitionBuilder = MediaQuery.disableAnimationsOf(context)

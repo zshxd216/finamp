@@ -11,7 +11,7 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sysColor = FinampSettingsHelper.finampSettings.systemAccentColor;
-    
+
     // System does not have global color Theme Support
     if (sysColor == null) return SizedBox.shrink();
 
