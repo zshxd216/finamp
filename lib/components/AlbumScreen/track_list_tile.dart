@@ -761,7 +761,7 @@ class TrackListItemTile extends ConsumerWidget {
               constraints: const BoxConstraints(minWidth: 22.0),
               child: Text(
                 features.contains(TrackListItemFeatures.listIndex)
-                    ? (listIndex ?? 0 + 1).toString()
+                    ? ((listIndex ?? 0) + 1).toString()
                     : actualIndex.toString(),
                 textAlign: TextAlign.center,
                 maxLines: 1,
