@@ -79,6 +79,7 @@ class AudioServiceHelper {
     try {
       items = await _jellyfinApiHelper.getInstantMix(item);
       if (items != null) {
+        items.insert(0, item);
         await _queueService.startPlayback(
           items: items,
           source: QueueItemSource(
