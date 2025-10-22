@@ -1,3 +1,4 @@
+import 'package:finamp/components/LayoutSettingsScreen/automatic_accent_color_selector.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/screens/album_settings_screen.dart';
 import 'package:finamp/screens/artist_settings_screen.dart';
@@ -76,6 +77,8 @@ class _LayoutSettingsScreenState extends ConsumerState<LayoutSettingsScreen> {
           const Divider(),
           const ThemeSelector(),
           const AccentColorSelector(),
+          const AutomaticAccentColorSelector(),
+          const Divider(),
           const ContentViewTypeDropdownListTile(),
           const FixedSizeGridSwitch(),
           if (!ref.watch(finampSettingsProvider.useFixedSizeGridTiles))

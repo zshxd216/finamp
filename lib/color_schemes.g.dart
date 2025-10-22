@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dynamic_color/dynamic_color.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 
 const jellyfinBlueColor = Color(0xFF00A4DC);
 const jellyfinPurpleColor = Color(0xFFAA5CC3);
@@ -98,4 +100,17 @@ ColorScheme getColorScheme(Color? color, Brightness brightness) {
   }
 
   return brightness == Brightness.dark ? darkColorScheme : lightColorScheme;
+}
+
+Future<void> fetchSystemPalette() async {
+  final settingsHelper = FinampSettingsHelper.finampSettings;
+  if (!settingsHelper.useSystemAccentColor) return;
+  final palette = await DynamicColorPlugin.getCorePalette();
+  if (palette == null) return;
+  final scheme = palette.toColorScheme();
+  final primary = scheme.primary;
+  final current = settingsHelper.systemAccentColor;
+  if (primary != current) {
+    FinampSetters.setSystemAccentColor(primary);
+  }
 }

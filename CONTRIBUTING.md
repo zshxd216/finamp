@@ -150,6 +150,13 @@ But since **making one request for each track that is queued up is simply not fe
 Notably, since we already have the full `BaseItemDto`s and additional metadata for each track, we could simply build client-side automatic transcoding. This would be needed anyway for considering network connectivity and such, so we're not losing much here.  
 
 Should the API for this improve in the future, for example by allowing us to submit the supported codecs and bitrate limits to an endpoint like [`/Sessions/Capabilities/Full`](https://api.jellyfin.org/#tag/Session/operation/PostFullCapabilities) (that part is already possible) and then getting the corresponding `PlaySessionId`s and transcode URLs via the regular `BaseItemDto`, then we could think about doing this the proper way. But until then we'll most likely handle the ID generation and transcoding settings client-side.
+### Android Debug Build stuck in 'assembleDebug'
+1. `cd android`
+2. `./gradlew clean`
+3. `cd ..`
+4. `flutter run -d <phone>`
+
+Now you need to wait a bit, but it'll finish :)
 
 ## The Redesign
 

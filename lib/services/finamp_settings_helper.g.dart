@@ -1178,6 +1178,22 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setSystemAccentColor(Color? newSystemAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.systemAccentColor = newSystemAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setUseSystemAccentColor(bool newUseSystemAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.useSystemAccentColor = newUseSystemAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1588,6 +1604,10 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select(
         (value) => value.requireValue.hasCompletedThemeModeLocaleMigration,
       );
+  ProviderListenable<Color?> get systemAccentColor => finampSettingsProvider
+      .select((value) => value.requireValue.systemAccentColor);
+  ProviderListenable<bool> get useSystemAccentColor => finampSettingsProvider
+      .select((value) => value.requireValue.useSystemAccentColor);
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(
         (value) => value.requireValue.downloadTranscodingProfile,

@@ -6,6 +6,7 @@ import 'package:app_links/app_links.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:background_downloader/background_downloader.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/gen/assets.gen.dart';
@@ -166,6 +167,7 @@ void main() async {
 
     await findSystemLocale();
     await initializeDateFormatting();
+    unawaited(fetchSystemPalette());
 
     _mainLog.info("Launching main app");
 
@@ -612,7 +614,10 @@ class FinampApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accentColor = ref.watch(finampSettingsProvider.accentColor);
+    final useSystemTheme = ref.watch(finampSettingsProvider.useSystemAccentColor);
+    Color? accentColor = ref.watch(useSystemTheme
+     ? finampSettingsProvider.systemAccentColor
+     : finampSettingsProvider.accentColor);
     final themeMode = ref.watch(finampSettingsProvider.themeMode);
     final locale = ref.watch(finampSettingsProvider.locale);
     final transitionBuilder = MediaQuery.disableAnimationsOf(context)

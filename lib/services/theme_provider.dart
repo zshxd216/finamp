@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
@@ -469,10 +470,17 @@ class _ThemeTransitionCalculator {
       onShow: () {
         // Continue skipping until we get a foreground track change.
         _skipAllTransitions = true;
+        unawaited(fetchSystemPalette());
       },
       onHide: () {
         _skipAllTransitions = true;
       },
+      onRestart: () {
+        unawaited(fetchSystemPalette());
+      },
+      onResume: () {
+        unawaited(fetchSystemPalette());
+      }
     );
     GetIt.instance<QueueService>().getCurrentTrackStream().listen((value) {
       _skipAllTransitions = false;

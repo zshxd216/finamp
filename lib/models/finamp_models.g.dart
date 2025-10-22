@@ -430,6 +430,10 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         hasCompletedThemeModeLocaleMigration: fields[135] == null
             ? false
             : fields[135] as bool,
+        systemAccentColor: fields[136] == null
+            ? DefaultSettings.accentColor
+            : fields[136] as Color?,
+        useSystemAccentColor: fields[137] == null ? false : fields[137] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -444,7 +448,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(129)
+      ..writeByte(131)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -702,7 +706,11 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(134)
       ..write(obj.locale)
       ..writeByte(135)
-      ..write(obj.hasCompletedThemeModeLocaleMigration);
+      ..write(obj.hasCompletedThemeModeLocaleMigration)
+      ..writeByte(136)
+      ..write(obj.systemAccentColor)
+      ..writeByte(137)
+      ..write(obj.useSystemAccentColor);
   }
 
   @override
