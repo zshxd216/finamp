@@ -170,6 +170,29 @@ This app is still a work in progress, and has some bugs/issues that haven't been
 - Multiple users/servers
 - More customization options
 
+## Infos for advanced users
+On Linux you can force update accent Color using a dBus message to adapt Finamp to your new color scheme instantly. To do so, simply run update your active GTK theme and run the following command
+```sh
+gdbus call \
+    --session \
+    --dest 'com.unicornsonlsd.FinampSettings' \
+    --object-path '/com/unicornsonlsd/Finamp' \
+    --method 'com.unicornsonlsd.Finamp.updateAccentColor' \
+    ''
+```
+
+Alternatively you can use the following command while finamp is running to overwrite the accent color
+
+```sh
+gdbus call \
+    --session \
+    --dest 'com.unicornsonlsd.FinampSettings' \
+    --object-path '/com/unicornsonlsd/Finamp' \
+    --method 'com.unicornsonlsd.Finamp.setAccentColor' \
+    '#ff0000'
+```
+You should now see that finamp is Red!
+
 ## Screenshots (Stable Version, outdated)
 
 | | |

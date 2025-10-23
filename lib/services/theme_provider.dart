@@ -470,7 +470,6 @@ class _ThemeTransitionCalculator {
       onShow: () {
         // Continue skipping until we get a foreground track change.
         _skipAllTransitions = true;
-        unawaited(fetchSystemPalette());
       },
       onHide: () {
         _skipAllTransitions = true;

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:finamp/color_schemes.g.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,14 +16,33 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
     // System does not have global color Theme Support
     if (sysColor == null) return SizedBox.shrink();
 
-    return SwitchListTile.adaptive(
-      title: Text("Use System Theme"),
-      subtitle: Text("Material You"),
-      value: ref.watch(finampSettingsProvider.useSystemAccentColor),
-      onChanged: (value) {
-        FinampSetters.setUseSystemAccentColor(value);
-        unawaited(fetchSystemPalette());
-      },
+    return ListTile(
+      title: Text("Use Dynamic System Theme"),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            sysColor.toHex(),
+            style: TextStyle(
+              // fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+              fontSize: 16,
+            ),
+          ),
+          SizedBox(width: 16),
+          Switch.adaptive(
+            value: ref.watch(finampSettingsProvider.useSystemAccentColor),
+            activeThumbColor: sysColor,
+            inactiveThumbColor: sysColor,
+            onChanged: (value) {
+              FinampSetters.setUseSystemAccentColor(value);
+              unawaited(fetchSystemPalette());
+            },
+          )
+        ],
+      )
     );
   }
 }
