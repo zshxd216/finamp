@@ -158,6 +158,11 @@ Should the API for this improve in the future, for example by allowing us to sub
 
 Now you need to wait a bit, but it'll finish :)
 
+### Add dbus message
+1. Open `lib/services/dbus_manager.dart`
+2. Add another `else if (call.interface == 'com.unicornsonlsd.Finamp' && call.name == 'YOUR FUNCTION NAME')`
+3. Profit
+
 ## The Redesign
 
 The biggest main piece of work being done on Finamp at the moment is the redesign. The relevant meta-issue can be found [here](https://github.com/jmshrv/finamp/issues/220).  

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/extensions/color_extensions.dart';
+import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,11 +14,11 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sysColor = FinampSettingsHelper.finampSettings.systemAccentColor;
 
-    // System does not have global color Theme Support
+    // Safe to assume that the System does not have Color Theme Support
     if (sysColor == null) return SizedBox.shrink();
 
     return ListTile(
-      title: Text("Use Dynamic System Theme"),
+      title: Text(AppLocalizations.of(context)!.systemAccentColor),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -25,7 +26,6 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
           Text(
             sysColor.toHex(),
             style: TextStyle(
-              // fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w400,
               color: Theme.of(context).textTheme.bodySmall?.color,
               fontSize: 16,
@@ -40,9 +40,9 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
               FinampSetters.setUseSystemAccentColor(value);
               unawaited(fetchSystemPalette());
             },
-          )
+          ),
         ],
-      )
+      ),
     );
   }
 }

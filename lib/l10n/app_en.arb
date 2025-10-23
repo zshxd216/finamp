@@ -724,6 +724,10 @@
   "@accentColorTitle": {
     "description": "Title for the accent color picker sheet"
   },
+  "systemAccentColor": "Use System Theme",
+  "@systemAccentColor": {
+    "description": "Title of the system accent color setting"
+  },
   "defaultWord": "Default",
   "@defaultWord": {},
   "useDefaultButton": "Reset to Default Accent Color",

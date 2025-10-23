@@ -104,7 +104,6 @@ late DateTime startTime;
 
 final providerScopeKey = GlobalKey();
 
-
 void main() async {
   // If the app has failed, this is set to true. If true, we don't attempt to run the main app since the error app has started.
   bool hasFailed = false;
@@ -618,9 +617,10 @@ class FinampApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final useSystemTheme = ref.watch(finampSettingsProvider.useSystemAccentColor);
-    Color? accentColor = ref.watch(useSystemTheme
-     ? finampSettingsProvider.systemAccentColor
-     : finampSettingsProvider.accentColor);
+    // System Accent has priority over custom Accent
+    Color? accentColor = ref.watch(
+      useSystemTheme ? finampSettingsProvider.systemAccentColor : finampSettingsProvider.accentColor,
+    );
     final themeMode = ref.watch(finampSettingsProvider.themeMode);
     final locale = ref.watch(finampSettingsProvider.locale);
     final transitionBuilder = MediaQuery.disableAnimationsOf(context)

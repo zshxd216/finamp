@@ -24,6 +24,7 @@ class FinampIcon extends ConsumerWidget {
     final colorScheme = getColorScheme(accent, brightness);
     final color = colorScheme.onSurface;
 
+    // Basically this uses the icon as a mask on top of a solid color
     return ColorFiltered(colorFilter: ColorFilter.mode(color, BlendMode.srcIn), child: icon);
   }
 }

@@ -1,8 +1,4 @@
 #include "finamp_application.h"
-#include <cstdio>
-#include <dbus/dbus.h>
-
-
 
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
@@ -11,8 +7,6 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
-#include <iostream>
-
 struct _FinampApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
@@ -20,49 +14,8 @@ struct _FinampApplication {
 
 G_DEFINE_TYPE(FinampApplication, finamp_application, GTK_TYPE_APPLICATION);
 
-static void sendDBusColorUpdateMessage() {
-    // setup
-    DBusConnection* conn = NULL;
-    DBusError err; dbus_error_init(&err);
-    DBusMessage* msg = NULL;
-    conn = dbus_bus_get(DBUS_BUS_SESSION, &err);
-
-    // error handling
-    if (dbus_error_is_set(&err)) return;
-    if (conn == nullptr) return;
-
-    msg = dbus_message_new_method_call(
-            "com.unicornsonlsd.FinampSettings", // Destination  (--dest)
-            "/com/unicornsonlsd/Finamp",        // path (--object-path)
-            "com.unicornsonlsd.Finamp",         // Interface (--method)
-            "updateAccentColor"                 // Method
-        );
-
-    // error handling
-    if (msg == nullptr) return dbus_connection_unref(conn);
-
-    const char* message_data = "";
-
-    // error handling
-    if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &message_data, DBUS_TYPE_INVALID)) {
-        dbus_message_unref(msg);     // Memory cleanup
-        dbus_connection_unref(conn); // Memory cleanup
-        return;
-    }
-
-    // send message
-    dbus_connection_send_with_reply_and_block(conn, msg, DBUS_TIMEOUT_USE_DEFAULT, &err);
-    dbus_connection_flush(conn);
-
-    // Memory cleanup
-    dbus_message_unref(msg);
-    dbus_connection_unref(conn);
-}
-
-
 // Implements GApplication::activate.
 static void finamp_application_activate(GApplication* application) {
-
   FinampApplication* self = FINAMP_APPLICATION(application);
 
   // handle link handling
@@ -70,9 +23,6 @@ static void finamp_application_activate(GApplication* application) {
   if (windows) {
       // If there is already a window, we just present it and do not create a new one
     gtk_window_present(GTK_WINDOW(windows->data));
-    try {
-        sendDBusColorUpdateMessage();
-    } catch (...) {/* Empty */}
     return;
   }
 
@@ -147,8 +97,6 @@ static void finamp_application_dispose(GObject* object) {
 }
 
 static void finamp_application_class_init(FinampApplicationClass* klass) {
-    
-
   G_APPLICATION_CLASS(klass)->activate = finamp_application_activate;
   G_APPLICATION_CLASS(klass)->local_command_line = finamp_application_local_command_line;
   G_OBJECT_CLASS(klass)->dispose = finamp_application_dispose;
