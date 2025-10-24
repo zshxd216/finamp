@@ -45,6 +45,7 @@ import 'package:finamp/services/offline_listen_helper.dart';
 import 'package:finamp/services/playback_history_service.dart';
 import 'package:finamp/services/playon_service.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/theme_provider.dart';
 import 'package:finamp/services/ui_overlay_setter_observer.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/foundation.dart';

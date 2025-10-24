@@ -101,23 +101,3 @@ ColorScheme getColorScheme(Color? color, Brightness brightness) {
 
   return brightness == Brightness.dark ? darkColorScheme : lightColorScheme;
 }
-
-Future<void> fetchSystemPalette() async {
-  // dont need to run when setting isnt enabled
-  final settingsHelper = FinampSettingsHelper.finampSettings;
-  if (!settingsHelper.useSystemAccentColor) return;
-
-  // skip if invalid palette
-  final palette = await DynamicColorPlugin.getCorePalette();
-  if (palette == null) return;
-
-  // get accent color
-  final scheme = palette.toColorScheme();
-  final primary = scheme.primary;
-  final current = settingsHelper.systemAccentColor;
-
-  // only update when needed (color transitions is laggy, no need to run it when not required)
-  if (primary != current) {
-    FinampSetters.setSystemAccentColor(primary);
-  }
-}

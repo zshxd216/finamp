@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:dbus/dbus.dart';
-import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/extensions/string.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/theme_provider.dart';
 import 'package:logging/logging.dart';
 
 final _logger = Logger("dBus");

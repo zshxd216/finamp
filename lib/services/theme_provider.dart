@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:finamp/color_schemes.g.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
@@ -495,5 +496,26 @@ class _ThemeTransitionCalculator {
     return (context.mounted && (ModalRoute.isCurrentOf(context) ?? true))
         ? duration ?? const Duration(milliseconds: 1000)
         : Duration.zero;
+  }
+}
+
+Future<void> fetchSystemPalette() async {
+  // dont need to run when setting isnt enabled
+  final settingsHelper = FinampSettingsHelper.finampSettings;
+  if (!settingsHelper.useSystemAccentColor) return;
+
+  final currentColor = settingsHelper.systemAccentColor;
+  Color? newColor;
+
+  if (Platform.isAndroid) {
+    final palette = await DynamicColorPlugin.getCorePalette();
+    newColor = palette?.toColorScheme().primary;
+  } else {
+    newColor = await DynamicColorPlugin.getAccentColor();
+  }
+
+  // only update when needed (color transitions is laggy, no need to run it when not required)
+  if (newColor != currentColor) {
+    FinampSetters.setSystemAccentColor(newColor);
   }
 }

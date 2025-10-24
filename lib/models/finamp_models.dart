@@ -235,6 +235,7 @@ class DefaultSettings {
   static const rememberLastUsedPlaybackActionRowPage = true;
   static const lastUsedPlaybackActionRowPage = PlaybackActionRowPage.newQueue;
   static const useSystemAccentColor = false;
+  static const useMonochromeIcon = true;
 }
 
 @HiveType(typeId: 28)
@@ -372,6 +373,7 @@ class FinampSettings {
     this.hasCompletedThemeModeLocaleMigration = true,
     this.systemAccentColor = DefaultSettings.accentColor,
     this.useSystemAccentColor = DefaultSettings.useSystemAccentColor,
+    this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -801,6 +803,9 @@ class FinampSettings {
 
   @HiveField(137, defaultValue: DefaultSettings.useSystemAccentColor)
   bool useSystemAccentColor;
+
+  @HiveField(138, defaultValue: DefaultSettings.useMonochromeIcon)
+  bool useMonochromeIcon = DefaultSettings.useMonochromeIcon;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(

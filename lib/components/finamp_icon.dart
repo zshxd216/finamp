@@ -12,14 +12,11 @@ class FinampIcon extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accent = ref.watch(finampSettingsProvider.accentColor);
-
     final icon = SvgPicture.asset("images/finamp_cropped.svg", width: width, height: height);
+    final useMonochromeIcon = ref.watch(finampSettingsProvider.useMonochromeIcon);
+    if (!useMonochromeIcon) return icon;
 
-    if (accent == null) {
-      return icon;
-    }
-
+    final accent = ref.watch(finampSettingsProvider.accentColor);
     final brightness = ref.watch(brightnessProvider);
     final colorScheme = getColorScheme(accent, brightness);
     final color = colorScheme.onSurface;
