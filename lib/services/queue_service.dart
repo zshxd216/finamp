@@ -141,12 +141,12 @@ class QueueService {
       } else {
         _saveUpdateCycleCount++;
       }
+      // just in case, check if there are radio tracks missing (due to errors, race conditions, etc.)
+      unawaited(maybeAddRadioTracks());
     });
 
     // check if new radio tracks are needed whenever the queue changes in some way
     _queueStream.listen((_) {
-      //FIXME this might fire too early when replacing the queue, reusing the old queue source before it is updated
-      // 
       unawaited(maybeAddRadioTracks());
     });
 
@@ -155,9 +155,11 @@ class QueueService {
       // Keep currentAlbumImageProvider alive to provide precaching
       _providers.listen(currentAlbumImageProvider, (_, _) {});
 
-      // check if new radio tracks are needed whenever the radio mode is changed
+      // check if new radio tracks are needed whenever the radio mode or connectivity is changed
       _providers.listen(finampSettingsProvider.radioEnabled, (_, _) => unawaited(maybeAddRadioTracks()));
       _providers.listen(finampSettingsProvider.radioMode, (_, _) => unawaited(maybeAddRadioTracks()));
+      _providers.listen(finampSettingsProvider.isOffline, (_, _) => unawaited(maybeAddRadioTracks()));
+      _providers.listen(FinampUserHelper.finampCurrentUserProvider, (_, _) => unawaited(maybeAddRadioTracks()));
     });
 
     // register callbacks
@@ -280,6 +282,7 @@ class QueueService {
             referenceItem: _order.originalSource.item ?? currentQueue.fullQueue.first.baseItem!,
             minNumTracks: minNumTracks,
             offsetExtraTracks: offsetExtraTracks,
+            // we add the extra tracks as a filter instead of an offset, so that newly-added similar tracks are included as soon as possible
             filterExtraTracks: filterExtraTracks + additionalTracks,
             randomnessExtraTracks: randomnessExtraTracks,
             repetitionThresholdTracks: repetitionThresholdTracks,
@@ -300,25 +303,32 @@ class QueueService {
         // extra tracks to randomly choose from to introduce non-determinism
         final randomnessExtraTracks = 5 + (minNumTracks * 1.5).ceil();
 
+        // we fetch tracks one-by-one to be truly continuous from the start. for that we use the while loop and only ever fetch a single track at a time.
         tracksOut = await _getSimilarTracks(
-          referenceItem: currentQueue.currentTrack!.baseItem!,
-          minNumTracks: minNumTracks,
+          // use the last track as the reference so that the radio flows better
+          // if we use the current tracks it always alternates between similar tracks because there's a delay of [minUpcomingRadioTracks] before the related track is played
+          referenceItem: currentQueue.fullQueue.last.baseItem!,
+          minNumTracks: 1,
           offsetExtraTracks: offsetExtraTracks,
           filterExtraTracks: filterExtraTracks,
           randomnessExtraTracks: randomnessExtraTracks,
           repetitionThresholdTracks: repetitionThresholdTracks,
         );
         int attempt = 0;
+        int lastTracksOutLength = tracksOut.length;
         while (tracksOut.length < minNumTracks) {
-          attempt++;
+          // only increment attempts if now additional track was discovered
+          if (lastTracksOutLength == tracksOut.length) {
+            attempt++;
+          }
           final additionalTracks = attempt * 10;
           _radioLogger.warning("No similar tracks found. Retrying with $additionalTracks more extra tracks.");
-          tracksOut = await _getSimilarTracks(
-            referenceItem: currentQueue.currentTrack!.baseItem!,
-            minNumTracks: minNumTracks,
-            // we add the extra tracks as an offset since tracks at the start of the instant mix are most likely already included
-            offsetExtraTracks: offsetExtraTracks + additionalTracks,
-            filterExtraTracks: filterExtraTracks,
+          tracksOut += await _getSimilarTracks(
+            referenceItem: currentQueue.fullQueue.last.baseItem!,
+            minNumTracks: 1,
+            offsetExtraTracks: offsetExtraTracks,
+            // we add the extra tracks as a filter instead of an offset, so that newly-added similar tracks are included as soon as possible
+            filterExtraTracks: filterExtraTracks + additionalTracks,
             randomnessExtraTracks: randomnessExtraTracks,
             repetitionThresholdTracks: repetitionThresholdTracks,
           );
