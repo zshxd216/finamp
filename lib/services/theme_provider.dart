@@ -500,11 +500,7 @@ class _ThemeTransitionCalculator {
 }
 
 Future<void> fetchSystemPalette() async {
-  // dont need to run when setting isnt enabled
-  final settingsHelper = FinampSettingsHelper.finampSettings;
-  if (!settingsHelper.useSystemAccentColor) return;
-
-  final currentColor = settingsHelper.systemAccentColor;
+  final currentColor = FinampSettingsHelper.finampSettings.systemAccentColor;
   Color? newColor;
 
   if (Platform.isAndroid) {

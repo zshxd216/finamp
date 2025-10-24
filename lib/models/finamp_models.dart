@@ -235,7 +235,7 @@ class DefaultSettings {
   static const rememberLastUsedPlaybackActionRowPage = true;
   static const lastUsedPlaybackActionRowPage = PlaybackActionRowPage.newQueue;
   static const useSystemAccentColor = false;
-  static const useMonochromeIcon = true;
+  static const useMonochromeIcon = false;
 }
 
 @HiveType(typeId: 28)

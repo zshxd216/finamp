@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
@@ -15,12 +14,12 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sysColor = ref.watch(finampSettingsProvider.systemAccentColor);
 
-    // Safe to assume that the System does not have Color Theme Support
     final supportsSystemTheme = Platform.isAndroid || Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+    // Safe to assume that the System does not have Color Theme Support
     if (!supportsSystemTheme) return SizedBox.shrink();
 
     return ListTile(
-      title: Text(AppLocalizations.of(context)!.systemAccentColor(Platform.operatingSystem)),
+      title: Text(AppLocalizations.of(context)!.systemAccentColor),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -16,10 +16,7 @@ class FinampIcon extends ConsumerWidget {
     final useMonochromeIcon = ref.watch(finampSettingsProvider.useMonochromeIcon);
     if (!useMonochromeIcon) return icon;
 
-    final accent = ref.watch(finampSettingsProvider.accentColor);
-    final brightness = ref.watch(brightnessProvider);
-    final colorScheme = getColorScheme(accent, brightness);
-    final color = colorScheme.onSurface;
+    final color = Theme.of(context).colorScheme.tertiary;
 
     // Basically this uses the icon as a mask on top of a solid color
     return ColorFiltered(colorFilter: ColorFilter.mode(color, BlendMode.srcIn), child: icon);

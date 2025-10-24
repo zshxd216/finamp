@@ -724,9 +724,9 @@
   "@accentColorTitle": {
     "description": "Title for the accent color picker sheet"
   },
-  "systemAccentColor": "Use {type, select, android{Material You Theme} linux{GTK+ Theme} macOS{App Accent Color} windows{Accent Color} other{System Theme}}",
+  "systemAccentColor": "Use System Theme",
   "@systemAccentColor": {
-    "description": "Title of the System Accent Color setting, sadly different OSs call Dynamic themes differently."
+    "description": "Title of the System Accent Color setting."
   },
   "systemAccentColorHasPriorityInfo": "Custom Accent Color disabled because System Theme is currently in use",
   "@systemAccentColorHasPriorityInfo": {
