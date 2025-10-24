@@ -2244,7 +2244,7 @@
     "@recentlyAddedArtists": {
         "description": "Label for the genre section that shows artists that were recently added to the library, sorted by the date they were added."
     },
-    "genreItemSectionFilterChipOrderSubtitle": "控制項目區塊中篩選器的顯示順序。",
+    "genreItemSectionFilterChipOrderSubtitle": "控制內容區塊中篩選器的顯示順序。",
     "@genreItemSectionFilterChipOrderSubtitle": {
         "description": "Description of the setting that controls the order of item sections filter chips."
     },
@@ -2258,11 +2258,11 @@
     "@randomTracks": {},
     "showArtistsTracksSectionSubtitle": "顯示最多五首歌曲的區塊。啟用後，您可以選擇「經常播放」、「收藏」、「隨機」、「最新發行」、「最近新增」或「最近播放」。",
     "@showArtistsTracksSectionSubtitle": {},
-    "itemSectionsOrder": "項目區塊顯示順序",
+    "itemSectionsOrder": "內容區塊顯示順序",
     "@itemSectionsOrder": {
         "description": "Label for the setting that controls the order of item sections on the screens."
     },
-    "genreFilterArtistScreensSubtitle": "啟用後，於「類型介面」瀏覽時，透過「藝人項目區塊」進入的「藝人介面」將僅顯示符合目前所選音樂類型的歌曲與專輯。（您仍可手動移除「類型篩選」，以檢視該藝人的所有歌曲與專輯。）",
+    "genreFilterArtistScreensSubtitle": "啟用後，於「類型介面」瀏覽時，透過「藝人內容區塊」進入的「藝人介面」將僅顯示符合目前所選音樂類型的歌曲與專輯。（您仍可手動移除「類型篩選」，以檢視該藝人的所有歌曲與專輯。）",
     "@genreFilterArtistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
     },
@@ -2288,7 +2288,7 @@
     "@applyFilterOnGenreChipTapSubtitle": {
         "description": "Subtitle for the setting that controls if taps on genres should apply a genre filter to the current screen or should redirect to the GenreScreen."
     },
-    "genreListsInheritSortingSubtitle": "啟用後，「顯示全部」清單將沿用類型介面的項目區塊篩選設定；停用時則改採音樂庫中對應分頁的篩選與排序。點擊類型介面上方的數量統計或「瀏覽播放清單」按鈕時，將開啟完整清單，並套用音樂庫中對應分頁的篩選與排序設定。",
+    "genreListsInheritSortingSubtitle": "啟用後，「顯示全部」清單將沿用類型介面的內容區塊篩選設定；停用時則改採音樂庫中對應分頁的篩選與排序。點擊類型介面上方的數量統計或「瀏覽播放清單」按鈕時，將開啟完整清單，並套用音樂庫中對應分頁的篩選與排序設定。",
     "@genreListsInheritSortingSubtitle": {
         "description": "Description of the setting that controls if a See All Genre Lists should inherit the Genre Sorting and Filtering."
     },
@@ -2326,11 +2326,11 @@
     "@topAlbums": {},
     "latestArtists": "最新藝人",
     "@latestArtists": {},
-    "itemSectionsOrderSubtitle": "控制項目區塊的顯示順序。",
+    "itemSectionsOrderSubtitle": "控制內容區塊的顯示順序。",
     "@itemSectionsOrderSubtitle": {
         "description": "Description of the setting that controls the order of item sections on the screens."
     },
-    "genreItemSectionFilterChipOrderTitle": "項目區塊篩選器順序",
+    "genreItemSectionFilterChipOrderTitle": "內容區塊篩選器順序",
     "@genreItemSectionFilterChipOrderTitle": {
         "description": "Label for the setting that controls the order of item sections filter chips."
     },
@@ -2770,7 +2770,7 @@
     "@emptyAlbum": {
         "description": "Message shown as a placeholder when an album or playlist is empty."
     },
-    "preferNextUpPrependingTitle": "優先插入至即將播放",
+    "preferNextUpPrependingTitle": "優先使用「接續播放」",
     "@preferNextUpPrependingTitle": {
         "description": "Title for the setting to prefer prepending to Next Up over appending"
     },
