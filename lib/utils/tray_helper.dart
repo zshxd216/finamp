@@ -1,12 +1,6 @@
 import 'dart:io';
-
-// import 'package:logging/logging.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
-
-// final _trayLog = Logger('TrayHelper');
-
-enum TrayEntry { open, close }
 
 Future<void> hideToTray() async {
   await windowManager.hide();
