@@ -187,18 +187,18 @@ class QueueService {
     // TODO: Prevent repeat all alongside radio being enabled?
     final radioTracksNeeded = _radioTracksNeeded();
     if (radioTracksNeeded > 0) {
-      List<jellyfin_models.BaseItemDto> songs = await generateRadioTracks(radioTracksNeeded);
+      List<jellyfin_models.BaseItemDto> tracks = await generateRadioTracks(radioTracksNeeded);
       // check if we still need to add tracks after awaiting the generation
       if (_radioTracksNeeded() > 0) {
         await addToQueue(
-          items: songs,
+          items: tracks,
           source: QueueItemSource(
             type: QueueItemSourceType.radio,
             name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
             id: _order.originalSource.item!.id,
           ),
         );
-        _radioLogger.finer("Added ${songs.map((song) => song.name).toList().join(", ")} to the queue for radio.");
+        _radioLogger.finer("Added ${tracks.map((song) => song.name).toList().join(", ")} to the queue for radio.");
       }
     }
   }
@@ -211,42 +211,38 @@ class QueueService {
     );
     switch (FinampSettingsHelper.finampSettings.radioMode) {
       case RadioMode.reshuffle:
-        // Adds songs in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
+        // Adds tracks in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
         // the order.
-        // Songs added to the queue manually will throw things off, though!
-        List<jellyfin_models.BaseItemDto> currentlyPlaying = _currentTrack != null ? [_currentTrack!.baseItem!] : [];
-        // The full contents of the already played songs, the currently playing song, and all upcoming ones
-        final fullQueue =
-            List.of(_queuePreviousTracks.map((item) => item.baseItem!)) +
-            currentlyPlaying +
-            List.of(_queueNextUp.map((item) => item.baseItem!)) +
-            List.of(_queue.map((item) => item.baseItem!)) +
-            tracksOut;
-        // Items in the currently playing source
-        final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
-        final numItems = items.length;
+        // Tracks added to the queue manually will throw things off, though!
         for (var i = 0; i < minNumTracks; i++) {
-          final fullIterations = (fullQueue.length / numItems).toInt();
-          // Gets the list of songs already played or enqueued this iteration
-          var currentIteration = fullQueue.sublist(fullIterations * numItems, fullQueue.length);
-          if (currentIteration.length == items.length) {
+          // Filter out any existing radio tracks
+          final fullQueue = getQueue().fullQueue;
+          // Items originally in the currently playing source (or manually added)
+          final originalQueue = fullQueue
+              .where((queueItem) => queueItem.source.type != QueueItemSourceType.radio)
+              .toList();
+          final allTracks = fullQueue.length;
+          final fullIterations = (allTracks / originalQueue.length).floor();
+          // Gets the list of tracks already played or enqueued this iteration
+          var currentIteration = fullQueue.sublist(fullIterations * originalQueue.length);
+          if (currentIteration.length == allTracks) {
             currentIteration = [];
           }
-          // Create the list of songs not already in the queue for the upcoming iteration
-          final itemsNotAlreadyPicked = List.of(items);
+          // Create the list of tracks not already in the queue for the upcoming iteration
+          final itemsNotAlreadyPicked = List.of(originalQueue);
           itemsNotAlreadyPicked.removeWhere((item) {
             for (final alreadyAdded in currentIteration) {
-              if (alreadyAdded.id == item.id) {
+              if (alreadyAdded.baseItemId == item.baseItemId) {
                 return true;
               }
             }
             return false;
           });
-          // Add a new song based on the results
+          // Add a new track based on the results
           int nextIndex = _radioRandom.nextInt(itemsNotAlreadyPicked.length);
-          tracksOut.add(itemsNotAlreadyPicked[nextIndex]);
+          tracksOut.add(itemsNotAlreadyPicked[nextIndex].baseItem!);
           // And add it to the fullQueue for the next iteration of the loop
-          fullQueue.add(itemsNotAlreadyPicked[nextIndex]);
+          originalQueue.add(itemsNotAlreadyPicked[nextIndex]);
         }
         break;
       case RadioMode.random:

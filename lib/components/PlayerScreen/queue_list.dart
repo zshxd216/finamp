@@ -1085,12 +1085,12 @@ class QueueSectionHeader extends ConsumerWidget {
                   onSelect: () async {
                     FinampSetters.setRadioMode(radioModeOption);
                     FinampSetters.setRadioEnabled(true);
-                    FeedbackHelper.feedback(FeedbackType.success);
+                    FeedbackHelper.feedback(FeedbackType.selection);
                     Navigator.of(context).pop();
-                    GlobalSnackbar.message(
-                      (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
-                      isConfirmation: true,
-                    );
+                    // GlobalSnackbar.message(
+                    //   (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
+                    //   isConfirmation: true,
+                    // );
                   },
                 ),
               )
@@ -1101,12 +1101,12 @@ class QueueSectionHeader extends ConsumerWidget {
                   isSelected: !radioEnabled,
                   onSelect: () async {
                     FinampSetters.setRadioEnabled(false);
-                    FeedbackHelper.feedback(FeedbackType.success);
+                    FeedbackHelper.feedback(FeedbackType.selection);
                     Navigator.of(context).pop();
-                    GlobalSnackbar.message(
-                      (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
-                      isConfirmation: true,
-                    );
+                    // GlobalSnackbar.message(
+                    //   (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
+                    //   isConfirmation: true,
+                    // );
                   },
                 ),
               ])
