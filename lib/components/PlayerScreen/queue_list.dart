@@ -1122,8 +1122,11 @@ class QueueSectionHeader extends ConsumerWidget {
           state: radioEnabled,
           trailing: Switch.adaptive(
             value: radioEnabled,
-            onChanged: (newValue) {
+            onChanged: (newValue) async {
               FinampSetters.setRadioEnabled(newValue);
+              if (!newValue) {
+                await queueService.clearRadioTracks();
+              }
             },
             padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: -8.0),
           ),

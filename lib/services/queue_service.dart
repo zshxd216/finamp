@@ -377,6 +377,24 @@ class QueueService {
     return itemsOut;
   }
 
+  Future<void> clearRadioTracks() async {
+    _queueServiceLogger.finer("Clearing radio tracks from queue.");
+    final radioIndices = _queue
+        .asMap()
+        .entries
+        .where((entry) {
+          return entry.value.source.type == QueueItemSourceType.radio;
+        })
+        .map((entry) => entry.key)
+        .toList();
+    // remove from the back to avoid index shifting
+    for (final index in radioIndices.reversed) {
+      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex + _queueNextUp.length + index + 1);
+      await _queueAudioSource.removeAt(adjustedQueueIndex);
+    }
+    _queueFromConcatenatingAudioSource();
+  }
+
   ProviderSubscription<AlbumImageInfo>? _latestAlbumImage;
 
   void _queueFromConcatenatingAudioSource({bool logUpdate = true}) {
