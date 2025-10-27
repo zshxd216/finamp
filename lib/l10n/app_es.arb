@@ -2662,5 +2662,13 @@
                 "type": "int"
             }
         }
+    },
+    "playbackActionPageNewQueue": "Nueva Cola",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Reproducir Siguiente",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
     }
 }
