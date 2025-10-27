@@ -1217,7 +1217,7 @@
     "@savedQueue": {
         "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
     },
-    "aboutContributionPrompt": "Pyyteettömien ja upeiden ihmisten vapaa-ajallaan tekemä sovellus.\nVoit olla yksi heistä!",
+    "aboutContributionPrompt": "Pyyteettömien ja upeiden ihmisten vapaa-ajallaan tekemä sovellus.\nVoit myös olla yksi heistä!",
     "@aboutContributionPrompt": {
         "description": "Text shown in the about screen, explaining that the app is made by volunteers and that the user could be one of them."
     },
