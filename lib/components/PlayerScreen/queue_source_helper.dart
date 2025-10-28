@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/screens/album_screen.dart';
 import 'package:finamp/screens/artist_screen.dart';
+import 'package:finamp/screens/downloads_screen.dart';
 import 'package:finamp/screens/genre_screen.dart';
 import 'package:finamp/screens/music_screen.dart';
 import 'package:finamp/services/feedback_helper.dart';
@@ -39,6 +41,7 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
       Navigator.of(context).pushNamed(AlbumScreen.routeName, arguments: source.item);
       break;
     case QueueItemSourceType.allTracks:
+    case QueueItemSourceType.favorites:
       Navigator.of(context).pushNamed(
         MusicScreen.routeName,
         arguments: FinampSettingsHelper.finampSettings.showTabs.entries
@@ -48,19 +51,20 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
             .indexOf(TabContentType.tracks),
       );
       break;
+    case QueueItemSourceType.track:
+    case QueueItemSourceType.trackMix:
+      if (source.item != null) {
+        showModalTrackMenu(context: context, item: source.item!);
+      }
+    case QueueItemSourceType.downloads:
+      Navigator.of(context).pushNamed(DownloadsScreen.routeName);
+      break;
     case QueueItemSourceType.nextUp:
-      break;
     case QueueItemSourceType.formerNextUp:
-      break;
     case QueueItemSourceType.remoteClient:
-      break;
     case QueueItemSourceType.unknown:
       break;
-    case QueueItemSourceType.favorites:
-    case QueueItemSourceType.trackMix:
-    //TODO show track menu
     case QueueItemSourceType.filteredList:
-    case QueueItemSourceType.downloads:
     default:
       FeedbackHelper.feedback(FeedbackType.warning);
       GlobalSnackbar.message((scaffold) => AppLocalizations.of(context)!.notImplementedYet);
