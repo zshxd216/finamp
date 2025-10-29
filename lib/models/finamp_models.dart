@@ -2035,7 +2035,11 @@ class QueueItemSourceName {
       case QueueItemSourceNameType.remoteClient:
         return "";
       case QueueItemSourceNameType.radio:
-        return AppLocalizations.of(context)!.radio;
+        if (localizationParameter != null) {
+          return AppLocalizations.of(context)!.radioForItem(localizationParameter!);
+        } else {
+          return AppLocalizations.of(context)!.radio;
+        }
     }
   }
 }

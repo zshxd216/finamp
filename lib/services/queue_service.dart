@@ -194,7 +194,12 @@ class QueueService {
           items: tracks,
           source: QueueItemSource(
             type: QueueItemSourceType.radio,
-            name: QueueItemSourceName(type: QueueItemSourceNameType.radio),
+            name: _order.originalSource.item != null
+                ? QueueItemSourceName(
+                    type: QueueItemSourceNameType.radio,
+                    localizationParameter: _order.originalSource.item?.name ?? "",
+                  )
+                : QueueItemSourceName(type: QueueItemSourceNameType.radio),
             id: _order.originalSource.item!.id,
           ),
         );
