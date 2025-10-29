@@ -739,6 +739,18 @@ class QueueService {
     _queueServiceLogger.info("Items for queue: [${items.map((e) => e.name).join(", ")}]");
   }
 
+  Future<void> startRadioPlayback(QueueItemSource source) async {
+    List<jellyfin_models.BaseItemDto> items = await loadChildTracksFromBaseItem(baseItem: source.item!);
+    await startPlayback(
+      items: items,
+      source: source,
+      startingIndex: items.length - 1
+    );
+    FinampSetters.setRadioEnabled(true);
+    await maybeAddRadioTracks();
+    await _audioHandler.skipToNext();
+  }
+
   /// Replaces the queue with the given list of items. If startAtIndex is specified, Any items below it
   /// will be ignored. This is used for when the user taps in the middle of an album to start from that point.
   Future<void> _replaceWholeQueue({

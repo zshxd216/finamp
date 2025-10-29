@@ -964,6 +964,10 @@
   "@removeFromMix": {},
   "addToMix": "Add To Mix",
   "@addToMix": {},
+  "startRadio": "Start Radio",
+  "@startRadio": {
+    "description": "Menu label for starting a radio from a playlist, album, etc."
+  },
   "redownloadedItems": "{count,plural, =0{No redownloads needed.} =1{Redownloaded {count} item} other{Redownloaded {count} items}}",
   "@redownloadedItems": {
     "placeholders": {
