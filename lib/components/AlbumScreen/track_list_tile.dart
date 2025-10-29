@@ -376,6 +376,7 @@ DismissDirection getAllowedDismissDirection({required bool swipeLeftEnabled, req
 
 class QueueListTile extends StatelessWidget {
   final BaseItemDto item;
+  final QueueItemSource source;
   final BaseItemDto? parentItem;
   final int? listIndex;
   final bool isCurrentTrack;
@@ -392,6 +393,7 @@ class QueueListTile extends StatelessWidget {
   const QueueListTile({
     super.key,
     required this.item,
+    required this.source,
     required this.listIndex,
     required this.onTap,
     required this.isCurrentTrack,
@@ -408,13 +410,14 @@ class QueueListTile extends StatelessWidget {
     return TrackListItem(
       baseItem: item,
       parentItem: parentItem,
+      source: source,
       listIndex: listIndex,
       actualIndex: item.indexNumber,
       isInPlaylist: isInPlaylist,
       allowDismiss: allowDismiss,
       highlightCurrentTrack: highlightCurrentTrack,
       onRemoveFromList: onRemoveFromList,
-      // This must be in ListTile instead of parent GestureDetecter to
+      // This must be in ListTile instead of parent GestureDetector to
       // enable hover color changes
       onTap: onTap,
       confirmDismiss: (DismissDirection direction) async {
@@ -478,6 +481,7 @@ class EditListTile extends StatelessWidget {
 class TrackListItem extends ConsumerWidget {
   final BaseItemDto baseItem;
   final BaseItemDto? parentItem;
+  final QueueItemSource? source;
   final int? listIndex;
   final int? actualIndex;
   final bool showArtists;
@@ -504,6 +508,7 @@ class TrackListItem extends ConsumerWidget {
     required this.confirmDismiss,
     required this.features,
     this.parentItem,
+    this.source,
     this.isInPlaylist = false,
     this.allowDismiss = true,
     this.showArtists = true,
@@ -539,6 +544,7 @@ class TrackListItem extends ConsumerWidget {
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0),
       child: TrackListItemTile(
         baseItem: baseItem,
+        source: source,
         listIndex: listIndex,
         actualIndex: actualIndex,
         showArtists: showArtists,
@@ -661,6 +667,7 @@ class TrackListItemTile extends ConsumerWidget {
     required this.onTap,
     required this.actualIndex,
     required this.features,
+    this.source,
     this.listIndex,
     this.showArtists = true,
     this.forceAlbumArtists = false,
@@ -672,6 +679,7 @@ class TrackListItemTile extends ConsumerWidget {
   });
 
   final BaseItemDto baseItem;
+  final QueueItemSource? source;
   final bool isCurrentTrack;
   final int? listIndex;
   final int? actualIndex;
@@ -736,8 +744,10 @@ class TrackListItemTile extends ConsumerWidget {
       item: DownloadStub.fromItem(item: baseItem, type: DownloadItemType.track),
       size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1,
     );
+    final isRadioTrack = source?.type == QueueItemSourceType.radio;
     final addSpaceAfterSpecialIcons =
-        (downloadedIndicator.isVisible(ref) || (baseItem.hasLyrics ?? false)) && (showDateAdded || showDateLastPlayed);
+        (downloadedIndicator.isVisible(ref) || (baseItem.hasLyrics ?? false) || isRadioTrack) &&
+        (showDateAdded || showDateLastPlayed);
 
     final showPlaybackProgress = !highlightCurrentTrack && playbackProgress != null && playbackProgress! < 0.99;
 
@@ -810,6 +820,18 @@ class TrackListItemTile extends ConsumerWidget {
               maxLines: 1,
               TextSpan(
                 children: [
+                  if (isRadioTrack)
+                    WidgetSpan(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 2.0),
+                        child: Transform.translate(
+                          offset: isOnDesktop ? Offset(-1.5, 1.7) : Offset(-1.5, 0.4),
+                          child: Icon(TablerIcons.radio, size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1),
+                        ),
+                      ),
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                    ),
                   WidgetSpan(
                     child: Padding(
                       padding: const EdgeInsets.only(right: 2.0),
