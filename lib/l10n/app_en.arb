@@ -2688,7 +2688,7 @@
   "@radioModeDisabledSubtitle": {
     "description": "Subtitle displayed in the queue to show that radio mode is disabled."
   },
-  "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the queue} similar{Append based on the original queue} continuous{Append based on the current track} other{}}",
+  "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the initial selection} similar{Append based on the original queue} continuous{Append based on the current track} other{}}",
   "@radioModeDescription": {
     "placeholders": {
       "mode": {
