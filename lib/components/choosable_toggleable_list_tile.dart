@@ -103,6 +103,7 @@ Future<void> showChoiceMenu({
   required BuildContext context,
   required String title,
   required List<ChoiceListTile> listEntries,
+  String? subtitle,
   bool usePlayerTheme = true,
 }) async {
   final queueService = GetIt.instance<QueueService>();
@@ -119,7 +120,14 @@ Future<void> showChoiceMenu({
         SliverStickyHeader(
           header: Padding(
             padding: const EdgeInsets.only(top: 10.0, bottom: 8.0, left: 16.0, right: 16.0),
-            child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2.0,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.titleMedium),
+                if (subtitle != null) Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
           sliver: MenuMask(
             height: MenuMaskHeight(36.0),
@@ -127,7 +135,7 @@ Future<void> showChoiceMenu({
           ),
         ),
       ];
-      var stackHeight = MediaQuery.heightOf(context) * 0.4;
+      var stackHeight = MediaQuery.heightOf(context) * 0.15 + listEntries.length * 60.0;
       return (stackHeight, menu);
     },
   );

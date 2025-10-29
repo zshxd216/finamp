@@ -964,6 +964,43 @@ class QueueSectionHeader extends ConsumerWidget {
 
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
 
+    final radioModeChoices = RadioMode.values
+        .map(
+          (radioModeOption) => ChoiceListTile(
+            title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
+            description: AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name),
+            icon: getRadioModeIcon(radioModeOption),
+            isSelected: radioEnabled && radioMode == radioModeOption,
+            onSelect: () async {
+              FinampSetters.setRadioMode(radioModeOption);
+              FinampSetters.setRadioEnabled(true);
+              FeedbackHelper.feedback(FeedbackType.selection);
+              Navigator.of(context).pop();
+              // GlobalSnackbar.message(
+              //   (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
+              //   isConfirmation: true,
+              // );
+            },
+          ),
+        )
+        .followedBy(<ChoiceListTile>[
+          ChoiceListTile(
+            title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
+            icon: TablerIcons.radio_off,
+            isSelected: !radioEnabled,
+            onSelect: () async {
+              FinampSetters.setRadioEnabled(false);
+              FeedbackHelper.feedback(FeedbackType.selection);
+              Navigator.of(context).pop();
+              // GlobalSnackbar.message(
+              //   (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
+              //   isConfirmation: true,
+              // );
+            },
+          ),
+        ])
+        .toList();
+
     return Column(
       children: [
         Padding(
@@ -1049,18 +1086,32 @@ class QueueSectionHeader extends ConsumerWidget {
                         IconButton(
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
-                          icon: info?.loop != FinampLoopMode.none
-                              ? (info?.loop == FinampLoopMode.one
-                                    ? (const Icon(TablerIcons.repeat_once))
-                                    : (const Icon(TablerIcons.repeat)))
-                              : (const Icon(TablerIcons.repeat_off)),
-                          color: info?.loop != FinampLoopMode.none
+                          icon: radioEnabled
+                              ? const Icon(TablerIcons.radio)
+                              : switch (info?.loop) {
+                                  FinampLoopMode.none => const Icon(TablerIcons.repeat_off),
+                                  FinampLoopMode.one => const Icon(TablerIcons.repeat_once),
+                                  FinampLoopMode.all => const Icon(TablerIcons.repeat),
+                                  null => const Icon(TablerIcons.repeat_off),
+                                },
+                          color: radioEnabled || info?.loop != FinampLoopMode.none
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                          onPressed: () {
-                            queueService.toggleLoopMode();
-                            FeedbackHelper.feedback(FeedbackType.selection);
-                          },
+                          onPressed: radioEnabled
+                              ? () async {
+                                  FeedbackHelper.feedback(FeedbackType.selection);
+                                  await showChoiceMenu(
+                                    context: context,
+                                    title: AppLocalizations.of(context)!.radioModeMenuTitle,
+                                    subtitle: AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
+                                    usePlayerTheme: true,
+                                    listEntries: radioModeChoices,
+                                  );
+                                }
+                              : () {
+                                  queueService.toggleLoopMode();
+                                  FeedbackHelper.feedback(FeedbackType.selection);
+                                },
                         ),
                       ],
                     );
@@ -1078,42 +1129,7 @@ class QueueSectionHeader extends ConsumerWidget {
               ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
               : AppLocalizations.of(context)!.radioModeDisabledSubtitle,
           menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
-          choices: RadioMode.values
-              .map(
-                (radioModeOption) => ChoiceListTile(
-                  title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
-                  description: AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name),
-                  icon: getRadioModeIcon(radioModeOption),
-                  isSelected: radioEnabled && radioMode == radioModeOption,
-                  onSelect: () async {
-                    FinampSetters.setRadioMode(radioModeOption);
-                    FinampSetters.setRadioEnabled(true);
-                    FeedbackHelper.feedback(FeedbackType.selection);
-                    Navigator.of(context).pop();
-                    // GlobalSnackbar.message(
-                    //   (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
-                    //   isConfirmation: true,
-                    // );
-                  },
-                ),
-              )
-              .followedBy(<ChoiceListTile>[
-                ChoiceListTile(
-                  title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
-                  icon: TablerIcons.radio_off,
-                  isSelected: !radioEnabled,
-                  onSelect: () async {
-                    FinampSetters.setRadioEnabled(false);
-                    FeedbackHelper.feedback(FeedbackType.selection);
-                    Navigator.of(context).pop();
-                    // GlobalSnackbar.message(
-                    //   (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
-                    //   isConfirmation: true,
-                    // );
-                  },
-                ),
-              ])
-              .toList(),
+          choices: radioModeChoices,
           leading: Padding(
             padding: const EdgeInsets.only(left: 6.0, top: 6.0),
             child: Icon(

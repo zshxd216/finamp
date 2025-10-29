@@ -746,11 +746,7 @@ class QueueService {
 
   Future<void> startRadioPlayback(QueueItemSource source) async {
     List<jellyfin_models.BaseItemDto> items = await loadChildTracksFromBaseItem(baseItem: source.item!);
-    await startPlayback(
-      items: items,
-      source: source,
-      startingIndex: items.length - 1
-    );
+    await startPlayback(items: items, source: source, startingIndex: items.length - 1);
     FinampSetters.setRadioEnabled(true);
     await maybeAddRadioTracks();
     await _audioHandler.skipToNext();
