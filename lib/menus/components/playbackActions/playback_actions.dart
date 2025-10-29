@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:finamp/components/global_snackbar.dart';
@@ -5,7 +6,6 @@ import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/item_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +19,65 @@ Map<String, Widget> getPlaybackActionPages({
   required bool nextUpNotEmpty,
   bool popContext = true,
   bool compactLayout = false,
-  bool preferNextUp = false,
+  bool preferPrependingToNextUp = false,
   BaseItemDto? genreFilter,
+  FinampQueueItem? queueItem,
 }) {
   final BaseItemDtoType? itemType = item is BaseItemDto ? BaseItemDtoType.fromItem(item) : null;
 
-  return {
+  return queueItem != null
+      ? {
+          // Move within queue
+          AppLocalizations.of(context)!.playbackActionPageMoveWithinQueue: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (nextUpNotEmpty || preferPrependingToNextUp)
+                MovePlayNextPlaybackAction(
+                  item: queueItem,
+                  popContext: popContext,
+                  compactLayout: compactLayout,
+                  genreFilter: genreFilter,
+                ),
+              if (nextUpNotEmpty || !preferPrependingToNextUp)
+                MoveAddToNextUpPlaybackAction(
+                  item: queueItem,
+                  popContext: popContext,
+                  compactLayout: compactLayout,
+                  genreFilter: genreFilter,
+                ),
+              MoveAddToQueuePlaybackAction(
+                item: queueItem,
+                popContext: popContext,
+                compactLayout: compactLayout,
+                genreFilter: genreFilter,
+              ),
+            ],
+          ),
+          // New Queue
+          AppLocalizations.of(context)!.playbackActionPageNewQueue: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              PlayPlaybackAction(
+                item: item,
+                popContext: popContext,
+                compactLayout: compactLayout,
+                genreFilter: genreFilter,
+              ),
+            ],
+          ),
+          AppLocalizations.of(context)!.playbackActionPageDuplicate: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (nextUpNotEmpty || preferPrependingToNextUp) PlayNextPlaybackAction(item: item),
+              if (nextUpNotEmpty || !preferPrependingToNextUp) AddToNextUpPlaybackAction(item: item),
+              AddToQueuePlaybackAction(item: item),
+            ],
+          ),
+        }
+      : {
     // New Queue
     AppLocalizations.of(context)!.playbackActionPageNewQueue: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -55,7 +108,7 @@ Map<String, Widget> getPlaybackActionPages({
       ],
     ),
     // Next
-    if (nextUpNotEmpty || preferNextUp)
+          if (nextUpNotEmpty || preferPrependingToNextUp)
       AppLocalizations.of(context)!.playbackActionPageNext: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -85,7 +138,7 @@ Map<String, Widget> getPlaybackActionPages({
         ],
       ),
     // Append to Next Up
-    if (nextUpNotEmpty || !preferNextUp)
+          if (nextUpNotEmpty || !preferPrependingToNextUp)
       AppLocalizations.of(context)!.playbackActionPageNextUp: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -225,6 +278,50 @@ class PlayNextPlaybackAction extends ConsumerWidget {
     );
   }
 }
+class MovePlayNextPlaybackAction extends ConsumerWidget {
+  const MovePlayNextPlaybackAction({
+    super.key,
+    required this.item,
+    this.popContext = true,
+    this.compactLayout = false,
+    this.genreFilter,
+  });
+
+  final FinampQueueItem item;
+  final bool popContext;
+  final bool compactLayout;
+  final BaseItemDto? genreFilter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queueService = GetIt.instance<QueueService>();
+
+    return PlaybackAction(
+      enabled: !(Platform.isWindows || Platform.isLinux),
+      icon: TablerIcons.corner_right_down,
+      label: AppLocalizations.of(context)!.movePlayNext,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
+        final offset = queueService.getQueue().getOffsetForQueueItem(item);
+        if (offset != null) {
+          unawaited(queueService.removeAtOffset(offset));
+        }
+        await queueService.addNext(items: [item.baseItem!], source: item.source);
+
+        GlobalSnackbar.message(
+          (scaffold) =>
+              AppLocalizations.of(scaffold)!.confirmPlayNext(BaseItemDtoType.fromPlayableItem(item.baseItem!).name),
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+    );
+  }
+}
 
 class AddToNextUpPlaybackAction extends ConsumerWidget {
   const AddToNextUpPlaybackAction({
@@ -268,6 +365,50 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
     );
   }
 }
+class MoveAddToNextUpPlaybackAction extends ConsumerWidget {
+  const MoveAddToNextUpPlaybackAction({
+    super.key,
+    required this.item,
+    this.popContext = true,
+    this.compactLayout = false,
+    this.genreFilter,
+  });
+
+  final FinampQueueItem item;
+  final bool popContext;
+  final bool compactLayout;
+  final BaseItemDto? genreFilter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queueService = GetIt.instance<QueueService>();
+
+    return PlaybackAction(
+      enabled: !(Platform.isWindows || Platform.isLinux),
+      icon: TablerIcons.corner_right_down_double,
+      label: AppLocalizations.of(context)!.moveAddToNextUp,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
+        final offset = queueService.getQueue().getOffsetForQueueItem(item);
+        if (offset != null) {
+          unawaited(queueService.removeAtOffset(offset));
+        }
+        await queueService.addToNextUp(items: [item.baseItem!], source: item.source);
+
+        GlobalSnackbar.message(
+          (scaffold) =>
+              AppLocalizations.of(scaffold)!.confirmAddToNextUp(BaseItemDtoType.fromPlayableItem(item.baseItem!).name),
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+    );
+  }
+}
 
 class AddToQueuePlaybackAction extends ConsumerWidget {
   const AddToQueuePlaybackAction({
@@ -303,6 +444,49 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
 
         GlobalSnackbar.message(
           (scaffold) => AppLocalizations.of(scaffold)!.confirmAddToQueue(BaseItemDtoType.fromPlayableItem(item).name),
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+    );
+  }
+}
+class MoveAddToQueuePlaybackAction extends ConsumerWidget {
+  const MoveAddToQueuePlaybackAction({
+    super.key,
+    required this.item,
+    this.popContext = true,
+    this.compactLayout = false,
+    this.genreFilter,
+  });
+
+  final FinampQueueItem item;
+  final bool popContext;
+  final bool compactLayout;
+  final BaseItemDto? genreFilter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queueService = GetIt.instance<QueueService>();
+
+    return PlaybackAction(
+      icon: TablerIcons.playlist,
+      label: AppLocalizations.of(context)!.moveAddToQueue,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
+        final offset = queueService.getQueue().getOffsetForQueueItem(item);
+        if (offset != null) {
+          unawaited(queueService.removeAtOffset(offset));
+        }
+        await queueService.addToQueue(items: [item.baseItem!], source: item.source);
+
+        GlobalSnackbar.message(
+          (scaffold) =>
+              AppLocalizations.of(scaffold)!.confirmAddToQueue(BaseItemDtoType.fromPlayableItem(item.baseItem!).name),
           isConfirmation: true,
         );
       },

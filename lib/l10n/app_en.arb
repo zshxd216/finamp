@@ -434,6 +434,14 @@
       }
     }
   },
+  "playbackActionPageMoveWithinQueue": "Move Within Queue",
+  "@playbackActionPageMoveWithinQueue": {
+    "description": "Label for the playback action page that contains all actions related to moving tracks within the queue"
+  },
+  "playbackActionPageDuplicate": "Duplicate",
+  "@playbackActionPageDuplicate": {
+    "description": "Label for the playback action page that contains all actions related to duplicating tracks within the queue"
+  },
   "playbackActionPageNewQueue": "New Queue",
   "@playbackActionPageNewQueue": {
     "description": "Label for the playback action page that contains all actions related to starting a new queue"
@@ -1069,6 +1077,18 @@
   "shuffleSomeToQueue": "Shuffle some to Queue",
   "@shuffleSomeToQueue": {
     "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
+  },
+  "movePlayNext": "Play next",
+  "@movePlayNext": {
+    "description": "Used for moving a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+  },
+  "moveAddToNextUp": "Move to Next Up",
+  "@moveAddToNextUp": {
+    "description": "Used for moving a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
+  },
+  "moveAddToQueue": "Move to end",
+  "@moveAddToQueue": {
+    "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
   },
   "confirmPlayNext": "{type, select, track{Track} album{Album} artist{Artist} playlist{Playlist} genre{Genre} other{Item}} will play next",
   "@confirmPlayNext": {

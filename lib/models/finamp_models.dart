@@ -2169,6 +2169,23 @@ class FinampQueueInfo {
     return null;
   }
 
+  FinampQueueItem? getQueueItemByOffset(int offset) {
+    final index = currentTrackIndex + offset;
+    if (index < 0 || index >= fullQueue.length) {
+      return null;
+    }
+    return fullQueue[index];
+  }
+
+  int? getOffsetForQueueItem(FinampQueueItem item) {
+    final absoluteIndex = fullQueue.indexWhere((q) => q.id == item.id);
+    if (absoluteIndex == -1) {
+      return null;
+    }
+    final relativeOffset = absoluteIndex - currentTrackIndex;
+    return relativeOffset > 0 ? relativeOffset + 1 : relativeOffset + 1;
+  }
+
   Duration get totalDuration {
     var total = 0;
     for (var item in fullQueue) {

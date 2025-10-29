@@ -440,6 +440,7 @@ class _PreviousTracksListState extends State<PreviousTracksList> with TickerProv
                   listIndex: index,
                   isInPlaylist: queueItemInPlaylist(item),
                   parentItem: item.source.item,
+                  queueItem: item,
                   allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
                   onTap: (bool playable) async {
                     FeedbackHelper.feedback(FeedbackType.selection);
@@ -523,6 +524,7 @@ class _NextUpTracksListState extends State<NextUpTracksList> {
                     listIndex: index,
                     isInPlaylist: queueItemInPlaylist(item),
                     parentItem: item.source.item,
+                    queueItem: item,
                     allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
                     onRemoveFromList: () {
                       unawaited(_queueService.removeAtOffset(indexOffset));
@@ -611,6 +613,7 @@ class _QueueTracksListState extends State<QueueTracksList> {
                   listIndex: index,
                   isInPlaylist: queueItemInPlaylist(item),
                   parentItem: item.source.item,
+                  queueItem: item,
                   allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
                   onRemoveFromList: () {
                     unawaited(_queueService.removeAtOffset(indexOffset));
