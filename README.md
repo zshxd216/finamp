@@ -186,7 +186,7 @@ On Linux Finamp registers itself to the DBus System, which means you can send me
 This system allows you keep Finamps color theme up to date with your dynamic color theme without restarting the app.
 There are two color related "endpoints" you can call.
 
-1. Reload the system Theme from GTK (Use Dynamic System Color Theme needs to be *enabled*)
+1. Reload the system Accent from GTK (Use Dynamic System Color Theme needs to be *enabled*)
 ```sh
 gdbus call \
     --session \

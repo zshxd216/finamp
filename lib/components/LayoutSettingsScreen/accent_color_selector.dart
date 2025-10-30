@@ -13,16 +13,18 @@ class AccentColorSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final useSystemColor = ref.watch(finampSettingsProvider.useSystemAccentColor);
+    final useSystemAccent = ref.watch(finampSettingsProvider.useSystemAccentColor);
     final color = ref.watch(finampSettingsProvider.accentColor);
     final isSet = color != null;
 
     return ListTile(
-      enabled: !useSystemColor,
-      subtitle: useSystemColor ? Text(AppLocalizations.of(context)!.systemAccentColorHasPriorityInfo) : null,
+      enabled: !useSystemAccent,
+      subtitle: useSystemAccent ? Text(AppLocalizations.of(context)!.systemAccentColorHasPriorityInfo) : null,
       title: Text(AppLocalizations.of(context)!.accentColor),
       trailing: GestureDetector(
         onTap: () {
+          // "Disable" when using systemAccent
+          if (useSystemAccent) return;
           showModalBottomSheet<void>(
             context: context,
             isScrollControlled: true,

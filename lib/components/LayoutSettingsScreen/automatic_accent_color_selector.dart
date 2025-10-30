@@ -13,7 +13,6 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sysColor = ref.watch(finampSettingsProvider.systemAccentColor);
-
     final supportsSystemTheme = Platform.isAndroid || Platform.isWindows || Platform.isMacOS || Platform.isLinux;
     // Safe to assume that the System does not have Color Theme Support
     if (!supportsSystemTheme) return SizedBox.shrink();
@@ -24,18 +23,19 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            sysColor?.toHex() ?? "",
-            style: TextStyle(
-              fontWeight: FontWeight.w400,
-              color: Theme.of(context).textTheme.bodySmall?.color,
-              fontSize: 16,
-            ),
-          ),
+          
+          Container(
+            width: 20,
+            height: 20,
+            margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
+            decoration: BoxDecoration(
+              color: sysColor ?? Colors.transparent,
+              borderRadius: BorderRadius.circular(13),
+            )
+          ),  
           SizedBox(width: 16),
           Switch.adaptive(
             value: ref.watch(finampSettingsProvider.useSystemAccentColor),
-            inactiveThumbColor: sysColor,
             onChanged: (value) {
               FinampSetters.setUseSystemAccentColor(value);
               unawaited(fetchSystemPalette());

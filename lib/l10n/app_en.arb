@@ -724,21 +724,21 @@
   "@accentColorTitle": {
     "description": "Title for the accent color picker sheet"
   },
-  "systemAccentColor": "Use System Theme",
+  "systemAccentColor": "Use System Accent",
   "@systemAccentColor": {
     "description": "Title of the System Accent Color setting."
   },
-  "systemAccentColorHasPriorityInfo": "Custom Accent Color disabled because System Theme is currently in use",
+  "systemAccentColorHasPriorityInfo": "Custom Accent Color disabled because System Accent is currently in use",
   "@systemAccentColorHasPriorityInfo": {
     "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
   },
-  "useMonochromeIcon": "Use Monochrome Icon",
+  "useMonochromeIcon": "Use Monochrome Logo",
   "@useMonochromeIcon": {
-    "description": "Toggles the finamp icon between classic and "
+    "description": "Toggles the finamp icon between classic and it being monochromic. THis does not change the outside-app-icon"
   },
-  "useMonochromeIconSubtitle": "This does not change the App-Icon.",
+  "useMonochromeIconSubtitle": "This does not change the Ouside-App-Icon.",
   "@useMonochromeIconSubtitle": {
-    "description": "It may be confusing for the user since in-app icons and app-icon can be used interchangeably. But this in fact does not change the App-Icon"
+    "description": "It may be confusing for the user since in-app icons and app-icon can be used interchangeably. But this in fact does not change the Ouside-App-Icon"
   },
   "defaultWord": "Default",
   "@defaultWord": {},
