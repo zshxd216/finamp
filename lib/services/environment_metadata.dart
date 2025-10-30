@@ -188,7 +188,7 @@ class ServerInfo {
 
     PublicSystemInfoResult? serverInfo;
     try {
-      serverInfo = await jellyfinApiHelper?.loadServerPublicInfo(timeout: Duration(microseconds: 2500));
+      serverInfo = await jellyfinApiHelper?.loadServerPublicInfo(timeout: Duration(milliseconds: 2500));
     } catch (e) {
       _environmentMetadataLogger.warning("Failed to load server info: $e");
     }
