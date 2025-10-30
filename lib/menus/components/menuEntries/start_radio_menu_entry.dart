@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../services/audio_service_helper.dart';
 import '../../../services/queue_service.dart';
 
 class StartRadioMenuEntry extends ConsumerWidget implements HideableMenuEntry {
@@ -23,8 +24,8 @@ class StartRadioMenuEntry extends ConsumerWidget implements HideableMenuEntry {
       icon: TablerIcons.radio,
       title: AppLocalizations.of(context)!.startRadio,
       onTap: () async {
-        var queueService = GetIt.instance<QueueService>();
-        await queueService.startRadioPlayback(QueueItemSource.fromBaseItem(baseItem));
+        var audioServiceHelper = GetIt.instance<AudioServiceHelper>();
+        await audioServiceHelper.startRadioPlayback(QueueItemSource.fromBaseItem(baseItem));
         if (context.mounted) {
           Navigator.pop(context);
         }

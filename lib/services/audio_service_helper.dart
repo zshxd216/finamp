@@ -7,6 +7,7 @@ import '../models/jellyfin_models.dart' as jellyfin_models;
 import 'downloads_service.dart';
 import 'finamp_settings_helper.dart';
 import 'finamp_user_helper.dart';
+import 'item_helper.dart';
 import 'jellyfin_api_helper.dart';
 import 'queue_service.dart';
 
@@ -184,5 +185,11 @@ class AudioServiceHelper {
       audioServiceHelperLogger.severe(e);
       return Future.error(e);
     }
+  }
+
+  Future<void> startRadioPlayback(QueueItemSource source) async {
+    FinampSetters.setRadioEnabled(true);
+    final items = await _queueService.generateRadioTracks(_queueService.calcRadioTracksNeeded(true), source.item!);
+    await _queueService.startPlayback(items: items, source: source);
   }
 }

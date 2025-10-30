@@ -171,25 +171,28 @@ class QueueService {
   }
 
   /// Returns the amount of tracks that are needed to fill up the radio queue
-  int _radioTracksNeeded() {
+  int calcRadioTracksNeeded([bool ignoreQueue = false]) {
     // TODO: Add setting to control how full the queue should be.
     final minUpcomingRadioTracks = 5;
-    final queueSize = _queueNextUp.length + _queue.length;
-    if (_currentTrack != null &&
-        queueSize < minUpcomingRadioTracks &&
-        FinampSettingsHelper.finampSettings.radioEnabled) {
-      return minUpcomingRadioTracks - queueSize;
+    if (FinampSettingsHelper.finampSettings.radioEnabled) {
+      if (ignoreQueue) {
+        return minUpcomingRadioTracks;
+      }
+      final queueSize = _queueNextUp.length + _queue.length;
+      if (_currentTrack != null && queueSize < minUpcomingRadioTracks) {
+        return minUpcomingRadioTracks - queueSize;
+      }
     }
     return 0;
   }
 
-  Future<void> maybeAddRadioTracks() async {
+  Future<void> maybeAddRadioTracks([jellyfin_models.BaseItemDto? startingItem]) async {
     // TODO: Prevent repeat all alongside radio being enabled?
-    final radioTracksNeeded = _radioTracksNeeded();
+    final radioTracksNeeded = calcRadioTracksNeeded(startingItem != null);
     if (radioTracksNeeded > 0) {
       List<jellyfin_models.BaseItemDto> tracks = await generateRadioTracks(radioTracksNeeded);
       // check if we still need to add tracks after awaiting the generation
-      if (_radioTracksNeeded() > 0) {
+      if (calcRadioTracksNeeded(startingItem != null) > 0) {
         await addToQueue(
           items: tracks,
           source: QueueItemSource(
@@ -208,12 +211,19 @@ class QueueService {
     }
   }
 
-  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int minNumTracks) async {
+  // Generates tracks for the radio. Provide item to generate the initial radio tracks.
+  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int minNumTracks, [jellyfin_models.BaseItemDto? item]) async {
     final currentQueue = getQueue();
     List<jellyfin_models.BaseItemDto> tracksOut = [];
-    _radioLogger.finer(
-      "Generating $minNumTracks radio tracks for queue source '${currentQueue.source.item?.artists?.firstOrNull} - ${currentQueue.source.item?.name}', current track '${_currentTrack?.baseItem?.artists?.firstOrNull} - ${_currentTrack?.baseItem?.name}', last track '${currentQueue.fullQueue.last.baseItem?.artists?.firstOrNull} - ${currentQueue.fullQueue.last.baseItem?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
-    );
+    if (item != null) {
+      _radioLogger.finer(
+          "Generating $minNumTracks radio tracks from item '${item.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode."
+      );
+    } else {
+      _radioLogger.finer(
+          "Generating $minNumTracks radio tracks for queue source '${currentQueue.source.item?.artists?.firstOrNull} - ${currentQueue.source.item?.name}', current track '${_currentTrack?.baseItem?.artists?.firstOrNull} - ${_currentTrack?.baseItem?.name}', last track '${currentQueue.fullQueue.last.baseItem?.artists?.firstOrNull} - ${currentQueue.fullQueue.last.baseItem?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode."
+      );
+    }
     switch (FinampSettingsHelper.finampSettings.radioMode) {
       case RadioMode.reshuffle:
         // Adds tracks in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
@@ -223,8 +233,13 @@ class QueueService {
           // Filter out any existing radio tracks
           final fullQueue = getQueue().fullQueue;
           // Items originally in the currently playing source (or manually added)
-          final originalQueue = fullQueue
+          final originalQueue = item != null ?
+          (await loadChildTracksFromBaseItem(baseItem: item))
+              .map((item) => item)
+              .toList() :
+          fullQueue
               .where((queueItem) => queueItem.source.type != QueueItemSourceType.radio)
+              .map((queueItem) => queueItem.baseItem)
               .toList();
           final allTracks = fullQueue.length;
           final fullIterations = (allTracks / originalQueue.length).floor();
@@ -237,7 +252,7 @@ class QueueService {
           final itemsNotAlreadyPicked = List.of(originalQueue);
           itemsNotAlreadyPicked.removeWhere((item) {
             for (final alreadyAdded in currentIteration) {
-              if (alreadyAdded.baseItemId == item.baseItemId) {
+              if (item == null || alreadyAdded.baseItemId == item.id) {
                 return true;
               }
             }
@@ -245,13 +260,13 @@ class QueueService {
           });
           // Add a new track based on the results
           int nextIndex = _radioRandom.nextInt(itemsNotAlreadyPicked.length);
-          tracksOut.add(itemsNotAlreadyPicked[nextIndex].baseItem!);
+          tracksOut.add(itemsNotAlreadyPicked[nextIndex]!);
           // And add it to the fullQueue for the next iteration of the loop
           originalQueue.add(itemsNotAlreadyPicked[nextIndex]);
         }
         break;
       case RadioMode.random:
-        final items = await loadChildTracksFromBaseItem(baseItem: _order.originalSource.item!);
+        final items = await loadChildTracksFromBaseItem(baseItem: (item ?? _order.originalSource.item!));
         for (var i = 0; i < minNumTracks; i++) {
           // Pick an item to add
           int nextIndex = _radioRandom.nextInt(items.length);
@@ -267,7 +282,7 @@ class QueueService {
         // extra tracks to randomly choose from to introduce non-determinism
         final randomnessExtraTracks = 8 + (minNumTracks * 1.5).ceil();
         tracksOut = await _getSimilarTracks(
-          referenceItem: _order.originalSource.item ?? currentQueue.fullQueue.first.baseItem!,
+          referenceItem: item ?? _order.originalSource.item ?? currentQueue.fullQueue.first.baseItem!,
           minNumTracks: minNumTracks,
           offsetExtraTracks: offsetExtraTracks,
           filterExtraTracks: filterExtraTracks,
@@ -280,7 +295,7 @@ class QueueService {
           final additionalTracks = attempt * 10;
           _radioLogger.warning("No similar tracks found. Retrying with $additionalTracks more extra tracks.");
           tracksOut = await _getSimilarTracks(
-            referenceItem: _order.originalSource.item ?? currentQueue.fullQueue.first.baseItem!,
+            referenceItem: item ?? _order.originalSource.item ?? currentQueue.fullQueue.first.baseItem!,
             minNumTracks: minNumTracks,
             offsetExtraTracks: offsetExtraTracks,
             // we add the extra tracks as a filter instead of an offset, so that newly-added similar tracks are included as soon as possible
@@ -308,7 +323,7 @@ class QueueService {
         tracksOut = await _getSimilarTracks(
           // use the last track as the reference so that the radio flows better
           // if we use the current tracks it always alternates between similar tracks because there's a delay of [minUpcomingRadioTracks] before the related track is played
-          referenceItem: currentQueue.fullQueue.last.baseItem!,
+          referenceItem: item ?? currentQueue.fullQueue.last.baseItem!,
           minNumTracks: 1,
           offsetExtraTracks: offsetExtraTracks,
           filterExtraTracks: filterExtraTracks,
@@ -325,7 +340,7 @@ class QueueService {
           final additionalTracks = attempt * 10;
           _radioLogger.warning("No similar tracks found. Retrying with $additionalTracks more extra tracks.");
           tracksOut += await _getSimilarTracks(
-            referenceItem: currentQueue.fullQueue.last.baseItem!,
+            referenceItem: item ?? currentQueue.fullQueue.last.baseItem!,
             minNumTracks: 1,
             offsetExtraTracks: offsetExtraTracks,
             // we add the extra tracks as a filter instead of an offset, so that newly-added similar tracks are included as soon as possible
@@ -742,14 +757,6 @@ class QueueService {
       "Started playing '${GlobalSnackbar.materialAppScaffoldKey.currentContext != null ? source.name.getLocalized(GlobalSnackbar.materialAppScaffoldKey.currentContext!) : source.name.type}' (${source.type}) in order $order from index $startingIndex",
     );
     _queueServiceLogger.info("Items for queue: [${items.map((e) => e.name).join(", ")}]");
-  }
-
-  Future<void> startRadioPlayback(QueueItemSource source) async {
-    List<jellyfin_models.BaseItemDto> items = await loadChildTracksFromBaseItem(baseItem: source.item!);
-    await startPlayback(items: items, source: source, startingIndex: items.length - 1);
-    FinampSetters.setRadioEnabled(true);
-    await maybeAddRadioTracks();
-    await _audioHandler.skipToNext();
   }
 
   /// Replaces the queue with the given list of items. If startAtIndex is specified, Any items below it
