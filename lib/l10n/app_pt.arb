@@ -2895,5 +2895,19 @@
     "invalidColorCode": "Código de cor inválido",
     "@invalidColorCode": {
         "description": "Snackbar message shown when the user tries to save an invalid hex color code"
-    }
+    },
+    "snackbarOptionsMenuTitle": "Gerir Mensagens",
+    "@snackbarOptionsMenuTitle": {
+        "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+    },
+    "snackbarOptionsMenuClearAllButton": "Limpar Todas as Mensagens",
+    "@snackbarOptionsMenuClearAllButton": {
+        "description": "Button title for clearing all snackbar messages"
+    },
+    "snackbarOptionsMenuViewLogsButton": "Ver Relatórios",
+    "@snackbarOptionsMenuViewLogsButton": {
+        "description": "Button title for opening the logs screen from the snackbar options menu"
+    },
+    "downloadAllPlaylistsSettingWarning": "Nota: Isso irá descarregar todos os itens em todas as listas de reprodução, independente de qual biblioteca eles vêem.",
+    "@downloadAllPlaylistsSettingWarning": {}
 }
