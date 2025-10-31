@@ -163,6 +163,7 @@ class ChoiceListTile extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.isSelected,
+    required this.disabled,
     this.description,
     this.onSelect,
   });
@@ -172,6 +173,7 @@ class ChoiceListTile extends StatelessWidget {
   final IconData icon;
   final bool isSelected;
   final void Function()? onSelect;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {

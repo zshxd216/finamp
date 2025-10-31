@@ -5,7 +5,7 @@ import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dar
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
-import 'package:finamp/components/choosable_toggleable_list_tile.dart';
+import 'package:finamp/components/menu_shower_toggleable_list_tile.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/print_duration.dart';

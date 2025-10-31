@@ -2712,6 +2712,10 @@
     },
     "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
   },
+  "radioModeUnavailableWhileOffline": "Unavailable while offline",
+  "@radioModeUnavailableWhileOffline": {
+    "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+  },
   "autoReloadPrompt": "Reload queue to apply new {type, select, network{network settings} transcoding{transcoding settings} other{settings}}",
   "@autoReloadPrompt": {
     "description": "Prompt shown when the queue needs to be reloaded after changing network settings",

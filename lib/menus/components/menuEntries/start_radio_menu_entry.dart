@@ -12,6 +12,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../services/audio_service_helper.dart';
 import '../../../services/queue_service.dart';
+import '../radio_mode_menu.dart';
 
 class StartRadioMenuEntry extends ConsumerWidget implements HideableMenuEntry {
   final BaseItemDto baseItem;
@@ -24,8 +25,7 @@ class StartRadioMenuEntry extends ConsumerWidget implements HideableMenuEntry {
       icon: TablerIcons.radio,
       title: AppLocalizations.of(context)!.startRadio,
       onTap: () async {
-        var audioServiceHelper = GetIt.instance<AudioServiceHelper>();
-        await audioServiceHelper.startRadioPlayback(QueueItemSource.fromBaseItem(baseItem));
+        await userStartRadioPlayback(context, ref, baseItem);
         if (context.mounted) {
           Navigator.pop(context);
         }
