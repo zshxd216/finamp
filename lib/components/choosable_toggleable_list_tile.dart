@@ -9,11 +9,11 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 
-class ChooseableToggleableListTile extends ConsumerWidget {
-  const ChooseableToggleableListTile({
+class MenuShowerToggleableListTile extends ConsumerWidget {
+  const MenuShowerToggleableListTile({
     super.key,
     required this.title,
-    required this.choices,
+    required this.menuCreator,
     required this.menuTitle,
     this.subtitle,
     required this.leading,
@@ -35,7 +35,7 @@ class ChooseableToggleableListTile extends ConsumerWidget {
   final bool isLoading;
   final bool enabled;
   final bool confirmationFeedback;
-  final List<ChoiceListTile> choices;
+  final Future<void> Function() menuCreator;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,7 +86,7 @@ class ChooseableToggleableListTile extends ConsumerWidget {
               ? null
               : () async {
                   FeedbackHelper.feedback(FeedbackType.selection);
-                  await showChoiceMenu(context: context, title: menuTitle, usePlayerTheme: true, listEntries: choices);
+                  await menuCreator();
                 },
           contentPadding: EdgeInsets.zero,
           minVerticalPadding: 0,

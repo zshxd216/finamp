@@ -11,6 +11,7 @@ import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
+import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/screens/blurred_player_screen_background.dart';
@@ -79,13 +80,6 @@ void scrollToKey({required GlobalKey key, Duration duration = const Duration(mil
     alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
   );
 }
-
-IconData getRadioModeIcon(RadioMode mode) => switch (mode) {
-  RadioMode.reshuffle => TablerIcons.arrows_shuffle,
-  RadioMode.random => TablerIcons.help_hexagon,
-  RadioMode.similar => TablerIcons.ear,
-  RadioMode.continuous => TablerIcons.route,
-};
 
 class _QueueListState extends ConsumerState<QueueList> {
   final _queueService = GetIt.instance<QueueService>();
@@ -964,43 +958,6 @@ class QueueSectionHeader extends ConsumerWidget {
 
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
 
-    final radioModeChoices = RadioMode.values
-        .map(
-          (radioModeOption) => ChoiceListTile(
-            title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
-            description: AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name),
-            icon: getRadioModeIcon(radioModeOption),
-            isSelected: radioEnabled && radioMode == radioModeOption,
-            onSelect: () async {
-              FinampSetters.setRadioMode(radioModeOption);
-              FinampSetters.setRadioEnabled(true);
-              FeedbackHelper.feedback(FeedbackType.selection);
-              Navigator.of(context).pop();
-              // GlobalSnackbar.message(
-              //   (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
-              //   isConfirmation: true,
-              // );
-            },
-          ),
-        )
-        .followedBy(<ChoiceListTile>[
-          ChoiceListTile(
-            title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
-            icon: TablerIcons.radio_off,
-            isSelected: !radioEnabled,
-            onSelect: () async {
-              FinampSetters.setRadioEnabled(false);
-              FeedbackHelper.feedback(FeedbackType.selection);
-              Navigator.of(context).pop();
-              // GlobalSnackbar.message(
-              //   (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
-              //   isConfirmation: true,
-              // );
-            },
-          ),
-        ])
-        .toList();
-
     return Column(
       children: [
         Padding(
@@ -1099,14 +1056,7 @@ class QueueSectionHeader extends ConsumerWidget {
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
                           onPressed: radioEnabled
                               ? () async {
-                                  FeedbackHelper.feedback(FeedbackType.selection);
-                                  await showChoiceMenu(
-                                    context: context,
-                                    title: AppLocalizations.of(context)!.radioModeMenuTitle,
-                                    subtitle: AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
-                                    usePlayerTheme: true,
-                                    listEntries: radioModeChoices,
-                                  );
+                                  await showRadioMenu(context, ref, AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle);
                                 }
                               : () {
                                   queueService.toggleLoopMode();
@@ -1121,7 +1071,7 @@ class QueueSectionHeader extends ConsumerWidget {
           ),
         ),
         // Radio mode
-        ChooseableToggleableListTile(
+        MenuShowerToggleableListTile(
           title: radioEnabled
               ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
               : AppLocalizations.of(context)!.radioModeDisabledTitle,
@@ -1129,11 +1079,11 @@ class QueueSectionHeader extends ConsumerWidget {
               ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
               : AppLocalizations.of(context)!.radioModeDisabledSubtitle,
           menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
-          choices: radioModeChoices,
+          menuCreator: () => showRadioMenu(context, ref),
           leading: Padding(
             padding: const EdgeInsets.only(left: 6.0, top: 6.0),
             child: Icon(
-              getRadioModeIcon(radioMode),
+              radioMode.icon,
               size: 36.0,
               color: radioEnabled ? IconTheme.of(context).color : null,
             ),

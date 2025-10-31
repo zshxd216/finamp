@@ -11,6 +11,7 @@ import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:isar/isar.dart';
@@ -3644,11 +3645,19 @@ class RawThemeResult {
 @HiveType(typeId: 109)
 enum RadioMode {
   @HiveField(0)
-  reshuffle,
+  reshuffle(availableOffline: true, icon: TablerIcons.arrows_shuffle),
   @HiveField(1)
-  random,
+  random(availableOffline: true, icon: TablerIcons.help_hexagon),
   @HiveField(2)
-  similar,
+  similar(availableOffline: false, icon: TablerIcons.ear),
   @HiveField(3)
-  continuous,
+  continuous(availableOffline: false, icon: TablerIcons.route);
+
+  final bool availableOffline;
+  final IconData icon;
+
+  const RadioMode({
+    required this.availableOffline,
+    required this.icon
+  });
 }
