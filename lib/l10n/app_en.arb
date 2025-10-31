@@ -2067,6 +2067,8 @@
   "@downloadFavoritesSetting": {},
   "downloadAllPlaylistsSetting": "Download all playlists",
   "@downloadAllPlaylistsSetting": {},
+  "downloadAllPlaylistsSettingWarning": "Note: This will download all items in all playlists, no matter which library they're from.",
+  "@downloadAllPlaylistsSettingWarning": {},
   "fiveLatestAlbumsSetting": "Download 5 latest albums",
   "@fiveLatestAlbumsSetting": {},
   "fiveLatestAlbumsSettingSubtitle": "Downloads will be removed as they age out.  Lock the download to prevent an album from being removed.",
