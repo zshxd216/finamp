@@ -81,7 +81,6 @@ class QueueService {
 
   // the audio source used by the player. The first X items of all internal queues are merged together into this source, so that all player features, like gapless playback, are supported
   late final ShuffleOrder _shuffleOrder;
-  late final ConcatenatingAudioSource _queueAudioSource;
   int _queueAudioSourceIndex = 0;
 
   // Flags for saving and loading saved queues
@@ -103,7 +102,6 @@ class QueueService {
     _queueServiceLogger.info("Restored playback speed to $playbackSpeed from settings");
 
     _shuffleOrder = NextUpShuffleOrder(queueService: this);
-    _queueAudioSource = ConcatenatingAudioSource(children: [], shuffleOrder: _shuffleOrder);
 
     _audioHandler.playbackState.listen((event) async {
       // int indexDifference = (event.currentIndex ?? 0) - _queueAudioSourceIndex;
@@ -579,7 +577,7 @@ class QueueService {
         // Both iOS and macOS will start playing the first queue index if we don't stop first
         await _audioHandler.stopPlayback();
       }
-      await _queueAudioSource.clear();
+      await _audioHandler.clearAudioSources();
 
       List<AudioSource> audioSources = [];
 
@@ -587,16 +585,13 @@ class QueueService {
         audioSources.add(await _queueItemToAudioSource(queueItem));
       }
 
-      await _queueAudioSource.addAll(audioSources);
-
-      // set first item in queue
-      _queueAudioSourceIndex = initialIndex;
-      if (_playbackOrder == FinampPlaybackOrder.shuffled) {
-        _queueAudioSourceIndex = _queueAudioSource.shuffleIndices[initialIndex];
-      }
-      _audioHandler.setNextInitialIndex(_queueAudioSourceIndex);
-
-      await _audioHandler.initializeAudioSource(_queueAudioSource, preload: true);
+      final Duration? queueDuration = await _audioHandler.setAudioSources(
+        audioSources,
+        initialIndex: initialIndex,
+        preload: true,
+        shuffleOrder: _shuffleOrder,
+        initialPosition: Duration.zero,
+      );
 
       //!!! keep this roughly here so the player screen opens to the correct track, but doesn't seem laggy
       if (beginPlaying) {
@@ -606,7 +601,7 @@ class QueueService {
         }
       }
 
-      newShuffledOrder = List.from(_queueAudioSource.shuffleIndices);
+      newShuffledOrder = List.from(_audioHandler.shuffleIndices);
 
       _order = FinampQueueOrder(
         items: newItems,
@@ -637,7 +632,7 @@ class QueueService {
   Future<void> reloadQueue({bool archiveQueue = false}) async {
     _queueServiceLogger.info("Reloading queue");
 
-    if (_queueAudioSource.length == 0) {
+    if (_audioHandler.audioSources.isEmpty) {
       return Future.error("Queue is empty, cannot reload!");
     }
 
@@ -672,7 +667,7 @@ class QueueService {
       _savedQueueState = SavedQueueState.saving;
     }
 
-    await _queueAudioSource.clear();
+    await _audioHandler.clearAudioSources();
 
     await _audioHandler.stopPlayback();
 
@@ -688,7 +683,7 @@ class QueueService {
     QueueItemSource? source,
     FinampPlaybackOrder? order,
   }) async {
-    if (_queueAudioSource.length == 0) {
+    if (_audioHandler.audioSources.isEmpty) {
       return _replaceWholeQueue(
         itemList: items,
         order: order,
@@ -724,12 +719,12 @@ class QueueService {
         );
       }
 
-      List<AudioSource> audioSources = [];
-      for (final item in queueItems) {
-        audioSources.add(await _queueItemToAudioSource(item));
-        _queueServiceLogger.fine("Added '${item.item.title}' to queue from '${source?.name}' (${source?.type})");
-      }
-      await _queueAudioSource.addAll(audioSources);
+      await _audioHandler.addQueueItems(
+        queueItems.map((e) {
+          _queueServiceLogger.fine("Added '${e.item.title}' to queue from '${source?.name}' (${source?.type})");
+          return e.item;
+        }).toList(),
+      );
 
       _queueFromConcatenatingAudioSource(); // update internal queues
     } catch (e) {
@@ -743,7 +738,7 @@ class QueueService {
     QueueItemSource? source,
     FinampPlaybackOrder? order,
   }) async {
-    if (_queueAudioSource.length == 0) {
+    if (_audioHandler.audioSources.isEmpty) {
       return _replaceWholeQueue(
         itemList: items,
         source:
@@ -786,18 +781,16 @@ class QueueService {
       }
 
       int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
-      int offset = min(_queueAudioSource.length, 1);
+      int offset = min(_audioHandler.audioSources.length, 1);
       int offsetLog = offset;
 
-      List<AudioSource> audioSourceList = [];
       for (final queueItem in queueItems) {
-        audioSourceList.add(await _queueItemToAudioSource(queueItem));
         _queueServiceLogger.fine(
           "Prepended '${queueItem.item.title}' to Next Up (index ${adjustedQueueIndex + offsetLog})",
         );
         offsetLog++;
+        await _audioHandler.insertQueueItem(adjustedQueueIndex + offset, queueItem.item);
       }
-      await _queueAudioSource.insertAll(adjustedQueueIndex + offset, audioSourceList);
 
       _queueFromConcatenatingAudioSource(); // update internal queues
     } catch (e) {
@@ -811,7 +804,7 @@ class QueueService {
     QueueItemSource? source,
     FinampPlaybackOrder? order,
   }) async {
-    if (_queueAudioSource.length == 0) {
+    if (_audioHandler.audioSources.isEmpty) {
       return _replaceWholeQueue(
         itemList: items,
         source:
@@ -854,20 +847,18 @@ class QueueService {
       }
 
       _queueFromConcatenatingAudioSource(logUpdate: false); // update internal queues
-      int offset = _queueNextUp.length + min(_queueAudioSource.length, 1);
+      int offset = _queueNextUp.length + min(_audioHandler.audioSources.length, 1);
       int offsetLog = offset;
 
       int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
 
-      List<AudioSource> audioSourceList = [];
       for (final queueItem in queueItems) {
-        audioSourceList.add(await _queueItemToAudioSource(queueItem));
         _queueServiceLogger.fine(
           "Appended '${queueItem.item.title}' to Next Up (index ${adjustedQueueIndex + offsetLog})",
         );
         offsetLog++;
+        await _audioHandler.insertQueueItem(adjustedQueueIndex + offset, queueItem.item);
       }
-      await _queueAudioSource.insertAll(adjustedQueueIndex + offset, audioSourceList);
 
       _queueFromConcatenatingAudioSource(); // update internal queues
     } catch (e) {
@@ -883,8 +874,7 @@ class QueueService {
   Future<void> removeAtOffset(int offset) async {
     int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex + offset);
 
-    await _queueAudioSource.removeAt(adjustedQueueIndex);
-    // await _audioHandler.removeQueueItemAt(index);
+    await _audioHandler.removeQueueItemAt(adjustedQueueIndex);
     _queueFromConcatenatingAudioSource();
   }
 
@@ -897,7 +887,7 @@ class QueueService {
     final oldIndex = adjustedQueueIndex + oldOffset;
     final newIndex = oldOffset < newOffset ? adjustedQueueIndex + newOffset - 1 : adjustedQueueIndex + newOffset;
 
-    await _queueAudioSource.move(oldIndex, newIndex);
+    await _audioHandler.moveAudioSource(oldIndex, newIndex);
     _queueFromConcatenatingAudioSource();
   }
 
@@ -906,7 +896,7 @@ class QueueService {
 
     // remove all items from Next Up
     if (_queueNextUp.isNotEmpty) {
-      await _queueAudioSource.removeRange(adjustedQueueIndex + 1, adjustedQueueIndex + 1 + _queueNextUp.length);
+      await _audioHandler.removeAudioSourceRange(adjustedQueueIndex + 1, adjustedQueueIndex + 1 + _queueNextUp.length);
       _queueNextUp.clear();
     }
 
@@ -1079,8 +1069,8 @@ class QueueService {
   Logger get queueServiceLogger => _queueServiceLogger;
 
   int getActualIndexByLinearIndex(int linearIndex) {
-    if (_playbackOrder == FinampPlaybackOrder.shuffled && _queueAudioSource.shuffleIndices.isNotEmpty) {
-      return _queueAudioSource.shuffleIndices[linearIndex];
+    if (_playbackOrder == FinampPlaybackOrder.shuffled && _audioHandler.shuffleIndices.isNotEmpty) {
+      return _audioHandler.shuffleIndices[linearIndex];
     } else {
       return linearIndex;
     }

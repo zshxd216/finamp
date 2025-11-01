@@ -30,9 +30,9 @@ dependencies:
   json_annotation: ^4.8.1
   chopper: ^8.0.0
   get_it: ^8.2.0
-  just_audio: ^0.9.43
-  just_audio_media_kit: ^2.0.6
-  media_kit_libs_linux: ^1.1.3
+  just_audio: ^0.10.5
+  just_audio_media_kit: ^2.1.0
+  media_kit_libs_linux: ^1.2.1
 
   # Transcoding does not work on windows with current media-kit release.  This fork uses the most recent
   # build of MPV from https://github.com/zhongfly/mpv-winbuild, which works correctly while transcoding.
@@ -47,9 +47,9 @@ dependencies:
       ref: 7ece49cc16a459aaa0718ed23458802533daef37
       path: packages/smtc_windows/
 
-  audio_service: ^0.18.17
+  audio_service: ^0.18.18
   audio_service_mpris: ^0.2.0
-  audio_service_platform_interface: ^0.1.1
+  audio_service_platform_interface: ^0.1.3
   audio_session: ^0.2.2
   rxdart: ^0.28.0
   simple_gesture_detector: ^0.2.1

@@ -139,7 +139,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
 
   Future<bool> Function()? _queueCallbackPreviousTrack;
 
-  List<int>? get shuffleIndices => _player.shuffleIndices;
+  List<int> get shuffleIndices => _player.shuffleIndices;
+  List<AudioSource> get audioSources => _player.audioSources;
 
   double iosBaseVolumeGainFactor = 1.0;
   late final PlayerVolumeController _volume = PlayerVolumeController(_player);
@@ -264,6 +265,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
     _audioPipeline = AudioPipeline(androidAudioEffects: _androidAudioEffects, darwinAudioEffects: _iosAudioEffects);
 
     _player = AudioPlayer(
+      maxSkipsOnError: 0,
       audioLoadConfiguration: AudioLoadConfiguration(
         androidLoadControl: AndroidLoadControl(
           targetBufferBytes: FinampSettingsHelper.finampSettings.bufferDisableSizeConstraints
@@ -306,8 +308,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
     // Propagate all events from the audio player to AudioService clients.
     int? replayQueueIndex;
     _player.playbackEventStream.listen((event) async {
-      final playerSequence = _player.sequenceState?.sequence;
-      if (playerSequence != null && playerSequence.isNotEmpty) {
+      final playerSequence = _player.sequenceState.sequence;
+      if (playerSequence.isNotEmpty) {
         if (event.currentIndex != replayQueueIndex) {
           replayQueueIndex = event.currentIndex;
           if (replayQueueIndex != null && playerSequence.elementAtOrNull(replayQueueIndex!) != null) {
@@ -368,6 +370,10 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
       sleepTimer?.onTrackCompleted();
     });
 
+    _player.errorStream.listen((error) {
+      _audioServiceBackgroundTaskLogger.severe("Player error: $error", error);
+    });
+
     // trigger sleep timer early if we're almost at the end of the final track
     _player.positionStream.listen((position) {
       if (sleepTimer?.remainingTracks == 1 &&
@@ -408,11 +414,22 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
     _queueCallbackPreviousTrack = previousTrackCallback;
   }
 
-  Future<void> initializeAudioSource(ConcatenatingAudioSource source, {required bool preload}) async {
-    _queueAudioSource = source;
-
+  Future<Duration?> setAudioSources(
+    List<AudioSource> audioSources, {
+    bool preload = true,
+    int? initialIndex,
+    Duration? initialPosition,
+    ShuffleOrder? shuffleOrder,
+  }) async {
+    _setNextInitialIndex(initialIndex ?? 0);
     try {
-      await _player.setAudioSource(_queueAudioSource, preload: preload, initialIndex: nextInitialIndex);
+      return await _player.setAudioSources(
+        audioSources,
+        preload: preload,
+        initialIndex: initialIndex,
+        initialPosition: initialPosition,
+        shuffleOrder: shuffleOrder,
+      );
     } on PlayerException catch (e) {
       _audioServiceBackgroundTaskLogger.severe("Player error code ${e.code}: ${e.message}");
       GlobalSnackbar.error(e);
@@ -423,6 +440,19 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
       _audioServiceBackgroundTaskLogger.severe("Player error ${e.toString()}");
       GlobalSnackbar.error(e);
     }
+    return null;
+  }
+
+  Future<void> moveAudioSource(int currentIndex, int newIndex) {
+    return _player.moveAudioSource(currentIndex, newIndex);
+  }
+
+  Future<void> removeAudioSourceRange(int start, int end) {
+    return _player.removeAudioSourceRange(start, end);
+  }
+
+  Future<void> clearAudioSources() {
+    return _player.clearAudioSources();
   }
 
   /// Fully dispose the player instance.  Should only be called during app shutdown.
@@ -965,7 +995,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
     return skipToIndex(index);
   }
 
-  void setNextInitialIndex(int index) {
+  void _setNextInitialIndex(int index) {
     nextInitialIndex = index;
   }
 
