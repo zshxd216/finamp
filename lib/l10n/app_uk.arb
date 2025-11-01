@@ -2887,5 +2887,19 @@
     "invalidColorCode": "Недійсний код кольору",
     "@invalidColorCode": {
         "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "downloadAllPlaylistsSettingWarning": "Примітка: Це завантажить усі елементи з усіх списків відтворення, незалежно від того, з якої бібліотеки вони походять.",
+    "@downloadAllPlaylistsSettingWarning": {},
+    "snackbarOptionsMenuTitle": "Керування повідомленнями",
+    "@snackbarOptionsMenuTitle": {
+        "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+    },
+    "snackbarOptionsMenuClearAllButton": "Очистити всі повідомлення",
+    "@snackbarOptionsMenuClearAllButton": {
+        "description": "Button title for clearing all snackbar messages"
+    },
+    "snackbarOptionsMenuViewLogsButton": "Переглянути журнали",
+    "@snackbarOptionsMenuViewLogsButton": {
+        "description": "Button title for opening the logs screen from the snackbar options menu"
     }
 }
