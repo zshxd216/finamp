@@ -1476,7 +1476,7 @@
     "@periodicPlaybackSessionUpdateFrequencySubtitle": {
         "description": "Description of the setting that controls how frequently (in seconds) the current playback session is reported to the Jellyfin server"
     },
-    "albumCount": "{count,plural,=1{{count} Альбом} other{{count} Альбоми}}",
+    "albumCount": "{count,plural,=1{{count} Альбом} few{{count} Альбоми} other{{count} Альбомів}}",
     "@albumCount": {
         "placeholders": {
             "count": {
