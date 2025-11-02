@@ -1235,7 +1235,7 @@
     "@downloadTranscodeEnableTitle": {
         "description": "Title for Enable Transcoded Downloads dropdown"
     },
-    "downloadTranscodeCodecTitle": "Sélectionnez le format pour le téléchargement",
+    "downloadTranscodeCodecTitle": "Format utilisé pour le téléchargement",
     "@downloadTranscodeCodecTitle": {
         "description": "Title for Select Download Codec dropdown"
     },
@@ -1445,7 +1445,7 @@
     "@redownloadSubtitle": {
         "description": "subtitle for download transcode setting which redownloads tracks with higher allowed qualities"
     },
-    "enableVibrationSubtitle": "Activer ou non le mode vibreur.",
+    "enableVibrationSubtitle": "Activer ou non le vibreur.",
     "@enableVibrationSubtitle": {},
     "defaultDownloadLocationButton": "Choisir cet emplacement pour le téléchargement. Désactiver pour choisir à chaque téléchargement.",
     "@defaultDownloadLocationButton": {
@@ -1539,7 +1539,7 @@
     "@transcodingStreamingFormatTitle": {
         "description": "Title for the dropdown that selects the format for transcoded streams"
     },
-    "transcodingStreamingFormatSubtitle": "Sélectionnez le format à utiliser pour la diffusion audio transcodée. Les pistes déjà en file d'attente ne seront pas affectées.",
+    "transcodingStreamingFormatSubtitle": "Format utilisé pour la diffusion audio transcodée. Les pistes déjà en file d'attente ne seront pas affectées.",
     "@transcodingStreamingFormatSubtitle": {},
     "periodicPlaybackSessionUpdateFrequencyDetails": "Si le serveur Jellyfin n'a reçu aucune mise à jour d'un client au cours des 5 dernières minutes, il considère que la lecture est terminée. Cela signifie que pour les pistes de plus de 5 minutes, la lecture pourrait être signalée à tort comme terminée, ce qui réduirait la qualité des données de lecture.",
     "@periodicPlaybackSessionUpdateFrequencyDetails": {
@@ -2113,7 +2113,7 @@
     "@applyFilterOnGenreChipTapTitle": {
         "description": "Title for the setting that controls if taps on genre chips should apply a genre filter to the current screen or should redirect to the GenreScreen."
     },
-    "genreFilterPlaylistScreensSubtitle": "Lorsqu'elles sont activées, les playlists (accessibles par genre) n'affichent que les titres correspondant au genre actuellement consulté. (Il est toujours possible de désactiver manuellement le filtre de genre pour afficher tous les titres.)",
+    "genreFilterPlaylistScreensSubtitle": "Lorsqu'elles sont activées, les playlists (accessibles par genre) n'affichent que les titres correspondant au genre actuellement consulté.",
     "@genreFilterPlaylistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
@@ -2229,7 +2229,7 @@
     "@genreListsInheritSorting": {
         "description": "Label for the setting that controls if a See All Genre Lists should inherit the Genre Sorting and Filtering."
     },
-    "genreFilterArtistScreensSubtitle": "Lorsque cette option est activée, la section Artistes (accessible via un genre) affiche uniquement les titres et albums correspondant au genre actuellement consulté. (Il est toujours possible de désactiver manuellement le filtre de genre pour afficher tous les titres et albums.)",
+    "genreFilterArtistScreensSubtitle": "Lorsque cette option est activée, la section Artistes (accessible via un genre) affiche uniquement les titres et albums correspondant au genre actuellement consulté.",
     "@genreFilterArtistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
     },
@@ -2528,7 +2528,7 @@
     "@serverSharingMenuDetails": {
         "description": "Description text shown in the server sharing menu, below the description"
     },
-    "quickConnectAuthorizationMenuButtonTitle": "»Autoriser la connexion rapide",
+    "quickConnectAuthorizationMenuButtonTitle": "Connexion rapide",
     "@quickConnectAuthorizationMenuButtonTitle": {
         "description": "Title for the button in the drawer that opens the quick connect authorization menu"
     },
@@ -2572,11 +2572,11 @@
     "@accessibility": {
         "description": "Title for the accessibility settings screen"
     },
-    "useHighContrastColorsTitle": "Utilisez des couleurs à contraste élevé",
+    "useHighContrastColorsTitle": "Utiliser des couleurs à contraste élevé",
     "@useHighContrastColorsTitle": {
         "description": "Title for the setting that controls if high contrast colors are used throughout the app"
     },
-    "useHighContrastColorsSubtitle": "Utilisez des couleurs dynamiques à contraste élevé pour une meilleure visibilité.",
+    "useHighContrastColorsSubtitle": "Utiliser des couleurs dynamiques à contraste élevé pour une meilleure visibilité.",
     "@useHighContrastColorsSubtitle": {
         "description": "Subtitle for the setting that controls if high contrast colors are used throughout the app"
     },
