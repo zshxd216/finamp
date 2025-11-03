@@ -2885,5 +2885,19 @@
     "invalidColorCode": "Neplatný kód barvy",
     "@invalidColorCode": {
         "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "downloadAllPlaylistsSettingWarning": "Upozornění: touto možností stáhnete všechny položky ve všech seznamech skladeb, nezávisle na knihovně, ze které pocházejí.",
+    "@downloadAllPlaylistsSettingWarning": {},
+    "snackbarOptionsMenuTitle": "Spravovat zprávy",
+    "@snackbarOptionsMenuTitle": {
+        "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+    },
+    "snackbarOptionsMenuClearAllButton": "Vymazat všechny zprávy",
+    "@snackbarOptionsMenuClearAllButton": {
+        "description": "Button title for clearing all snackbar messages"
+    },
+    "snackbarOptionsMenuViewLogsButton": "Zobrazit protokoly",
+    "@snackbarOptionsMenuViewLogsButton": {
+        "description": "Button title for opening the logs screen from the snackbar options menu"
     }
 }
