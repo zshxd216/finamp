@@ -446,6 +446,10 @@ class _PreviousTracksListState extends State<PreviousTracksList> with TickerProv
                     await _queueService.skipByOffset(indexOffset);
                     scrollToKey(key: widget.previousTracksHeaderKey, duration: const Duration(milliseconds: 500));
                   },
+                  allowDismiss: true,
+                  onRemoveFromList: () {
+                    unawaited(_queueService.removeAtOffset(indexOffset));
+                  },
                   isCurrentTrack: false,
                 );
               },
