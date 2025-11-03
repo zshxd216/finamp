@@ -386,20 +386,6 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
       }
     });
 
-    // PlaybackEvent doesn't include shuffle/loops so we listen for changes here
-    _player.shuffleModeEnabledStream.listen((_) {
-      final event = _transformEvent(_player.playbackEvent);
-      playbackState.add(event);
-      _audioServiceBackgroundTaskLogger.info(
-        "Shuffle mode changed to ${event.shuffleMode} (${_player.shuffleModeEnabled}).",
-      );
-    });
-    _player.loopModeStream.listen((_) {
-      final event = _transformEvent(_player.playbackEvent);
-      playbackState.add(event);
-      _audioServiceBackgroundTaskLogger.info("Loop mode changed to ${event.repeatMode} (${_player.loopMode}).");
-    });
-
     fadeState = BehaviorSubject.seeded(FadeState(fadeVolume: 1.0));
   }
 
@@ -790,6 +776,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
             "Unsupported AudioServiceRepeatMode! Received ${shuffleMode.toString()}, requires all or none.",
           );
       }
+      _audioServiceBackgroundTaskLogger.info("Set shuffle mode to $shuffleMode");
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe(e);
       return Future.error(e);
@@ -814,6 +801,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
             "Unsupported AudioServiceRepeatMode! Received ${repeatMode.toString()}, requires all, none, or one.",
           );
       }
+      _audioServiceBackgroundTaskLogger.info("Set repeat mode to $repeatMode");
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe(e);
       return Future.error(e);
