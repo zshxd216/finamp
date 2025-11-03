@@ -10,6 +10,7 @@ import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/services/current_track_metadata_provider.dart';
 import 'package:finamp/services/favorite_provider.dart';
+import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/foundation.dart';
@@ -108,7 +109,7 @@ class PlayerVolumeController {
 
 /// This provider handles the currently playing music so that multiple widgets
 /// can control music.
-class MusicPlayerBackgroundTask extends BaseAudioHandler {
+class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, QueueHandler {
   final _androidAutoHelper = GetIt.instance<AndroidAutoHelper>();
 
   AppLocalizations? _appLocalizations;
@@ -119,14 +120,9 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
   late final List<DarwinAudioEffect> _iosAudioEffects;
   late final AndroidLoudnessEnhancer? _loudnessEnhancerEffect;
 
-  ConcatenatingAudioSource _queueAudioSource = ConcatenatingAudioSource(children: []);
   final _audioServiceBackgroundTaskLogger = Logger("MusicPlayerBackgroundTask");
   final _volumeNormalizationLogger = Logger("VolumeNormalization");
   final _outputLogger = Logger("Output");
-
-  /// Set when creating a new queue. Will be used to set the first index in a
-  /// new queue.
-  int? nextInitialIndex;
 
   // Init the new sleep timer with a length of 0
   // SleepTimer sleepTimer = SleepTimer(SleepTimerType.duration, 0);
@@ -414,15 +410,19 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
     _queueCallbackPreviousTrack = previousTrackCallback;
   }
 
-  Future<Duration?> setAudioSources(
-    List<AudioSource> audioSources, {
+  Future<Duration?> setQueueItems(
+    List<FinampQueueItem> queueItems, {
     bool preload = true,
     int? initialIndex,
     Duration? initialPosition,
     ShuffleOrder? shuffleOrder,
   }) async {
-    _setNextInitialIndex(initialIndex ?? 0);
     try {
+      List<AudioSource> audioSources = [];
+
+      for (final queueItem in queueItems) {
+        audioSources.add(await _queueItemToAudioSource(queueItem));
+      }
       return await _player.setAudioSources(
         audioSources,
         preload: preload,
@@ -443,15 +443,35 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
     return null;
   }
 
-  Future<void> moveAudioSource(int currentIndex, int newIndex) {
+  Future<void> appendFinampQueueItem(FinampQueueItem queueItem) async {
+    return _player.addAudioSource(await _queueItemToAudioSource(queueItem));
+  }
+
+  Future<void> appendFinampQueueItems(List<FinampQueueItem> queueItems) async {
+    return _player.addAudioSources(await Future.wait(queueItems.map(_queueItemToAudioSource)));
+  }
+
+  Future<void> insertFinampQueueItemAt(int index, FinampQueueItem queueItem) async {
+    return _player.insertAudioSource(index, await _queueItemToAudioSource(queueItem));
+  }
+
+  Future<void> insertFinampQueueItems(int index, List<FinampQueueItem> queueItems) async {
+    return _player.insertAudioSources(index, await Future.wait(queueItems.map(_queueItemToAudioSource)));
+  }
+
+  Future<void> moveFinampQueueItem(int currentIndex, int newIndex) {
     return _player.moveAudioSource(currentIndex, newIndex);
   }
 
-  Future<void> removeAudioSourceRange(int start, int end) {
+  Future<void> removeFinampQueueItemAt(int index) {
+    return _player.removeAudioSourceAt(index);
+  }
+
+  Future<void> removeFinampQueueItemRange(int start, int end) {
     return _player.removeAudioSourceRange(start, end);
   }
 
-  Future<void> clearAudioSources() {
+  Future<void> clearFinampQueueItems() {
     return _player.clearAudioSources();
   }
 
@@ -624,7 +644,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
       // item, so only pause.
       await pause(disableFade: true);
       // Skipping to zero with empty queue re-triggers queue complete event
-      if (_player.effectiveIndices?.isNotEmpty ?? false) {
+      if (_player.effectiveIndices.isNotEmpty) {
         await skipToIndex(0);
       }
     } catch (e) {
@@ -690,27 +710,27 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
 
     try {
       int queueIndex = _player.shuffleModeEnabled
-          ? _queueAudioSource.shuffleIndices.indexOf((_player.currentIndex ?? 0)) + offset
+          ? shuffleIndices.indexOf((_player.currentIndex ?? 0)) + offset
           : (_player.currentIndex ?? 0) + offset;
-      if (queueIndex >= (_player.effectiveIndices?.length ?? 1)) {
+      if (queueIndex >= _player.effectiveIndices.length) {
         if (_player.loopMode == LoopMode.off) {
           //!!! seek to end of track to for the player to handle the end of queue
           // this is hacky, but seems to be the only way to get the proper events that the playback history service needs
           //TODO Finamp should probably use its own event system that is able to convey the necessary information
           return await _player.seek(_player.duration);
         }
-        queueIndex %= (_player.effectiveIndices?.length ?? 1);
+        queueIndex %= (_player.effectiveIndices.length);
       }
       if (queueIndex < 0) {
         if (_player.loopMode == LoopMode.off) {
           queueIndex = 0;
         } else {
-          queueIndex %= (_player.effectiveIndices?.length ?? 1);
+          queueIndex %= (_player.effectiveIndices.length);
         }
       }
       await _player.seek(
         Duration.zero,
-        index: _player.shuffleModeEnabled ? _queueAudioSource.shuffleIndices[queueIndex] : queueIndex,
+        index: _player.shuffleModeEnabled ? shuffleIndices[queueIndex] : queueIndex,
       );
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe(e);
@@ -724,7 +744,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
     try {
       await _player.seek(
         Duration.zero,
-        index: _player.shuffleModeEnabled ? _queueAudioSource.shuffleIndices[index] : index,
+        index: _player.shuffleModeEnabled ? shuffleIndices[index] : index,
       );
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe(e);
@@ -930,50 +950,13 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
   @override
   Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) async {
     try {
-      final ref = GetIt.instance<ProviderContainer>();
       final action = CustomPlaybackActions.values.firstWhere((element) => element.name == name);
       switch (action) {
         case CustomPlaybackActions.shuffle:
           final queueService = GetIt.instance<QueueService>();
           return queueService.togglePlaybackOrder();
         case CustomPlaybackActions.toggleFavorite:
-          jellyfin_models.BaseItemDto? currentItem;
-
-          if (mediaItem.valueOrNull?.extras?["itemJson"] != null) {
-            currentItem = jellyfin_models.BaseItemDto.fromJson(
-              mediaItem.valueOrNull?.extras!["itemJson"] as Map<String, dynamic>,
-            );
-          } else {
-            return;
-          }
-
-          bool isFavorite = currentItem.userData?.isFavorite ?? false;
-          if (GlobalSnackbar.materialAppScaffoldKey.currentContext != null) {
-            // get current favorite status from the provider
-            isFavorite = ref.read(isFavoriteProvider(currentItem));
-            // update favorite status with the value returned by the provider
-            isFavorite = ref.read(isFavoriteProvider(currentItem).notifier).updateFavorite(!isFavorite);
-          } else {
-            // fallback if we can't find the context
-            final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
-            if (isFavorite) {
-              await jellyfinApiHelper.removeFavorite(currentItem.id);
-            } else {
-              await jellyfinApiHelper.addFavorite(currentItem.id);
-            }
-            isFavorite = !isFavorite;
-            final newUserData = currentItem.userData;
-            if (newUserData != null) {
-              newUserData.isFavorite = isFavorite;
-            }
-            currentItem.userData = newUserData;
-            mediaItem.add(
-              mediaItem.valueOrNull?.copyWith(
-                extras: {...mediaItem.valueOrNull?.extras ?? {}, "itemJson": currentItem.toJson()},
-              ),
-            );
-          }
-          return refreshPlaybackStateAndMediaNotification();
+          return toggleFavoriteStatusOfCurrentTrack();
       }
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe("Custom action '$name' not found.", e);
@@ -981,6 +964,47 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
 
     // only called if no custom action was found
     return await super.customAction(name, extras);
+  }
+
+  Future<void> toggleFavoriteStatusOfCurrentTrack() async {
+    final ref = GetIt.instance<ProviderContainer>();
+    jellyfin_models.BaseItemDto? currentItem;
+
+    if (mediaItem.valueOrNull?.extras?["itemJson"] != null) {
+      currentItem = jellyfin_models.BaseItemDto.fromJson(
+        mediaItem.valueOrNull?.extras!["itemJson"] as Map<String, dynamic>,
+      );
+    } else {
+      return;
+    }
+
+    bool isFavorite = currentItem.userData?.isFavorite ?? false;
+    if (GlobalSnackbar.materialAppScaffoldKey.currentContext != null) {
+      // get current favorite status from the provider
+      isFavorite = ref.read(isFavoriteProvider(currentItem));
+      // update favorite status with the value returned by the provider
+      isFavorite = ref.read(isFavoriteProvider(currentItem).notifier).updateFavorite(!isFavorite);
+    } else {
+      // fallback if we can't find the context
+      final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+      if (isFavorite) {
+        await jellyfinApiHelper.removeFavorite(currentItem.id);
+      } else {
+        await jellyfinApiHelper.addFavorite(currentItem.id);
+      }
+      isFavorite = !isFavorite;
+      final newUserData = currentItem.userData;
+      if (newUserData != null) {
+        newUserData.isFavorite = isFavorite;
+      }
+      currentItem.userData = newUserData;
+      mediaItem.add(
+        mediaItem.valueOrNull?.copyWith(
+          extras: {...mediaItem.valueOrNull?.extras ?? {}, "itemJson": currentItem.toJson()},
+        ),
+      );
+    }
+    return refreshPlaybackStateAndMediaNotification();
   }
 
   Future<void> refreshPlaybackStateAndMediaNotification() async {
@@ -993,10 +1017,6 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
   @override
   Future<void> skipToQueueItem(int index) async {
     return skipToIndex(index);
-  }
-
-  void _setNextInitialIndex(int index) {
-    nextInitialIndex = index;
   }
 
   void _applyVolumeNormalization(MediaItem? currentTrack) {
@@ -1134,15 +1154,15 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
       updatePosition: _player.position,
       bufferedPosition: _player.bufferedPosition,
       speed: _player.speed,
-      queueIndex: _player.shuffleModeEnabled && (shuffleIndices?.isNotEmpty ?? false) && event.currentIndex != null
-          ? shuffleIndices!.indexOf(event.currentIndex!)
+      queueIndex: _player.shuffleModeEnabled && shuffleIndices.isNotEmpty && event.currentIndex != null
+          ? shuffleIndices.indexOf(event.currentIndex!)
           : event.currentIndex,
       shuffleMode: _player.shuffleModeEnabled ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none,
       repeatMode: _audioServiceRepeatMode(_player.loopMode),
     );
   }
 
-  List<IndexedAudioSource>? get effectiveSequence => _player.sequenceState?.effectiveSequence;
+  List<IndexedAudioSource> get effectiveSequence => _player.sequenceState.effectiveSequence;
   double get volume => _player.volume;
   bool get paused => !_player.playing;
   Duration get playbackPosition => _player.position;
@@ -1160,6 +1180,207 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
       }
     });
   }
+
+  /// Syncs the list of MediaItems (_queue) with the internal queue of the player.
+  /// Called by onAddQueueItem and onUpdateQueue.
+  Future<AudioSource> _queueItemToAudioSource(FinampQueueItem queueItem) async {
+    if (queueItem.item.extras!["downloadedTrackPath"] == null) {
+      // If downloadedTrack wasn't passed, we assume that the item is not
+      // downloaded.
+
+      // If offline, we throw an error so that we don't accidentally stream from
+      // the internet. See the big comment in _trackUri() to see why this was
+      // passed in extras.
+      if (queueItem.item.extras!["isOffline"] as bool) {
+        return Future.error("Offline mode enabled but downloaded track not found.");
+      } else {
+        final trackUri = await _trackUri(queueItem.item);
+        return AudioSource.uri(trackUri, tag: queueItem);
+        // if (queueItem.item.extras!["shouldTranscode"] == true) {
+        //   return HlsAudioSource(trackUri, tag: queueItem);
+        // } else {
+        //   return AudioSource.uri(trackUri, tag: queueItem);
+        // }
+      }
+    } else {
+      // We have to deserialise this because Dart is stupid and can't handle
+      // sending classes through isolates.
+      final downloadedTrackPath = queueItem.item.extras!["downloadedTrackPath"] as String;
+
+      // Path verification and stuff is done in AudioServiceHelper, so this path
+      // should be valid.
+      final downloadUri = Uri.file(downloadedTrackPath);
+      return AudioSource.uri(downloadUri, tag: queueItem);
+    }
+  }
+
+  Future<Uri> _trackUri(MediaItem mediaItem) async {
+    final finampUserHelper = GetIt.instance<FinampUserHelper>();
+    // When creating the MediaItem (usually in AudioServiceHelper), we specify
+    // whether or not to transcode. We used to pull from FinampSettings here,
+    // but since audio_service runs in an isolate (or at least, it does until
+    // 0.18), the value would be wrong if changed while a track was playing since
+    // Hive is bad at multi-isolate stuff.
+
+    final parsedBaseUrl = Uri.parse(finampUserHelper.currentUser!.baseURL);
+
+    List<String> builtPath = List.from(parsedBaseUrl.pathSegments);
+
+    Map<String, String> queryParameters = Map.from(parsedBaseUrl.queryParameters);
+
+    // We include the user token as a query parameter because just_audio used to
+    // have issues with headers in HLS, and this solution still works fine
+    queryParameters["ApiKey"] = finampUserHelper.currentUser!.accessToken;
+    // // indicate which play session this stream belongs to, this will be referenced when reporting playback progress
+    // queryParameters["PlaySessionId"] = _order.id; //!!! this currently breaks transcoding for some reason
+
+    if (mediaItem.extras!["shouldTranscode"] as bool) {
+      builtPath.addAll(["Audio", mediaItem.extras!["itemJson"]["Id"] as String, "main.m3u8"]);
+
+      queryParameters.addAll({
+        "audioCodec": FinampSettingsHelper.finampSettings.transcodingStreamingFormat.codec,
+        // Ideally we'd switch between 44.1/48kHz depending on the source is,
+        // realistically it doesn't matter too much
+        // default to 44100, only use 48000 for opus because opus doesn't support 44100
+        "playSessionId": mediaItem.extras!["playSessionId"] as String? ?? "",
+        "audioSampleRate": FinampSettingsHelper.finampSettings.transcodingStreamingFormat.codec == 'opus'
+            ? '48000'
+            : '44100',
+        "maxAudioBitDepth": "16",
+        "audioBitRate": FinampSettingsHelper.finampSettings.transcodeBitrate.toString(),
+        "segmentContainer": FinampSettingsHelper.finampSettings.transcodingStreamingFormat.container,
+      });
+    } else {
+      builtPath.addAll(["Items", mediaItem.extras!["itemJson"]["Id"] as String, "File"]);
+    }
+
+    return Uri(
+      host: parsedBaseUrl.host,
+      port: parsedBaseUrl.port,
+      scheme: parsedBaseUrl.scheme,
+      userInfo: parsedBaseUrl.userInfo,
+      pathSegments: builtPath,
+      queryParameters: queryParameters,
+    );
+  }
+
+  @override
+  @Deprecated("Don't use this method, we're using methods based on FinampQueueItem")
+  Future<void> addQueueItem(MediaItem mediaItem) async {}
+  @override
+  @Deprecated("Don't use this method, we're using methods based on FinampQueueItem")
+  Future<void> addQueueItems(List<MediaItem> mediaItems) async {}
+  @override
+  @Deprecated("Don't use this method, we're using methods based on FinampQueueItem")
+  Future<void> insertQueueItem(int index, MediaItem mediaItem) async {}
+  @override
+  @Deprecated("Don't use this method, we're using methods based on FinampQueueItem")
+  Future<void> updateQueue(List<MediaItem> queue) async {}
+  @override
+  @Deprecated("Don't use this method, we're using methods based on FinampQueueItem")
+  Future<void> updateMediaItem(MediaItem mediaItem) async {}
+  @override
+  @Deprecated(
+    "Don't use this method, we're using methods based on FinampQueueItem. This implementation is just for best-effort platform compatibility.",
+  )
+  Future<void> removeQueueItem(MediaItem mediaItem) async {
+    final index = queue.valueOrNull?.indexOf(mediaItem);
+    if (index != null) {
+      return removeFinampQueueItemAt(index);
+    }
+  }
+
+  @override
+  @Deprecated(
+    "Don't use this method, we're using methods based on FinampQueueItem. This implementation is just for best-effort platform compatibility.",
+  )
+  Future<void> removeQueueItemAt(int index) async {
+    return removeFinampQueueItemAt(index);
+  }
+
+  @override
+  @Deprecated(
+    "Don't use this method, we're using methods based on FinampQueueItem. This implementation is just for best-effort platform compatibility.",
+  )
+  Future<void> setRating(Rating rating, [Map<String, dynamic>? extras]) async {
+    jellyfin_models.BaseItemDto? currentItem;
+
+    if (mediaItem.valueOrNull?.extras?["itemJson"] != null) {
+      currentItem = jellyfin_models.BaseItemDto.fromJson(
+        mediaItem.valueOrNull?.extras!["itemJson"] as Map<String, dynamic>,
+      );
+    } else {
+      return;
+    }
+    bool isFavorite = currentItem.userData?.isFavorite ?? false;
+    switch (rating.getRatingStyle()) {
+      case RatingStyle.heart:
+        if (rating.hasHeart() && !isFavorite) {
+          // add favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        } else if (!rating.hasHeart() && isFavorite) {
+          // remove favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        }
+        break;
+      case RatingStyle.thumbUpDown:
+        if (rating.isThumbUp() && !isFavorite) {
+          // add favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        } else if (!rating.isThumbUp() && isFavorite) {
+          // remove favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        }
+        break;
+      case RatingStyle.percentage:
+        final percentage = rating.getPercentRating();
+        if (percentage > 0.5 && !isFavorite) {
+          // add favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        } else if (percentage < 0.5 && isFavorite) {
+          // remove favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        }
+        break;
+      case RatingStyle.range3stars:
+        final stars = rating.getStarRating();
+        if (stars >= 1.5 && !isFavorite) {
+          // add favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        } else if (stars <= 0.5 && isFavorite) {
+          // remove favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        }
+        break;
+      case RatingStyle.range4stars:
+        final stars = rating.getStarRating();
+        if (stars >= 2.0 && !isFavorite) {
+          // add favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        } else if (stars <= 1.0 && isFavorite) {
+          // remove favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        }
+        break;
+      case RatingStyle.range5stars:
+        final stars = rating.getStarRating();
+        if (stars >= 3 && !isFavorite) {
+          // add favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        } else if (stars <= 2.0 && isFavorite) {
+          // remove favorite
+          await toggleFavoriteStatusOfCurrentTrack();
+        }
+        break;
+      default:
+      // do nothing
+    }
+  }
+
+  @override
+  @Deprecated("Don't use this method yet, it has no implementation")
+  Future<void> setCaptioningEnabled(bool enabled) async {}
+
 }
 
 double? getGainForCurrentPlayback(MediaItem currentTrack, jellyfin_models.BaseItemDto? item) {
