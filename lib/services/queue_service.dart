@@ -156,8 +156,9 @@ class QueueService {
   void _buildQueueFromNativePlayerQueue({bool logUpdate = true}) {
     final playbackHistoryService = GetIt.instance<PlaybackHistoryService>();
 
-    List<FinampQueueItem> allTracks =
-        _audioHandler.effectiveSequence.map((e) => e.tag as FinampQueueItem).toList();
+    _queueAudioSourceIndex = _audioHandler.queueIndex ?? _queueAudioSourceIndex;
+
+    List<FinampQueueItem> allTracks = _audioHandler.effectiveSequence.map((e) => e.tag as FinampQueueItem).toList();
 
     _queuePreviousTracks.clear();
     _queueNextUp.clear();
@@ -611,7 +612,6 @@ class QueueService {
       } else if (!Platform.isAndroid && !Platform.isIOS) {
         unawaited(_audioHandler.pause(disableFade: true));
       }
-
     } catch (e) {
       _queueServiceLogger.severe("Error while initializing queue: $e");
     }
@@ -1157,7 +1157,6 @@ class QueueService {
       duration: item.runTimeTicksDuration(),
     );
   }
-
 }
 
 class NextUpShuffleOrder extends ShuffleOrder {

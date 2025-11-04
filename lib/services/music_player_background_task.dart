@@ -714,10 +714,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
           queueIndex %= (_player.effectiveIndices.length);
         }
       }
-      await _player.seek(
-        Duration.zero,
-        index: _player.shuffleModeEnabled ? shuffleIndices[queueIndex] : queueIndex,
-      );
+      await _player.seek(Duration.zero, index: _player.shuffleModeEnabled ? shuffleIndices[queueIndex] : queueIndex);
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe(e);
       return Future.error(e);
@@ -728,10 +725,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     _audioServiceBackgroundTaskLogger.fine("skipping to index: $index");
 
     try {
-      await _player.seek(
-        Duration.zero,
-        index: _player.shuffleModeEnabled ? shuffleIndices[index] : index,
-      );
+      await _player.seek(Duration.zero, index: _player.shuffleModeEnabled ? shuffleIndices[index] : index);
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe(e);
       return Future.error(e);
@@ -1150,6 +1144,9 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     );
   }
 
+  int? get queueIndex => _player.shuffleModeEnabled && shuffleIndices.isNotEmpty && _player.currentIndex != null
+      ? shuffleIndices.indexOf(_player.currentIndex!)
+      : _player.currentIndex;
   List<IndexedAudioSource> get effectiveSequence => _player.sequenceState.effectiveSequence;
   double get volume => _player.volume;
   bool get paused => !_player.playing;
@@ -1368,7 +1365,6 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
   @override
   @Deprecated("Don't use this method yet, it has no implementation")
   Future<void> setCaptioningEnabled(bool enabled) async {}
-
 }
 
 double? getGainForCurrentPlayback(MediaItem currentTrack, jellyfin_models.BaseItemDto? item) {
