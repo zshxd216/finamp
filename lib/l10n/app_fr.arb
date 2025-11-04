@@ -2007,7 +2007,7 @@
     },
     "removeFavorite": "Retirer des favoris",
     "@removeFavorite": {},
-    "addFavorite": "Ajouter en favori",
+    "addFavorite": "Ajouter aux favoris",
     "@addFavorite": {},
     "stopAndClearQueue": "Arrêter la lecture et vider la file d'attente",
     "@stopAndClearQueue": {
@@ -2488,11 +2488,11 @@
     "@syncPlaybackSpeedAndPitchLabel": {
         "description": "Label for the checkbox that toggled is the pitch is adjusted along with the playback speed, or if the pitch is kept constant. Shown in the speed submenu on the track menu"
     },
-    "serverSharingMenuTitle": "Partage de serveur de réseau local",
+    "serverSharingMenuTitle": "Partage de serveur sur le réseau local",
     "@serverSharingMenuTitle": {
         "description": "Title for the server sharing menu that allows the user to share their server address with other devices on the local network"
     },
-    "serverSharingMenuButtonTitle": "Serveur partagé",
+    "serverSharingMenuButtonTitle": "Partage de serveur",
     "@serverSharingMenuButtonTitle": {
         "description": "Title for the button in the drawer that opens the server sharing menu"
     },
@@ -2504,7 +2504,7 @@
     "@serverSharingMenuConfirmationDialogConfirmationButtonLabel": {
         "description": "Positive action label for the dialog shown when enabling server sharing while offline mode is enabled"
     },
-    "serverSharingMenuControlTitleSharingEnabled": "Serveur de partage",
+    "serverSharingMenuControlTitleSharingEnabled": "Partagé",
     "@serverSharingMenuControlTitleSharingEnabled": {
         "description": "Title of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned on"
     },
@@ -2512,7 +2512,7 @@
     "@serverSharingMenuControlSubtitleSharingDisabled": {
         "description": "Subtitle of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned off"
     },
-    "serverSharingMenuControlTitleSharingDisabled": "Ne pas partager",
+    "serverSharingMenuControlTitleSharingDisabled": "Non partagé",
     "@serverSharingMenuControlTitleSharingDisabled": {
         "description": "Title of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned off"
     },
