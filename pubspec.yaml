@@ -30,7 +30,12 @@ dependencies:
   json_annotation: ^4.8.1
   chopper: ^8.0.0
   get_it: ^8.2.0
-  just_audio: ^0.10.5
+  # just_audio: ^0.10.5
+  just_audio:
+    git:
+      url: https://github.com/LennartEnns/just_audio_fork.git
+      ref: 6dfdd07d19f6f037d3f4ff04c397639e4632c687
+      path: just_audio
   just_audio_media_kit: ^2.1.0
   media_kit_libs_linux: ^1.2.1
 
