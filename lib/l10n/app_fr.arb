@@ -1036,7 +1036,7 @@
     "@loopModeAllButtonLabel": {
         "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop all mode"
     },
-    "queuesScreen": "Récupérer des files d'attente",
+    "queuesScreen": "Sessions d'écoute précédentes",
     "@queuesScreen": {
         "description": "Title for the screen where older now playing queues can be restored"
     },
