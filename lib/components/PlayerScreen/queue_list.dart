@@ -1043,7 +1043,7 @@ class QueueSectionHeader extends ConsumerWidget {
                         IconButton(
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
-                          icon: radioEnabled
+                          icon: radioEnabled && info?.loop != FinampLoopMode.one
                               ? const Icon(TablerIcons.radio)
                               : switch (info?.loop) {
                                   FinampLoopMode.none => const Icon(TablerIcons.repeat_off),
@@ -1054,7 +1054,7 @@ class QueueSectionHeader extends ConsumerWidget {
                           color: radioEnabled || info?.loop != FinampLoopMode.none
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                          onPressed: radioEnabled
+                          onPressed: radioEnabled && info?.loop != FinampLoopMode.one
                               ? () async {
                                   await showRadioMenu(context, ref, AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle);
                                 }
