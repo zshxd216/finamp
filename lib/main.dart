@@ -6,6 +6,7 @@ import 'package:app_links/app_links.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:background_downloader/background_downloader.dart';
+import 'package:collection/collection.dart';
 import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/components/HomeScreen/show_all_screen.dart';
@@ -19,7 +20,6 @@ import 'package:finamp/screens/album_settings_screen.dart';
 import 'package:finamp/screens/artist_settings_screen.dart';
 import 'package:finamp/screens/downloads_settings_screen.dart';
 import 'package:finamp/screens/genre_settings_screen.dart';
-import 'package:finamp/screens/home_screen.dart';
 import 'package:finamp/screens/interaction_settings_screen.dart';
 import 'package:finamp/screens/login_screen.dart';
 import 'package:finamp/screens/lyrics_settings_screen.dart';
@@ -116,6 +116,7 @@ void main() async {
     _mainLog.info("Setup hive and isar");
     _migrateDownloadLocations();
     _migrateSortOptions();
+    _migrateHomescreen();
     await _migrateThemeModeLocale();
     _mainLog.info("Completed applicable migrations");
     await _trustAndroidUserCerts();
@@ -432,6 +433,28 @@ void _migrateDownloadLocations() {
   }
 }
 
+/// Migrates defaults for the home screen (e.g. add home screen tab)
+void _migrateHomescreen() {
+  final finampSettings = FinampSettingsHelper.finampSettings;
+
+  var changed = false;
+
+  if (!finampSettings.tabOrder.contains(TabContentType.home)) {
+    finampSettings.tabOrder = [
+      TabContentType.home,
+      ...finampSettings.tabOrder.whereNot((e) => e == TabContentType.home),
+    ];
+    finampSettings.showTabs[TabContentType.home] = true;
+    finampSettings.tabSortBy[TabContentType.home] = SortBy.defaultOrder;
+    finampSettings.tabSortOrder[TabContentType.home] = SortOrder.ascending;
+    changed = true;
+  }
+
+  if (changed) {
+    FinampSettingsHelper.overwriteFinampSettings(finampSettings);
+  }
+}
+
 /// Migrates the old SortBy/SortOrder to a map indexed by tab content type
 void _migrateSortOptions() {
   final finampSettings = FinampSettingsHelper.finampSettings;
@@ -632,7 +655,6 @@ class FinampApp extends ConsumerWidget {
         SplashScreen.routeName: (context) => const SplashScreen(),
         LoginScreen.routeName: (context) => const LoginScreen(),
         ViewSelector.routeName: (context) => const ViewSelector(),
-        HomeScreen.routeName: (context) => const HomeScreen(),
         MusicScreen.routeName: (context) => const MusicScreen(),
         AlbumScreen.routeName: (context) => const AlbumScreen(),
         ArtistScreen.routeName: (context) => const ArtistScreen(),
@@ -663,6 +685,7 @@ class FinampApp extends ConsumerWidget {
         GenreSettingsScreen.routeName: (context) => const GenreSettingsScreen(),
         NetworkSettingsScreen.routeName: (context) => const NetworkSettingsScreen(),
         AccessibilitySettingsScreen.routeName: (context) => const AccessibilitySettingsScreen(),
+        ShowAllScreen.routeName: (context) => const ShowAllScreen(),
         PlaylistEditScreen.routeName: (context) =>
             PlaylistEditScreen(playlist: ModalRoute.settingsOf(context)!.arguments as BaseItemDto),
       },

@@ -1,28 +1,27 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:finamp/l10n/app_localizations.dart';
-import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/components/HomeScreen/finamp_navigation_bar.dart';
-import 'package:finamp/services/downloads_service.dart';
+import 'package:finamp/components/HomeScreen/finamp_home_screen_header.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
-
-import '../components/MusicScreen/artist_type_selection_row.dart';
-import '../components/MusicScreen/music_screen_tab_view.dart';
-import '../components/MusicScreen/sort_by_menu_button.dart';
-import '../components/MusicScreen/sort_order_button.dart';
-import '../components/global_snackbar.dart';
-import '../components/now_playing_bar.dart';
-import '../menus/music_screen_drawer.dart';
-import '../models/finamp_models.dart';
-import '../services/audio_service_helper.dart';
-import '../services/finamp_settings_helper.dart';
-import '../services/finamp_user_helper.dart';
-import '../services/jellyfin_api_helper.dart';
+import 'package:finamp/components/HomeScreen/home_screen_content.dart';
+import 'package:finamp/components/MusicScreen/artist_type_selection_row.dart';
+import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
+import 'package:finamp/components/MusicScreen/sort_by_menu_button.dart';
+import 'package:finamp/components/MusicScreen/sort_order_button.dart';
+import 'package:finamp/components/global_snackbar.dart';
+import 'package:finamp/components/now_playing_bar.dart';
+import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/music_screen_drawer.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/audio_service_helper.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
 
 final _musicScreenLogger = Logger("MusicScreen");
 
@@ -217,8 +216,6 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
       _buildTabController();
     }
 
-    Timer? debounce;
-
     return PopScope(
       canPop: !isSearching,
       onPopInvokedWithResult: (popped, result) {
@@ -228,153 +225,23 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
       },
       child: Scaffold(
         extendBody: true,
-        appBar: AppBar(
-          titleSpacing: 0, // The surrounding iconButtons provide enough padding
-          title: isSearching
-              ? TextField(
-                  controller: textEditingController,
-                  autocorrect: false, // avoid autocorrect
-                  enableSuggestions: true, // keep suggestions which can be manually selected
-                  autofocus: true,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.search,
-                  onChanged: (value) {
-                    if (debounce?.isActive ?? false) debounce!.cancel();
-                    debounce = Timer(const Duration(milliseconds: 400), () {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    });
-                  },
-                  onSubmitted: (value) => setState(() {
-                    searchQuery = value;
-                  }),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: MaterialLocalizations.of(context).searchFieldLabel,
-                  ),
-                )
-              : Text(
-                  widget.tabTypeFilter?.toLocalisedString(context) ??
-                      _finampUserHelper.currentUser?.currentView?.name ??
-                      AppLocalizations.of(context)!.music,
-                ),
-          bottom: widget.genreFilter == null
-              ? TabBar(
-                  controller: _tabController,
-                  tabs: sortedTabs
-                      .map(
-                        (tabType) => Tab(
-                          child: Container(
-                            constraints: const BoxConstraints(minWidth: 50),
-                            alignment: Alignment.center,
-                            child: Text(tabType.toLocalisedString(context).toUpperCase()),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                )
-              : PreferredSize(
-                  preferredSize: const Size.fromHeight(36),
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    width: double.infinity,
-                    height: 36.0,
-                    padding: EdgeInsets.only(left: 12, right: 12),
-                    color: Theme.of(context).colorScheme.primary,
-                    child: Text(
-                      widget.genreFilter?.name ?? "",
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-          leading: isSearching
-              ? BackButton(onPressed: () => _stopSearching())
-              : (widget.genreFilter != null ? BackButton(onPressed: () => Navigator.of(context).pop()) : null),
-          actions: isSearching
-              ? [
-                  GestureDetector(
-                    onDoubleTap: () => _stopSearching(),
-                    child: IconButton(
-                      icon: Icon(Icons.cancel, color: Theme.of(context).colorScheme.onSurface),
-                      onPressed: () => setState(() {
-                        textEditingController.clear();
-                        searchQuery = null;
-                      }),
-                      tooltip: AppLocalizations.of(context)!.clear,
-                    ),
-                  ),
-                ]
-              : [
-                  if (!Platform.isIOS && !Platform.isAndroid)
-                    IconButton(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: () {
-                        refreshMap[sortedTabs.elementAt(_tabController!.index)]!();
-                      },
-                    ),
-                  SortOrderButton(
-                    tabType: sortedTabs.elementAt(_tabController!.index),
-                    sortOrderOverride: sortOrderOverride,
-                    onOverrideChanged: (newOrder) => setState(() {
-                      sortOrderOverride = newOrder;
-                    }),
-                  ),
-                  SortByMenuButton(
-                    tabType: sortedTabs.elementAt(_tabController!.index),
-                    sortByOverride: sortByOverride,
-                    onOverrideChanged: (newSortBy) => setState(() {
-                      sortByOverride = newSortBy;
-                    }),
-                  ),
-                  if (ref.watch(finampSettingsProvider.isOffline) &&
-                      sortedTabs.elementAt(_tabController!.index) != TabContentType.tracks)
-                    IconButton(
-                      icon: ref.watch(finampSettingsProvider.onlyShowFullyDownloaded)
-                          ? const Icon(Icons.download)
-                          : const Icon(Icons.download_outlined),
-                      onPressed: ref.read(finampSettingsProvider.isOffline)
-                          ? () => FinampSetters.setOnlyShowFullyDownloaded(
-                              !ref.read(finampSettingsProvider.onlyShowFullyDownloaded),
-                            )
-                          : null,
-                      tooltip: AppLocalizations.of(context)!.onlyShowFullyDownloaded,
-                    ),
-                  if (!ref.watch(finampSettingsProvider.isOffline) ||
-                      ref.watch(finampSettingsProvider.trackOfflineFavorites))
-                    IconButton(
-                      icon:
-                          (isFavoriteOverride == true ||
-                              (isFavoriteOverride == null && ref.watch(finampSettingsProvider.onlyShowFavorites)))
-                          ? const Icon(Icons.favorite)
-                          : const Icon(Icons.favorite_outline),
-                      onPressed: () {
-                        if (isFavoriteOverride != null) {
-                          setState(() {
-                            isFavoriteOverride = !isFavoriteOverride!;
-                          });
-                        } else {
-                          FinampSetters.setOnlyShowFavorites(!ref.watch(finampSettingsProvider.onlyShowFavorites));
-                        }
-                      },
-                      tooltip: AppLocalizations.of(context)!.favorites,
-                    ),
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () => setState(() {
-                      isSearching = true;
-                    }),
-                    tooltip: MaterialLocalizations.of(context).searchFieldLabel,
-                  ),
-                ],
+        appBar: FinampHomeScreenHeader(
+          sortedTabs: sortedTabs.toList(),
+          genreFilter: widget.genreFilter,
+          tabController: _tabController,
+          onSearch: () => setState(() {
+            isSearching = true;
+          }),
+          onStopSearch: _stopSearching,
+          onUpdateSearchQuery: (value) {
+            setState(() {
+              searchQuery = value;
+            });
+          },
+          textEditingController: textEditingController,
+          isSearching: isSearching,
         ),
-        bottomSheet: NowPlayingBar(),
-        bottomNavigationBar: const FinampNavigationBar(),
+        bottomNavigationBar: NowPlayingBar(),
         drawerEnableOpenDragGesture: widget.genreFilter == null,
         drawer: widget.genreFilter == null ? const MusicScreenDrawer() : null,
         floatingActionButton: Padding(
@@ -392,6 +259,9 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
                   : AlwaysScrollableScrollPhysics(),
               dragStartBehavior: DragStartBehavior.down,
               children: sortedTabs.map((tabType) {
+                if (tabType == TabContentType.home) {
+                  return HomeScreenContent();
+                }
                 return Column(
                   children: [
                     ArtistTypeSelectionRow(

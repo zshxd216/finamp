@@ -126,7 +126,14 @@ class DefaultSettings {
   static const bufferDisableSizeConstraints = false;
   static const bufferDurationSeconds = 600;
   static const bufferSizeMegabytes = 50;
-  static const tabOrder = TabContentType.values;
+  static const tabOrder = [
+    TabContentType.home,
+    TabContentType.albums,
+    TabContentType.artists,
+    TabContentType.playlists,
+    TabContentType.tracks,
+    TabContentType.genres,
+  ];
   static const itemSwipeActionLeftToRight = ItemSwipeActions.nothing;
   static const itemSwipeActionRightToLeft = ItemSwipeActions.addToNextUp;
   static const loopMode = FinampLoopMode.none;
@@ -975,11 +982,13 @@ enum TabContentType {
   @HiveField(3)
   genres(BaseItemDtoType.genre),
   @HiveField(4)
-  tracks(BaseItemDtoType.track);
+  tracks(BaseItemDtoType.track),
+  @HiveField(5)
+  home(null);
 
   const TabContentType(this.itemType);
 
-  final BaseItemDtoType itemType;
+  final BaseItemDtoType? itemType;
 
   /// Human-readable version of the [TabContentType]. For example, toString() on
   /// [TabContentType.tracks], toString() would return "TabContentType.tracks".
@@ -1002,6 +1011,8 @@ enum TabContentType {
         return "Genres";
       case TabContentType.playlists:
         return "Playlists";
+      case TabContentType.home:
+        return "Home";
     }
   }
 
@@ -1017,6 +1028,8 @@ enum TabContentType {
         return AppLocalizations.of(context)!.genres;
       case TabContentType.playlists:
         return AppLocalizations.of(context)!.playlists;
+      case TabContentType.home:
+        return AppLocalizations.of(context)!.home;
     }
   }
 
@@ -1033,7 +1046,7 @@ enum TabContentType {
       case "Playlist":
         return TabContentType.playlists;
       default:
-        throw const FormatException("Unsupported itemType");
+        return TabContentType.home;
     }
   }
 }

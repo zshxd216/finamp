@@ -2942,5 +2942,9 @@
   "snackbarOptionsMenuViewLogsButton": "View Logs",
   "@snackbarOptionsMenuViewLogsButton": {
     "description": "Button title for opening the logs screen from the snackbar options menu"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Label for the home tab in the main navigation bar"
   }
 }

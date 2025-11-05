@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:finamp/components/album_image.dart';
+import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/screens/playback_history_screen.dart';
@@ -10,17 +14,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:octo_image/octo_image.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
 class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidget {
-  FinampHomeScreenHeader({super.key});
+  final List<TabContentType> sortedTabs;
+  final BaseItemDto? genreFilter;
+  final TabController? tabController;
+  final VoidCallback? onSearch;
+  final VoidCallback? onStopSearch;
+  final TextEditingController textEditingController;
+  final bool isSearching;
+  final void Function(String)? onUpdateSearchQuery;
+
+  FinampHomeScreenHeader({
+    super.key,
+    required this.sortedTabs,
+    required this.genreFilter,
+    required this.tabController,
+    required this.textEditingController,
+    required this.isSearching,
+    this.onSearch,
+    this.onStopSearch,
+    this.onUpdateSearchQuery,
+  });
 
   final finampUserHelper = GetIt.instance<FinampUserHelper>();
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight * 1.25); // Standard height
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 36 + 12); // Standard height
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,67 +86,212 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
       );
     }
 
-    return FutureBuilder(
-      future: PackageInfo.fromPlatform(),
-      builder: (context, snapshot) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12.0, right: 6.0),
-            child: SimpleGestureDetector(
-              onTap: () {
-                // open drawer
-                Scaffold.of(context).openDrawer();
-              },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  SimpleGestureDetector(
-                    onTap: () {
-                      // open drawer
-                      Scaffold.of(context).openDrawer();
-                    },
-                    child: SvgPicture.asset('images/finamp_cropped.svg', height: 40),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          snapshot.data?.appName ?? 'Finamp',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                        ),
-                        connectionInfo,
-                      ],
-                    ),
-                  ),
-                  Row(
+    Timer? debounce;
+
+    return Column(
+      spacing: 12.0,
+      children: [
+        FutureBuilder(
+          future: PackageInfo.fromPlatform(),
+          builder: (context, snapshot) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 12.0, right: 6.0),
+                child: SimpleGestureDetector(
+                  onTap: () {
+                    // open drawer
+                    Scaffold.of(context).openDrawer();
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
-                      IconButton(
-                        icon: Icon(TablerIcons.clock),
-                        iconSize: 28,
-                        onPressed: () {
-                          Navigator.pushNamed(context, PlaybackHistoryScreen.routeName);
+                      SimpleGestureDetector(
+                        onTap: () {
+                          // open drawer
+                          Scaffold.of(context).openDrawer();
                         },
+                        child: SvgPicture.asset('images/finamp_cropped.svg', height: 40),
                       ),
-                      IconButton(
-                        icon: Icon(TablerIcons.settings),
-                        iconSize: 28,
-                        onPressed: () {
-                          Navigator.pushNamed(context, SettingsScreen.routeName);
-                        },
-                      ),
+                      const SizedBox(width: 8),
+                      ...isSearching
+                          ? [
+                              Expanded(
+                                child: TextField(
+                                  controller: textEditingController,
+                                  autocorrect: false, // avoid autocorrect
+                                  enableSuggestions: true, // keep suggestions which can be manually selected
+                                  autofocus: true,
+                                  keyboardType: TextInputType.text,
+                                  textInputAction: TextInputAction.search,
+                                  onChanged: (value) {
+                                    if (debounce?.isActive ?? false) debounce!.cancel();
+                                    debounce = Timer(const Duration(milliseconds: 400), () {
+                                      onUpdateSearchQuery?.call(value);
+                                    });
+                                  },
+                                  onSubmitted: (value) => onUpdateSearchQuery?.call(value),
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: MaterialLocalizations.of(context).searchFieldLabel,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onDoubleTap: () => onStopSearch?.call(),
+                                child: IconButton(
+                                  icon: Icon(Icons.cancel, color: Theme.of(context).colorScheme.onSurface),
+                                  onPressed: () => onStopSearch?.call(),
+                                  tooltip: AppLocalizations.of(context)!.clear,
+                                ),
+                              ),
+                            ]
+                          : [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      snapshot.data?.appName ?? 'Finamp',
+                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                                    ),
+                                    connectionInfo,
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(TablerIcons.search),
+                                    iconSize: 28,
+                                    visualDensity: VisualDensity.compact,
+                                    onPressed: () {
+                                      if (onSearch != null) {
+                                        onSearch!();
+                                      }
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(TablerIcons.settings),
+                                    iconSize: 28,
+                                    visualDensity: VisualDensity.compact,
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, SettingsScreen.routeName);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(TablerIcons.dots),
+                                    iconSize: 28,
+                                    visualDensity: VisualDensity.compact,
+                                    onPressed: () {
+                                      Scaffold.of(context).openDrawer();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+        genreFilter == null
+            ? TabBar(
+                controller: tabController,
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  color: ColorScheme.of(context).primaryContainer,
+                ),
+                indicatorPadding: EdgeInsets.zero,
+                labelColor: TextTheme.of(context).bodyMedium?.color,
+                labelPadding: EdgeInsets.symmetric(horizontal: 6.0),
+                dividerHeight: 0.0,
+                dividerColor: Colors.transparent,
+                padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+                tabs: sortedTabs
+                    .map(
+                      (tabType) => Tab(
+                        height: 32.0,
+                        child: Container(
+                          decoration: ShapeDecoration(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              side: BorderSide(
+                                color: Theme.of(context).colorScheme.primaryContainer,
+                                strokeAlign: 1.0,
+                                width: 2.0,
+                              ),
+                            ),
+                          ),
+                          padding: tabType == TabContentType.home
+                              ? EdgeInsets.only(left: 4, right: 8, top: 3, bottom: 3)
+                              : EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          constraints: const BoxConstraints(minWidth: 50),
+                          alignment: Alignment.center,
+                          child: tabType == TabContentType.home
+                              ? Row(
+                                  spacing: 4.0,
+                                  children: [
+                                    FutureBuilder(
+                                      future: GetIt.instance<JellyfinApiHelper>().getUser(),
+                                      builder: (context, asyncSnapshot) {
+                                        if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
+                                          return SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(strokeWidth: 2),
+                                          );
+                                        }
+                                        return Padding(
+                                          padding: const EdgeInsets.all(1.5),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(9999),
+                                            child: Image.network(
+                                              GetIt.instance<JellyfinApiHelper>()
+                                                  .getUserImageUrl(
+                                                    baseUrl: Uri.parse(finampUserHelper.currentUser!.baseURL),
+                                                    user: asyncSnapshot.data!,
+                                                  )
+                                                  .toString(),
+                                              fit: BoxFit.fitHeight,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    Text(tabType.toLocalisedString(context)),
+                                  ],
+                                )
+                              : Text(tabType.toLocalisedString(context), style: TextTheme.of(context).bodyMedium),
+                        ),
+                      ),
+                    )
+                    .toList(),
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+              )
+            : PreferredSize(
+                preferredSize: const Size.fromHeight(36),
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  width: double.infinity,
+                  height: 36.0,
+                  padding: EdgeInsets.only(left: 12, right: 12),
+                  color: Theme.of(context).colorScheme.primary,
+                  child: Text(
+                    genreFilter?.name ?? "",
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+      ],
     );
   }
 }

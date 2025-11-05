@@ -1,4 +1,3 @@
-import 'package:finamp/components/HomeScreen/finamp_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:hive_ce/hive.dart';
@@ -21,7 +20,6 @@ class QueueRestoreScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.queuesScreen)),
-      bottomNavigationBar: const FinampNavigationBar(),
       body: ListView.builder(
         padding: const EdgeInsets.only(left: 0.0, right: 0.0, top: 30.0, bottom: 45.0),
         itemCount: queueList.length,

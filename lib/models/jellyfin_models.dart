@@ -3251,11 +3251,11 @@ enum SortBy {
   @HiveField(15)
   defaultOrder;
 
-  static List<SortBy> defaultsFor({required TabContentType type, bool includeDefaultOrder = false}) {
+  static List<SortBy> defaultsFor({required BaseItemDtoType? type, bool includeDefaultOrder = false}) {
     List<SortBy> options;
 
     switch (type) {
-      case TabContentType.tracks:
+      case BaseItemDtoType.track:
         options = [
           SortBy.sortName,
           SortBy.album,
@@ -3270,7 +3270,7 @@ enum SortBy {
           SortBy.runtime,
           SortBy.random,
         ];
-      case TabContentType.albums:
+      case BaseItemDtoType.album:
         options = [
           SortBy.sortName,
           SortBy.albumArtist,
@@ -3282,8 +3282,8 @@ enum SortBy {
           SortBy.runtime,
           SortBy.random,
         ];
-      case TabContentType.playlists:
-      case TabContentType.artists:
+      case BaseItemDtoType.playlist:
+      case BaseItemDtoType.artist:
         options = [
           SortBy.sortName,
           //SortBy.datePlayed,
@@ -3291,8 +3291,10 @@ enum SortBy {
           SortBy.runtime,
           SortBy.random,
         ];
-      case TabContentType.genres:
+      case BaseItemDtoType.genre:
         options = [SortBy.sortName, SortBy.dateCreated, SortBy.random];
+      default:
+        options = [SortBy.sortName];
     }
     if (includeDefaultOrder) {
       options.insert(0, SortBy.defaultOrder);

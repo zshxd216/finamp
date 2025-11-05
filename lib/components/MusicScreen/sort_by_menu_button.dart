@@ -24,7 +24,7 @@ class SortByMenuButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isOffline = ref.watch(finampSettingsProvider.isOffline);
-    final rawSortOptions = SortBy.defaultsFor(type: tabType, includeDefaultOrder: forPlaylistTracks);
+    final rawSortOptions = SortBy.defaultsFor(type: tabType.itemType, includeDefaultOrder: forPlaylistTracks);
     final sortOptions = isOffline
         ? [
             ...rawSortOptions.where((s) => s != SortBy.playCount && s != SortBy.datePlayed),

@@ -163,11 +163,12 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             : fields[119] as bool,
         tabOrder: fields[22] == null
             ? [
+                TabContentType.home,
                 TabContentType.albums,
                 TabContentType.artists,
                 TabContentType.playlists,
-                TabContentType.genres,
                 TabContentType.tracks,
+                TabContentType.genres,
               ]
             : (fields[22] as List).cast<TabContentType>(),
         autoloadLastQueueOnStartup: fields[28] == null
@@ -1575,6 +1576,8 @@ class TabContentTypeAdapter extends TypeAdapter<TabContentType> {
         return TabContentType.genres;
       case 4:
         return TabContentType.tracks;
+      case 5:
+        return TabContentType.home;
       default:
         return TabContentType.albums;
     }
@@ -1593,6 +1596,8 @@ class TabContentTypeAdapter extends TypeAdapter<TabContentType> {
         writer.writeByte(3);
       case TabContentType.tracks:
         writer.writeByte(4);
+      case TabContentType.home:
+        writer.writeByte(5);
     }
   }
 
@@ -8838,6 +8843,7 @@ const _$TabContentTypeEnumMap = {
   TabContentType.playlists: 'playlists',
   TabContentType.genres: 'genres',
   TabContentType.tracks: 'tracks',
+  TabContentType.home: 'home',
 };
 
 const _$MediaItemParentTypeEnumMap = {

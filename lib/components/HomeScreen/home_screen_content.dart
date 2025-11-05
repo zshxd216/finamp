@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:finamp/components/Buttons/simple_button.dart';
-import 'package:finamp/components/HomeScreen/auto_grid_item.dart';
 import 'package:finamp/components/HomeScreen/show_all_button.dart';
 import 'package:finamp/components/HomeScreen/show_all_screen.dart';
 import 'package:finamp/components/MusicScreen/item_collection_card.dart';
@@ -92,50 +91,20 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                     },
                   ),
                   CTALarge(
-                    text: 'Decade Mix*',
-                    icon: TablerIcons.chevrons_left,
+                    text: 'Radio*',
+                    icon: TablerIcons.radio,
                     vertical: true,
                     minWidth: 110,
                     onPressed: () {
+                      //TODO start radio with a random track?
                       GlobalSnackbar.message((buildContext) {
-                        return "Decade Mix is not available yet.";
+                        return "Radio is not available yet.";
                       });
                     },
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              Wrap(
-                spacing: 0,
-                runSpacing: 8,
-                direction: Axis.horizontal,
-                alignment: WrapAlignment.spaceAround,
-                runAlignment: WrapAlignment.center,
-                children: [
-                  SimpleButton(
-                    text: 'Tracks*',
-                    icon: TablerIcons.music,
-                    onPressed: () {
-                      Navigator.pushNamed(context, MusicScreen.routeName, arguments: TabContentType.tracks);
-                    },
-                  ),
-                  SimpleButton(
-                    text: 'Playlists*',
-                    icon: TablerIcons.playlist,
-                    onPressed: () {
-                      Navigator.pushNamed(context, MusicScreen.routeName, arguments: TabContentType.playlists);
-                    },
-                  ),
-                  SimpleButton(
-                    text: 'Albums*',
-                    icon: TablerIcons.disc,
-                    onPressed: () {
-                      Navigator.pushNamed(context, MusicScreen.routeName, arguments: TabContentType.albums);
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.collection, itemId: BaseItemId(""))),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.listenAgain)),
               const SizedBox(height: 8),
@@ -221,25 +190,26 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
 
   Widget _buildHorizontalSkeletonLoader() {
     return SizedBox(
-      height: calculateItemCollectionCardHeight(context),
+      height: calculateItemCollectionCardHeight(context) + 20,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: 5, // Show 5 skeleton items
         itemBuilder: (context, index) {
+          final cardWidth = calculateItemCollectionCardWidth(context);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: calculateItemCollectionCardWidth(context),
-                height: calculateItemCollectionCardWidth(context),
+                width: cardWidth,
+                height: cardWidth,
                 decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
               ),
               SizedBox(height: 4),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2.0),
                 child: Container(
-                  width: calculateItemCollectionCardWidth(context) * Random().nextDouble().clamp(0.2, 0.9),
-                  height: calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 1) - 4,
+                  width: cardWidth * Random().nextDouble().clamp(0.2, 0.9),
+                  height: max(calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 1) - 4, 0),
                   decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
                 ),
               ),
@@ -247,8 +217,8 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2.0),
                 child: Container(
-                  width: calculateItemCollectionCardWidth(context) * Random().nextDouble().clamp(0.2, 0.9),
-                  height: calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 1) - 4,
+                  width: cardWidth * Random().nextDouble().clamp(0.2, 0.9),
+                  height: max(calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 1) - 4, 0),
                   decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
                 ),
               ),

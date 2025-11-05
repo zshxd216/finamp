@@ -1,35 +1,29 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:finamp/components/Buttons/cta_medium.dart';
-import 'package:finamp/components/HomeScreen/auto_list_item.dart';
-import 'package:finamp/components/HomeScreen/finamp_navigation_bar.dart';
 import 'package:finamp/components/HomeScreen/home_screen_content.dart';
 import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/finamp_app_bar_button.dart';
+import 'package:finamp/components/first_page_progress_indicator.dart';
+import 'package:finamp/components/global_snackbar.dart';
+import 'package:finamp/components/new_page_progress_indicator.dart';
 import 'package:finamp/components/now_playing_bar.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/downloads_service.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
-import 'package:finamp/services/queue_service.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/l10n/app_localizations.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
-import 'package:get_it/get_it.dart';
-import 'package:hive_ce/hive.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:scroll_to_index/scroll_to_index.dart';
-
-import '../../models/finamp_models.dart';
-import '../../models/jellyfin_models.dart';
-import '../../services/downloads_service.dart';
-import '../../services/finamp_settings_helper.dart';
-import '../../services/jellyfin_api_helper.dart';
-import '../AlbumScreen/track_list_tile.dart';
-import '../first_page_progress_indicator.dart';
-import '../global_snackbar.dart';
-import '../new_page_progress_indicator.dart';
 
 // this is used to allow refreshing the music screen from other parts of the app, e.g. after deleting items from the server
 final musicScreenRefreshStream = StreamController<void>.broadcast();
@@ -257,8 +251,7 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen> with AutomaticKee
         actions: [],
       ),
       body: RefreshIndicator(onRefresh: () async => _refresh(), child: content),
-      bottomSheet: const NowPlayingBar(),
-      bottomNavigationBar: const FinampNavigationBar(),
+      bottomNavigationBar: const NowPlayingBar(),
     );
   }
 }

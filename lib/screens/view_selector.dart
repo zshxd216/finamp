@@ -1,7 +1,7 @@
+import 'package:finamp/screens/music_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:finamp/l10n/app_localizations.dart';
-import 'package:finamp/screens/home_screen.dart';
 import 'package:finamp/screens/splash_screen.dart';
 import '../components/ViewSelector/no_music_libraries_message.dart';
 import '../components/global_snackbar.dart';
@@ -156,7 +156,7 @@ class _ViewSelectorState extends State<ViewSelector> {
 
         // allow calling _submitChoice() while selector is being built by delaying
         // navigation changes
-        Future.microtask(() => Navigator.of(context).pushNamedAndRemoveUntil(HomeScreen.routeName, (route) => false));
+        Future.microtask(() => Navigator.of(context).pushNamedAndRemoveUntil(MusicScreen.routeName, (route) => false));
       } catch (e) {
         GlobalSnackbar.error(e);
       }

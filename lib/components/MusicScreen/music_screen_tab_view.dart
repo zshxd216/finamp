@@ -108,7 +108,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
         // starting with Jellyfin 10.9, only automatically created playlists will have a specific library as parent. user-created playlists will not be returned anymore
         // this condition fixes this by not providing a parentId when fetching playlists
         parentItem: widget.tabContentType.itemType == BaseItemDtoType.playlist ? null : widget.view,
-        includeItemTypes: widget.tabContentType.itemType.idString,
+        includeItemTypes: widget.tabContentType.itemType?.idString,
 
         // If we're on the tracks tab, sort by "Album,SortName". This is what the
         // Jellyfin web client does. If this isn't the case, sort by "SortName".
@@ -185,7 +185,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     } else {
       offlineItems = await _isarDownloader.getAllCollections(
         nameFilter: widget.searchTerm,
-        includeItemTypes: [widget.tabContentType.itemType],
+        includeItemTypes: [widget.tabContentType.itemType].nonNulls.toList(),
         fullyDownloaded: settings.onlyShowFullyDownloaded,
         viewFilter: widget.tabContentType == TabContentType.albums ? widget.view?.id : null,
         childViewFilter:
