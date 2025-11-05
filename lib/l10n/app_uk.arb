@@ -821,7 +821,7 @@
     "@playbackModeDirectPlaying": {
         "description": "Feature chip that is shown when tracks are being played directly from the server, without transcoding"
     },
-    "addToNextUp": "Додати до наступного",
+    "addToNextUp": "Додати до «Наступне»",
     "@addToNextUp": {
         "description": "Used for adding a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
     },
@@ -933,7 +933,7 @@
     "@queueRestoreButtonLabel": {
         "description": "Button to restore archived now playing queue, overwriting current queue"
     },
-    "confirmAddToNextUp": "Додано {type, select, track{Трек} album{альбом} artist{виконавця} playlist{плейліст} genre{жанр} disc{диск} other{елемент}} до «Наступне»",
+    "confirmAddToNextUp": "Додано {type, select, track{трек} album{альбом} artist{виконавця} playlist{плейліст} genre{жанр} disc{диск} other{елемент}} до «Наступне»",
     "@confirmAddToNextUp": {
         "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
         "placeholders": {
@@ -1092,7 +1092,7 @@
         },
         "description": "Dropdown option to download original version of tracks"
     },
-    "playingFromType": "Відтворення з {source, select, album{альбому} playlist{плейлісту} trackMix{міксу треку} artistMix{міксу виконавця} albumMix{міксу альбому} genreMix{міксу жанру} favorites{Улюблених} allTracks{усіх треків} filteredList{треків} genre{жанру} artist{виконавця} track{треку} nextUpAlbum{альбому у «Далі в черзі»} nextUpPlaylist{плейлісту в «Далі в черзі»} nextUpArtist{виконавця в «Далі в черзі»} nextUpGenre{жанру в «Далі в черзі»} remoteClient{віддаленого клієнту} other{}}",
+    "playingFromType": "Відтворення з {source, select, album{альбому} playlist{плейлісту} trackMix{міксу треку} artistMix{міксу виконавця} albumMix{міксу альбому} genreMix{міксу жанру} favorites{Улюблених} allTracks{усіх треків} filteredList{треків} genre{жанру} artist{виконавця} track{треку} nextUpAlbum{альбому у «Наступне»} nextUpPlaylist{плейлісту в «Наступне»} nextUpArtist{виконавця в «Наступне»} nextUpGenre{жанру в «Наступне»} remoteClient{віддаленого клієнту} other{}}",
     "@playingFromType": {
         "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
         "placeholders": {
@@ -1219,7 +1219,7 @@
             }
         }
     },
-    "tracksFormerNextUp": "Треки, додані через “Далі в черзі”",
+    "tracksFormerNextUp": "Треки, додані до «Наступне»",
     "@tracksFormerNextUp": {
         "description": "Title for the queue source for tracks that were once added to the queue via the \"Next Up\" feature, but have since been played"
     },
@@ -1913,9 +1913,9 @@
     "@audioFadeOutDurationSettingTitle": {
         "description": "Title for the audio fade-in duration setting."
     },
-    "audioFadeInDurationSettingSubtitle": "Тривалість затухання звуку в мілісекундах. Встановіть значення 0, щоб вимкнути плавне збільшення.",
+    "audioFadeInDurationSettingSubtitle": "Тривалість наростання звуку в мілісекундах. Встановіть на 0, щоб вимкнути.",
     "@audioFadeInDurationSettingSubtitle": {},
-    "audioFadeInDurationSettingTitle": "Тривалість затухання звуку",
+    "audioFadeInDurationSettingTitle": "Тривалість наростання звуку",
     "@audioFadeInDurationSettingTitle": {},
     "audioFadeOutDurationSettingSubtitle": "Тривалість затухання звуку в мілісекундах.",
     "@audioFadeOutDurationSettingSubtitle": {
