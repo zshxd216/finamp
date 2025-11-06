@@ -554,7 +554,7 @@
   "@logoutButtonSubtitle": {},
   "areYouSure": "Are you sure?",
   "@areYouSure": {},
-  "enableTranscoding": "Enable Transcoding",
+  "enableTranscoding": "Enable Stream Transcoding",
   "@enableTranscoding": {},
   "enableTranscodingSubtitle": "Transcodes music streams on the server side.",
   "@enableTranscodingSubtitle": {},
@@ -1801,7 +1801,7 @@
     },
     "description": "Localized names of special downloadable collection representing cached images for a certain library."
   },
-  "transcodingStreamingFormatTitle": "Select Transcoding Format",
+  "transcodingStreamingFormatTitle": "Select Celluar Transcoding Format",
   "@transcodingStreamingFormatTitle": {
     "description": "Title for the dropdown that selects the format for transcoded streams"
   },

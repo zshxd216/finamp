@@ -14,11 +14,9 @@ class BitrateSelector extends ConsumerStatefulWidget {
 }
 
 class _BitrateSelectorState extends ConsumerState<BitrateSelector> {
-  int currentBitrate = FinampSettingsHelper.finampSettings.transcodeBitrate;
-
   @override
   Widget build(BuildContext context) {
-    ref.watch(finampSettingsProvider.transcodeBitrate);
+    final currentBitrate = ref.watch(finampSettingsProvider.transcodeBitrate);
     return Column(
       children: [
         ListTile(
@@ -37,7 +35,7 @@ class _BitrateSelectorState extends ConsumerState<BitrateSelector> {
               label: AppLocalizations.of(context)!.kiloBitsPerSecondLabel(currentBitrate ~/ 1000),
               onChanged: (value) {
                 setState(() {
-                  currentBitrate = (value * 1000).toInt();
+                  FinampSetters.setTranscodeBitrate((value * 1000).toInt());
                 });
               },
               onChangeEnd: (value) {
