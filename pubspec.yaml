@@ -36,7 +36,11 @@ dependencies:
       url: https://github.com/LennartEnns/just_audio_fork.git
       ref: 6dfdd07d19f6f037d3f4ff04c397639e4632c687
       path: just_audio
-  just_audio_media_kit: ^2.1.0
+  just_audio_media_kit:
+    git:
+      url: https://github.com/Komodo5197/just_audio_media_kit.git
+      ref: faa61aef52426daa5aa081cb3f0f8a8467796c17
+
   media_kit_libs_linux: ^1.2.1
 
   # Transcoding does not work on windows with current media-kit release.  This fork uses the most recent

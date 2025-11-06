@@ -245,6 +245,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
       _audioServiceBackgroundTaskLogger.info("Initializing media-kit for Windows/Linux");
       JustAudioMediaKit.title = "Finamp";
       JustAudioMediaKit.prefetchPlaylist = true; // cache upcoming tracks, enable gapless playback
+      JustAudioMediaKit.bufferSize = FinampSettingsHelper.finampSettings.bufferSizeMegabytes * 1024 * 1024;
       JustAudioMediaKit.ensureInitialized(linux: true, windows: true, macOS: false, iOS: false, android: false);
     }
 
@@ -753,10 +754,6 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
 
   @override
   Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
-    if (!Platform.isAndroid && !Platform.isIOS && shuffleMode != AudioServiceShuffleMode.none) {
-      GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.desktopShuffleWarning);
-      shuffleMode = AudioServiceShuffleMode.none;
-    }
     try {
       switch (shuffleMode) {
         case AudioServiceShuffleMode.all:

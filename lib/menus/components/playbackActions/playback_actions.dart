@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/item_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
@@ -202,7 +199,6 @@ class PlayNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       label: AppLocalizations.of(context)!.playNext,
       compactLayout: compactLayout,
@@ -245,7 +241,6 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       label: AppLocalizations.of(context)!.addToNextUp,
       compactLayout: compactLayout,
@@ -374,7 +369,6 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -420,7 +414,6 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -566,7 +559,6 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -619,7 +611,6 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)

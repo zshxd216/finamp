@@ -925,10 +925,11 @@ packages:
   just_audio_media_kit:
     dependency: "direct main"
     description:
-      name: just_audio_media_kit
-      sha256: f3cf04c3a50339709e87e90b4e841eef4364ab4be2bdbac0c54cc48679f84d23
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: faa61aef52426daa5aa081cb3f0f8a8467796c17
+      resolved-ref: faa61aef52426daa5aa081cb3f0f8a8467796c17
+      url: "https://github.com/Komodo5197/just_audio_media_kit.git"
+    source: git
     version: "2.1.0"
   just_audio_platform_interface:
     dependency: transitive
@@ -1022,10 +1023,10 @@ packages:
     dependency: transitive
     description:
       name: media_kit
-      sha256: "48c10c3785df5d88f0eef970743f8c99b2e5da2b34b9d8f9876e598f62d9e776"
+      sha256: "52a8e989babc431db0aa242f32a4a08e55f60662477ea09759a105d7cd6410da"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   media_kit_libs_linux:
     dependency: "direct main"
     description:

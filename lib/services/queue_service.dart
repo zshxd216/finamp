@@ -26,7 +26,6 @@ import 'package:uuid/uuid.dart';
 import '../components/PlayerScreen/queue_source_helper.dart';
 import 'downloads_service.dart';
 import 'finamp_settings_helper.dart';
-import 'finamp_user_helper.dart';
 import 'jellyfin_api_helper.dart';
 import 'music_player_background_task.dart';
 
@@ -40,7 +39,6 @@ class QueueService {
 
   final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final _audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
-  final _finampUserHelper = GetIt.instance<FinampUserHelper>();
   final _downloadsService = GetIt.instance<DownloadsService>();
   final _queueServiceLogger = Logger("QueueService");
   final _queuesBox = Hive.box<FinampStorableQueueInfo>("Queues");
@@ -512,14 +510,6 @@ class QueueService {
       }
 
       order ??= FinampPlaybackOrder.linear;
-
-      // Native shuffle is not currently implemented on mediakit backend.  Perform manually.
-      if ((Platform.isLinux || Platform.isWindows) && order == FinampPlaybackOrder.shuffled) {
-        List<jellyfin_models.BaseItemDto> clonedItems = List.from(itemList);
-        clonedItems.shuffle();
-        itemList = clonedItems;
-        order = FinampPlaybackOrder.linear;
-      }
 
       if (initialIndex == null) {
         if (order == FinampPlaybackOrder.shuffled) {
@@ -1012,11 +1002,6 @@ class QueueService {
   FinampLoopMode get loopMode => _loopMode;
 
   Future<void> setPlaybackOrder(FinampPlaybackOrder order) async {
-    // Native shuffle is not currently implemented on mediakit backend.
-    if ((Platform.isLinux || Platform.isWindows) && order != FinampPlaybackOrder.linear) {
-      GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.desktopShuffleWarning);
-      order = FinampPlaybackOrder.linear;
-    }
     _playbackOrder = order;
     _queueServiceLogger.fine("Playback order set to $order");
 
