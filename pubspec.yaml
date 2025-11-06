@@ -39,7 +39,7 @@ dependencies:
   just_audio_media_kit:
     git:
       url: https://github.com/Komodo5197/just_audio_media_kit.git
-      ref: faa61aef52426daa5aa081cb3f0f8a8467796c17
+      ref: feat/queue-shuffle
 
   media_kit_libs_linux: ^1.2.1
 
