@@ -17,7 +17,7 @@ You can ignore the Chrome/Web component, since Finamp is not a web app.
 ### NixOS and Flakes
 
 The project includes a `flake.nix` file that can help you install flutter and rust dependencies. The recommended way of using it is to
-do `nix develop .#fenix` (or you can use `dotenv` with `.envrc` file). 
+use `nix develop`, which allows rustup for Discord RPC dependency. Also there's `nix develop .#fenix` which stubs rustup with fenix, but it is a hack.
 
 To get the application running on linux platform once you are in the development shell:
 - `flutter build linux` - generates the build files in `./build/linux/x64/release/bundle` where the `lib` folder will have all the dynamic libraries.
