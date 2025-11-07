@@ -1783,7 +1783,7 @@
     "@periodicPlaybackSessionUpdateFrequencySubtitle": {
         "description": "Description of the setting that controls how frequently (in seconds) the current playback session is reported to the Jellyfin server"
     },
-    "shuffleAlbumsToNextUp": "Sekoita albumit Seuraavaksi-jonon loppuun",
+    "shuffleAlbumsToNextUp": "Sekoita albumit seuraavaksi-jonon loppuun",
     "@shuffleAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of Next Up"
     },
@@ -2821,5 +2821,89 @@
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
     },
     "shuffleSome": "Sekoita joitakin",
-    "@shuffleSome": {}
+    "@shuffleSome": {},
+    "playbackActionPageNextUp": "Lisää seuraavaksi-jonon loppuun",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "updatePlaylistButtonLabel": "Päivitä soittolista",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "Tallennetaan muutoksia…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "accentColor": "Tehosteväri",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Valitse tehosteväri",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "Oletus",
+    "@defaultWord": {},
+    "useDefaultButton": "Nollaa tehosteväri oletusarvoon",
+    "@useDefaultButton": {},
+    "colorCode": "Värikoodi (Hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "esim. #FFFFFF or #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "Tallenna",
+    "@save": {},
+    "invalidColorCode": "Virheellinen värikoodi",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "downloadAllPlaylistsSettingWarning": "Huom: Tämä lataa kaikki kohteet kaikilta soittolistoilta, riippumatta siitä mistä kirjastosta ne ovat.",
+    "@downloadAllPlaylistsSettingWarning": {},
+    "autoplayRestoredQueueSubtitle": "Jonot jotka palautetaan automaattisesti käynnistyksessä tai jonon palautusnäkymässä, alkavat soimaan automaattisesti.  Jonot, joiden täydellinen palautus epäonnistuu, eivät ikinä toistu automaattisesti, tästä asetuksesta riippumatta.",
+    "@autoplayRestoredQueueSubtitle": {
+        "description": "Subtitle for the setting that controls if restored queues automatically play."
+    },
+    "missingBlurhashWarning": "Varoitus: Jellyfin-palvelin näyttää olevan väärin määritelty, eikä laske blurhash-arvoja.  Tämä estää Finampia poistamasta kuvien päällekkäisiä latauksia.  Korjaa palvelinasetukset ja suorita latausten korjaus.",
+    "@missingBlurhashWarning": {
+        "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
+    },
+    "noPermissionToEditMetadata": "Sinun täytyy olla ylläpitäjä muokataksesi metatietojen kuvia.",
+    "@noPermissionToEditMetadata": {
+        "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
+    },
+    "removedTracks": "Poistetut raidat",
+    "@removedTracks": {
+        "description": "Section header for the list of removed tracks on the playlist edit screen"
+    },
+    "removedTracksEmptyListPlaceholder": "Poistetut raidat näkyvät tässä",
+    "@removedTracksEmptyListPlaceholder": {
+        "description": "Placeholder text shown when there are no removed tracks"
+    },
+    "restoreTrack": "Palauta raita",
+    "@restoreTrack": {
+        "description": "Button title for restoring a track that was marked to be removed"
+    },
+    "discardChangesTitle": "Hylkää muutokset?",
+    "@discardChangesTitle": {
+        "description": "Title for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "discardChangesDescription": "Sinulla on tallentamattomia muutoksia. Hylkää ne ja mene takaisin?",
+    "@discardChangesDescription": {
+        "description": "Description for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "snackbarOptionsMenuTitle": "Hallitse viestejä",
+    "@snackbarOptionsMenuTitle": {
+        "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+    },
+    "snackbarOptionsMenuClearAllButton": "Tyhjennä kaikki viestit",
+    "@snackbarOptionsMenuClearAllButton": {
+        "description": "Button title for clearing all snackbar messages"
+    },
+    "snackbarOptionsMenuViewLogsButton": "Katso lokitiedot",
+    "@snackbarOptionsMenuViewLogsButton": {
+        "description": "Button title for opening the logs screen from the snackbar options menu"
+    }
 }
