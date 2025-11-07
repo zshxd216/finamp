@@ -1129,7 +1129,7 @@
     "@volumeNormalizationModeSelectorSubtitle": {
         "description": "Subtitle for the dropdown that selects the replay gain mode"
     },
-    "couldNotLoad": "Не вдалось завантажити {source, select, album{альбом} playlist{плейліст} trackMix{мікс трека} artistMix{мікс виконавця} albumMix{мікс альбому} genreMix{мікс жанру} favorites{улюблене} allTracks{усі треки} filteredList{треки} genre{жанр} artist{виконавець} track{трек} nextUpAlbum{альбом у «Далі в черзі»} nextUpPlaylist{плейлист у «Далі в черзі»} nextUpArtist{виконавець у «Далі в черзі»} other{}}",
+    "couldNotLoad": "Не вдалось завантажити {source, select, album{альбом} playlist{плейліст} trackMix{мікс трека} artistMix{мікс виконавця} albumMix{мікс альбому} genreMix{мікс жанру} favorites{улюблене} allTracks{усі треки} filteredList{треки} genre{жанр} artist{виконавець} track{трек} nextUpAlbum{альбом у «Наступне»} nextUpPlaylist{плейліст у «Наступне»} nextUpArtist{виконавця у «Наступне»} other{}}",
     "@couldNotLoad": {
         "placeholders": {
             "source": {
@@ -1484,7 +1484,7 @@
             }
         }
     },
-    "shuffleAlbumsToNextUp": "Перемішати альбоми до наступного",
+    "shuffleAlbumsToNextUp": "Перемішати альбоми до «Наступне»",
     "@shuffleAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of Next Up"
     },
@@ -2802,7 +2802,7 @@
     "@shuffleSomeAlbumsNext": {
         "description": "Label for action that shuffles some albums of a genre and adds them at the start of Next Up"
     },
-    "shuffleSomeAlbumsToNextUp": "Перемішайте кілька альбомів до наступного списку",
+    "shuffleSomeAlbumsToNextUp": "Перемішайте кілька альбомів до «Наступне»",
     "@shuffleSomeAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of a genre and adds them at the end of Next Up"
     },
