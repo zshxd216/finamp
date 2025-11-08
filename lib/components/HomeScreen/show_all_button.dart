@@ -9,6 +9,11 @@ class ShowAllButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SimpleButton(onPressed: onPressed, icon: TablerIcons.chevron_right, text: "Show All*");
+    return SimpleButton(
+      onPressed: onPressed,
+      icon: TablerIcons.chevron_right,
+      text: "Show All*",
+      iconPosition: IconPosition.end,
+    );
   }
 }

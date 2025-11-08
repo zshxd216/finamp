@@ -56,7 +56,7 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
       connectionInfo = Text.rich(
         TextSpan(
           text: 'Offline Mode',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -75,7 +75,7 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
               children: [
                 TextSpan(
                   text: '${serverInfo.serverName}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -112,9 +112,27 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
                           // open drawer
                           Scaffold.of(context).openDrawer();
                         },
-                        child: SvgPicture.asset('images/finamp_cropped.svg', height: 40),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            SvgPicture.asset('images/finamp_cropped.svg', height: 36),
+                            Positioned(
+                              bottom: -6,
+                              right: 4,
+                              child: Icon(
+                                ref.watch(finampSettingsProvider.isOffline)
+                                    ? TablerIcons.plug_connected_x
+                                    : ref.watch(FinampUserHelper.finampCurrentUserProvider).valueOrNull?.isLocal ??
+                                          false
+                                    ? TablerIcons.server_bolt
+                                    : TablerIcons.cloud_network,
+                                size: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 4),
                       ...isSearching
                           ? [
                               Expanded(
@@ -207,11 +225,12 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
                   color: ColorScheme.of(context).primaryContainer,
                 ),
                 indicatorPadding: EdgeInsets.zero,
+                splashBorderRadius: BorderRadius.circular(8.0),
                 labelColor: TextTheme.of(context).bodyMedium?.color,
-                labelPadding: EdgeInsets.symmetric(horizontal: 6.0),
+                labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
                 dividerHeight: 0.0,
                 dividerColor: Colors.transparent,
-                padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+                padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
                 tabs: sortedTabs
                     .map(
                       (tabType) => Tab(
