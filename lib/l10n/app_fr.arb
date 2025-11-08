@@ -71,7 +71,7 @@
     "@sortBy": {},
     "album": "Album",
     "@album": {},
-    "albumArtist": "Artistes d'albums",
+    "albumArtist": "Artiste d'album",
     "@albumArtist": {},
     "artist": "Artiste",
     "@artist": {},
@@ -85,7 +85,7 @@
     "@dateAdded": {},
     "datePlayed": "Date de la dernière lecture",
     "@datePlayed": {},
-    "playCount": "nombre de lectures",
+    "playCount": "Nombre de lectures",
     "@playCount": {},
     "premiereDate": "Date de lancement",
     "@premiereDate": {},
@@ -680,7 +680,7 @@
     "@loginFlowNamelessUser": {
         "description": "Name for a user that doesn't have a name set on the server."
     },
-    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} titre} other{{trackCount} titres}}, {imageCount,plural,=1{{imageCount} image} other{{imageCount} images}}\n{syncCount,plural,=1{{syncCount} noeud syncing} other{{syncCount} noeuds}}{repairing, plural, =0{} other{\nReparations en cours}}",
+    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} titre} other{{trackCount} titres}}, {imageCount,plural,=1{{imageCount} image} other{{imageCount} images}}\n{syncCount,plural,=1{{syncCount} nœud syncing} other{{syncCount} nœuds}}{repairing, plural, =0{} other{\nRéparations en cours}}",
     "@downloadedCountUnified": {
         "description": "Display of downloaded track and image count on downloads screen.",
         "placeholders": {
@@ -1308,7 +1308,7 @@
     "@reportQueueToServer": {
         "description": "Label for the setting that toggles reporting of the current queue to the Jellyfin server"
     },
-    "startInstantMixForIndividualTracksSwitchSubtitle": "Lorsque cette option est activée, appuyer sur un titre dans l’onglet Pistes lancera un mixage instantané de celui-ci au lieu d’une unique lecture.",
+    "startInstantMixForIndividualTracksSwitchSubtitle": "Lorsque cette option est activée, appuyer sur un titre dans l’onglet Pistes lancera un mix instantané de celui-ci au lieu d’une unique lecture.",
     "@startInstantMixForIndividualTracksSwitchSubtitle": {},
     "repairDownloads": "Réparation des problèmes avec les fichiers téléchargés ou leurs métadonnées.",
     "@repairDownloads": {
@@ -1527,9 +1527,9 @@
     "@swipeLeftToRightAction": {},
     "appearsOnAlbums": "Apparaît dans",
     "@appearsOnAlbums": {},
-    "albumArtists": "Artistes d'albums",
+    "albumArtists": "Artistes d'album",
     "@albumArtists": {},
-    "performingArtists": "Artistes",
+    "performingArtists": "Artistes interprètes",
     "@performingArtists": {},
     "swipeRightToLeftAction": "Action de balayage vers la gauche",
     "@swipeRightToLeftAction": {},
@@ -2113,7 +2113,7 @@
     "@applyFilterOnGenreChipTapTitle": {
         "description": "Title for the setting that controls if taps on genre chips should apply a genre filter to the current screen or should redirect to the GenreScreen."
     },
-    "genreFilterPlaylistScreensSubtitle": "Lorsqu'elles sont activées, les playlists (accessibles par genre) n'affichent que les titres correspondant au genre actuellement consulté.",
+    "genreFilterPlaylistScreensSubtitle": "Lorsqu'elles sont activées, les playlists (accessibles par genre) n'affichent que les titres correspondant au genre actuellement consulté. (Il est toujours possible de retirer manuellement le filtre de genre pour réafficher tous les titres et albums.)",
     "@genreFilterPlaylistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
@@ -2229,7 +2229,7 @@
     "@genreListsInheritSorting": {
         "description": "Label for the setting that controls if a See All Genre Lists should inherit the Genre Sorting and Filtering."
     },
-    "genreFilterArtistScreensSubtitle": "Lorsque cette option est activée, la section Artistes (accessible via un genre) affiche uniquement les titres et albums correspondant au genre actuellement consulté.",
+    "genreFilterArtistScreensSubtitle": "Lorsque cette option est activée, la section Artistes (accessible via un genre) affiche uniquement les titres et albums correspondant au genre actuellement consulté. (Il est toujours possible de retirer manuellement le filtre de genre pour réafficher tous les titres et albums.)",
     "@genreFilterArtistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
     },
