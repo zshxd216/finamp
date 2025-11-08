@@ -94,6 +94,7 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
         FutureBuilder(
           future: PackageInfo.fromPlatform(),
           builder: (context, snapshot) {
+            final appName = snapshot.data?.appName ?? AppLocalizations.of(context)!.finamp;
             return SafeArea(
               child: Padding(
                 padding: const EdgeInsets.only(left: 12.0, right: 6.0),
@@ -171,10 +172,7 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      snapshot.data?.appName ?? 'Finamp',
-                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                                    ),
+                                    Text(appName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
                                     connectionInfo,
                                   ],
                                 ),

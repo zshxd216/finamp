@@ -12,6 +12,7 @@ import 'package:finamp/l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class MusicScreenDrawer extends StatelessWidget {
   const MusicScreenDrawer({super.key});
@@ -40,9 +41,15 @@ class MusicScreenDrawer extends StatelessWidget {
                           child: SvgPicture.asset('images/finamp_cropped.svg', width: 56, height: 56),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.bottomCenter - const Alignment(0, 0.2),
-                        child: Text(AppLocalizations.of(context)!.finamp, style: const TextStyle(fontSize: 20)),
+                      FutureBuilder(
+                        future: PackageInfo.fromPlatform(),
+                        builder: (context, snapshot) {
+                          final appName = snapshot.data?.appName ?? AppLocalizations.of(context)!.finamp;
+                          return Align(
+                            alignment: Alignment.bottomCenter - const Alignment(0, 0.2),
+                            child: Text(appName, style: const TextStyle(fontSize: 20)),
+                          );
+                        },
                       ),
                     ],
                   ),
