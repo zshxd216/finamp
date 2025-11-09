@@ -8,6 +8,7 @@ import '../components/TranscodingSettingsScreen/bitrate_selector.dart';
 import '../components/TranscodingSettingsScreen/transcode_switch.dart';
 import '../models/finamp_models.dart';
 import '../services/finamp_settings_helper.dart';
+import '../components/menu_shower_toggleable_list_tile.dart';
 
 class TranscodingSettingsScreen extends ConsumerStatefulWidget {
   const TranscodingSettingsScreen({super.key});
@@ -107,9 +108,66 @@ class _TranscodingSettingsScreenState extends ConsumerState<TranscodingSettingsS
           const AdvancedSettingsSwitch(),
 
           if (!ref.watch(advancedSettings)) ...[
-            const SimpleWiFiStreamingTranscodingFormatDropdownListTile(),
-            const SimpleCelluarStreamingTranscodingFormatDropdownListTile(),
-            const SimpleDownloadTranscodingFormatDropdownListTile(),
+            Consumer(
+              builder: (context, ref, _) {
+                final selected = ref.watch(wifiStreamingQualityProvider);
+                return SimpleDropdownList<FinampTranscodingStreamingFormats>(
+                  title: "Wi‑Fi streaming quality",
+                  subtitle: "Choose audio quality for streaming on Wi‑Fi.",
+                  options: FinampTranscodingStreamingFormats.values
+                      .map(
+                        (v) => SimpleDropdownOption(
+                          title: _formatStreamingQualityLabel(v) + '   ' + _formatKbpsAndGbPerHour(v),
+                          subtitle: _formatStreamingQualitySubtitle(v),
+                          value: v,
+                        ),
+                      )
+                      .toList(),
+                  selectedValue: selected,
+                  onChanged: (v) => ref.read(wifiStreamingQualityProvider.notifier).state = v,
+                );
+              },
+            ),
+            Consumer(
+              builder: (context, ref, _) {
+                final selected = ref.watch(celluarStreamingQualityProvider);
+                return SimpleDropdownList<FinampTranscodingStreamingFormats>(
+                  title: "Cellular streaming quality",
+                  subtitle: "Choose audio quality for streaming on mobile networks.",
+                  options: FinampTranscodingStreamingFormats.values
+                      .map(
+                        (v) => SimpleDropdownOption(
+                          title: _formatStreamingQualityLabel(v) + '   ' + _formatKbpsAndGbPerHour(v),
+                          subtitle: _formatStreamingQualitySubtitle(v),
+                          value: v,
+                        ),
+                      )
+                      .toList(),
+                  selectedValue: selected,
+                  onChanged: (v) => ref.read(celluarStreamingQualityProvider.notifier).state = v,
+                );
+              },
+            ),
+            Consumer(
+              builder: (context, ref, _) {
+                final selected = ref.watch(downloadQualityProvider);
+                return SimpleDropdownList<FinampTranscodingStreamingFormats>(
+                  title: "Download quality",
+                  subtitle: "Choose audio quality for downloads (offline listening).",
+                  options: FinampTranscodingStreamingFormats.values
+                      .map(
+                        (v) => SimpleDropdownOption(
+                          title: _formatStreamingQualityLabel(v) + '   ' + _formatKbpsAndGbPerHour(v),
+                          subtitle: _formatStreamingQualitySubtitle(v),
+                          value: v,
+                        ),
+                      )
+                      .toList(),
+                  selectedValue: selected,
+                  onChanged: (v) => ref.read(downloadQualityProvider.notifier).state = v,
+                );
+              },
+            ),
           ],
 
           if (ref.watch(advancedSettings)) ...[
@@ -229,61 +287,86 @@ class DownloadTranscodeCodecDropdownListTile extends ConsumerWidget {
   }
 }
 
-class SimpleDownloadTranscodingFormatDropdownListTile extends ConsumerWidget {
-  const SimpleDownloadTranscodingFormatDropdownListTile({super.key});
+/// Option model for SimpleDropdownList
+class SimpleDropdownOption<T> {
+  final String title;
+  final String subtitle;
+  final T value;
+  const SimpleDropdownOption({required this.title, required this.subtitle, required this.value});
+}
+
+/// Reusable dropdown list component
+class SimpleDropdownList<T> extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final List<SimpleDropdownOption<T>> options;
+  final T selectedValue;
+  final void Function(T) onChanged;
+  final Color? cardColor;
+  final Color? optionCardColor;
+
+  const SimpleDropdownList({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.options,
+    required this.selectedValue,
+    required this.onChanged,
+    this.cardColor,
+    this.optionCardColor,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final transcodeProfile = ref.watch(downloadQualityProvider);
-    final label = _formatStreamingQualityLabel(transcodeProfile);
-  final cardTitle = "Download quality";
-  final cardSubtitle = "Choose audio quality for downloads (offline listening).";
-        final stats = _formatKbpsAndGbPerHour(transcodeProfile);
-
+  Widget build(BuildContext context) {
+    final baseTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
+    final optionColor = optionCardColor ?? Theme.of(context).colorScheme.primary;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-      color: Theme.of(context).colorScheme.primaryContainer,
+      color: cardColor ?? Theme.of(context).colorScheme.primaryContainer,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox.shrink(),
-                ListTile(
-                  title: Text(
-                    cardTitle,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
-                  ),
-              subtitle: Text(
-                cardSubtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
-              ),
+            ListTile(
+              title: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: baseTextColor)),
+              subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: baseTextColor)),
             ),
-            const SizedBox(height: 8),
             Card(
-              color: Theme.of(context).colorScheme.secondary,
-              child: ListTile(
-                title: Text(
-                  '$label   $stats',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSecondary),
-                ),
-                subtitle: Text(
-                  _formatStreamingQualitySubtitle(transcodeProfile),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSecondary),
-                ),
-                onTap: () => showModalBottomSheet<void>(
-                  context: context,
-                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-                  isScrollControlled: true,
-                  builder: (ctx) => StreamingQualityModal(
-                    selected: transcodeProfile,
-                    onSelected: (v) {
-                      ref.read(downloadQualityProvider.notifier).state = v;
-                      Navigator.of(ctx).pop();
-                    },
-                  ),
-                ),
+              color: optionColor,
+              child: MenuShowerToggleableListTile(
+                title: options.firstWhere((o) => o.value == selectedValue).title,
+                subtitle: options.firstWhere((o) => o.value == selectedValue).subtitle,
+                menuTitle: 'Select option',
+                state: true,
+                isLoading: false,
+                enabled: true,
+                titleStyle: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                subtitleStyle: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                menuCreator: () async {
+                  await showChoiceMenu(
+                    context: context,
+                    title: 'Select option',
+                    listEntries: options.map((opt) {
+                      return ChoiceListTile(
+                        title: opt.title,
+                        description: opt.subtitle,
+                        icon: Icons.music_note,
+                        isSelected: opt.value == selectedValue,
+                        disabled: false,
+                        onSelect: () {
+                          onChanged(opt.value);
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    }).toList(),
+                    subtitle: null,
+                  );
+                },
               ),
             ),
           ],
@@ -300,9 +383,10 @@ class SimpleCelluarStreamingTranscodingFormatDropdownListTile extends ConsumerWi
   Widget build(BuildContext context, WidgetRef ref) {
     final transcodeProfile = ref.watch(celluarStreamingQualityProvider);
     final label = _formatStreamingQualityLabel(transcodeProfile);
-  final cardTitle = "Cellular streaming quality";
-  final cardSubtitle = "Choose audio quality for streaming on mobile networks.";
-  final stats = _formatKbpsAndGbPerHour(transcodeProfile);
+    final cardTitle = "Cellular streaming quality";
+    final cardSubtitle = "Choose audio quality for streaming on mobile networks.";
+    final stats = _formatKbpsAndGbPerHour(transcodeProfile);
+    final baseTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
 
     return Card(
       color: Theme.of(context).colorScheme.primaryContainer,
@@ -313,39 +397,41 @@ class SimpleCelluarStreamingTranscodingFormatDropdownListTile extends ConsumerWi
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              title: Text(
-                cardTitle,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
-              ),
+              title: Text(cardTitle, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: baseTextColor)),
               subtitle: Text(
                 cardSubtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: baseTextColor),
               ),
             ),
             Card(
-              color: Theme.of(context).colorScheme.secondary,
-              child: ListTile(
-                title: Text(
-                  '$label   $stats',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSecondary),
-                ),
-                subtitle: Text(
-                  _formatStreamingQualitySubtitle(transcodeProfile),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSecondary),
-                ),
-                onTap: () => showModalBottomSheet<void>(
-                  context: context,
-                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-                  isScrollControlled: true,
-                  builder: (ctx) => StreamingQualityModal(
-                    selected: transcodeProfile,
-                    onSelected: (v) {
-                      ref.read(celluarStreamingQualityProvider.notifier).state = v;
-                      Navigator.of(ctx).pop();
-                    },
-                  ),
-                ),
+              color: Theme.of(context).colorScheme.primary,
+              child: MenuShowerToggleableListTile(
+                title: '$label   $stats',
+                subtitle: _formatStreamingQualitySubtitle(transcodeProfile),
+                menuTitle: 'Select quality profile',
+                state: true,
+                isLoading: false,
+                enabled: true,
+                menuCreator: () async {
+                  await showChoiceMenu(
+                    context: context,
+                    title: 'Select quality profile',
+                    listEntries: FinampTranscodingStreamingFormats.values.map((v) {
+                      return ChoiceListTile(
+                        title: _formatStreamingQualityLabel(v),
+                        description: _formatStreamingQualitySubtitle(v),
+                        icon: Icons.music_note,
+                        isSelected: v == transcodeProfile,
+                        disabled: false,
+                        onSelect: () {
+                          ref.read(celluarStreamingQualityProvider.notifier).state = v;
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    }).toList(),
+                    subtitle: null,
+                  );
+                },
               ),
             ),
           ],
@@ -362,9 +448,10 @@ class SimpleWiFiStreamingTranscodingFormatDropdownListTile extends ConsumerWidge
   Widget build(BuildContext context, WidgetRef ref) {
     final transcodeProfile = ref.watch(wifiStreamingQualityProvider);
     final label = _formatStreamingQualityLabel(transcodeProfile);
-  final cardTitle = "Wi‑Fi streaming quality";
-  final cardSubtitle = "Choose audio quality for streaming on Wi‑Fi.";
+    final cardTitle = "Wi‑Fi streaming quality";
+    final cardSubtitle = "Choose audio quality for streaming on Wi‑Fi.";
     final stats = _formatKbpsAndGbPerHour(transcodeProfile);
+    final baseTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
@@ -375,40 +462,42 @@ class SimpleWiFiStreamingTranscodingFormatDropdownListTile extends ConsumerWidge
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              title: Text(
-                cardTitle,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
-              ),
+              title: Text(cardTitle, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: baseTextColor)),
               subtitle: Text(
                 cardSubtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: baseTextColor),
               ),
             ),
             const SizedBox(height: 8),
             Card(
-              color: Theme.of(context).colorScheme.secondary,
-              child: ListTile(
-                title: Text(
-                  '$label   $stats',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSecondary),
-                ),
-                subtitle: Text(
-                  _formatStreamingQualitySubtitle(transcodeProfile),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSecondary),
-                ),
-                onTap: () => showModalBottomSheet<void>(
-                  context: context,
-                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-                  isScrollControlled: true,
-                  builder: (ctx) => StreamingQualityModal(
-                    selected: transcodeProfile,
-                    onSelected: (v) {
-                      ref.read(wifiStreamingQualityProvider.notifier).state = v;
-                      Navigator.of(ctx).pop();
-                    },
-                  ),
-                ),
+              color: Theme.of(context).colorScheme.primary,
+              child: MenuShowerToggleableListTile(
+                title: '$label   $stats',
+                subtitle: _formatStreamingQualitySubtitle(transcodeProfile),
+                menuTitle: 'Select quality profile',
+                state: true,
+                isLoading: false,
+                enabled: true,
+                menuCreator: () async {
+                  await showChoiceMenu(
+                    context: context,
+                    title: 'Select quality profile',
+                    listEntries: FinampTranscodingStreamingFormats.values.map((v) {
+                      return ChoiceListTile(
+                        title: _formatStreamingQualityLabel(v),
+                        description: _formatStreamingQualitySubtitle(v),
+                        icon: Icons.music_note,
+                        isSelected: v == transcodeProfile,
+                        disabled: false,
+                        onSelect: () {
+                          ref.read(wifiStreamingQualityProvider.notifier).state = v;
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    }).toList(),
+                    subtitle: null,
+                  );
+                },
               ),
             ),
           ],
@@ -428,7 +517,9 @@ class StreamingQualityModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.bodySmall!.color!;
+    final baseTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
+    final nestedTextColor = Theme.of(context).colorScheme.onPrimary;
+    final textColor = Theme.of(context).colorScheme.onSurface;
     return SafeArea(
       child: SingleChildScrollView(
         controller: scrollController,
@@ -474,25 +565,23 @@ class StreamingQualityModal extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2.0),
                         child: Card(
-                          color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surfaceVariant,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.primary,
                           child: InkWell(
                             onTap: () => onSelected(v),
                             child: ListTile(
                               title: Text(
                                 '$label   $stats',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: isSelected 
-                                    ? Theme.of(context).colorScheme.onPrimaryContainer 
-                                    : Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleMedium?.copyWith(color: isSelected ? baseTextColor : nestedTextColor),
                               ),
                               subtitle: Text(
                                 subtitle,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: isSelected 
-                                    ? Theme.of(context).colorScheme.onPrimaryContainer 
-                                    : Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(color: isSelected ? baseTextColor : nestedTextColor),
                               ),
                             ),
                           ),
