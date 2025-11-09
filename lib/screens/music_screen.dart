@@ -1,7 +1,8 @@
-import 'dart:async';
 import 'dart:io';
 
-import 'package:finamp/components/HomeScreen/finamp_home_screen_header.dart';
+import 'package:finamp/components/HomeScreen/finamp_music_screen_header.dart';
+import 'package:finamp/components/MusicScreen/sort_and_filter_row.dart';
+import 'package:finamp/components/global_snackbar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +11,6 @@ import 'package:logging/logging.dart';
 import 'package:finamp/components/HomeScreen/home_screen_content.dart';
 import 'package:finamp/components/MusicScreen/artist_type_selection_row.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
-import 'package:finamp/components/MusicScreen/sort_by_menu_button.dart';
-import 'package:finamp/components/MusicScreen/sort_order_button.dart';
-import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/now_playing_bar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/menus/music_screen_drawer.dart';
@@ -126,8 +124,7 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
           try {
             await _audioServiceHelper.shuffleAll(
               onlyShowFavorites:
-                  (isFavoriteOverride == true ||
-                  (isFavoriteOverride == null && ref.read(finampSettingsProvider.onlyShowFavorites))),
+                  (isFavoriteOverride ?? ref.read(finampSettingsProvider.onlyShowFavorites)),
               genreFilter: widget.genreFilter,
             );
           } catch (e) {
@@ -225,7 +222,7 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
       },
       child: Scaffold(
         extendBody: true,
-        appBar: FinampHomeScreenHeader(
+        appBar: FinampMusicScreenHeader(
           sortedTabs: sortedTabs.toList(),
           genreFilter: widget.genreFilter,
           tabController: _tabController,
@@ -238,6 +235,7 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
               searchQuery = value;
             });
           },
+          refreshTab: () => refreshTab(sortedTabs.elementAt(_tabController!.index)),
           textEditingController: textEditingController,
           isSearching: isSearching,
         ),
@@ -264,6 +262,28 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
                 }
                 return Column(
                   children: [
+                    SortAndFilterRow(
+                      tabType: tabType,
+                      refreshTab: refreshTab,
+                      sortByOverride: sortByOverride,
+                      updateSortByOverride: (newSortBy) {
+                        setState(() {
+                          sortByOverride = newSortBy;
+                        });
+                      },
+                      sortOrderOverride: sortOrderOverride,
+                      updateSortOrderOverride: (newSortOrder) {
+                        setState(() {
+                          sortOrderOverride = newSortOrder;
+                        });
+                      },
+                      isFavoriteOverride: isFavoriteOverride,
+                      updateIsFavoriteOverride: (newIsFavorite) {
+                        setState(() {
+                          isFavoriteOverride = newIsFavorite;
+                        });
+                      },
+                    ),
                     ArtistTypeSelectionRow(
                       tabType: tabType,
                       defaultArtistType: ref.watch(finampSettingsProvider.defaultArtistType),

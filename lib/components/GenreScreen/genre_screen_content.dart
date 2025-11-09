@@ -95,7 +95,7 @@ class _GenreScreenContentState extends ConsumerState<GenreScreenContent> {
       }
     }
     Navigator.of(context).push(
-      MaterialPageRoute(
+      MaterialPageRoute<MusicScreen>(
         builder: (context) => MusicScreen(
           genreFilter: widget.parent,
           tabTypeFilter: tabContentType,

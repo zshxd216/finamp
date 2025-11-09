@@ -6,7 +6,7 @@ import 'package:finamp/components/AlbumScreen/playlist_edit_button.dart';
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
 import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
-import 'package:finamp/components/MusicScreen/sort_by_menu_button.dart';
+import 'package:finamp/components/MusicScreen/sort_menu_button.dart';
 import 'package:finamp/components/MusicScreen/sort_order_button.dart';
 import 'package:finamp/components/favorite_button.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
@@ -125,7 +125,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
                   ref.watch(canEditPlaylistProvider(widget.parent)))
                 PlaylistEditButton(playlist: widget.parent),
               if (parentIsPlaylist) SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
-              if (parentIsPlaylist) SortByMenuButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
+              if (parentIsPlaylist) SortMenuButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
               FavoriteButton(item: widget.parent),
               if (!isLoading)
                 DownloadButton(

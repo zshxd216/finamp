@@ -1,10 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:finamp/components/album_image.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/screens/playback_history_screen.dart';
 import 'package:finamp/screens/settings_screen.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
@@ -14,12 +13,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive_ce/hive.dart';
-import 'package:octo_image/octo_image.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
-class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidget {
+class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWidget {
   final List<TabContentType> sortedTabs;
   final BaseItemDto? genreFilter;
   final TabController? tabController;
@@ -28,14 +25,16 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
   final TextEditingController textEditingController;
   final bool isSearching;
   final void Function(String)? onUpdateSearchQuery;
+  final void Function() refreshTab;
 
-  FinampHomeScreenHeader({
+  FinampMusicScreenHeader({
     super.key,
     required this.sortedTabs,
     required this.genreFilter,
     required this.tabController,
     required this.textEditingController,
     required this.isSearching,
+    required this.refreshTab,
     this.onSearch,
     this.onStopSearch,
     this.onUpdateSearchQuery,
@@ -45,47 +44,10 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 36 + 12); // Standard height
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 34); // Standard height
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final FinampSettings? settings = ref.watch(finampSettingsProvider).value;
-
-    Widget connectionInfo;
-    if (settings?.isOffline ?? false) {
-      connectionInfo = Text.rich(
-        TextSpan(
-          text: 'Offline Mode',
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
-    } else {
-      connectionInfo = FutureBuilder<PublicSystemInfoResult?>(
-        future: jellyfinApiHelper.loadServerPublicInfo(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Text("Connected");
-          }
-          final PublicSystemInfoResult serverInfo = snapshot.data!;
-          return Text.rich(
-            TextSpan(
-              text: 'Connected to* ',
-              children: [
-                TextSpan(
-                  text: '${serverInfo.serverName}',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          );
-        },
-      );
-    }
-
     Timer? debounce;
 
     return Column(
@@ -173,12 +135,18 @@ class FinampHomeScreenHeader extends ConsumerWidget implements PreferredSizeWidg
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(appName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
-                                    connectionInfo,
                                   ],
                                 ),
                               ),
                               Row(
                                 children: [
+                                  if (!Platform.isIOS && !Platform.isAndroid)
+                                    IconButton(
+                                      icon: const Icon(Icons.refresh),
+                                      onPressed: () {
+                                        refreshTab();
+                                      },
+                                    ),
                                   IconButton(
                                     icon: Icon(TablerIcons.search),
                                     iconSize: 28,
