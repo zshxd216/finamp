@@ -22,9 +22,7 @@ class AccentColorSelector extends ConsumerWidget {
       subtitle: useSystemAccent ? Text(AppLocalizations.of(context)!.systemAccentColorHasPriorityInfo) : null,
       title: Text(AppLocalizations.of(context)!.accentColor),
       trailing: GestureDetector(
-        onTap: () {
-          // "Disable" when using systemAccent
-          if (useSystemAccent) return;
+        onTap: useSystemAccent ? null : () {
           showModalBottomSheet<void>(
             context: context,
             isScrollControlled: true,
