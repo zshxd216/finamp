@@ -48,7 +48,8 @@ class FeatureState {
   bool get isDownloaded => metadata?.isDownloaded ?? false;
   bool get isTranscoding => !isDownloaded && (currentTrack?.item.extras?["shouldTranscode"] as bool? ?? false);
   String get container =>
-      isTranscoding ? settings.transcodingStreamingFormat.codec : metadata?.mediaSourceInfo.container ?? "";
+      isTranscoding ? settings.transcodingStreamingFormat.container : metadata?.mediaSourceInfo.container ?? "";
+  String get codec => isTranscoding ? settings.transcodingStreamingFormat.codec : audioStream?.codec ?? "";
   int? get size => isTranscoding ? null : metadata?.mediaSourceInfo.size;
   MediaStream? get audioStream => isTranscoding
       ? null
@@ -58,7 +59,9 @@ class FeatureState {
   // should have a valid mediaStream, so use that audio-only bitrate instead of the
   // whole-file bitrate.
   int? get bitrate => isTranscoding
-      ? (settings.transcodingStreamingFormat.codec == 'flac' ? null : settings.transcodeBitrate)
+      ? (settings.transcodingStreamingFormat == FinampTranscodingStreamingFormat.flacFragmentedMp4
+            ? null
+            : settings.transcodeBitrate)
       : audioStream?.bitRate ?? metadata?.mediaSourceInfo.bitrate;
   int? get sampleRate => audioStream?.sampleRate;
   int? get bitDepth => audioStream?.bitDepth;
