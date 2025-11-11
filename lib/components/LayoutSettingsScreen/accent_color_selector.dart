@@ -22,19 +22,21 @@ class AccentColorSelector extends ConsumerWidget {
       subtitle: useSystemAccent ? Text(AppLocalizations.of(context)!.systemAccentColorHasPriorityInfo) : null,
       title: Text(AppLocalizations.of(context)!.accentColor),
       trailing: GestureDetector(
-        onTap: useSystemAccent ? null : () {
-          showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            useSafeArea: true,
-            builder: (context) {
-              return ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                child: SingleChildScrollView(child: const AccentColorPopup()),
-              );
-            },
-          );
-        },
+        onTap: useSystemAccent
+            ? null
+            : () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  builder: (context) {
+                    return ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                      child: SingleChildScrollView(child: const AccentColorPopup()),
+                    );
+                  },
+                );
+              },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

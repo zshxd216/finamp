@@ -23,16 +23,12 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          
           Container(
             width: 20,
             height: 20,
             margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
-            decoration: BoxDecoration(
-              color: sysColor ?? Colors.transparent,
-              borderRadius: BorderRadius.circular(13),
-            )
-          ),  
+            decoration: BoxDecoration(color: sysColor ?? Colors.transparent, borderRadius: BorderRadius.circular(13)),
+          ),
           SizedBox(width: 16),
           Switch.adaptive(
             value: ref.watch(finampSettingsProvider.useSystemAccentColor),
