@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/theme_provider.dart';
@@ -24,10 +23,10 @@ class AutomaticAccentColorSelector extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: 20,
-            height: 20,
-            margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
-            decoration: BoxDecoration(color: sysColor ?? Colors.transparent, borderRadius: BorderRadius.circular(13)),
+            width: 32,
+            height: 32,
+            margin: EdgeInsets.only(right: 2),
+            decoration: BoxDecoration(color: sysColor ?? Colors.transparent, borderRadius: BorderRadius.circular(16)),
           ),
           SizedBox(width: 16),
           Switch.adaptive(

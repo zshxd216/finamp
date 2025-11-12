@@ -734,11 +734,11 @@
   },
   "useMonochromeIcon": "Use Monochrome Logo",
   "@useMonochromeIcon": {
-    "description": "Toggles the finamp icon between classic and it being monochromic. THis does not change the outside-app-icon"
+    "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
   },
-  "useMonochromeIconSubtitle": "This does not change the Ouside-App-Icon.",
+  "useMonochromeIconSubtitle": "This only affect the icon within the app, not the launcher icon.",
   "@useMonochromeIconSubtitle": {
-    "description": "It may be confusing for the user since in-app icons and app-icon can be used interchangeably. But this in fact does not change the Ouside-App-Icon"
+    "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
   },
   "defaultWord": "Default",
   "@defaultWord": {},
@@ -750,7 +750,7 @@
   },
   "colorCodeHint": "e.g. #FFFFFF or #coffee",
   "@colorCodeHint": {
-    "description": "Hint text for the color code input field"
+    "description": "Hint text for the color code input field. Don't translate 'coffee', unless the translation is also a valid hex color code."
   },
   "save": "Save",
   "@save": {},
