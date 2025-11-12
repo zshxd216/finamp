@@ -89,6 +89,7 @@ class _QueueListState extends State<QueueList> {
   late List<Widget> _contents;
 
   // Used to jump when changing playback order
+  final nextUpHeaderKey = GlobalKey();
   final queueHeaderKey = GlobalKey();
 
   @override
@@ -174,6 +175,7 @@ class _QueueListState extends State<QueueList> {
       ),
       const CurrentTrack(),
       // next up
+      SliverToBoxAdapter(key: nextUpHeaderKey),
       StreamBuilder(
         stream: _queueService.getQueueStream(),
         initialData: _queueService.getQueue(),
@@ -210,6 +212,7 @@ class _QueueListState extends State<QueueList> {
             ],
           ),
           controls: true,
+          nextUpHeaderKey: nextUpHeaderKey,
           queueHeaderKey: queueHeaderKey,
           scrollController: widget.scrollController,
         ),
@@ -939,6 +942,7 @@ class QueueSectionHeader extends StatelessWidget {
   final Widget title;
   final QueueItemSource? source;
   final bool controls;
+  final GlobalKey nextUpHeaderKey;
   final GlobalKey queueHeaderKey;
   final ScrollController scrollController;
 
@@ -946,6 +950,7 @@ class QueueSectionHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.source,
+    required this.nextUpHeaderKey,
     required this.queueHeaderKey,
     required this.scrollController,
     this.controls = false,
@@ -1034,7 +1039,11 @@ class QueueSectionHeader extends StatelessWidget {
                       onPressed: () async {
                         await queueService.togglePlaybackOrder();
                         FeedbackHelper.feedback(FeedbackType.selection);
+                        if (queueService.getQueue().nextUp.isNotEmpty) {
+                          scrollToKey(key: nextUpHeaderKey);
+                        } else {
                         scrollToKey(key: queueHeaderKey);
+                        }
                       },
                     ),
                     IconButton(
