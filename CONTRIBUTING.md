@@ -14,6 +14,17 @@ flutter doctor -v
 This will list out all components used for Flutter development, and if they are installed. This should include either Android or iOS development (depending on your platform), as well as any desktop platform you want to target.  
 You can ignore the Chrome/Web component, since Finamp is not a web app.
 
+### NixOS and Flakes
+
+The project includes a `flake.nix` file that can help you install Flutter and Rust dependencies. The recommended way of using it is to
+use `nix develop`, which allows rustup for Discord RPC dependency. Also, there's `nix develop .#fenix` which stubs rustup with fenix, but it is a hack.
+
+To get the application running on NixOS once you are in the development shell:
+- `flutter build linux` - generates the build files in `./build/linux/x64/release/bundle` where the `lib` folder will have all the dynamic libraries.
+- `cd /build/linux/x64/release/bundle/lib` - flutter cannot find the dynamic libraries by default. Probably works from here only because the fallback is CWD.
+- `../flutter` - start the application.
+- The normally-used `flutter run ...` command does not seem to work on NixOS at this time.
+
 ### Building for Android
 
 You can build debug builds for Android right-away, but you will get an error if you try to build a release build (which is the default type).  

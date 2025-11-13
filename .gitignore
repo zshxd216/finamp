@@ -24,6 +24,10 @@ migrate_working_dir/
 .settings/
 .vscode/
 
+# NixOS and direnv related
+.direnv
+.envrc
+
 # packages file containing multi-root paths
 .packages.generated
 
