@@ -34,7 +34,9 @@ class RemoveFromCurrentPlaylistMenuEntry extends ConsumerWidget implements Hidea
         icon: TablerIcons.playlist_x,
         title: AppLocalizations.of(context)!.removeFromPlaylistTitle,
         enabled:
-            parentItem != null && parentItem!.type == "Playlist" && ref.watch(canEditPlaylistProvider(parentItem!)),
+            parentItem != null &&
+            (BaseItemDtoType.fromItem(parentItem!) == BaseItemDtoType.playlist &&
+                ref.watch(canEditPlaylistProvider(parentItem!))),
         onTap: () async {
           Navigator.pop(context); // close menu
           var removed = await removeFromPlaylist(

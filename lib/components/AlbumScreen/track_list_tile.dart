@@ -166,9 +166,34 @@ class TrackListTile extends ConsumerWidget {
             settings.tabSortOrder[TabContentType.tracks],
           );
 
+          int startingIndex = isShownInSearchOrHistory
+              ? items.indexWhere((element) => element.id == item.id)
+              : index ?? 0;
+          final maxItems = Platform.isIOS
+              ? 1000
+              : Platform.isAndroid
+              ? 1000
+              : 1000;
+          //!!! limit the amount of tracks to prevent freezing and crashing for many tracks
+          if (items.length > maxItems) {
+            // take 10% of the maximum before the index, and the rest after the index
+            final firstTrackIndex = startingIndex - (maxItems ~/ 10);
+            final lastTrackIndex = startingIndex + (maxItems - (maxItems ~/ 10));
+            // update the initial index
+            if (firstTrackIndex > 0) {
+              startingIndex = startingIndex - firstTrackIndex;
+            } else {
+              startingIndex = startingIndex;
+            }
+            items = items.sublist(
+              firstTrackIndex >= 0 ? firstTrackIndex : 0,
+              lastTrackIndex <= items.length ? lastTrackIndex : items.length,
+            );
+          }
+
           await queueService.startPlayback(
             items: items,
-            startingIndex: isShownInSearchOrHistory ? items.indexWhere((element) => element.id == item.id) : index,
+            startingIndex: startingIndex,
             source: QueueItemSource(
               name: QueueItemSourceName(
                 type: item.name != null ? QueueItemSourceNameType.mix : QueueItemSourceNameType.instantMix,

@@ -49,7 +49,7 @@ dependencies:
   media_kit_libs_windows_audio: #^1.0.9
     git:
       url: https://github.com/Komodo5197/media-kit.git
-      ref: bfbcea1976093311d6b0ab6bc004a0cc7cd25811
+      ref: 9659892e095266beffeb71969db733afe9b6c424
       path: libs/windows/media_kit_libs_windows_audio
   smtc_windows:
     git:
@@ -142,6 +142,8 @@ dependencies:
   flutter_discord_rpc: ^1.0.0
   shared_preferences: ^2.5.3
   flex_color_picker: ^3.7.1
+  dynamic_color: ^1.8.1
+  dbus: ^0.7.11
 
 dev_dependencies:
   flutter_test:
