@@ -106,7 +106,7 @@ class QueueService {
 
       final previousIndex = _queueAudioSourceIndex;
       _queueAudioSourceIndex = event.queueIndex ?? 0;
-
+      
       // Ignore playback events if queue is empty.
       if (previousIndex != _queueAudioSourceIndex && _currentTrack != null) {
         _queueServiceLogger.finer("Play queue index changed, new index: $_queueAudioSourceIndex");
@@ -437,6 +437,9 @@ class QueueService {
           isRestoredQueue: true,
           itemList: items["previous"]! + items["current"]! + items["queue"]!,
           initialIndex: items["current"]!.isNotEmpty || items["queue"]!.isNotEmpty ? items["previous"]!.length : 0,
+          initialSeekPosition: (info.currentTrackSeek ?? 0) > (isReload ? 500 : 5000) && items["current"]!.isNotEmpty
+              ? Duration(milliseconds: info.currentTrackSeek!)
+              : null,
           // Always restore queues as linear to prevent them being reshuffled while restoring
           order: FinampPlaybackOrder.linear,
           beginPlaying: isReload
@@ -445,13 +448,7 @@ class QueueService {
           source: info.source ?? savedQueueSource,
         );
 
-        Future<void> seekFuture = Future.value();
-        if ((info.currentTrackSeek ?? 0) > (isReload ? 500 : 5000) && items["current"]!.isNotEmpty) {
-          seekFuture = _audioHandler.seek(Duration(milliseconds: info.currentTrackSeek ?? 0));
-        }
-
         await addToNextUp(items: items["next"]!);
-        await seekFuture;
       }
       _queueServiceLogger.info("Loaded saved queue.");
       if (loadedTracks > 0 || info.trackCount == 0) {
@@ -499,6 +496,7 @@ class QueueService {
     required List<jellyfin_models.BaseItemDto> itemList,
     required QueueItemSource source,
     int? initialIndex,
+    Duration? initialSeekPosition,
     FinampPlaybackOrder? order,
     bool beginPlaying = true,
     bool isRestoredQueue = false,
@@ -570,7 +568,7 @@ class QueueService {
         initialIndex: initialIndex,
         preload: true,
         shuffleOrder: _shuffleOrder,
-        initialPosition: Duration.zero,
+        initialPosition: initialSeekPosition ?? Duration.zero,
       );
 
       //!!! keep this roughly here so the player screen opens to the correct track, but doesn't seem laggy
