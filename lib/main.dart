@@ -6,6 +6,7 @@ import 'package:app_links/app_links.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:background_downloader/background_downloader.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/gen/assets.gen.dart';
@@ -37,12 +38,14 @@ import 'package:finamp/services/downloads_service_backend.dart';
 import 'package:finamp/services/finamp_logs_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/dbus_manager.dart';
 import 'package:finamp/services/keep_screen_on_helper.dart';
 import 'package:finamp/services/network_manager.dart';
 import 'package:finamp/services/offline_listen_helper.dart';
 import 'package:finamp/services/playback_history_service.dart';
 import 'package:finamp/services/playon_service.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/theme_provider.dart';
 import 'package:finamp/services/ui_overlay_setter_observer.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -166,6 +169,8 @@ void main() async {
 
     await findSystemLocale();
     await initializeDateFormatting();
+    unawaited(fetchSystemPalette());
+    await initDBus();
 
     _mainLog.info("Launching main app");
 
@@ -612,7 +617,11 @@ class FinampApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accentColor = ref.watch(finampSettingsProvider.accentColor);
+    final useSystemTheme = ref.watch(finampSettingsProvider.useSystemAccentColor);
+    // System Accent has priority over custom Accent
+    Color? accentColor = ref.watch(
+      useSystemTheme ? finampSettingsProvider.systemAccentColor : finampSettingsProvider.accentColor,
+    );
     final themeMode = ref.watch(finampSettingsProvider.themeMode);
     final locale = ref.watch(finampSettingsProvider.locale);
     final transitionBuilder = MediaQuery.disableAnimationsOf(context)

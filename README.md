@@ -178,3 +178,33 @@ This app is still a work in progress, and has some bugs/issues that haven't been
 | <img src=<https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png>> | <img src=<https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png>> |
 
 Name source: <https://www.reddit.com/r/jellyfin/comments/hjxshn/jellyamp_crossplatform_desktop_music_player/fwqs5i0/>
+
+---
+
+## Info For Advanced Users
+
+### Dynamic Theming On Linux
+
+On Linux, Finamp registers itself with the DBus system, which means you can send messages locally to Finamp!
+This system allows you keep Finamp's color theme up to date with your dynamic color theme without restarting the app.
+There are two color related "endpoints" you can call:
+
+1. Reload the system accent color from GTK ([Settings > Layout & Theme > "Use System Accent"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *enabled*)
+```sh
+gdbus call \
+    --session \
+    --dest 'com.unicornsonlsd.FinampSettings' \
+    --object-path '/com/unicornsonlsd/Finamp' \
+    --method 'com.unicornsonlsd.Finamp.updateAccentColor'
+```
+
+2. Overwrite the accent color ([Settings > Layout & Theme > "Use System Accent"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *disabled*)  
+  Only works when Finamp is running.
+```sh
+gdbus call \
+    --session \
+    --dest 'com.unicornsonlsd.FinampSettings' \
+    --object-path '/com/unicornsonlsd/Finamp' \
+    --method 'com.unicornsonlsd.Finamp.setAccentColor' \
+    '#ff0000' # you can also send "default" to clear the accent color
+```

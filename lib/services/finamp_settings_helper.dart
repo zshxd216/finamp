@@ -123,7 +123,9 @@ class FinampSettingsHelper {
     FinampSettings finampSettingsTemp = finampSettings;
 
     FinampSetters.setThemeMode(DefaultSettings.themeMode);
-    FinampSetters.setAccentColor(null);
+    FinampSetters.setAccentColor(DefaultSettings.accentColor);
+    FinampSetters.setSystemAccentColor(DefaultSettings.accentColor);
+    FinampSetters.setUseSystemAccentColor(DefaultSettings.useSystemAccentColor);
     FinampSetters.setContentViewType(DefaultSettings.contentViewType);
     finampSettingsTemp.useFixedSizeGridTiles = DefaultSettings.useFixedSizeGridTiles;
     FinampSetters.setContentGridViewCrossAxisCountPortrait(DefaultSettings.contentGridViewCrossAxisCountPortrait);
