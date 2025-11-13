@@ -189,7 +189,7 @@ On Linux, Finamp registers itself with the DBus system, which means you can send
 This system allows you keep Finamp's color theme up to date with your dynamic color theme without restarting the app.
 There are two color related "endpoints" you can call:
 
-1. Reload the system accent color from GTK ([Settings > Layout & Theme > "Use Dynamic System Color Theme"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *enabled*)
+1. Reload the system accent color from GTK ([Settings > Layout & Theme > "Use System Accent"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *enabled*)
 ```sh
 gdbus call \
     --session \
@@ -198,7 +198,7 @@ gdbus call \
     --method 'com.unicornsonlsd.Finamp.updateAccentColor'
 ```
 
-2. Overwrite the accent color ([Settings > Layout & Theme > "Use Dynamic System Color Theme"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *disabled*)  
+2. Overwrite the accent color ([Settings > Layout & Theme > "Use System Accent"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *disabled*)  
   Only works when Finamp is running.
 ```sh
 gdbus call \
