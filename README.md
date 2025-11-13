@@ -179,14 +179,17 @@ This app is still a work in progress, and has some bugs/issues that haven't been
 
 Name source: <https://www.reddit.com/r/jellyfin/comments/hjxshn/jellyamp_crossplatform_desktop_music_player/fwqs5i0/>
 
+---
 
-## Infos for advanced users
-### Dynamic Theme
-On Linux Finamp registers itself to the DBus System, which means you can send messages locally to Finamp!
-This system allows you keep Finamps color theme up to date with your dynamic color theme without restarting the app.
-There are two color related "endpoints" you can call.
+## Info For Advanced Users
 
-1. Reload the system Accent from GTK (Use Dynamic System Color Theme needs to be *enabled*)
+### Dynamic Theming On Linux
+
+On Linux, Finamp registers itself with the DBus system, which means you can send messages locally to Finamp!
+This system allows you keep Finamp's color theme up to date with your dynamic color theme without restarting the app.
+There are two color related "endpoints" you can call:
+
+1. Reload the system accent color from GTK ([Settings > Layout & Theme > "Use Dynamic System Color Theme"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *enabled*)
 ```sh
 gdbus call \
     --session \
@@ -195,7 +198,8 @@ gdbus call \
     --method 'com.unicornsonlsd.Finamp.updateAccentColor'
 ```
 
-2. Overwrite the accent color (Use Dynamic System Color Theme needs to be *disabled*) | Doesn't work when Finamp isn't running.
+2. Overwrite the accent color ([Settings > Layout & Theme > "Use Dynamic System Color Theme"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *disabled*)  
+  Only works when Finamp is running.
 ```sh
 gdbus call \
     --session \
