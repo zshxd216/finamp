@@ -2909,5 +2909,21 @@
         "description": "Button title for opening the logs screen from the snackbar options menu"
     },
     "downloadAllPlaylistsSettingWarning": "Nota: Isso irá descarregar todos os itens em todas as listas de reprodução, independente de qual biblioteca eles vêem.",
-    "@downloadAllPlaylistsSettingWarning": {}
+    "@downloadAllPlaylistsSettingWarning": {},
+    "systemAccentColor": "Usar Acentuação do Sistema",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "Cor de Acentuação Personalizada desativada porque a Acentuação de Sistema está atualmente a ser usada",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "Usar Logotipo Monocromático",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "Isto só vai afetar o ícone dentro da aplicação, não o ícone de lançamento.",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+    }
 }
