@@ -2810,7 +2810,7 @@
     "@shuffleSomeAlbumsToQueue": {
         "description": "Label for action that shuffles all albums of a genre and adds them at the end of the regular queue"
     },
-    "preferNextUpPrependingTitle": "Надавати перевагу додаванню на початок «Далі в черзі»",
+    "preferNextUpPrependingTitle": "Надавати перевагу додаванню на початок Далі в черзі",
     "@preferNextUpPrependingTitle": {
         "description": "Title for the setting to prefer prepending to Next Up over appending"
     },
@@ -2901,5 +2901,21 @@
     "snackbarOptionsMenuViewLogsButton": "Переглянути журнали",
     "@snackbarOptionsMenuViewLogsButton": {
         "description": "Button title for opening the logs screen from the snackbar options menu"
+    },
+    "systemAccentColor": "Використовувати системний акцент",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "Власний акцентний колір вимкнено, оскільки наразі використовується системний акцент",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "Використовувати монохромний логотип",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "Це впливає лише на значок у програмі, а не на значок панелі запуску.",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
     }
 }
