@@ -2911,5 +2911,21 @@
     "snackbarOptionsMenuViewLogsButton": "Consulter les journaux",
     "@snackbarOptionsMenuViewLogsButton": {
         "description": "Button title for opening the logs screen from the snackbar options menu"
+    },
+    "systemAccentColor": "Utiliser l'accentuation système",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "La couleur d'accentuation personnalisée est désactivée car la couleur d'accentuation système est actuellement utilisée.",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "Utiliser un logo monochrome",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "Cela n'affecte que l'icône à l'intérieur de l'application, et non l'icône de lancement.",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
     }
 }
