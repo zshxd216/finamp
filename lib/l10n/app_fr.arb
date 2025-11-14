@@ -2916,7 +2916,7 @@
     "@systemAccentColor": {
         "description": "Title of the System Accent Color setting."
     },
-    "systemAccentColorHasPriorityInfo": "La couleur d'accentuation personnalisée est désactivée car la couleur d'accentuation système est actuellement utilisée.",
+    "systemAccentColorHasPriorityInfo": "La couleur d'accentuation personnalisée est désactivée car la couleur d'accentuation système est actuellement utilisée",
     "@systemAccentColorHasPriorityInfo": {
         "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
     },
