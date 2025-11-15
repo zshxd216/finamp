@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 
-Map<String, Widget> getPlaybackActionPages({
+Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
   required BuildContext context,
   required PlayableItem item,
   required bool nextUpNotEmpty,
@@ -25,178 +25,154 @@ Map<String, Widget> getPlaybackActionPages({
 }) {
   final BaseItemDtoType? itemType = item is BaseItemDto ? BaseItemDtoType.fromItem(item) : null;
 
-  return queueItem != null
-      ? {
-          // Move within queue
-          AppLocalizations.of(context)!.playbackActionPageMoveWithinQueue: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (nextUpNotEmpty || preferPrependingToNextUp)
-                MovePlayNextPlaybackAction(
-                  item: queueItem,
-                  popContext: popContext,
-                  compactLayout: compactLayout,
-                  genreFilter: genreFilter,
-                ),
-              if (nextUpNotEmpty || !preferPrependingToNextUp)
-                MoveAddToNextUpPlaybackAction(
-                  item: queueItem,
-                  popContext: popContext,
-                  compactLayout: compactLayout,
-                  genreFilter: genreFilter,
-                ),
-              MoveAddToQueuePlaybackAction(
-                item: queueItem,
-                popContext: popContext,
-                compactLayout: compactLayout,
-                genreFilter: genreFilter,
-              ),
-            ],
-          ),
-          // New Queue
-          AppLocalizations.of(context)!.playbackActionPageNewQueue: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              PlayPlaybackAction(
-                item: item,
-                popContext: popContext,
-                compactLayout: compactLayout,
-                genreFilter: genreFilter,
-              ),
-            ],
-          ),
-          AppLocalizations.of(context)!.playbackActionPageDuplicate: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (nextUpNotEmpty || preferPrependingToNextUp) PlayNextPlaybackAction(item: item),
-              if (nextUpNotEmpty || !preferPrependingToNextUp) AddToNextUpPlaybackAction(item: item),
-              AddToQueuePlaybackAction(item: item),
-            ],
-          ),
-        }
-      : {
-          // New Queue
-          AppLocalizations.of(context)!.playbackActionPageNewQueue: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (itemType != BaseItemDtoType.genre)
-                PlayPlaybackAction(
-                  item: item,
-                  popContext: popContext,
-                  compactLayout: compactLayout,
-                  genreFilter: genreFilter,
-                ),
-              ShufflePlaybackAction(
-                item: item,
-                itemType: itemType,
-                popContext: popContext,
-                compactLayout: compactLayout,
-                genreFilter: genreFilter,
-              ),
-              if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
-                ShuffleAlbumsPlaybackAction(
-                  item: item,
-                  itemType: itemType,
-                  popContext: popContext,
-                  compactLayout: compactLayout,
-                  genreFilter: genreFilter,
-                ),
-            ],
-          ),
-          // Next
+  return {
+    if (itemType == BaseItemDtoType.track && queueItem != null)
+      // Move within queue
+      PlaybackActionRowPage.moveWithinQueue: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           if (nextUpNotEmpty || preferPrependingToNextUp)
-            AppLocalizations.of(context)!.playbackActionPageNext: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (itemType != BaseItemDtoType.genre)
-                  PlayNextPlaybackAction(
-                    item: item,
-                    popContext: popContext,
-                    compactLayout: compactLayout,
-                    genreFilter: genreFilter,
-                  ),
-                ShuffleNextPlaybackAction(
-                  item: item,
-                  itemType: itemType,
-                  popContext: popContext,
-                  compactLayout: compactLayout,
-                  genreFilter: genreFilter,
-                ),
-                if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
-                  ShuffleAlbumsNextPlaybackAction(
-                    item: item,
-                    itemType: itemType,
-                    popContext: popContext,
-                    compactLayout: compactLayout,
-                    genreFilter: genreFilter,
-                  ),
-              ],
+            MovePlayNextPlaybackAction(
+              item: queueItem,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
             ),
-          // Append to Next Up
           if (nextUpNotEmpty || !preferPrependingToNextUp)
-            AppLocalizations.of(context)!.playbackActionPageNextUp: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (itemType != BaseItemDtoType.genre)
-                  AddToNextUpPlaybackAction(
-                    item: item,
-                    popContext: popContext,
-                    compactLayout: compactLayout,
-                    genreFilter: genreFilter,
-                  ),
-                ShuffleToNextUpPlaybackAction(
-                  item: item,
-                  itemType: itemType,
-                  popContext: popContext,
-                  compactLayout: compactLayout,
-                  genreFilter: genreFilter,
-                ),
-                if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
-                  ShuffleAlbumsToNextUpPlaybackAction(
-                    item: item,
-                    itemType: itemType,
-                    popContext: popContext,
-                    compactLayout: compactLayout,
-                    genreFilter: genreFilter,
-                  ),
-              ],
+            MoveAddToNextUpPlaybackAction(
+              item: queueItem,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
             ),
-          // Append to Queue
-          AppLocalizations.of(context)!.playbackActionPageAppendToQueue: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (itemType != BaseItemDtoType.genre)
-                AddToQueuePlaybackAction(
-                  item: item,
-                  popContext: popContext,
-                  compactLayout: compactLayout,
-                  genreFilter: genreFilter,
-                ),
-              ShuffleToQueuePlaybackAction(
-                item: item,
-                itemType: itemType,
-                popContext: popContext,
-                compactLayout: compactLayout,
-                genreFilter: genreFilter,
-              ),
-              if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
-                ShuffleAlbumsToQueuePlaybackAction(
-                  item: item,
-                  itemType: itemType,
-                  popContext: popContext,
-                  compactLayout: compactLayout,
-                  genreFilter: genreFilter,
-                ),
-            ],
+          MoveAddToQueuePlaybackAction(
+            item: queueItem,
+            popContext: popContext,
+            compactLayout: compactLayout,
+            genreFilter: genreFilter,
           ),
-        };
+        ],
+      ),
+    // New Queue
+    PlaybackActionRowPage.newQueue: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (itemType != BaseItemDtoType.genre)
+          PlayPlaybackAction(
+            item: item,
+            popContext: popContext,
+            compactLayout: compactLayout,
+            genreFilter: genreFilter,
+          ),
+        ShufflePlaybackAction(
+          item: item,
+          itemType: itemType,
+          popContext: popContext,
+          compactLayout: compactLayout,
+          genreFilter: genreFilter,
+        ),
+        if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
+          ShuffleAlbumsPlaybackAction(
+            item: item,
+            itemType: itemType,
+            popContext: popContext,
+            compactLayout: compactLayout,
+            genreFilter: genreFilter,
+          ),
+      ],
+    ),
+    // Next
+    if (nextUpNotEmpty || preferPrependingToNextUp)
+      PlaybackActionRowPage.playNext: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (itemType != BaseItemDtoType.genre)
+            PlayNextPlaybackAction(
+              item: item,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
+            ),
+          ShuffleNextPlaybackAction(
+            item: item,
+            itemType: itemType,
+            popContext: popContext,
+            compactLayout: compactLayout,
+            genreFilter: genreFilter,
+          ),
+          if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
+            ShuffleAlbumsNextPlaybackAction(
+              item: item,
+              itemType: itemType,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
+            ),
+        ],
+      ),
+    // Append to Next Up
+    if (nextUpNotEmpty || !preferPrependingToNextUp)
+      PlaybackActionRowPage.appendNext: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (itemType != BaseItemDtoType.genre)
+            AddToNextUpPlaybackAction(
+              item: item,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
+            ),
+          ShuffleToNextUpPlaybackAction(
+            item: item,
+            itemType: itemType,
+            popContext: popContext,
+            compactLayout: compactLayout,
+            genreFilter: genreFilter,
+          ),
+          if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
+            ShuffleAlbumsToNextUpPlaybackAction(
+              item: item,
+              itemType: itemType,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
+            ),
+        ],
+      ),
+    // Append to Queue
+    PlaybackActionRowPage.playLast: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (itemType != BaseItemDtoType.genre)
+          AddToQueuePlaybackAction(
+            item: item,
+            popContext: popContext,
+            compactLayout: compactLayout,
+            genreFilter: genreFilter,
+          ),
+        ShuffleToQueuePlaybackAction(
+          item: item,
+          itemType: itemType,
+          popContext: popContext,
+          compactLayout: compactLayout,
+          genreFilter: genreFilter,
+        ),
+        if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
+          ShuffleAlbumsToQueuePlaybackAction(
+            item: item,
+            itemType: itemType,
+            popContext: popContext,
+            compactLayout: compactLayout,
+            genreFilter: genreFilter,
+          ),
+      ],
+    ),
+  };
 }
 
 class PlayPlaybackAction extends ConsumerWidget {
@@ -307,10 +283,7 @@ class MovePlayNextPlaybackAction extends ConsumerWidget {
           Navigator.pop(context);
         }
 
-        final offset = queueService.getQueue().getOffsetForQueueItem(item);
-        if (offset != null) {
-          unawaited(queueService.removeAtOffset(offset));
-        }
+        unawaited(queueService.removeQueueItem(item));
         await queueService.addNext(items: [item.baseItem!], source: item.source);
 
         GlobalSnackbar.message(
@@ -395,10 +368,7 @@ class MoveAddToNextUpPlaybackAction extends ConsumerWidget {
           Navigator.pop(context);
         }
 
-        final offset = queueService.getQueue().getOffsetForQueueItem(item);
-        if (offset != null) {
-          unawaited(queueService.removeAtOffset(offset));
-        }
+        unawaited(queueService.removeQueueItem(item));
         await queueService.addToNextUp(items: [item.baseItem!], source: item.source);
 
         GlobalSnackbar.message(
@@ -481,10 +451,7 @@ class MoveAddToQueuePlaybackAction extends ConsumerWidget {
           Navigator.pop(context);
         }
 
-        final offset = queueService.getQueue().getOffsetForQueueItem(item);
-        if (offset != null) {
-          unawaited(queueService.removeAtOffset(offset));
-        }
+        unawaited(queueService.removeQueueItem(item));
         await queueService.addToQueue(items: [item.baseItem!], source: item.source);
 
         GlobalSnackbar.message(

@@ -22,7 +22,6 @@ class RemoveFromCurrentPlaylistMenuEntry extends ConsumerWidget implements Hidea
     this.onRemove,
     this.confirmRemoval = false,
   });
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Visibility(

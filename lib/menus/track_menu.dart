@@ -481,18 +481,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
         child: SliverToBoxAdapter(
-          child: widget.queueItem != null
-              ? PlaybackActionRow(item: widget.item, queueItem: widget.queueItem)
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    PlayPlaybackAction(item: widget.item),
-                    if (nextUpNotEmpty || preferPrependingToNextUp) PlayNextPlaybackAction(item: widget.item),
-                    if (nextUpNotEmpty || !preferPrependingToNextUp) AddToNextUpPlaybackAction(item: widget.item),
-                    AddToQueuePlaybackAction(item: widget.item),
-                  ],
-                ),
+          child: PlaybackActionRow(item: widget.item, queueItem: widget.queueItem),
         ),
       ),
       MenuMask(

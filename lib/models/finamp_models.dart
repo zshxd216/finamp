@@ -234,6 +234,7 @@ class DefaultSettings {
   static const preferNextUpPrepending = true;
   static const rememberLastUsedPlaybackActionRowPage = true;
   static const lastUsedPlaybackActionRowPage = PlaybackActionRowPage.newQueue;
+  static const lastUsedPlaybackActionRowPageForQueueMenu = PlaybackActionRowPage.moveWithinQueue;
   static const useSystemAccentColor = false;
   static const useMonochromeIcon = false;
 }
@@ -366,6 +367,7 @@ class FinampSettings {
     this.preferNextUpPrepending = DefaultSettings.preferNextUpPrepending,
     this.rememberLastUsedPlaybackActionRowPage = DefaultSettings.rememberLastUsedPlaybackActionRowPage,
     this.lastUsedPlaybackActionRowPage = DefaultSettings.lastUsedPlaybackActionRowPage,
+    this.lastUsedPlaybackActionRowPageForQueueMenu = DefaultSettings.lastUsedPlaybackActionRowPageForQueueMenu,
     this.accentColor = DefaultSettings.accentColor,
     this.themeMode = DefaultSettings.themeMode,
     this.locale = DefaultSettings.locale,
@@ -806,6 +808,10 @@ class FinampSettings {
 
   @HiveField(138, defaultValue: DefaultSettings.useMonochromeIcon)
   bool useMonochromeIcon = DefaultSettings.useMonochromeIcon;
+
+  @HiveField(139, defaultValue: DefaultSettings.lastUsedPlaybackActionRowPageForQueueMenu)
+  PlaybackActionRowPage lastUsedPlaybackActionRowPageForQueueMenu =
+      DefaultSettings.lastUsedPlaybackActionRowPageForQueueMenu;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
@@ -3576,7 +3582,9 @@ enum PlaybackActionRowPage {
   @HiveField(2)
   appendNext,
   @HiveField(3)
-  playLast;
+  playLast,
+  @HiveField(4)
+  moveWithinQueue;
 
   /// Human-readable version of this enum.
   @override
@@ -3595,6 +3603,8 @@ enum PlaybackActionRowPage {
         return "Append Next";
       case PlaybackActionRowPage.playLast:
         return "Play Last";
+      case PlaybackActionRowPage.moveWithinQueue:
+        return "Move Within Queue";
     }
   }
 
@@ -3608,22 +3618,8 @@ enum PlaybackActionRowPage {
         return AppLocalizations.of(context)!.playbackActionPageNextUp;
       case PlaybackActionRowPage.playLast:
         return AppLocalizations.of(context)!.playbackActionPageAppendToQueue;
-    }
-  }
-
-  int pageIndexFor({required bool nextUpIsEmpty}) {
-    if (!nextUpIsEmpty) {
-      return index;
-    }
-
-    switch (this) {
-      case PlaybackActionRowPage.newQueue:
-        return 0;
-      case PlaybackActionRowPage.playNext:
-      case PlaybackActionRowPage.appendNext:
-        return 1;
-      case PlaybackActionRowPage.playLast:
-        return 2;
+      case PlaybackActionRowPage.moveWithinQueue:
+        return AppLocalizations.of(context)!.playbackActionPageMoveWithinQueue;
     }
   }
 }

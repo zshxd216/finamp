@@ -888,6 +888,14 @@ class QueueService {
     _queueFromConcatenatingAudioSource();
   }
 
+  Future<void> removeQueueItem(FinampQueueItem queueItem) async {
+    int? offset = getQueue().getOffsetForQueueItem(queueItem);
+    if (offset == null) {
+      return;
+    }
+    return removeAtOffset(offset);
+  }
+
   Future<void> reorderByOffset(int oldOffset, int newOffset) async {
     _queueServiceLogger.fine("Reordering queue item at offset $oldOffset to offset $newOffset");
 
