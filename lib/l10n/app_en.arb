@@ -724,6 +724,22 @@
   "@accentColorTitle": {
     "description": "Title for the accent color picker sheet"
   },
+  "systemAccentColor": "Use System Accent",
+  "@systemAccentColor": {
+    "description": "Title of the System Accent Color setting."
+  },
+  "systemAccentColorHasPriorityInfo": "Custom Accent Color disabled because System Accent is currently in use",
+  "@systemAccentColorHasPriorityInfo": {
+    "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+  },
+  "useMonochromeIcon": "Use Monochrome Logo",
+  "@useMonochromeIcon": {
+    "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+  },
+  "useMonochromeIconSubtitle": "This only affect the icon within the app, not the launcher icon.",
+  "@useMonochromeIconSubtitle": {
+    "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+  },
   "defaultWord": "Default",
   "@defaultWord": {},
   "useDefaultButton": "Reset to Default Accent Color",
@@ -734,7 +750,7 @@
   },
   "colorCodeHint": "e.g. #FFFFFF or #coffee",
   "@colorCodeHint": {
-    "description": "Hint text for the color code input field"
+    "description": "Hint text for the color code input field. Don't translate 'coffee', unless the translation is also a valid hex color code."
   },
   "save": "Save",
   "@save": {},
@@ -2085,6 +2101,8 @@
   "@downloadFavoritesSetting": {},
   "downloadAllPlaylistsSetting": "Download all playlists",
   "@downloadAllPlaylistsSetting": {},
+  "downloadAllPlaylistsSettingWarning": "Note: This will download all items in all playlists, no matter which library they're from.",
+  "@downloadAllPlaylistsSettingWarning": {},
   "fiveLatestAlbumsSetting": "Download 5 latest albums",
   "@fiveLatestAlbumsSetting": {},
   "fiveLatestAlbumsSettingSubtitle": "Downloads will be removed as they age out.  Lock the download to prevent an album from being removed.",
@@ -3022,5 +3040,17 @@
   "discardChangesConfirmButton": "Discard Changes",
   "@discardChangesConfirmButton": {
     "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+  },
+  "snackbarOptionsMenuTitle": "Manage Messages",
+  "@snackbarOptionsMenuTitle": {
+    "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+  },
+  "snackbarOptionsMenuClearAllButton": "Clear All Messages",
+  "@snackbarOptionsMenuClearAllButton": {
+    "description": "Button title for clearing all snackbar messages"
+  },
+  "snackbarOptionsMenuViewLogsButton": "View Logs",
+  "@snackbarOptionsMenuViewLogsButton": {
+    "description": "Button title for opening the logs screen from the snackbar options menu"
   }
 }

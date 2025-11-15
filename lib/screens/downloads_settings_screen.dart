@@ -73,6 +73,10 @@ class _DownloadsSettingsScreenState extends State<DownloadsSettingsScreen> {
           ListTile(
             // TODO real UI for this
             title: Text(AppLocalizations.of(context)!.downloadAllPlaylistsSetting),
+            subtitle: Text(
+              AppLocalizations.of(context)!.downloadAllPlaylistsSettingWarning,
+              style: TextStyle(color: Colors.orange.shade700),
+            ),
             trailing: DownloadButton(
               item: DownloadStub.fromFinampCollection(FinampCollection(type: FinampCollectionType.allPlaylists)),
             ),

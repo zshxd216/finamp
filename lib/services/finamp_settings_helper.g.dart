@@ -1178,6 +1178,30 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setSystemAccentColor(Color? newSystemAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.systemAccentColor = newSystemAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setUseSystemAccentColor(bool newUseSystemAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.useSystemAccentColor = newUseSystemAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setUseMonochromeIcon(bool newUseMonochromeIcon) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.useMonochromeIcon = newUseMonochromeIcon;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setRadioEnabled(bool newRadioEnabled) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.radioEnabled = newRadioEnabled;
@@ -1604,6 +1628,12 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select(
         (value) => value.requireValue.hasCompletedThemeModeLocaleMigration,
       );
+  ProviderListenable<Color?> get systemAccentColor => finampSettingsProvider
+      .select((value) => value.requireValue.systemAccentColor);
+  ProviderListenable<bool> get useSystemAccentColor => finampSettingsProvider
+      .select((value) => value.requireValue.useSystemAccentColor);
+  ProviderListenable<bool> get useMonochromeIcon => finampSettingsProvider
+      .select((value) => value.requireValue.useMonochromeIcon);
   ProviderListenable<bool> get radioEnabled =>
       finampSettingsProvider.select((value) => value.requireValue.radioEnabled);
   ProviderListenable<RadioMode> get radioMode =>

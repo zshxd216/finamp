@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file/file.dart' as cache;
+import 'package:file/local.dart';
+// Directly use LocalFile to avoid touching every cached file on initialization
+import 'package:file/src/backends/local/local_file.dart';
 import 'package:finamp/services/theme_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +13,8 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
+import 'package:path/path.dart' as path_helper;
+import 'package:path_provider/path_provider.dart';
 
 import '../models/jellyfin_models.dart';
 import 'downloads_service.dart';
@@ -44,8 +49,16 @@ class AlbumImageRequest {
 Future<void> initImageCache() async {
   await _imageCache.config.repo.open();
   final entries = await _imageCache.config.repo.getAllObjects();
-  for (final key in entries.map((x) => x.key)) {
-    _playerImageCache[key] = await _imageCache.getFileFromCache(key);
+  final basePath = path_helper.join((await getTemporaryDirectory()).path, _imageCache.config.cacheKey);
+  for (final cacheEntry in entries) {
+    // Directly create FileInfo from cachentry instead of using CacheStore.getFile because that checks for file existence
+    // as it goes, and we do that when the entry is read and can't afford the speed penalty
+    _playerImageCache[cacheEntry.key] = FileInfo(
+      LocalFile(const LocalFileSystem(), File(path_helper.join(basePath, cacheEntry.relativePath))),
+      FileSource.Cache,
+      cacheEntry.validTill,
+      cacheEntry.url,
+    );
   }
   await _imageCache.config.repo.close();
 }

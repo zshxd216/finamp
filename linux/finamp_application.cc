@@ -12,7 +12,7 @@ struct _FinampApplication {
   char** dart_entrypoint_arguments;
 };
 
-G_DEFINE_TYPE(FinampApplication, finamp_application, GTK_TYPE_APPLICATION)
+G_DEFINE_TYPE(FinampApplication, finamp_application, GTK_TYPE_APPLICATION);
 
 // Implements GApplication::activate.
 static void finamp_application_activate(GApplication* application) {
@@ -21,8 +21,8 @@ static void finamp_application_activate(GApplication* application) {
   // handle link handling
   GList* windows = gtk_application_get_windows(GTK_APPLICATION(application));
   if (windows) {
+      // If there is already a window, we just present it and do not create a new one
     gtk_window_present(GTK_WINDOW(windows->data));
-    // If there is already a window, we just present it and do not create a new one.
     return;
   }
 

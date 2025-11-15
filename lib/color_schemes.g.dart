@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dynamic_color/dynamic_color.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 
 const jellyfinBlueColor = Color(0xFF00A4DC);
 const jellyfinPurpleColor = Color(0xFFAA5CC3);

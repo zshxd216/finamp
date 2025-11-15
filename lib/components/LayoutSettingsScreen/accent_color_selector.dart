@@ -13,24 +13,30 @@ class AccentColorSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final useSystemAccent = ref.watch(finampSettingsProvider.useSystemAccentColor);
     final color = ref.watch(finampSettingsProvider.accentColor);
     final isSet = color != null;
+
     return ListTile(
+      enabled: !useSystemAccent,
+      subtitle: useSystemAccent ? Text(AppLocalizations.of(context)!.systemAccentColorHasPriorityInfo) : null,
       title: Text(AppLocalizations.of(context)!.accentColor),
       trailing: GestureDetector(
-        onTap: () {
-          showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            useSafeArea: true,
-            builder: (context) {
-              return ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                child: SingleChildScrollView(child: const AccentColorPopup()),
-              );
-            },
-          );
-        },
+        onTap: useSystemAccent
+            ? null
+            : () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  builder: (context) {
+                    return ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                      child: SingleChildScrollView(child: const AccentColorPopup()),
+                    );
+                  },
+                );
+              },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

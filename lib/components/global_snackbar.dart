@@ -2,10 +2,16 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:chopper/chopper.dart';
+import 'package:finamp/components/themed_bottom_sheet.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/components/menuEntries/dismiss_all_snackbars_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/view_logs_menu_entry.dart';
+import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:http/http.dart' hide Response;
 import 'package:logging/logging.dart';
 
@@ -47,6 +53,17 @@ class GlobalSnackbar {
     }
   }
 
+  static void dismissAllSnackbars() {
+    FeedbackHelper.feedback(FeedbackType.selection);
+    if (materialAppScaffoldKey.currentState != null) {
+      materialAppScaffoldKey.currentState!.clearSnackBars();
+    }
+    _activeErrorKeys.clear();
+    _queue.clear();
+    _timer?.cancel();
+    _timer = null;
+  }
+
   /// Show a snackbar to the user using the local context
   static void showPrebuilt(SnackBar snackbar) => _enqueue(() => _showPrebuilt(snackbar));
   static void _showPrebuilt(SnackBar snackbar) {
@@ -75,7 +92,7 @@ class GlobalSnackbar {
     _logger.info("Displaying message: $text");
     materialAppScaffoldKey.currentState!.showSnackBar(
       SnackBar(
-        content: Text(text),
+        content: GestureDetector(onLongPress: showSnackbarOptionsMenu, child: Text(text)),
         actionOverflowThreshold: 0.5,
         duration: (isConfirmation && action == null) ? const Duration(milliseconds: 1500) : const Duration(seconds: 4),
         action: action?.call(context),
@@ -139,7 +156,10 @@ class GlobalSnackbar {
     FeedbackHelper.feedback(FeedbackType.warning);
     final controller = materialAppScaffoldKey.currentState!.showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context)!.anErrorHasOccured),
+        content: GestureDetector(
+          onLongPress: showSnackbarOptionsMenu,
+          child: Text(AppLocalizations.of(context)!.anErrorHasOccured),
+        ),
         action: SnackBarAction(
           label: MaterialLocalizations.of(context).moreButtonTooltip,
           onPressed: () => showDialog<void>(
@@ -168,5 +188,70 @@ class GlobalSnackbar {
         }
       });
     }
+  }
+
+  static const snackbarOptionsRoute = "/snackbar-options";
+  static Future<void> showSnackbarOptionsMenu() async {
+    if (materialAppNavigatorKey.currentContext == null) return;
+    FeedbackHelper.feedback(FeedbackType.selection);
+
+    // Normal menu entries, excluding headers
+    List<HideableMenuEntry> getMenuEntries(BuildContext context) {
+      return [DismissAllSnackbarsMenuEntry(), ViewLogsMenuEntry()];
+    }
+
+    (double, List<Widget>) getMenuProperties(BuildContext context) {
+      final menuEntries = getMenuEntries(context);
+      final stackHeight = ThemedBottomSheet.calculateStackHeight(
+        context: context,
+        menuEntries: menuEntries,
+        extraHeight: -infoHeaderFullExtent,
+      );
+
+      List<Widget> menu = [
+        SliverStickyHeader(
+          header: SnackbarOptionsMenuHeader(),
+          sliver: MenuMask(
+            height: SnackbarOptionsMenuHeader.defaultHeight,
+            child: SliverPadding(
+              padding: const EdgeInsets.only(left: 8.0),
+              sliver: SliverList(delegate: SliverChildListDelegate(menuEntries)),
+            ),
+          ),
+        ),
+      ];
+
+      return (stackHeight, menu);
+    }
+
+    await showThemedBottomSheet(
+      context: materialAppNavigatorKey.currentContext!,
+      routeName: snackbarOptionsRoute,
+      minDraggableHeight: 0.15,
+      buildSlivers: getMenuProperties,
+    );
+  }
+}
+
+class SnackbarOptionsMenuHeader extends StatelessWidget {
+  const SnackbarOptionsMenuHeader({super.key});
+
+  static const defaultHeight = MenuMaskHeight(36.0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6.0, bottom: 16.0),
+      child: Center(
+        child: Text(
+          AppLocalizations.of(context)!.snackbarOptionsMenuTitle,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyLarge!.color!,
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    );
   }
 }

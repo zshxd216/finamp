@@ -235,6 +235,8 @@ class DefaultSettings {
   static const preferNextUpPrepending = true;
   static const rememberLastUsedPlaybackActionRowPage = true;
   static const lastUsedPlaybackActionRowPage = PlaybackActionRowPage.newQueue;
+  static const useSystemAccentColor = false;
+  static const useMonochromeIcon = false;
   static const radioMode = RadioMode.similar;
   static const radioEnabled = false;
 }
@@ -372,6 +374,9 @@ class FinampSettings {
     this.locale = DefaultSettings.locale,
     // !!! Don't touch this default value, it's supposed to be hard coded to run the migration only once
     this.hasCompletedThemeModeLocaleMigration = true,
+    this.systemAccentColor = DefaultSettings.accentColor,
+    this.useSystemAccentColor = DefaultSettings.useSystemAccentColor,
+    this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -796,10 +801,19 @@ class FinampSettings {
   @HiveField(135, defaultValue: false)
   bool hasCompletedThemeModeLocaleMigration;
 
-  @HiveField(136, defaultValue: DefaultSettings.radioEnabled)
+  @HiveField(136, defaultValue: DefaultSettings.accentColor)
+  Color? systemAccentColor = DefaultSettings.accentColor;
+
+  @HiveField(137, defaultValue: DefaultSettings.useSystemAccentColor)
+  bool useSystemAccentColor;
+
+  @HiveField(138, defaultValue: DefaultSettings.useMonochromeIcon)
+  bool useMonochromeIcon = DefaultSettings.useMonochromeIcon;
+
+  @HiveField(139, defaultValue: DefaultSettings.radioEnabled)
   bool radioEnabled = DefaultSettings.radioEnabled;
 
-  @HiveField(137, defaultValue: DefaultSettings.radioMode)
+  @HiveField(140, defaultValue: DefaultSettings.radioMode)
   RadioMode radioMode = DefaultSettings.radioMode;
 
   static Future<FinampSettings> create() async {

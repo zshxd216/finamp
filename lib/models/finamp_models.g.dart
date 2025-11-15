@@ -430,6 +430,11 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         hasCompletedThemeModeLocaleMigration: fields[135] == null
             ? false
             : fields[135] as bool,
+        systemAccentColor: fields[136] == null
+            ? DefaultSettings.accentColor
+            : fields[136] as Color?,
+        useSystemAccentColor: fields[137] == null ? false : fields[137] as bool,
+        useMonochromeIcon: fields[138] == null ? false : fields[138] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -439,16 +444,16 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..autoExpandPlayerScreen = fields[125] == null
           ? false
           : fields[125] as bool
-      ..radioEnabled = fields[136] == null ? false : fields[136] as bool
-      ..radioMode = fields[137] == null
+      ..radioEnabled = fields[139] == null ? false : fields[139] as bool
+      ..radioMode = fields[140] == null
           ? RadioMode.similar
-          : fields[137] as RadioMode;
+          : fields[140] as RadioMode;
   }
 
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(131)
+      ..writeByte(134)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -708,8 +713,14 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(135)
       ..write(obj.hasCompletedThemeModeLocaleMigration)
       ..writeByte(136)
-      ..write(obj.radioEnabled)
+      ..write(obj.systemAccentColor)
       ..writeByte(137)
+      ..write(obj.useSystemAccentColor)
+      ..writeByte(138)
+      ..write(obj.useMonochromeIcon)
+      ..writeByte(139)
+      ..write(obj.radioEnabled)
+      ..writeByte(140)
       ..write(obj.radioMode);
   }
 
