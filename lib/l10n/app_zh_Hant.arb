@@ -2906,7 +2906,7 @@
     "@systemAccentColor": {
         "description": "Title of the System Accent Color setting."
     },
-    "systemAccentColorHasPriorityInfo": "自訂強調色已停用，因目前正在使用系統強調色",
+    "systemAccentColorHasPriorityInfo": "目前正套用系統強調色，因此自訂強調色選項已停用",
     "@systemAccentColorHasPriorityInfo": {
         "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
     },
