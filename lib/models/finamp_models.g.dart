@@ -2979,6 +2979,8 @@ class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
         return PlaybackActionRowPage.playLast;
       case 4:
         return PlaybackActionRowPage.moveWithinQueue;
+      case 5:
+        return PlaybackActionRowPage.regularTrackOptions;
       default:
         return PlaybackActionRowPage.newQueue;
     }
@@ -2997,6 +2999,8 @@ class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
         writer.writeByte(3);
       case PlaybackActionRowPage.moveWithinQueue:
         writer.writeByte(4);
+      case PlaybackActionRowPage.regularTrackOptions:
+        writer.writeByte(5);
     }
   }
 

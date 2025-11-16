@@ -87,14 +87,16 @@ class ThemedBottomSheet extends ConsumerStatefulWidget {
     required BuildContext context,
     required List<HideableMenuEntry> menuEntries,
     double? extraHeight,
-    bool includePlaybackrow = true,
+    bool includePlaybackRow = true,
+    bool includePlaybackRowPageIndicator = true,
   }) {
     double stackHeight = infoHeaderFullExtent;
     stackHeight +=
         menuEntries.where((element) => element.isVisible).length *
         (Theme.of(context).visualDensity == VisualDensity.compact ? 48 : 56);
     stackHeight += extraHeight ?? 0.0;
-    stackHeight += includePlaybackrow ? (playActionPageIndicatorHeightDefault + playActionRowHeightDefault) : 0;
+    stackHeight += playActionRowHeightDefault;
+    stackHeight += includePlaybackRowPageIndicator ? playActionPageIndicatorHeightDefault : 0;
     return stackHeight;
   }
 

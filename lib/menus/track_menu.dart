@@ -216,9 +216,9 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
     final stackHeight = ThemedBottomSheet.calculateStackHeight(
       context: context,
       menuEntries: menuEntries,
-      // Include 60 height of shorter track playback row
-      extraHeight: widget.showPlaybackControls ? 160 : 60,
-      includePlaybackrow: false,
+      extraHeight: widget.showPlaybackControls ? 100 : 00,
+      includePlaybackRow: true,
+      includePlaybackRowPageIndicator: widget.queueItem != null,
     );
 
     return Consumer(
@@ -270,9 +270,6 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
         menuHeight = closedHeight;
     }
 
-    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
-    final preferPrependingToNextUp = ref.watch(finampSettingsProvider.preferNextUpPrepending);
-
     return [
       if (widget.showPlaybackControls) ...[
         StreamBuilder<PlaybackBehaviorInfo>(
@@ -311,7 +308,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
               PlaybackAction(
                 icon: playbackOrderIcons[playbackBehavior.order]!,
                 onPressed: () async {
-                  _queueService.togglePlaybackOrder();
+                  await _queueService.togglePlaybackOrder();
                 },
                 label: playbackOrderTooltips[playbackBehavior.order]!,
                 iconColor: playbackBehavior.order == FinampPlaybackOrder.shuffled

@@ -3584,7 +3584,9 @@ enum PlaybackActionRowPage {
   @HiveField(3)
   playLast,
   @HiveField(4)
-  moveWithinQueue;
+  moveWithinQueue,
+  @HiveField(5)
+  regularTrackOptions;
 
   /// Human-readable version of this enum.
   @override
@@ -3605,6 +3607,8 @@ enum PlaybackActionRowPage {
         return "Play Last";
       case PlaybackActionRowPage.moveWithinQueue:
         return "Move Within Queue";
+      case PlaybackActionRowPage.regularTrackOptions:
+        return "Play";
     }
   }
 
@@ -3620,6 +3624,8 @@ enum PlaybackActionRowPage {
         return AppLocalizations.of(context)!.playbackActionPageAppendToQueue;
       case PlaybackActionRowPage.moveWithinQueue:
         return AppLocalizations.of(context)!.playbackActionPageMoveWithinQueue;
+      case PlaybackActionRowPage.regularTrackOptions:
+        return AppLocalizations.of(context)!.playbackActionPageRegularTrackOptions;
     }
   }
 }

@@ -438,9 +438,9 @@
   "@playbackActionPageMoveWithinQueue": {
     "description": "Label for the playback action page that contains all actions related to moving tracks within the queue"
   },
-  "playbackActionPageDuplicate": "Duplicate",
-  "@playbackActionPageDuplicate": {
-    "description": "Label for the playback action page that contains all actions related to duplicating tracks within the queue"
+  "playbackActionPageRegularTrackOptions": "Play",
+  "@playbackActionPageRegularTrackOptions": {
+    "description": "Label for the playback action page that contains all actions of the normal track menu, like starting a new queue or duplicating the track within the existing queue"
   },
   "playbackActionPageNewQueue": "New Queue",
   "@playbackActionPageNewQueue": {
