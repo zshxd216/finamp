@@ -212,16 +212,19 @@ class QueueService {
   }
 
   // Generates tracks for the radio. Provide item to generate the initial radio tracks.
-  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(int minNumTracks, [jellyfin_models.BaseItemDto? item]) async {
+  Future<List<jellyfin_models.BaseItemDto>> generateRadioTracks(
+    int minNumTracks, [
+    jellyfin_models.BaseItemDto? item,
+  ]) async {
     final currentQueue = getQueue();
     List<jellyfin_models.BaseItemDto> tracksOut = [];
     if (item != null) {
       _radioLogger.finer(
-          "Generating $minNumTracks radio tracks from item '${item.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode."
+        "Generating $minNumTracks radio tracks from item '${item.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
       );
     } else {
       _radioLogger.finer(
-          "Generating $minNumTracks radio tracks for queue source '${currentQueue.source.item?.artists?.firstOrNull} - ${currentQueue.source.item?.name}', current track '${_currentTrack?.baseItem?.artists?.firstOrNull} - ${_currentTrack?.baseItem?.name}', last track '${currentQueue.fullQueue.last.baseItem?.artists?.firstOrNull} - ${currentQueue.fullQueue.last.baseItem?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode."
+        "Generating $minNumTracks radio tracks for queue source '${currentQueue.source.item?.artists?.firstOrNull} - ${currentQueue.source.item?.name}', current track '${_currentTrack?.baseItem?.artists?.firstOrNull} - ${_currentTrack?.baseItem?.name}', last track '${currentQueue.fullQueue.last.baseItem?.artists?.firstOrNull} - ${currentQueue.fullQueue.last.baseItem?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
       );
     }
     switch (FinampSettingsHelper.finampSettings.radioMode) {
@@ -233,14 +236,12 @@ class QueueService {
           // Filter out any existing radio tracks
           final fullQueue = getQueue().fullQueue;
           // Items originally in the currently playing source (or manually added)
-          final originalQueue = item != null ?
-          (await loadChildTracksFromBaseItem(baseItem: item))
-              .map((item) => item)
-              .toList() :
-          fullQueue
-              .where((queueItem) => queueItem.source.type != QueueItemSourceType.radio)
-              .map((queueItem) => queueItem.baseItem)
-              .toList();
+          final originalQueue = item != null
+              ? (await loadChildTracksFromBaseItem(baseItem: item)).map((item) => item).toList()
+              : fullQueue
+                    .where((queueItem) => queueItem.source.type != QueueItemSourceType.radio)
+                    .map((queueItem) => queueItem.baseItem)
+                    .toList();
           final allTracks = fullQueue.length;
           final fullIterations = (allTracks / originalQueue.length).floor();
           // Gets the list of tracks already played or enqueued this iteration

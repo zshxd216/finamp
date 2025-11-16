@@ -1056,7 +1056,11 @@ class QueueSectionHeader extends ConsumerWidget {
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
                           onPressed: radioEnabled && info?.loop != FinampLoopMode.one
                               ? () async {
-                                  await showRadioMenu(context, ref, AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle);
+                                  await showRadioMenu(
+                                    context,
+                                    ref,
+                                    AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
+                                  );
                                 }
                               : () {
                                   queueService.toggleLoopMode();
@@ -1082,11 +1086,7 @@ class QueueSectionHeader extends ConsumerWidget {
           menuCreator: () => showRadioMenu(context, ref),
           leading: Padding(
             padding: const EdgeInsets.only(left: 6.0, top: 6.0),
-            child: Icon(
-              radioMode.icon,
-              size: 36.0,
-              color: radioEnabled ? IconTheme.of(context).color : null,
-            ),
+            child: Icon(radioMode.icon, size: 36.0, color: radioEnabled ? IconTheme.of(context).color : null),
           ),
           state: radioEnabled,
           trailing: Switch.adaptive(

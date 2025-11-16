@@ -2716,7 +2716,7 @@
   "@radioModeEnabledSubtitle": {
     "description": "Subtitle displayed in the queue to show when radio mode is enabled."
   },
-  "radioModeDisabledSubtitle": "Toggle to enable",
+  "radioModeDisabledSubtitle": "Tap to enable",
   "@radioModeDisabledSubtitle": {
     "description": "Subtitle displayed in the queue to show that radio mode is disabled."
   },

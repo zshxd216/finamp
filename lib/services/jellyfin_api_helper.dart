@@ -1198,6 +1198,7 @@ class JellyfinApiHelper {
     if (stack.contains('ProviderElementBase.buildState') ||
         stack.contains('initState ') ||
         stack.contains('didUpdateWidget') ||
+        stack.contains('new QueueService') ||
         stack.contains('PagingController.notifyPageRequestListeners')) {
       return true;
     }

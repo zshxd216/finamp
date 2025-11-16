@@ -3670,8 +3670,5 @@ enum RadioMode {
   final bool availableOffline;
   final IconData icon;
 
-  const RadioMode({
-    required this.availableOffline,
-    required this.icon
-  });
+  const RadioMode({required this.availableOffline, required this.icon});
 }

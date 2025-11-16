@@ -19,9 +19,9 @@ List<ChoiceListTile> getRadioChoices(BuildContext context, WidgetRef ref) {
         final disabled = !radioModeOption.availableOffline && FinampSettingsHelper.finampSettings.isOffline;
         return ChoiceListTile(
           title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
-          description: disabled ?
-            AppLocalizations.of(context)!.radioModeUnavailableWhileOffline :
-            AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name),
+          description: disabled
+              ? AppLocalizations.of(context)!.radioModeUnavailableWhileOffline
+              : AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name),
           disabled: disabled,
           icon: radioModeOption.icon,
           isSelected: radioEnabled && radioMode == radioModeOption,
@@ -38,25 +38,24 @@ List<ChoiceListTile> getRadioChoices(BuildContext context, WidgetRef ref) {
             }
           },
         );
-    }
-  )
+      })
       .followedBy(<ChoiceListTile>[
-    ChoiceListTile(
-      title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
-      icon: TablerIcons.radio_off,
-      isSelected: !radioEnabled,
-      disabled: false,
-      onSelect: () async {
-        FinampSetters.setRadioEnabled(false);
-        FeedbackHelper.feedback(FeedbackType.selection);
-        Navigator.of(context).pop();
-        // GlobalSnackbar.message(
-        //   (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
-        //   isConfirmation: true,
-        // );
-      },
-    ),
-  ])
+        ChoiceListTile(
+          title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
+          icon: TablerIcons.radio_off,
+          isSelected: !radioEnabled,
+          disabled: false,
+          onSelect: () async {
+            FinampSetters.setRadioEnabled(false);
+            FeedbackHelper.feedback(FeedbackType.selection);
+            Navigator.of(context).pop();
+            // GlobalSnackbar.message(
+            //   (context) => AppLocalizations.of(context)!.radioModeDisabledTitle,
+            //   isConfirmation: true,
+            // );
+          },
+        ),
+      ])
       .toList();
 }
 
