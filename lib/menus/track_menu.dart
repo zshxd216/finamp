@@ -370,6 +370,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 onPressed: () async {
                   _queueService.toggleLoopMode();
                 },
+                onLongPress: radioCurrentlyEnabled ? () => showRadioMenu(context, ref) : null,
                 label: radioCurrentlyEnabled
                     ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
                     : loopModeTooltips[playbackBehavior.loop]!,

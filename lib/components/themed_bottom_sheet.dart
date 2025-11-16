@@ -30,7 +30,7 @@ Future<void> showThemedBottomSheet({
   double minDraggableHeight = 0.6,
   bool showDragHandle = true,
 }) async {
-  FeedbackHelper.feedback(FeedbackType.heavy);
+  FeedbackHelper.feedback(FeedbackType.selection);
   bool useDefaultTheme = false;
   final menu = ThemedBottomSheet(
     key: ValueKey((item?.id?.raw ?? "") + routeName),

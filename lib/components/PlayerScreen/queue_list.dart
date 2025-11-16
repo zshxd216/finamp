@@ -1060,6 +1060,7 @@ class QueueSectionHeader extends ConsumerWidget {
                             queueService.toggleLoopMode();
                             FeedbackHelper.feedback(FeedbackType.selection);
                           },
+                          onLongPress: radioCurrentlyEnabled ? () => showRadioMenu(context, ref) : null,
                         ),
                       ],
                     );

@@ -64,6 +64,7 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
             FeedbackHelper.feedback(FeedbackType.light);
             queueService.toggleLoopMode();
           },
+          onLongPress: radioCurrentlyEnabled ? () => showRadioMenu(context, ref) : null,
           icon: Icon(getRepeatingIcon(queueService.loopMode)),
         );
       },

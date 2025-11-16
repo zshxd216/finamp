@@ -113,8 +113,6 @@ Future<void> showChoiceMenu({
 }) async {
   final queueService = GetIt.instance<QueueService>();
 
-  FeedbackHelper.feedback(FeedbackType.selection);
-
   await showThemedBottomSheet(
     context: context,
     item: (queueService.getCurrentTrack()?.baseItem)!, //TODO fix this

@@ -70,7 +70,6 @@ List<ChoiceMenuOption> getRadioChoices(BuildContext context, WidgetRef ref) {
 }
 
 Future<void> showRadioMenu(BuildContext context, WidgetRef ref, [String? subtitle]) async {
-  FeedbackHelper.feedback(FeedbackType.selection);
   await showChoiceMenu(
     context: context,
     title: AppLocalizations.of(context)!.radioModeMenuTitle,
