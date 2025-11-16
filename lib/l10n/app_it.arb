@@ -1943,7 +1943,7 @@
     },
     "autoOfflineSettingTitle": "Modalità Offline Automatizzata",
     "@autoOfflineSettingTitle": {},
-    "startupErrorTitle": "Qualcosa non ha funzionato durante l'avvio dell'app!",
+    "startupErrorTitle": "Qualcosa non ha funzionato durante l'avvio dell'applicazione!",
     "@startupErrorTitle": {
         "description": "The title for the error screen that shows when startup fails."
     },
@@ -2382,7 +2382,7 @@
     "@missingSchemaError": {
         "description": "Snackbar message when the user changes their home/public address but it doesn't start with http"
     },
-    "testConnectionButtonLabel": "Testa  le connessioni",
+    "testConnectionButtonLabel": "Testa le connessioni",
     "@testConnectionButtonLabel": {
         "description": "Button to test the public and local url inside the network settings tab"
     },
