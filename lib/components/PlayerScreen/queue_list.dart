@@ -4,19 +4,29 @@ import 'package:audio_service/audio_service.dart';
 import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dart';
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
+import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
+import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
-import 'package:finamp/components/menu_shower_toggleable_list_tile.dart';
-import 'package:finamp/components/global_snackbar.dart';
+import 'package:finamp/components/choice_menu.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
+import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
+import 'package:finamp/components/themed_bottom_sheet.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
 import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/screens/blurred_player_screen_background.dart';
+import 'package:finamp/services/current_album_image_provider.dart';
+import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/media_state_stream.dart';
+import 'package:finamp/services/music_player_background_task.dart';
+import 'package:finamp/services/process_artist.dart';
+import 'package:finamp/services/queue_service.dart';
 import 'package:finamp/services/theme_provider.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/material.dart';
@@ -26,17 +36,6 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../models/jellyfin_models.dart' as jellyfin_models;
-import '../../services/current_album_image_provider.dart';
-import '../../services/media_state_stream.dart';
-import '../../services/music_player_background_task.dart';
-import '../../services/process_artist.dart';
-import '../../services/queue_service.dart';
-import '../album_image.dart';
-import '../padded_custom_scrollview.dart';
-import '../themed_bottom_sheet.dart';
-import 'queue_source_helper.dart';
 
 class QueueListStreamState {
   QueueListStreamState(this.mediaState, this.queueInfo);
@@ -954,9 +953,12 @@ class QueueSectionHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
+    final queueSource = queueService.getQueue().source.item;
 
+    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
+    final currentModeAvailable = ref.watch(isRadioModeAvailableProvider((radioMode, queueSource)));
+    final radioCurrentlyEnabled = radioEnabled && currentModeAvailable;
 
     return Column(
       children: [
@@ -1043,7 +1045,7 @@ class QueueSectionHeader extends ConsumerWidget {
                         IconButton(
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
-                          icon: radioEnabled && info?.loop != FinampLoopMode.one
+                          icon: radioCurrentlyEnabled && info?.loop != FinampLoopMode.one
                               ? const Icon(TablerIcons.radio)
                               : switch (info?.loop) {
                                   FinampLoopMode.none => const Icon(TablerIcons.repeat_off),
@@ -1051,10 +1053,10 @@ class QueueSectionHeader extends ConsumerWidget {
                                   FinampLoopMode.all => const Icon(TablerIcons.repeat),
                                   null => const Icon(TablerIcons.repeat_off),
                                 },
-                          color: radioEnabled || info?.loop != FinampLoopMode.none
+                          color: radioCurrentlyEnabled || info?.loop != FinampLoopMode.none
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                          onPressed: radioEnabled && info?.loop != FinampLoopMode.one
+                          onPressed: radioCurrentlyEnabled && info?.loop != FinampLoopMode.one
                               ? () async {
                                   await showRadioMenu(
                                     context,
@@ -1075,23 +1077,30 @@ class QueueSectionHeader extends ConsumerWidget {
           ),
         ),
         // Radio mode
-        MenuShowerToggleableListTile(
-          title: radioEnabled
+        ChoiceMenuListTile(
+          title: radioCurrentlyEnabled
               ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
               : AppLocalizations.of(context)!.radioModeDisabledTitle,
-          subtitle: radioEnabled
+          subtitle: radioCurrentlyEnabled
               ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
-              : AppLocalizations.of(context)!.radioModeDisabledSubtitle,
+              : (radioEnabled
+                    ? AppLocalizations.of(context)!.radioModeDisabledBecauseNotAvailableOfflineSubtitle
+                    : AppLocalizations.of(context)!.radioModeDisabledSubtitle),
           menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
           menuCreator: () => showRadioMenu(context, ref),
           leading: Padding(
             padding: const EdgeInsets.only(left: 6.0, top: 6.0),
-            child: Icon(radioMode.icon, size: 36.0, color: radioEnabled ? IconTheme.of(context).color : null),
+            child: Icon(radioMode.icon, size: 36.0, color: radioCurrentlyEnabled ? IconTheme.of(context).color : null),
           ),
-          state: radioEnabled,
+          state: radioCurrentlyEnabled,
           trailing: Switch.adaptive(
-            value: radioEnabled,
+            value: radioCurrentlyEnabled,
             onChanged: (newValue) async {
+              if (radioEnabled && !radioCurrentlyEnabled) {
+                // was enabled but not available, so show menu to select mode
+                await showRadioMenu(context, ref);
+                return;
+              }
               FinampSetters.setRadioEnabled(newValue);
               if (!newValue) {
                 await queueService.clearRadioTracks();

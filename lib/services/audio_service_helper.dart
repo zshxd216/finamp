@@ -189,7 +189,18 @@ class AudioServiceHelper {
 
   Future<void> startRadioPlayback(QueueItemSource source) async {
     FinampSetters.setRadioEnabled(true);
-    final items = await _queueService.generateRadioTracks(_queueService.calcRadioTracksNeeded(true), source.item!);
-    await _queueService.startPlayback(items: items, source: source);
+    // fetch first track + full upcoming radio queue
+    final items = await _queueService.generateRadioTracks(1 + _queueService.calcRadioTracksNeeded(true), source.item!);
+    await _queueService.startPlayback(
+      items: items,
+      source: source,
+      customTrackSource: QueueItemSource(
+        type: QueueItemSourceType.radio,
+        name: source.item != null
+            ? QueueItemSourceName(type: QueueItemSourceNameType.radio, localizationParameter: source.item?.name ?? "")
+            : QueueItemSourceName(type: QueueItemSourceNameType.radio),
+        id: source.item!.id,
+      ),
+    );
   }
 }

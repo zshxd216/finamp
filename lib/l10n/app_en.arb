@@ -2720,6 +2720,10 @@
   "@radioModeDisabledSubtitle": {
     "description": "Subtitle displayed in the queue to show that radio mode is disabled."
   },
+  "radioModeDisabledBecauseNotAvailableOfflineSubtitle": "Current mode not available offline. Tap to change.",
+  "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
+    "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
+  },
   "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the initial selection} similar{Append based on the original queue} continuous{Append based on the current track} other{}}",
   "@radioModeDescription": {
     "placeholders": {
@@ -2733,6 +2737,10 @@
   "radioModeUnavailableWhileOffline": "Unavailable while offline",
   "@radioModeUnavailableWhileOffline": {
     "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+  },
+  "radioModeRandomUnavailableNotDownloaded": "Unavailable because '{sourceName}' isn't downloaded",
+  "@radioModeRandomUnavailableNotDownloaded": {
+    "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded."
   },
   "autoReloadPrompt": "Reload queue to apply new {type, select, network{network settings} transcoding{transcoding settings} other{settings}}",
   "@autoReloadPrompt": {

@@ -1,6 +1,4 @@
 import 'package:finamp/components/themed_bottom_sheet.dart';
-import 'package:finamp/components/toggleable_list_tile.dart';
-import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +7,8 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 
-class MenuShowerToggleableListTile extends ConsumerWidget {
-  const MenuShowerToggleableListTile({
+class ChoiceMenuListTile extends ConsumerWidget {
+  const ChoiceMenuListTile({
     super.key,
     required this.title,
     required this.menuCreator,
@@ -55,7 +53,14 @@ class MenuShowerToggleableListTile extends ConsumerWidget {
           enabled: enabled,
           leading: leading,
           title: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
-          subtitle: subtitle != null ? Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis) : null,
+          subtitle: subtitle != null
+              ? Text(
+                  subtitle!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: TextTheme.of(context).bodySmall?.fontSize),
+                )
+              : null,
           trailing: Wrap(
             alignment: WrapAlignment.end,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -102,7 +107,7 @@ const choiceMenuRouteName = "/choice-menu";
 Future<void> showChoiceMenu({
   required BuildContext context,
   required String title,
-  required List<ChoiceListTile> listEntries,
+  required List<ChoiceMenuOption> listEntries,
   String? subtitle,
   bool usePlayerTheme = true,
 }) async {
@@ -131,7 +136,7 @@ Future<void> showChoiceMenu({
           ),
           sliver: MenuMask(
             height: MenuMaskHeight(36.0),
-            child: ChoiceMenuChoiceList(listEntries: listEntries),
+            child: ChoiceMenuChoiceOptionList(listEntries: listEntries),
           ),
         ),
       ];
@@ -141,10 +146,10 @@ Future<void> showChoiceMenu({
   );
 }
 
-class ChoiceMenuChoiceList extends StatelessWidget {
-  const ChoiceMenuChoiceList({super.key, required this.listEntries});
+class ChoiceMenuChoiceOptionList extends StatelessWidget {
+  const ChoiceMenuChoiceOptionList({super.key, required this.listEntries});
 
-  final List<ChoiceListTile> listEntries;
+  final List<ChoiceMenuOption> listEntries;
 
   @override
   Widget build(BuildContext context) {
@@ -157,13 +162,13 @@ class ChoiceMenuChoiceList extends StatelessWidget {
   }
 }
 
-class ChoiceListTile extends StatelessWidget {
-  const ChoiceListTile({
+class ChoiceMenuOption extends StatelessWidget {
+  const ChoiceMenuOption({
     super.key,
     required this.title,
     required this.icon,
     required this.isSelected,
-    required this.disabled,
+    this.enabled = true,
     this.description,
     this.onSelect,
   });
@@ -173,14 +178,14 @@ class ChoiceListTile extends StatelessWidget {
   final IconData icon;
   final bool isSelected;
   final void Function()? onSelect;
-  final bool disabled;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: Padding(
         padding: const EdgeInsets.only(right: 2.0),
-        child: Icon(icon, size: 32.0, color: ColorScheme.of(context).primary),
+        child: Icon(icon, size: 32.0, color: enabled ? ColorScheme.of(context).primary : null),
       ),
       title: Text(title, maxLines: 1, overflow: TextOverflow.clip),
       subtitle: description != null
@@ -200,7 +205,7 @@ class ChoiceListTile extends StatelessWidget {
       onTap: () async {
         onSelect?.call();
       },
-      enabled: true,
+      enabled: enabled,
     );
   }
 }

@@ -1685,6 +1685,8 @@ enum DownloadItemStatus {
   final bool isRequired;
   final bool outdated;
   final bool isIncidental;
+
+  bool get isDownloaded => isRequired || isIncidental;
 }
 
 /// The type of a BaseItemDto as determined from its type field.

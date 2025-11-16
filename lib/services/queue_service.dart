@@ -8,6 +8,7 @@ import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/now_playing_bar.dart';
 import 'package:finamp/gen/assets.gen.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/services/item_helper.dart';
@@ -172,7 +173,6 @@ class QueueService {
 
   /// Returns the amount of tracks that are needed to fill up the radio queue
   int calcRadioTracksNeeded([bool ignoreQueue = false]) {
-    // TODO: Add setting to control how full the queue should be.
     final minUpcomingRadioTracks = 5;
     if (FinampSettingsHelper.finampSettings.radioEnabled) {
       if (ignoreQueue) {
@@ -187,7 +187,12 @@ class QueueService {
   }
 
   Future<void> maybeAddRadioTracks([jellyfin_models.BaseItemDto? startingItem]) async {
-    // TODO: Prevent repeat all alongside radio being enabled?
+    final radioAvailable = _providers.read(
+      isRadioModeAvailableProvider((_providers.read(finampSettingsProvider.radioMode), startingItem)),
+    );
+    if (!radioAvailable) {
+      return;
+    }
     final radioTracksNeeded = calcRadioTracksNeeded(startingItem != null);
     if (radioTracksNeeded > 0) {
       List<jellyfin_models.BaseItemDto> tracks = await generateRadioTracks(radioTracksNeeded);
@@ -267,7 +272,15 @@ class QueueService {
         }
         break;
       case RadioMode.random:
-        final items = await loadChildTracksFromBaseItem(baseItem: (item ?? _order.originalSource.item!));
+        final source = (item ?? _order.originalSource.item!);
+        final randomModeAvailable = _providers.read(isRandomRadioModeAvailableProvider(source));
+        if (!randomModeAvailable) {
+          _radioLogger.warning(
+            "Random radio mode selected but the provided item '${source.name}' is not downloaded. Returning empty track list.",
+          );
+          break;
+        }
+        final items = await loadChildTracksFromBaseItem(baseItem: source);
         for (var i = 0; i < minNumTracks; i++) {
           // Pick an item to add
           int nextIndex = _radioRandom.nextInt(items.length);
@@ -748,12 +761,19 @@ class QueueService {
   Future<void> startPlayback({
     required List<jellyfin_models.BaseItemDto> items,
     required QueueItemSource source,
+    QueueItemSource? customTrackSource,
     FinampPlaybackOrder? order,
     int? startingIndex,
   }) async {
     // _initialQueue = list; // save original PlaybackList for looping/restarting and meta info
 
-    await _replaceWholeQueue(itemList: items, source: source, order: order, initialIndex: startingIndex);
+    await _replaceWholeQueue(
+      itemList: items,
+      source: source,
+      customTrackSource: customTrackSource,
+      order: order,
+      initialIndex: startingIndex,
+    );
     _queueServiceLogger.info(
       "Started playing '${GlobalSnackbar.materialAppScaffoldKey.currentContext != null ? source.name.getLocalized(GlobalSnackbar.materialAppScaffoldKey.currentContext!) : source.name.type}' (${source.type}) in order $order from index $startingIndex",
     );
@@ -765,6 +785,7 @@ class QueueService {
   Future<void> _replaceWholeQueue({
     required List<jellyfin_models.BaseItemDto> itemList,
     required QueueItemSource source,
+    QueueItemSource? customTrackSource,
     int? initialIndex,
     FinampPlaybackOrder? order,
     bool beginPlaying = true,
@@ -824,7 +845,7 @@ class QueueService {
           newItems.add(
             FinampQueueItem(
               item: mediaItem,
-              source: isRestoredQueue ? savedQueueSource : source,
+              source: isRestoredQueue ? savedQueueSource : customTrackSource ?? source,
               type: i == 0 ? QueueItemQueueType.currentTrack : QueueItemQueueType.queue,
             ),
           );
