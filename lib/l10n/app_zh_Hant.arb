@@ -2862,17 +2862,17 @@
     "@discardChangesConfirmButton": {
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
     },
-    "accentColor": "強調色",
+    "accentColor": "補色",
     "@accentColor": {
         "description": "Title of the accent color setting"
     },
-    "accentColorTitle": "選擇強調色",
+    "accentColorTitle": "選擇補色",
     "@accentColorTitle": {
         "description": "Title for the accent color picker sheet"
     },
     "defaultWord": "預設",
     "@defaultWord": {},
-    "useDefaultButton": "重置為預設強調色",
+    "useDefaultButton": "重置為預設補色",
     "@useDefaultButton": {},
     "colorCode": "色碼（Hex）",
     "@colorCode": {
@@ -2902,11 +2902,11 @@
     "@snackbarOptionsMenuViewLogsButton": {
         "description": "Button title for opening the logs screen from the snackbar options menu"
     },
-    "systemAccentColor": "使用系統強調色",
+    "systemAccentColor": "使用裝置補色",
     "@systemAccentColor": {
         "description": "Title of the System Accent Color setting."
     },
-    "systemAccentColorHasPriorityInfo": "目前正套用系統強調色，因此自訂強調色選項已停用",
+    "systemAccentColorHasPriorityInfo": "目前正套用裝置補色，因此自訂補色選項已停用",
     "@systemAccentColorHasPriorityInfo": {
         "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
     },
@@ -2914,7 +2914,7 @@
     "@useMonochromeIcon": {
         "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
     },
-    "useMonochromeIconSubtitle": "這僅會影響 App 內的圖示，不會影響主畫面的啟動器圖示。",
+    "useMonochromeIconSubtitle": "僅影響 App 內圖示，不會影響裝置的應用程式圖示。",
     "@useMonochromeIconSubtitle": {
         "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
     }
