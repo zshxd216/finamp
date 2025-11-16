@@ -1056,18 +1056,10 @@ class QueueSectionHeader extends ConsumerWidget {
                           color: radioCurrentlyEnabled || info?.loop != FinampLoopMode.none
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                          onPressed: radioCurrentlyEnabled && info?.loop != FinampLoopMode.one
-                              ? () async {
-                                  await showRadioMenu(
-                                    context,
-                                    ref,
-                                    AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
-                                  );
-                                }
-                              : () {
-                                  queueService.toggleLoopMode();
-                                  FeedbackHelper.feedback(FeedbackType.selection);
-                                },
+                          onPressed: () {
+                            queueService.toggleLoopMode();
+                            FeedbackHelper.feedback(FeedbackType.selection);
+                          },
                         ),
                       ],
                     );

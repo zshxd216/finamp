@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:finamp/components/PlayerScreen/player_buttons_repeating.dart';
-import 'package:finamp/components/PlayerScreen/player_buttons_shuffle.dart';
+import 'package:finamp/components/PlayerScreen/player_buttons_loop_mode.dart';
+import 'package:finamp/components/PlayerScreen/player_buttons_playback_order.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
 import 'package:finamp/screens/player_screen.dart';
 import 'package:finamp/services/feedback_helper.dart';
@@ -40,7 +40,7 @@ class PlayerButtons extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           textDirection: TextDirection.ltr,
           children: [
-            if (controller.shouldShow(PlayerHideable.loopShuffleButtons)) PlayerButtonsRepeating(),
+            if (controller.shouldShow(PlayerHideable.loopShuffleButtons)) PlayerButtonsPlaybackOrder(),
             Semantics.fromProperties(
               properties: SemanticsProperties(
                 label: AppLocalizations.of(context)!.skipToPreviousTrackButtonTooltip,
@@ -103,7 +103,7 @@ class PlayerButtons extends StatelessWidget {
                 },
               ),
             ),
-            if (controller.shouldShow(PlayerHideable.loopShuffleButtons)) PlayerButtonsShuffle(),
+            if (controller.shouldShow(PlayerHideable.loopShuffleButtons)) PlayerButtonsLoopMode(),
           ],
         );
       },

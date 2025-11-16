@@ -17,6 +17,7 @@ import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.d
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action.dart';
 import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
+import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/menus/components/speed_menu.dart';
 import 'package:finamp/menus/sleep_timer_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -270,6 +271,14 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
     final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
     final preferNextUp = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
+    final queueService = GetIt.instance<QueueService>();
+    final queueSource = queueService.getQueue().source.item;
+
+    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
+    final radioMode = ref.watch(finampSettingsProvider.radioMode);
+    final currentModeAvailable = ref.watch(isRadioModeAvailableProvider((radioMode, queueSource)));
+    final radioCurrentlyEnabled = radioEnabled && currentModeAvailable;
+
     return [
       if (widget.showPlaybackControls) ...[
         StreamBuilder<PlaybackBehaviorInfo>(
@@ -337,7 +346,10 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                         icon: TablerIcons.bell_z_filled,
                         onPressed: () async {
                           if (hasTimeLeft) {
-                            await showDialog(context: context, builder: (context) => const SleepTimerCancelDialog());
+                            await showDialog<SleepTimerCancelDialog>(
+                              context: context,
+                              builder: (context) => const SleepTimerCancelDialog(),
+                            );
                           } else {
                             toggleSleepTimerMenu();
                           }
@@ -354,14 +366,16 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 },
               ),
               PlaybackAction(
-                icon: loopModeIcons[playbackBehavior.loop]!,
+                icon: radioCurrentlyEnabled ? TablerIcons.radio : loopModeIcons[playbackBehavior.loop]!,
                 onPressed: () async {
                   _queueService.toggleLoopMode();
                 },
-                label: loopModeTooltips[playbackBehavior.loop]!,
-                iconColor: playbackBehavior.loop == FinampLoopMode.none
-                    ? Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white
-                    : iconColor,
+                label: radioCurrentlyEnabled
+                    ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+                    : loopModeTooltips[playbackBehavior.loop]!,
+                iconColor: radioCurrentlyEnabled || playbackBehavior.loop != FinampLoopMode.none
+                    ? iconColor
+                    : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
               ),
             ];
 

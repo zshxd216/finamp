@@ -1347,9 +1347,24 @@ class QueueService {
   }
 
   void toggleLoopMode() {
+    final radioMode = FinampSettingsHelper.finampSettings.radioMode;
+    final radioEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
+    final radioAvailable = _providers.read(isRadioModeAvailableProvider((radioMode, _order.originalSource.item!)));
+    final radioEnabledAndAvailable = radioEnabled && radioAvailable;
+    if (radioEnabledAndAvailable) {
+      // disabled radio mode and reset loop mode
+      FinampSetters.setRadioEnabled(false);
+      loopMode = FinampLoopMode.none;
+      return;
+    }
+
     if (_loopMode == FinampLoopMode.all) {
       loopMode = FinampLoopMode.one;
     } else if (_loopMode == FinampLoopMode.one) {
+      if (radioAvailable) {
+        // enable radio mode and reset loop mode
+        FinampSetters.setRadioEnabled(true);
+      }
       loopMode = FinampLoopMode.none;
     } else {
       loopMode = FinampLoopMode.all;

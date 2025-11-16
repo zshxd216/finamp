@@ -37,7 +37,7 @@ List<ChoiceMenuOption> getRadioChoices(BuildContext context, WidgetRef ref) {
               : AppLocalizations.of(context)!.radioModeUnavailableWhileOffline,
           enabled: radioModeOptionEnabled,
           icon: radioModeOption.icon,
-          isSelected: currentModeAvailable && radioMode == radioModeOption,
+          isSelected: radioEnabled && currentModeAvailable && radioMode == radioModeOption,
           onSelect: () {
             FinampSetters.setRadioMode(radioModeOption);
             FinampSetters.setRadioEnabled(true);
