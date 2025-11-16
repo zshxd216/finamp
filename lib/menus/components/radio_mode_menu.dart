@@ -81,12 +81,14 @@ Future<void> showRadioMenu(BuildContext context, WidgetRef ref, [String? subtitl
 }
 
 Future<void> userStartRadioPlayback(BuildContext context, WidgetRef ref, BaseItemDto baseItem) async {
-  var radioMode = ref.watch(finampSettingsProvider.radioMode);
-  if (!radioMode.availableOffline && ref.watch(finampSettingsProvider.isOffline)) {
+  var radioMode = FinampSettingsHelper.finampSettings.radioMode;
+  var currentRadioModeAvailable = ref.read(isRadioModeAvailableProvider((radioMode, baseItem)));
+  if (!currentRadioModeAvailable) {
     await showRadioMenu(context, ref);
   }
-  radioMode = ref.watch(finampSettingsProvider.radioMode);
-  if (!radioMode.availableOffline && ref.watch(finampSettingsProvider.isOffline)) {
+  radioMode = FinampSettingsHelper.finampSettings.radioMode;
+  currentRadioModeAvailable = ref.read(isRadioModeAvailableProvider((radioMode, baseItem)));
+  if (!currentRadioModeAvailable) {
     return;
   }
   var audioServiceHelper = GetIt.instance<AudioServiceHelper>();

@@ -47,44 +47,38 @@ class ToggleableListTile extends ConsumerWidget {
           enabled: enabled,
           leading: leading,
           title: Text(title, maxLines: 1, overflow: TextOverflow.clip),
-          trailing: Flexible(
-            flex: 0,
-            child: Wrap(
-              alignment: WrapAlignment.end,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                if (subtitle != null)
-                  Flexible(
-                    flex: 0,
-                    child: Text(
-                      subtitle!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                SizedBox(
-                  height: 48.0,
-                  width: 16.0,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 12.0),
-                    child: VerticalDivider(
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
-                      thickness: 1.5,
-                      indent: 8.0,
-                      endIndent: 8.0,
-                      width: 1.0,
-                    ),
+          trailing: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (subtitle != null)
+                Text(
+                  subtitle!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              SizedBox(
+                height: 48.0,
+                width: 16.0,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: VerticalDivider(
+                    color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                    thickness: 1.5,
+                    indent: 8.0,
+                    endIndent: 8.0,
+                    width: 1.0,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 12.0),
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : trailing ?? Icon(icon, size: 36.0, color: themeColor),
-                ),
-              ],
-            ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 12.0),
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : trailing ?? Icon(icon, size: 36.0, color: themeColor),
+              ),
+            ],
           ),
           onTap: isLoading
               ? null
