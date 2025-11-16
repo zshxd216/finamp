@@ -3667,7 +3667,9 @@ enum RadioMode {
   @HiveField(2)
   similar(availableOffline: false, icon: TablerIcons.ear),
   @HiveField(3)
-  continuous(availableOffline: false, icon: TablerIcons.route);
+  continuous(availableOffline: false, icon: TablerIcons.route),
+  @HiveField(4)
+  albumMix(availableOffline: false, icon: TablerIcons.album);
 
   final bool availableOffline;
   final IconData icon;

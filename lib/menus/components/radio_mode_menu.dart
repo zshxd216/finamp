@@ -25,9 +25,7 @@ List<ChoiceMenuOption> getRadioChoices(BuildContext context, WidgetRef ref) {
 
   return RadioMode.values
       .map((radioModeOption) {
-        final radioModeOptionEnabled =
-            (radioModeOption.availableOffline || !ref.watch(finampSettingsProvider.isOffline)) &&
-            (radioModeOption != RadioMode.random || randomModeAvailable);
+        final radioModeOptionEnabled = ref.watch(isRadioModeAvailableProvider((radioModeOption, queueSource)));
         return ChoiceMenuOption(
           title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
           description: radioModeOptionEnabled
@@ -103,8 +101,11 @@ final isRadioModeAvailableProvider = ProviderFamily<bool, (RadioMode, BaseItemDt
   final source = arguments.$2;
 
   final randomModeAvailable = ref.watch(isRandomRadioModeAvailableProvider(source));
+  final albumMixModeAvailable = ref.watch(isAlbumMixRadioModeAvailableProvider(source));
   final currentModeAvailable =
-      (radioMode.availableOffline && (radioMode != RadioMode.random || randomModeAvailable)) ||
+      (radioMode.availableOffline &&
+          (radioMode != RadioMode.random || randomModeAvailable) &&
+          (radioMode != RadioMode.albumMix || albumMixModeAvailable)) ||
       !ref.watch(finampSettingsProvider.isOffline);
   return currentModeAvailable;
 });
@@ -113,13 +114,23 @@ final isRandomRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((r
   final downloadsService = GetIt.instance<DownloadsService>();
 
   final randomModeAvailable =
+      (RadioMode.random.availableOffline && ref.watch(finampSettingsProvider.isOffline)) &&
       (baseItem != null &&
-      ref
-          .watch(
-            downloadsService.statusProvider((DownloadStub.fromItem(type: baseItem.downloadType, item: baseItem), null)),
-          )
-          .isDownloaded);
-  final currentModeAvailable =
-      (RadioMode.random.availableOffline && randomModeAvailable) || !ref.watch(finampSettingsProvider.isOffline);
-  return currentModeAvailable;
+          ref
+              .watch(
+                downloadsService.statusProvider((
+                  DownloadStub.fromItem(type: baseItem.downloadType, item: baseItem),
+                  null,
+                )),
+              )
+              .isDownloaded);
+  return randomModeAvailable;
+});
+
+final isAlbumMixRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
+  final albumMixModeAvailable =
+      (RadioMode.albumMix.availableOffline && !ref.watch(finampSettingsProvider.isOffline)) &&
+      baseItem != null &&
+      BaseItemDtoType.fromItem(baseItem) == BaseItemDtoType.album;
+  return albumMixModeAvailable;
 });

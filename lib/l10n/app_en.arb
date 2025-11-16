@@ -2674,7 +2674,7 @@
   "@loopingOverriddenByRadioSubtitle": {
     "description": "Subtitle displayed in the radio mode chooser to show that queue looping is disabled while radio mode is enabled."
   },
-  "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} continuous{Continuous} other{{option}}}",
+  "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} continuous{Continuous} albumMix{Album Mix} other{{option}}}",
   "@radioModeOptionName": {
     "placeholders": {
       "option": {
@@ -2684,7 +2684,7 @@
     },
     "description": "Radio mode names in radio mode/algorithm dropdown"
   },
-  "radioModeOptionTitle": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} continuous{Continuous} other{{option}}} Mode Enabled",
+  "radioModeOptionTitle": "{option, select, reshuffle{Reshuffle Mode} random{Random Mode} similar{Similar Mode} continuous{Continuous Mode} albumMix{Album Mix} other{{option}}} Enabled",
   "@radioModeOptionTitle": {
     "placeholders": {
       "option": {
@@ -2702,7 +2702,7 @@
   "@radioModeDisabledButtonTitle": {
     "description": "Title for the option that disables radio mode."
   },
-  "radioModeOptionConfirmation": "Switched to {option, select, reshuffle{reshuffle} random{random} similar{similar} continuous{continuous} other{{option}}} mode",
+  "radioModeOptionConfirmation": "Switched to {option, select, reshuffle{reshuffle mode} random{random mode} similar{similar mode} continuous{continuous mode} albumMix{album mix} other{{option}}}",
   "@radioModeOptionConfirmation": {
     "placeholders": {
       "option": {
@@ -2724,7 +2724,7 @@
   "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
     "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
   },
-  "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the initial selection} similar{Append based on the original queue} continuous{Append based on the current track} other{}}",
+  "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the initial selection} similar{Append based on the original queue} continuous{Append based on the current track} albumMix{Append similar albums} other{}}",
   "@radioModeDescription": {
     "placeholders": {
       "mode": {

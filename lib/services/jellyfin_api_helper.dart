@@ -654,6 +654,18 @@ class JellyfinApiHelper {
     return (QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items);
   }
 
+  /// Get's similar albums based off a source album.
+  Future<List<BaseItemDto>?> getSimilarAlbums(BaseItemDto parentItem, {int? limit}) async {
+    assert(_verifyCallable());
+    var response = await jellyfinApi.getSimilarAlbums(
+      id: parentItem.id,
+      userId: _finampUserHelper.currentUser!.id,
+      limit: limit ?? FinampSettingsHelper.finampSettings.trackShuffleItemCount,
+    );
+
+    return (QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items);
+  }
+
   /// Updates capabilities for this client.
   Future<void> updateCapabilities(ClientCapabilities capabilities) async {
     assert(_verifyCallable());

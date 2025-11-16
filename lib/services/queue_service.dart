@@ -347,7 +347,11 @@ class QueueService {
         int attempt = 0;
         int lastTracksOutLength = tracksOut.length;
         while (tracksOut.length < minNumTracks) {
-          // only increment attempts if now additional track was discovered
+          if (attempt > 15) {
+            // prevent infinite loops
+            break;
+          }
+          // only increment attempts if no additional track was discovered
           if (lastTracksOutLength == tracksOut.length) {
             attempt++;
           }
@@ -363,6 +367,53 @@ class QueueService {
             repetitionThresholdTracks: repetitionThresholdTracks,
           );
         }
+        break;
+      case RadioMode.albumMix:
+        const filterExtraAlbums = 10; // extra albums in case duplicates are removed
+        // extra albums to randomly choose from to introduce non-determinism
+        final randomnessExtraAlbums = 5;
+
+        // filter out any albums where tracks with that album as the (radio) source are already in the queue
+        final existingAlbumIds = currentQueue.fullQueue
+            .where(
+              (queueItem) => queueItem.source.type == QueueItemSourceType.radio && queueItem.baseItem?.albumId != null,
+            )
+            .map((queueItem) => queueItem.baseItem!.albumId)
+            .toSet();
+        List<jellyfin_models.BaseItemDto> filteredSimilarAlbums = [];
+
+        int attempt = 0;
+        while (filteredSimilarAlbums.isEmpty) {
+          if (attempt > 5) {
+            // prevent infinite loops
+            break;
+          }
+          attempt++;
+          final additionalAlbums = attempt * 5;
+          if (attempt > 1) {
+            _radioLogger.warning("No similar albums found. Retrying with $additionalAlbums more extra albums.");
+          }
+          final similarAlbums =
+              await _jellyfinApiHelper.getSimilarAlbums(
+                item ?? _order.originalSource.item ?? currentQueue.fullQueue.first.baseItem!,
+                limit: 1 + filterExtraAlbums + randomnessExtraAlbums + additionalAlbums,
+              ) ??
+              [];
+          filteredSimilarAlbums = similarAlbums.where((album) => !existingAlbumIds.contains(album.id)).toList();
+        }
+
+        // pick a random album from the remaining ones
+        if (filteredSimilarAlbums.isNotEmpty) {
+          final randomIndex = _radioRandom.nextInt(min(filteredSimilarAlbums.length, randomnessExtraAlbums));
+          final selectedAlbum = filteredSimilarAlbums[randomIndex];
+          _radioLogger.finer("Selected album '${selectedAlbum.name}' for album mix radio.");
+          // load tracks from the selected album
+          final albumTracks = await loadChildTracksFromBaseItem(baseItem: selectedAlbum);
+          tracksOut = albumTracks;
+        } else {
+          _radioLogger.warning("No suitable similar albums found for album mix radio. Returning empty track list.");
+        }
+
         break;
     }
     _radioLogger.finer(

@@ -3033,6 +3033,8 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
         return RadioMode.similar;
       case 3:
         return RadioMode.continuous;
+      case 4:
+        return RadioMode.albumMix;
       default:
         return RadioMode.reshuffle;
     }
@@ -3049,6 +3051,8 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
         writer.writeByte(2);
       case RadioMode.continuous:
         writer.writeByte(3);
+      case RadioMode.albumMix:
+        writer.writeByte(4);
     }
   }
 
