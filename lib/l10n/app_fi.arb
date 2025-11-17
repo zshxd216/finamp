@@ -2905,5 +2905,21 @@
     "snackbarOptionsMenuViewLogsButton": "Katso lokitiedot",
     "@snackbarOptionsMenuViewLogsButton": {
         "description": "Button title for opening the logs screen from the snackbar options menu"
+    },
+    "systemAccentColor": "Käytä järjestelmän tehosteväriä",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "Mukautettu tehosteväri pois päältä, koska järjestelmän väri on käytössä",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "Käytä yksiväristä logoa",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "Tämä vaikuttaa vain ikoniin sovelluksen sisällä, ei sovelluksen käynnistysikoniin.",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
     }
 }
