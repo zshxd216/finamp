@@ -1601,7 +1601,7 @@
     "@hidePlayerBottomActions": {},
     "marqueeOrTruncateButtonSubtitle": "在較長的標題盡頭顯示 … 代替捲動文字",
     "@marqueeOrTruncateButtonSubtitle": {},
-    "showArtistChipImageSubtitle": "此設定會影響藝人照片縮圖的顯示，例如播放器介面。",
+    "showArtistChipImageSubtitle": "此設定會影響藝人照片的縮圖顯示，例如在播放介面上。",
     "@showArtistChipImageSubtitle": {},
     "fixedGridTileSizeEnum": "{size, select, small{小} medium{中} large{大} veryLarge{非常大} other{???}}",
     "@fixedGridTileSizeEnum": {
@@ -2862,17 +2862,17 @@
     "@discardChangesConfirmButton": {
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
     },
-    "accentColor": "補色",
+    "accentColor": "自訂配色",
     "@accentColor": {
         "description": "Title of the accent color setting"
     },
-    "accentColorTitle": "選擇補色",
+    "accentColorTitle": "選擇配色",
     "@accentColorTitle": {
         "description": "Title for the accent color picker sheet"
     },
     "defaultWord": "預設",
     "@defaultWord": {},
-    "useDefaultButton": "重置為預設補色",
+    "useDefaultButton": "重置為預設配色",
     "@useDefaultButton": {},
     "colorCode": "色碼（Hex）",
     "@colorCode": {
@@ -2902,11 +2902,11 @@
     "@snackbarOptionsMenuViewLogsButton": {
         "description": "Button title for opening the logs screen from the snackbar options menu"
     },
-    "systemAccentColor": "使用裝置補色",
+    "systemAccentColor": "使用裝置配色",
     "@systemAccentColor": {
         "description": "Title of the System Accent Color setting."
     },
-    "systemAccentColorHasPriorityInfo": "目前正套用裝置補色，因此自訂補色選項已停用",
+    "systemAccentColorHasPriorityInfo": "目前正套用裝置配色，因此自訂配色選項已停用",
     "@systemAccentColorHasPriorityInfo": {
         "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
     },
