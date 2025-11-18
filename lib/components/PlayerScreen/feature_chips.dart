@@ -6,6 +6,7 @@ import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/current_track_metadata_provider.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/metadata_provider.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
@@ -13,8 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
-
-import '../../services/finamp_settings_helper.dart';
 
 final _defaultBackgroundColour = Colors.white.withOpacity(0.1);
 final featureLogger = Logger("Features");
@@ -36,6 +35,7 @@ class FeatureState {
       "currentTrack: '${currentTrack?.item.title}', "
       "isDownloaded: $isDownloaded, "
       "isTranscoding: $isTranscoding, "
+      "codec: $codec, "
       "container: $container, "
       "size: $size, "
       "audioStream: ${audioStream?.toJson().toString()}, "
@@ -130,7 +130,7 @@ class FeatureState {
               FeatureProperties(
                 type: feature,
                 text:
-                    "${configuration.features.contains(FinampFeatureChipType.codec) ? container.toUpperCase() : ""}${configuration.features.contains(FinampFeatureChipType.codec) && configuration.features.contains(FinampFeatureChipType.bitRate) && bitrate != null ? " @ " : ""}${configuration.features.contains(FinampFeatureChipType.bitRate) && bitrate != null ? AppLocalizations.of(context)!.kiloBitsPerSecondLabel(bitrate! ~/ 1000) : ""}",
+                    "${configuration.features.contains(FinampFeatureChipType.codec) ? codec.toUpperCase() : ""}${configuration.features.contains(FinampFeatureChipType.codec) && configuration.features.contains(FinampFeatureChipType.bitRate) && bitrate != null ? " @ " : ""}${configuration.features.contains(FinampFeatureChipType.bitRate) && bitrate != null ? AppLocalizations.of(context)!.kiloBitsPerSecondLabel(bitrate! ~/ 1000) : ""}",
               ),
             );
           }
