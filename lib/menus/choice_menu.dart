@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:finamp/components/themed_bottom_sheet.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
@@ -102,22 +105,21 @@ class ChoiceMenuListTile extends ConsumerWidget {
   }
 }
 
-const choiceMenuRouteName = "/choice-menu";
-
 Future<void> showChoiceMenu({
   required BuildContext context,
   required String title,
   required List<ChoiceMenuOption> listEntries,
+  required String routeName,
   String? subtitle,
-  bool usePlayerTheme = true,
+  BaseItemDto? themeItem,
 }) async {
   final queueService = GetIt.instance<QueueService>();
 
   await showThemedBottomSheet(
     context: context,
-    item: (queueService.getCurrentTrack()?.baseItem)!, //TODO fix this
-    routeName: choiceMenuRouteName,
-    minDraggableHeight: 0.2,
+    item: themeItem ?? queueService.getCurrentTrack()?.baseItem,
+    routeName: routeName,
+    minDraggableHeight: 0.25,
     buildSlivers: (context) {
       var menu = [
         SliverStickyHeader(
@@ -134,30 +136,20 @@ Future<void> showChoiceMenu({
           ),
           sliver: MenuMask(
             height: MenuMaskHeight(36.0),
-            child: ChoiceMenuChoiceOptionList(listEntries: listEntries),
+            child: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final choice = listEntries[index];
+                return choice;
+              }, childCount: listEntries.length),
+            ),
           ),
         ),
       ];
-      var stackHeight = MediaQuery.heightOf(context) * 0.15 + listEntries.length * 60.0;
+      // header + menu entries
+      var stackHeight = 42.0 + listEntries.length * ((Platform.isAndroid || Platform.isIOS) ? 72.0 : 64.0);
       return (stackHeight, menu);
     },
   );
-}
-
-class ChoiceMenuChoiceOptionList extends StatelessWidget {
-  const ChoiceMenuChoiceOptionList({super.key, required this.listEntries});
-
-  final List<ChoiceMenuOption> listEntries;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) {
-        final choice = listEntries[index];
-        return choice;
-      }, childCount: listEntries.length),
-    );
-  }
 }
 
 class ChoiceMenuOption extends StatelessWidget {
@@ -169,6 +161,7 @@ class ChoiceMenuOption extends StatelessWidget {
     this.enabled = true,
     this.description,
     this.onSelect,
+    this.badges = const [],
   });
 
   final String title;
@@ -177,6 +170,7 @@ class ChoiceMenuOption extends StatelessWidget {
   final bool isSelected;
   final void Function()? onSelect;
   final bool enabled;
+  final List<Widget> badges;
 
   @override
   Widget build(BuildContext context) {
@@ -186,14 +180,23 @@ class ChoiceMenuOption extends StatelessWidget {
         child: Icon(icon, size: 32.0, color: enabled ? ColorScheme.of(context).primary : null),
       ),
       title: Text(title, maxLines: 1, overflow: TextOverflow.clip),
-      subtitle: description != null
-          ? Text(
-              description!,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall,
-            )
-          : null,
+      subtitle: Text.rich(
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        softWrap: true,
+        TextSpan(
+          children: [
+            WidgetSpan(
+              child: Padding(
+                padding: badges.isNotEmpty ? const EdgeInsets.only(right: 4.0) : EdgeInsets.zero,
+                child: Row(mainAxisSize: MainAxisSize.min, spacing: 4.0, children: badges),
+              ),
+              alignment: PlaceholderAlignment.middle,
+            ),
+            if (description != null) TextSpan(text: description!, style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+      ),
       trailing: isSelected
           ? Padding(
               padding: const EdgeInsets.only(left: 2.0),

@@ -17,10 +17,10 @@ class StartRadioMenuEntry extends ConsumerWidget implements HideableMenuEntry {
       icon: TablerIcons.radio,
       title: AppLocalizations.of(context)!.startRadio,
       onTap: () async {
-        await userStartRadioPlayback(context, ref, baseItem);
         if (context.mounted) {
           Navigator.pop(context);
         }
+        await userStartRadioPlayback(context, ref, baseItem);
       },
     );
   }

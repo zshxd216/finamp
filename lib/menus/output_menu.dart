@@ -29,7 +29,7 @@ Future<void> showOutputMenu({required BuildContext context, bool usePlayerTheme 
 
   await showThemedBottomSheet(
     context: context,
-    item: (queueService.getCurrentTrack()?.baseItem)!, //TODO fix this
+    item: queueService.getCurrentTrack()?.baseItem,
     routeName: outputMenuRouteName,
     minDraggableHeight: 0.2,
     buildSlivers: (context) {

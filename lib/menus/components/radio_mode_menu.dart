@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:finamp/components/choice_menu.dart';
+import 'package:finamp/menus/choice_menu.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/audio_service_helper.dart';
-import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
@@ -17,31 +17,36 @@ import 'package:get_it/get_it.dart';
 List<ChoiceMenuOption> getRadioChoices(BuildContext context, WidgetRef ref) {
   final queueService = GetIt.instance<QueueService>();
   final queueSource = queueService.getQueue().source.item;
+  final radioSeedItem = getRadioSeedItem(queueSource);
 
   final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
   final radioMode = ref.watch(finampSettingsProvider.radioMode);
   final randomModeAvailable = ref.watch(isRandomRadioModeAvailableProvider(queueSource));
-  final currentModeAvailable = ref.watch(isRadioModeAvailableProvider((radioMode, queueSource)));
+  final currentModeAvailable = ref.watch(isRadioModeAvailableProvider((radioMode, radioSeedItem)));
 
   return RadioMode.values
       .map((radioModeOption) {
-        final radioModeOptionEnabled = ref.watch(isRadioModeAvailableProvider((radioModeOption, queueSource)));
+        final radioModeOptionEnabled = ref.watch(isRadioModeAvailableProvider((radioModeOption, radioSeedItem)));
         return ChoiceMenuOption(
           title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
           description: radioModeOptionEnabled
               ? AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name)
               : (radioModeOption == RadioMode.random && !randomModeAvailable)
-              ? AppLocalizations.of(context)!.radioModeRandomUnavailableNotDownloaded(queueSource?.name ?? "")
+              ? AppLocalizations.of(context)!.radioModeRandomUnavailableNotDownloaded(radioSeedItem.name ?? "")
               : AppLocalizations.of(context)!.radioModeUnavailableWhileOffline,
+          badges: [
+            // similar mode is recommended
+            if (radioModeOption == RadioMode.similar) Icon(TablerIcons.star, size: 14.0),
+          ],
           enabled: radioModeOptionEnabled,
-          icon: radioModeOption.icon,
+          icon: getRadioModeIcon(radioModeOption),
           isSelected: radioEnabled && currentModeAvailable && radioMode == radioModeOption,
-          onSelect: () {
+          onSelect: () async {
             FinampSetters.setRadioMode(radioModeOption);
             FinampSetters.setRadioEnabled(true);
-            unawaited(queueService.clearRadioTracks());
             FeedbackHelper.feedback(FeedbackType.selection);
             Navigator.of(context).pop();
+            unawaited(queueService.clearRadioTracks());
             // GlobalSnackbar.message(
             //   (context) => AppLocalizations.of(context)!.radioModeOptionConfirmation(radioModeOption.name),
             //   isConfirmation: true,
@@ -69,69 +74,25 @@ List<ChoiceMenuOption> getRadioChoices(BuildContext context, WidgetRef ref) {
       .toList();
 }
 
-Future<void> showRadioMenu(BuildContext context, WidgetRef ref, [String? subtitle]) async {
+Future<void> showRadioMenu(BuildContext context, WidgetRef ref, {BaseItemDto? seedItem, String? subtitle}) async {
   await showChoiceMenu(
     context: context,
+    routeName: "/radio-menu",
     title: AppLocalizations.of(context)!.radioModeMenuTitle,
     subtitle: subtitle,
-    usePlayerTheme: true,
+    themeItem: seedItem,
     listEntries: getRadioChoices(context, ref),
+    // listEntries: [],
   );
 }
 
 Future<void> userStartRadioPlayback(BuildContext context, WidgetRef ref, BaseItemDto baseItem) async {
-  var radioMode = FinampSettingsHelper.finampSettings.radioMode;
-  var currentRadioModeAvailable = ref.read(isRadioModeAvailableProvider((radioMode, baseItem)));
-  if (!currentRadioModeAvailable) {
-    await showRadioMenu(context, ref);
-  }
-  radioMode = FinampSettingsHelper.finampSettings.radioMode;
-  currentRadioModeAvailable = ref.read(isRadioModeAvailableProvider((radioMode, baseItem)));
+  final radioMode = FinampSettingsHelper.finampSettings.radioMode;
+  // await showRadioMenu(context, ref, seedItem: baseItem); //FIXME this throws an error when trying to dismiss
+  final currentRadioModeAvailable = ref.read(isRadioModeAvailableProvider((radioMode, baseItem)));
   if (!currentRadioModeAvailable) {
     return;
   }
   var audioServiceHelper = GetIt.instance<AudioServiceHelper>();
-  await audioServiceHelper.startRadioPlayback(QueueItemSource.fromBaseItem(baseItem));
+  await audioServiceHelper.startRadioPlayback(baseItem);
 }
-
-final isRadioModeAvailableProvider = ProviderFamily<bool, (RadioMode, BaseItemDto?)>((
-  ref,
-  (RadioMode radioMode, BaseItemDto? baseItem) arguments,
-) {
-  final radioMode = arguments.$1;
-  final source = arguments.$2;
-
-  final randomModeAvailable = ref.watch(isRandomRadioModeAvailableProvider(source));
-  final albumMixModeAvailable = ref.watch(isAlbumMixRadioModeAvailableProvider(source));
-  final currentModeAvailable =
-      (radioMode.availableOffline &&
-          (radioMode != RadioMode.random || randomModeAvailable) &&
-          (radioMode != RadioMode.albumMix || albumMixModeAvailable)) ||
-      !ref.watch(finampSettingsProvider.isOffline);
-  return currentModeAvailable;
-});
-
-final isRandomRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
-  final downloadsService = GetIt.instance<DownloadsService>();
-
-  final randomModeAvailable =
-      (RadioMode.random.availableOffline && ref.watch(finampSettingsProvider.isOffline)) &&
-      (baseItem != null &&
-          ref
-              .watch(
-                downloadsService.statusProvider((
-                  DownloadStub.fromItem(type: baseItem.downloadType, item: baseItem),
-                  null,
-                )),
-              )
-              .isDownloaded);
-  return randomModeAvailable;
-});
-
-final isAlbumMixRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
-  final albumMixModeAvailable =
-      (RadioMode.albumMix.availableOffline && !ref.watch(finampSettingsProvider.isOffline)) &&
-      baseItem != null &&
-      BaseItemDtoType.fromItem(baseItem) == BaseItemDtoType.album;
-  return albumMixModeAvailable;
-});

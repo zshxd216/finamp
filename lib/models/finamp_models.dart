@@ -2179,10 +2179,10 @@ class FinampQueueInfo {
     return Duration(microseconds: total);
   }
 
-  int getTrackCountWithinDuration(Duration duration, {bool includeUpcoming = true}) {
+  int getTrackCountWithinDuration(Duration duration) {
     var totalDuration = Duration.zero;
     var trackCount = 0;
-    (includeUpcoming ? fullQueue : previousTracks).reversed.takeWhile((item) {
+    fullQueue.reversed.takeWhile((item) {
       totalDuration += item.item.duration ?? Duration.zero;
       trackCount += 1;
       return totalDuration < duration;
@@ -3661,18 +3661,13 @@ class RawThemeResult {
 @HiveType(typeId: 109)
 enum RadioMode {
   @HiveField(0)
-  reshuffle(availableOffline: true, icon: TablerIcons.arrows_shuffle),
+  similar,
   @HiveField(1)
-  random(availableOffline: true, icon: TablerIcons.help_hexagon),
+  continuous,
   @HiveField(2)
-  similar(availableOffline: false, icon: TablerIcons.ear),
+  reshuffle,
   @HiveField(3)
-  continuous(availableOffline: false, icon: TablerIcons.route),
+  random,
   @HiveField(4)
-  albumMix(availableOffline: false, icon: TablerIcons.album);
-
-  final bool availableOffline;
-  final IconData icon;
-
-  const RadioMode({required this.availableOffline, required this.icon});
+  albumMix,
 }

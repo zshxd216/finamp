@@ -655,10 +655,10 @@ class JellyfinApiHelper {
   }
 
   /// Get's similar albums based off a source album.
-  Future<List<BaseItemDto>?> getSimilarAlbums(BaseItemDto parentItem, {int? limit}) async {
+  Future<List<BaseItemDto>?> getSimilarAlbums(BaseItemId parentId, {int? limit}) async {
     assert(_verifyCallable());
     var response = await jellyfinApi.getSimilarAlbums(
-      id: parentItem.id,
+      id: parentId,
       userId: _finampUserHelper.currentUser!.id,
       limit: limit ?? FinampSettingsHelper.finampSettings.trackShuffleItemCount,
     );

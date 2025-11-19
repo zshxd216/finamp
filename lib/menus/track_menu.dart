@@ -28,6 +28,7 @@ import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/metadata_provider.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -273,11 +274,10 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
 
     final queueService = GetIt.instance<QueueService>();
     final queueSource = queueService.getQueue().source.item;
+    final radioSeedItem = getRadioSeedItem(queueSource);
 
-    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
-    final currentModeAvailable = ref.watch(isRadioModeAvailableProvider((radioMode, queueSource)));
-    final radioCurrentlyEnabled = radioEnabled && currentModeAvailable;
+    final radioActive = ref.watch(isRadioCurrentlyActiveProvider(radioSeedItem));
 
     return [
       if (widget.showPlaybackControls) ...[
@@ -366,15 +366,15 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 },
               ),
               PlaybackAction(
-                icon: radioCurrentlyEnabled ? TablerIcons.radio : loopModeIcons[playbackBehavior.loop]!,
+                icon: radioActive ? TablerIcons.radio : loopModeIcons[playbackBehavior.loop]!,
                 onPressed: () async {
                   _queueService.toggleLoopMode();
                 },
-                onLongPress: radioCurrentlyEnabled ? () => showRadioMenu(context, ref) : null,
-                label: radioCurrentlyEnabled
+                onLongPress: radioActive ? () => showRadioMenu(context, ref, seedItem: widget.item) : null,
+                label: radioActive
                     ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
                     : loopModeTooltips[playbackBehavior.loop]!,
-                iconColor: radioCurrentlyEnabled || playbackBehavior.loop != FinampLoopMode.none
+                iconColor: radioActive || playbackBehavior.loop != FinampLoopMode.none
                     ? iconColor
                     : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
               ),

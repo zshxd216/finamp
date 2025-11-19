@@ -7,7 +7,7 @@ import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
 import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
-import 'package:finamp/components/choice_menu.dart';
+import 'package:finamp/menus/choice_menu.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
@@ -27,6 +27,7 @@ import 'package:finamp/services/media_state_stream.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/process_artist.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:finamp/services/theme_provider.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/material.dart';
@@ -144,10 +145,16 @@ class _QueueListState extends ConsumerState<QueueList> {
 
     _contents = <Widget>[
       // Previous Tracks
-      if (ref.watch(finampSettingsProvider.previousTracksExpaned))
-        PreviousTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey)
-      else
-        const SliverToBoxAdapter(),
+      // nested consumer to contain rebuilds
+      Consumer(
+        builder: (context, ref, child) {
+          if (ref.watch(finampSettingsProvider.previousTracksExpaned)) {
+            return PreviousTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey);
+          } else {
+            return const SliverToBoxAdapter();
+          }
+        },
+      ),
       SliverPersistentHeader(
         key: widget.previousTracksHeaderKey,
         delegate: PreviousTracksSectionHeader(
@@ -954,11 +961,11 @@ class QueueSectionHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
     final queueSource = queueService.getQueue().source.item;
+    final radioSeedItem = getRadioSeedItem(queueSource);
 
     final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
-    final currentModeAvailable = ref.watch(isRadioModeAvailableProvider((radioMode, queueSource)));
-    final radioCurrentlyEnabled = radioEnabled && currentModeAvailable;
+    final radioActive = ref.watch(isRadioCurrentlyActiveProvider(radioSeedItem));
 
     return Column(
       children: [
@@ -1045,7 +1052,7 @@ class QueueSectionHeader extends ConsumerWidget {
                         IconButton(
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
-                          icon: radioCurrentlyEnabled && info?.loop != FinampLoopMode.one
+                          icon: radioActive && info?.loop != FinampLoopMode.one
                               ? const Icon(TablerIcons.radio)
                               : switch (info?.loop) {
                                   FinampLoopMode.none => const Icon(TablerIcons.repeat_off),
@@ -1053,14 +1060,14 @@ class QueueSectionHeader extends ConsumerWidget {
                                   FinampLoopMode.all => const Icon(TablerIcons.repeat),
                                   null => const Icon(TablerIcons.repeat_off),
                                 },
-                          color: radioCurrentlyEnabled || info?.loop != FinampLoopMode.none
+                          color: radioActive || info?.loop != FinampLoopMode.none
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
                           onPressed: () {
                             queueService.toggleLoopMode();
                             FeedbackHelper.feedback(FeedbackType.selection);
                           },
-                          onLongPress: radioCurrentlyEnabled ? () => showRadioMenu(context, ref) : null,
+                          onLongPress: radioActive ? () => showRadioMenu(context, ref) : null,
                         ),
                       ],
                     );
@@ -1071,10 +1078,10 @@ class QueueSectionHeader extends ConsumerWidget {
         ),
         // Radio mode
         ChoiceMenuListTile(
-          title: radioCurrentlyEnabled
+          title: radioActive
               ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
               : AppLocalizations.of(context)!.radioModeDisabledTitle,
-          subtitle: radioCurrentlyEnabled
+          subtitle: radioActive
               ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
               : (radioEnabled
                     ? AppLocalizations.of(context)!.radioModeDisabledBecauseNotAvailableOfflineSubtitle
@@ -1083,13 +1090,17 @@ class QueueSectionHeader extends ConsumerWidget {
           menuCreator: () => showRadioMenu(context, ref),
           leading: Padding(
             padding: const EdgeInsets.only(left: 6.0, top: 6.0),
-            child: Icon(radioMode.icon, size: 36.0, color: radioCurrentlyEnabled ? IconTheme.of(context).color : null),
+            child: Icon(
+              getRadioModeIcon(radioMode),
+              size: 36.0,
+              color: radioActive ? IconTheme.of(context).color : null,
+            ),
           ),
-          state: radioCurrentlyEnabled,
+          state: radioActive,
           trailing: Switch.adaptive(
-            value: radioCurrentlyEnabled,
+            value: radioActive,
             onChanged: (newValue) async {
-              if (radioEnabled && !radioCurrentlyEnabled) {
+              if (radioEnabled && !radioActive) {
                 // was enabled but not available, so show menu to select mode
                 await showRadioMenu(context, ref);
                 return;

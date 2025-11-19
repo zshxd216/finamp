@@ -46,7 +46,7 @@ class ToggleableListTile extends ConsumerWidget {
           enableFeedback: true,
           enabled: enabled,
           leading: leading,
-          title: Text(title, maxLines: 1, overflow: TextOverflow.clip),
+          title: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
           trailing: Wrap(
             alignment: WrapAlignment.end,
             crossAxisAlignment: WrapCrossAlignment.center,

@@ -3026,30 +3026,30 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
   RadioMode read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return RadioMode.reshuffle;
-      case 1:
-        return RadioMode.random;
-      case 2:
         return RadioMode.similar;
-      case 3:
+      case 1:
         return RadioMode.continuous;
+      case 2:
+        return RadioMode.reshuffle;
+      case 3:
+        return RadioMode.random;
       case 4:
         return RadioMode.albumMix;
       default:
-        return RadioMode.reshuffle;
+        return RadioMode.similar;
     }
   }
 
   @override
   void write(BinaryWriter writer, RadioMode obj) {
     switch (obj) {
-      case RadioMode.reshuffle:
-        writer.writeByte(0);
-      case RadioMode.random:
-        writer.writeByte(1);
       case RadioMode.similar:
-        writer.writeByte(2);
+        writer.writeByte(0);
       case RadioMode.continuous:
+        writer.writeByte(1);
+      case RadioMode.reshuffle:
+        writer.writeByte(2);
+      case RadioMode.random:
         writer.writeByte(3);
       case RadioMode.albumMix:
         writer.writeByte(4);
