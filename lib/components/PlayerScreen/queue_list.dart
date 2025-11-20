@@ -20,7 +20,6 @@ import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/screens/blurred_player_screen_background.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
-import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/media_state_stream.dart';
@@ -1100,15 +1099,12 @@ class QueueSectionHeader extends ConsumerWidget {
           trailing: Switch.adaptive(
             value: radioActive,
             onChanged: (newValue) async {
-              if (radioEnabled && !radioActive) {
+              if (newValue && radioEnabled && !radioActive) {
                 // was enabled but not available, so show menu to select mode
                 await showRadioMenu(context, ref);
                 return;
               }
-              FinampSetters.setRadioEnabled(newValue);
-              if (!newValue) {
-                await queueService.clearRadioTracks();
-              }
+              toggleRadio();
             },
             padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: -8.0),
           ),

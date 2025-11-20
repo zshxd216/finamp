@@ -10,6 +10,7 @@ import 'package:collection/collection.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
@@ -1716,9 +1717,9 @@ enum BaseItemDtoType {
   // "PlaylistsFolder" "Program" "Recording" "Season" "Series" "Studio" "Trailer" "TvChannel"
   // "TvProgram" "UserRootFolder" "UserView" "Video" "Year"
 
-  const BaseItemDtoType(this.idString, this.expectChanges, this.childTypes, this.downloadType);
+  const BaseItemDtoType(this.jellyfinName, this.expectChanges, this.childTypes, this.downloadType);
 
-  final String? idString;
+  final String? jellyfinName;
   final bool expectChanges;
   final List<BaseItemDtoType>? childTypes;
   final DownloadItemType? downloadType;
@@ -2095,6 +2096,7 @@ class FinampQueueOrder {
     required this.originalSource,
     required this.linearOrder,
     required this.shuffledOrder,
+    required this.sourceLibrary,
   }) {
     id = const Uuid().v4();
   }
@@ -2117,6 +2119,9 @@ class FinampQueueOrder {
 
   @HiveField(4)
   late String id;
+
+  @HiveField(5)
+  BaseItemDto? sourceLibrary;
 }
 
 @HiveType(typeId: 59)
@@ -2129,6 +2134,7 @@ class FinampQueueInfo {
     required this.queue,
     required this.source,
     required this.saveState,
+    required this.sourceLibrary,
   });
 
   @HiveField(0)
@@ -2151,6 +2157,9 @@ class FinampQueueInfo {
 
   @HiveField(6)
   String id;
+
+  @HiveField(7)
+  BaseItemDto? sourceLibrary;
 
   int get currentTrackIndex => previousTracks.length + (currentTrack == null ? 0 : 1);
   int get remainingTrackCount => nextUp.length + queue.length;
@@ -3670,4 +3679,42 @@ enum RadioMode {
   random,
   @HiveField(4)
   albumMix,
+}
+
+class RadioResult {
+  RadioResult({required this.tracks, required this.radioMode, required this.seedItem, required this.radioState});
+
+  List<BaseItemDto> tracks;
+  final RadioMode radioMode;
+  final BaseItemDto seedItem;
+  final bool radioState;
+
+  RadioResult withTracks(List<BaseItemDto> newTracks) {
+    tracks = newTracks;
+    return this;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(tracks.hashCode, radioMode.hashCode, seedItem.hashCode, radioState.hashCode);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is RadioResult &&
+        other.tracks.equals(tracks) &&
+        other.radioMode == radioMode &&
+        other.seedItem == seedItem &&
+        other.radioState == radioState;
+  }
+
+  /// Ensures the radio settings used to obtain this result are still the same as the current settings
+  bool isStillValid({BaseItemDto? forSeed}) {
+    final currentRadioState = FinampSettingsHelper.finampSettings.radioEnabled;
+    final currentRadioMode = FinampSettingsHelper.finampSettings.radioMode;
+    final currentSeedItem = getRadioSeedItem(forSeed);
+    return currentRadioState == radioState && currentRadioMode == radioMode && currentSeedItem == seedItem;
+  }
 }

@@ -1130,13 +1130,14 @@ class FinampQueueOrderAdapter extends TypeAdapter<FinampQueueOrder> {
       originalSource: fields[1] as QueueItemSource,
       linearOrder: (fields[2] as List).cast<int>(),
       shuffledOrder: (fields[3] as List).cast<int>(),
+      sourceLibrary: fields[5] as BaseItemDto?,
     )..id = fields[4] as String;
   }
 
   @override
   void write(BinaryWriter writer, FinampQueueOrder obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.items)
       ..writeByte(1)
@@ -1146,7 +1147,9 @@ class FinampQueueOrderAdapter extends TypeAdapter<FinampQueueOrder> {
       ..writeByte(3)
       ..write(obj.shuffledOrder)
       ..writeByte(4)
-      ..write(obj.id);
+      ..write(obj.id)
+      ..writeByte(5)
+      ..write(obj.sourceLibrary);
   }
 
   @override
@@ -1178,13 +1181,14 @@ class FinampQueueInfoAdapter extends TypeAdapter<FinampQueueInfo> {
       queue: (fields[3] as List).cast<FinampQueueItem>(),
       source: fields[4] as QueueItemSource,
       saveState: fields[5] as SavedQueueState,
+      sourceLibrary: fields[7] as BaseItemDto?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FinampQueueInfo obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.previousTracks)
       ..writeByte(1)
@@ -1198,7 +1202,9 @@ class FinampQueueInfoAdapter extends TypeAdapter<FinampQueueInfo> {
       ..writeByte(5)
       ..write(obj.saveState)
       ..writeByte(6)
-      ..write(obj.id);
+      ..write(obj.id)
+      ..writeByte(7)
+      ..write(obj.sourceLibrary);
   }
 
   @override

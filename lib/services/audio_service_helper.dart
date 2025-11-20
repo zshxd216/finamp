@@ -189,11 +189,11 @@ class AudioServiceHelper {
   }
 
   Future<void> startRadioPlayback(BaseItemDto source) async {
-    FinampSetters.setRadioEnabled(true);
+    toggleRadio(true);
     // fetch first track + full upcoming radio queue
-    final items = await generateRadioTracks(1 + calculateRadioTracksNeeded(), source);
+    final result = await generateRadioTracks(1 + calculateRadioTracksNeeded(), overrideSeedItem: source);
     await _queueService.startPlayback(
-      items: items,
+      items: result.tracks,
       source: QueueItemSource.fromBaseItem(source),
       customTrackSource: QueueItemSource(
         type: QueueItemSourceType.radio,

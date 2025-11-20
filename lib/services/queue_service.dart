@@ -64,6 +64,7 @@ class QueueService {
     ),
     linearOrder: [],
     shuffledOrder: [],
+    sourceLibrary: null,
   ); // contains all items that were at some point added to the regular queue, as well as their order when shuffle is enabled and disabled. This is used to loop the original queue once the end has been reached and "loop all" is enabled, **excluding** "next up" items and keeping the playback order.
 
   FinampPlaybackOrder _playbackOrder = FinampPlaybackOrder.linear;
@@ -636,6 +637,7 @@ class QueueService {
         originalSource: source,
         linearOrder: newLinearOrder,
         shuffledOrder: newShuffledOrder,
+        sourceLibrary: _finampUserHelper.currentUser?.currentView,
       );
 
       _queueServiceLogger.fine("Order items length: ${_order.items.length}");
@@ -913,6 +915,7 @@ class QueueService {
 
   Future<void> clearRadioTracks() async {
     _queueServiceLogger.finer("Clearing radio tracks from queue.");
+    clearSurplusRadioTracks();
     final radioIndices = _queue
         .asMap()
         .entries
@@ -979,6 +982,7 @@ class QueueService {
       nextUp: _queueNextUp,
       source: _order.originalSource,
       saveState: _savedQueueState,
+      sourceLibrary: _order.sourceLibrary,
     );
   }
 
@@ -1132,7 +1136,7 @@ class QueueService {
     final radioActive = radioEnabled && radioAvailable;
     if (radioActive) {
       // disabled radio mode and reset loop mode
-      FinampSetters.setRadioEnabled(false);
+      toggleRadio(false);
       loopMode = FinampLoopMode.none;
       return;
     }
@@ -1142,7 +1146,7 @@ class QueueService {
     } else if (_loopMode == FinampLoopMode.one) {
       if (radioAvailable) {
         // enable radio mode and reset loop mode
-        FinampSetters.setRadioEnabled(true);
+        toggleRadio(true);
       }
       loopMode = FinampLoopMode.none;
     } else {

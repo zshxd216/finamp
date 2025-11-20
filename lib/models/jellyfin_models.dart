@@ -3453,7 +3453,7 @@ enum SortBy {
       case SortBy.playCount:
         return "PlayCount";
       case SortBy.premiereDate:
-        return "PremiereDate";
+        return "PremiereDate,SortName";
       case SortBy.productionYear:
         return "ProductionYear,PremiereDate,SortName";
       case SortBy.sortName:
@@ -3490,7 +3490,7 @@ enum SortBy {
       case SortBy.playCount:
         return "PlayCount,SortName";
       case SortBy.premiereDate:
-        return "PremiereDate,AlbumArtist,Album,SortName";
+        return "PremiereDate,Album,ParentIndexNumber,IndexNumber,SortName";
       case SortBy.productionYear:
         return "ProductionYear";
       case SortBy.sortName:

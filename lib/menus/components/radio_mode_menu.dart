@@ -43,7 +43,7 @@ List<ChoiceMenuOption> getRadioChoices(BuildContext context, WidgetRef ref) {
           isSelected: radioEnabled && currentModeAvailable && radioMode == radioModeOption,
           onSelect: () async {
             FinampSetters.setRadioMode(radioModeOption);
-            FinampSetters.setRadioEnabled(true);
+            toggleRadio(true);
             FeedbackHelper.feedback(FeedbackType.selection);
             Navigator.of(context).pop();
             unawaited(queueService.clearRadioTracks());
@@ -61,7 +61,7 @@ List<ChoiceMenuOption> getRadioChoices(BuildContext context, WidgetRef ref) {
           isSelected: !radioEnabled || !currentModeAvailable,
           enabled: true,
           onSelect: () async {
-            FinampSetters.setRadioEnabled(false);
+            toggleRadio(false);
             FeedbackHelper.feedback(FeedbackType.selection);
             Navigator.of(context).pop();
             // GlobalSnackbar.message(
