@@ -55,17 +55,18 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
     }
 
     return StreamBuilder(
-      stream: mediaStateStream,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+      stream: queueService.getLoopModeStream(),
+      initialData: queueService.loopMode,
+      builder: (BuildContext context, snapshot) {
         return IconButton(
           tooltip:
-              "${getLocalizedLoopMode(context, queueService.loopMode)}. ${AppLocalizations.of(context)!.genericToggleButtonTooltip}",
+              "${getLocalizedLoopMode(context, snapshot.data!)}. ${AppLocalizations.of(context)!.genericToggleButtonTooltip}",
           onPressed: () async {
             FeedbackHelper.feedback(FeedbackType.light);
             queueService.toggleLoopMode();
           },
           onLongPress: radioActive ? () => showRadioMenu(context, ref) : null,
-          icon: Icon(getRepeatingIcon(queueService.loopMode)),
+          icon: Icon(getRepeatingIcon(snapshot.data!)),
         );
       },
     );

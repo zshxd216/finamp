@@ -88,8 +88,6 @@ post_install do |installer|
 
         ## dart: PermissionGroup.appTrackingTransparency
         'PERMISSION_APP_TRACKING_TRANSPARENCY=0',
-
-        'AUDIO_SESSION_MICROPHONE=0'
       ]
 
     end

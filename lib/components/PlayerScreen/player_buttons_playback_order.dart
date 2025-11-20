@@ -1,12 +1,11 @@
+import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
-import 'package:finamp/services/media_state_stream.dart';
+import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
-import 'package:finamp/services/feedback_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-import 'package:finamp/l10n/app_localizations.dart';
 
 class PlayerButtonsPlaybackOrder extends StatelessWidget {
   final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
@@ -17,18 +16,17 @@ class PlayerButtonsPlaybackOrder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: mediaStateStream,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+      stream: _queueService.getPlaybackOrderStream(),
+      initialData: _queueService.playbackOrder,
+      builder: (BuildContext context, snapshot) {
         return IconButton(
           tooltip: getLocalizedPlaybackOrder(context, _queueService.playbackOrder),
           onPressed: () async {
             FeedbackHelper.feedback(FeedbackType.light);
-            _queueService.togglePlaybackOrder();
+            await _queueService.togglePlaybackOrder();
           },
           icon: Icon(
-            (_queueService.playbackOrder == FinampPlaybackOrder.shuffled
-                ? TablerIcons.arrows_shuffle
-                : TablerIcons.arrows_right),
+            (snapshot.data! == FinampPlaybackOrder.shuffled ? TablerIcons.arrows_shuffle : TablerIcons.arrows_right),
           ),
         );
       },
