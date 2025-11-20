@@ -89,6 +89,7 @@ class _QueueListState extends State<QueueList> {
   late List<Widget> _contents;
 
   // Used to jump when changing playback order
+  final nextUpHeaderKey = GlobalKey();
   final queueHeaderKey = GlobalKey();
 
   @override
@@ -174,6 +175,7 @@ class _QueueListState extends State<QueueList> {
       ),
       const CurrentTrack(),
       // next up
+      SliverToBoxAdapter(key: nextUpHeaderKey),
       StreamBuilder(
         stream: _queueService.getQueueStream(),
         initialData: _queueService.getQueue(),
@@ -210,6 +212,7 @@ class _QueueListState extends State<QueueList> {
             ],
           ),
           controls: true,
+          nextUpHeaderKey: nextUpHeaderKey,
           queueHeaderKey: queueHeaderKey,
           scrollController: widget.scrollController,
         ),
@@ -446,6 +449,10 @@ class _PreviousTracksListState extends State<PreviousTracksList> with TickerProv
                     await _queueService.skipByOffset(indexOffset);
                     scrollToKey(key: widget.previousTracksHeaderKey, duration: const Duration(milliseconds: 500));
                   },
+                  allowDismiss: true,
+                  onRemoveFromList: () {
+                    unawaited(_queueService.removeAtOffset(indexOffset));
+                  },
                   isCurrentTrack: false,
                 );
               },
@@ -523,7 +530,7 @@ class _NextUpTracksListState extends State<NextUpTracksList> {
                     listIndex: index,
                     isInPlaylist: queueItemInPlaylist(item),
                     parentItem: item.source.item,
-                    allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
+                    allowReorder: true,
                     onRemoveFromList: () {
                       unawaited(_queueService.removeAtOffset(indexOffset));
                     },
@@ -696,12 +703,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
               child: Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
-                  color: Color.alphaBlend(
-                    Theme.brightnessOf(context) == Brightness.dark
-                        ? IconTheme.of(context).color!.withOpacity(0.35)
-                        : IconTheme.of(context).color!.withOpacity(0.65),
-                    Theme.brightnessOf(context) == Brightness.dark ? Colors.black : Colors.white,
-                  ),
+                  color: ColorScheme.of(context).primary.withOpacity(0.7),
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
                 ),
                 child: Row(
@@ -755,7 +757,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                         : playbackPosition!.inMilliseconds / itemLength.inMilliseconds,
                                     child: DecoratedBox(
                                       decoration: ShapeDecoration(
-                                        color: IconTheme.of(context).color!.withOpacity(0.75),
+                                        color: ColorScheme.of(context).primary,
                                         shape: const RoundedRectangleBorder(
                                           borderRadius: BorderRadius.only(
                                             topRight: Radius.circular(12),
@@ -792,7 +794,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                           style: TextStyle(
                                             fontSize: 16,
                                             height: 26 / 20,
-                                            color: Colors.white,
+                                            color: ColorScheme.of(context).onPrimary,
                                             fontWeight: Theme.brightnessOf(context) == Brightness.light
                                                 ? FontWeight.w500
                                                 : FontWeight.w600,
@@ -807,9 +809,9 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                             child: Text(
                                               processArtist(currentTrack!.item.artist, context),
                                               style: TextStyle(
-                                                color: (Colors.white).withOpacity(0.85),
+                                                color: ColorScheme.of(context).onPrimary,
                                                 fontSize: 13,
-                                                fontWeight: FontWeight.w300,
+                                                fontWeight: FontWeight.w400,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
@@ -821,7 +823,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                                 initialData: _audioHandler.playbackState.value.position,
                                                 builder: (context, snapshot) {
                                                   final TextStyle style = TextStyle(
-                                                    color: (Colors.white).withOpacity(0.8),
+                                                    color: ColorScheme.of(context).onPrimary,
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w400,
                                                   );
@@ -843,7 +845,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                               Text(
                                                 '/',
                                                 style: TextStyle(
-                                                  color: (Colors.white).withOpacity(0.8),
+                                                  color: ColorScheme.of(context).onPrimary,
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
                                                 ),
@@ -855,7 +857,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                                     ? "${mediaState?.mediaItem?.duration?.inHours.toString()}:${((mediaState?.mediaItem?.duration?.inMinutes ?? 0) % 60).toString().padLeft(2, '0')}:${((mediaState?.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}"
                                                     : "${mediaState?.mediaItem?.duration?.inMinutes.toString()}:${((mediaState?.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}",
                                                 style: TextStyle(
-                                                  color: (Colors.white).withOpacity(0.8),
+                                                  color: ColorScheme.of(context).onPrimary,
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
                                                 ),
@@ -876,7 +878,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     child: AddToPlaylistButton(
                                       item: currentTrackBaseItem,
                                       queueItem: currentTrack,
-                                      color: Colors.white,
+                                      color: ColorScheme.of(context).onPrimary,
                                       size: 28,
                                       visualDensity: const VisualDensity(horizontal: -4),
                                     ),
@@ -885,10 +887,10 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     iconSize: 28,
                                     visualDensity: const VisualDensity(horizontal: -4),
                                     // visualDensity: VisualDensity.compact,
-                                    icon: const Icon(
+                                    icon: Icon(
                                       TablerIcons.dots_vertical,
                                       size: 28,
-                                      color: Colors.white,
+                                      color: ColorScheme.of(context).onPrimary,
                                       weight: 1.5,
                                     ),
                                     onPressed: () {
@@ -935,6 +937,7 @@ class QueueSectionHeader extends StatelessWidget {
   final Widget title;
   final QueueItemSource? source;
   final bool controls;
+  final GlobalKey nextUpHeaderKey;
   final GlobalKey queueHeaderKey;
   final ScrollController scrollController;
 
@@ -942,6 +945,7 @@ class QueueSectionHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.source,
+    required this.nextUpHeaderKey,
     required this.queueHeaderKey,
     required this.scrollController,
     this.controls = false,
@@ -1030,7 +1034,11 @@ class QueueSectionHeader extends StatelessWidget {
                       onPressed: () async {
                         await queueService.togglePlaybackOrder();
                         FeedbackHelper.feedback(FeedbackType.selection);
-                        scrollToKey(key: queueHeaderKey);
+                        if (queueService.getQueue().nextUp.isNotEmpty) {
+                          scrollToKey(key: nextUpHeaderKey);
+                        } else {
+                          scrollToKey(key: queueHeaderKey);
+                        }
                       },
                     ),
                     IconButton(
