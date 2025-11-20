@@ -105,7 +105,7 @@ void clearSurplusRadioTracks() {
   _lastUsedRadioMode = null;
 }
 
-enum AlbumMixFallbackModes { artistAlbums, artistSingles, performingArtistAlbums, libraryAlbums }
+enum AlbumMixFallbackModes { similarSingles, artistAlbums, artistSingles, performingArtistAlbums, libraryAlbums }
 
 // Generates tracks for the radio. Provide item to generate the initial radio tracks.
 Future<RadioResult> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseItemDto? overrideSeedItem}) async {
@@ -279,12 +279,21 @@ Future<RadioResult> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseI
           ? AlbumMixFallbackModes.artistAlbums
           : null;
       while (filteredSimilarAlbums.isEmpty) {
-        if (attempt > 5) {
-          // prevent infinite loops
-          break;
+        if (attempt >= 5) {
+          if (fallbackMode == null) {
+            fallbackMode = AlbumMixFallbackModes.artistAlbums;
+            attempt = 0;
+          } else if (fallbackMode == AlbumMixFallbackModes.artistAlbums) {
+            // prefer similar singles over artist singles
+            fallbackMode = AlbumMixFallbackModes.similarSingles;
+            attempt = 0;
+          } else {
+            // prevent infinite loops
+            break;
+          }
         }
-        attempt++;
         final additionalAlbums = 2 * attempt + pow(attempt, 2.75).toInt(); // ~ 0, 3, 10, 27, 50, 100
+        attempt++;
         if (attempt > 1) {
           _radioLogger.warning("No similar albums found. Retrying with $additionalAlbums more extra albums.");
         }
@@ -335,6 +344,7 @@ Future<RadioResult> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseI
                 )) ??
                 [];
             break;
+          case AlbumMixFallbackModes.similarSingles:
           case null:
             similarAlbums =
                 await jellyfinApiHelper.getSimilarAlbums(
@@ -360,7 +370,7 @@ Future<RadioResult> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseI
             // don't include singles unless we're falling back to them
             .where(
               (album) =>
-                  (fallbackMode == AlbumMixFallbackModes.artistSingles ||
+                  ([AlbumMixFallbackModes.similarSingles, AlbumMixFallbackModes.artistSingles].contains(fallbackMode) ||
                   (album.songCount ?? album.childCount ?? 0) > 1),
             )
             .toList();
@@ -393,6 +403,7 @@ Future<RadioResult> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseI
               );
               fallbackMode = AlbumMixFallbackModes.libraryAlbums;
               break;
+            case AlbumMixFallbackModes.similarSingles:
             case AlbumMixFallbackModes.libraryAlbums:
             case null:
               break;
