@@ -54,9 +54,6 @@ Future<void> showModalTrackMenu({
   FinampStorableQueueInfo? queueInfo,
 }) async {
   final isOffline = FinampSettingsHelper.finampSettings.isOffline;
-  final canGoToAlbum = item.parentId != null;
-  final canGoToArtist = (item.artistItems?.isNotEmpty ?? false);
-  final canGoToGenre = (item.genreItems?.isNotEmpty ?? false);
 
   await showThemedBottomSheet(
     context: context,
@@ -70,9 +67,6 @@ Future<void> showModalTrackMenu({
         isOffline: isOffline,
         showPlaybackControls: showPlaybackControls,
         isInPlaylist: isInPlaylist,
-        canGoToAlbum: canGoToAlbum,
-        canGoToArtist: canGoToArtist,
-        canGoToGenre: canGoToGenre,
         onRemoveFromList: onRemoveFromList,
         confirmPlaylistRemoval: confirmPlaylistRemoval,
         showQueueActions: showQueueActions,
@@ -95,9 +89,6 @@ class TrackMenu extends ConsumerStatefulWidget {
     required this.isOffline,
     required this.showPlaybackControls,
     required this.isInPlaylist,
-    required this.canGoToAlbum,
-    required this.canGoToArtist,
-    required this.canGoToGenre,
     required this.onRemoveFromList,
     required this.confirmPlaylistRemoval,
     required this.showQueueActions,
@@ -112,9 +103,6 @@ class TrackMenu extends ConsumerStatefulWidget {
   final bool isOffline;
   final bool showPlaybackControls;
   final bool isInPlaylist;
-  final bool canGoToAlbum;
-  final bool canGoToArtist;
-  final bool canGoToGenre;
   final VoidCallback? onRemoveFromList;
   final bool confirmPlaylistRemoval;
   final bool showQueueActions;
@@ -370,7 +358,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 onPressed: () async {
                   _queueService.toggleLoopMode();
                 },
-                onLongPress: radioActive ? () => showRadioMenu(context, ref, seedItem: widget.item) : null,
+                onLongPress: radioActive ? () => showRadioMenu(context, seedItem: widget.item) : null,
                 label: radioActive
                     ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
                     : loopModeTooltips[playbackBehavior.loop]!,

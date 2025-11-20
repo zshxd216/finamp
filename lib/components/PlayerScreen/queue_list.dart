@@ -7,6 +7,7 @@ import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
 import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/menus/choice_menu.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
@@ -695,6 +696,12 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
           const horizontalPadding = 8.0;
           const albumImageSize = 70.0;
 
+          final primaryTextColor = ColorScheme.of(context).onPrimary.atContrast(
+            ref.watch(finampSettingsProvider.useHighContrastColors) ? 8.0 : 4.5,
+            ColorScheme.of(context).primary,
+            ref.watch(brightnessProvider) == Brightness.dark,
+          );
+
           return SliverAppBar(
             pinned: true,
             collapsedHeight: 70.0,
@@ -800,7 +807,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                           style: TextStyle(
                                             fontSize: 16,
                                             height: 26 / 20,
-                                            color: ColorScheme.of(context).onPrimary,
+                                            color: primaryTextColor,
                                             fontWeight: Theme.brightnessOf(context) == Brightness.light
                                                 ? FontWeight.w500
                                                 : FontWeight.w600,
@@ -815,7 +822,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                             child: Text(
                                               processArtist(currentTrack!.item.artist, context),
                                               style: TextStyle(
-                                                color: ColorScheme.of(context).onPrimary,
+                                                color: primaryTextColor,
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w400,
                                                 overflow: TextOverflow.ellipsis,
@@ -829,7 +836,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                                 initialData: _audioHandler.playbackState.value.position,
                                                 builder: (context, snapshot) {
                                                   final TextStyle style = TextStyle(
-                                                    color: ColorScheme.of(context).onPrimary,
+                                                    color: primaryTextColor,
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w400,
                                                   );
@@ -851,7 +858,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                               Text(
                                                 '/',
                                                 style: TextStyle(
-                                                  color: ColorScheme.of(context).onPrimary,
+                                                  color: primaryTextColor,
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
                                                 ),
@@ -863,7 +870,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                                     ? "${mediaState?.mediaItem?.duration?.inHours.toString()}:${((mediaState?.mediaItem?.duration?.inMinutes ?? 0) % 60).toString().padLeft(2, '0')}:${((mediaState?.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}"
                                                     : "${mediaState?.mediaItem?.duration?.inMinutes.toString()}:${((mediaState?.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}",
                                                 style: TextStyle(
-                                                  color: ColorScheme.of(context).onPrimary,
+                                                  color: primaryTextColor,
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
                                                 ),
@@ -884,7 +891,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     child: AddToPlaylistButton(
                                       item: currentTrackBaseItem,
                                       queueItem: currentTrack,
-                                      color: ColorScheme.of(context).onPrimary,
+                                      color: primaryTextColor,
                                       size: 28,
                                       visualDensity: const VisualDensity(horizontal: -4),
                                     ),
@@ -896,7 +903,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     icon: Icon(
                                       TablerIcons.dots_vertical,
                                       size: 28,
-                                      color: ColorScheme.of(context).onPrimary,
+                                      color: primaryTextColor,
                                       weight: 1.5,
                                     ),
                                     onPressed: () {
@@ -1074,7 +1081,7 @@ class QueueSectionHeader extends ConsumerWidget {
                             queueService.toggleLoopMode();
                             FeedbackHelper.feedback(FeedbackType.selection);
                           },
-                          onLongPress: radioActive ? () => showRadioMenu(context, ref) : null,
+                          onLongPress: radioActive ? () => showRadioMenu(context) : null,
                         ),
                       ],
                     );
@@ -1094,7 +1101,7 @@ class QueueSectionHeader extends ConsumerWidget {
                     ? AppLocalizations.of(context)!.radioModeDisabledBecauseNotAvailableOfflineSubtitle
                     : AppLocalizations.of(context)!.radioModeDisabledSubtitle),
           menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
-          menuCreator: () => showRadioMenu(context, ref),
+          menuCreator: () => showRadioMenu(context),
           leading: Padding(
             padding: const EdgeInsets.only(left: 6.0, top: 6.0),
             child: Icon(
@@ -1109,7 +1116,7 @@ class QueueSectionHeader extends ConsumerWidget {
             onChanged: (newValue) async {
               if (newValue && radioEnabled && !radioActive) {
                 // was enabled but not available, so show menu to select mode
-                await showRadioMenu(context, ref);
+                await showRadioMenu(context);
                 return;
               }
               toggleRadio();

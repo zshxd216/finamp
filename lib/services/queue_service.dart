@@ -93,6 +93,12 @@ class QueueService {
   FinampStorableQueueInfo? _failedSavedQueue;
   static const int _maxSavedQueues = 60;
 
+  static int get maxQueueItems => Platform.isIOS
+      ? 1000
+      : Platform.isAndroid
+      ? 1000
+      : 1000;
+
   QueueService() {
     // _queueServiceLogger.level = Level.OFF;
 
@@ -317,8 +323,21 @@ class QueueService {
   }
 
   FinampStorableQueueInfo _saveCurrentQueue({bool withPosition = false}) {
+    final queueToSave = getQueue();
+    // if we exceeded the queue size limit, remove as many tracks from previousTracks as needed
+    if (queueToSave.fullQueue.length > maxQueueItems) {
+      final excess = queueToSave.fullQueue.length - maxQueueItems;
+      int removed = 0;
+      queueToSave.previousTracks.removeWhere((e) {
+        if (removed < excess && [QueueItemSourceType.radio, QueueItemSourceType.formerNextUp].contains(e.source.type)) {
+          removed++;
+          return true;
+        }
+        return false;
+      });
+    }
     FinampStorableQueueInfo info = FinampStorableQueueInfo.fromQueueInfo(
-      getQueue(),
+      queueToSave,
       withPosition ? _audioHandler.playbackPosition.inMilliseconds : null,
       playbackOrder,
     );
@@ -1212,6 +1231,7 @@ class QueueService {
         "itemJson": item.toJson(setOffline: false),
         "shouldTranscode": FinampSettingsHelper.finampSettings.shouldTranscode,
         "downloadedTrackPath": downloadedTrack?.file?.path,
+        "isDownloaded": isDownloaded,
         "android.media.extra.DOWNLOAD_STATUS": isDownloaded ? 2 : 0,
         "isOffline": FinampSettingsHelper.finampSettings.isOffline,
         "contextNormalizationGain": contextNormalizationGain,

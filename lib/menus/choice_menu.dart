@@ -105,53 +105,6 @@ class ChoiceMenuListTile extends ConsumerWidget {
   }
 }
 
-Future<void> showChoiceMenu({
-  required BuildContext context,
-  required String title,
-  required List<ChoiceMenuOption> listEntries,
-  required String routeName,
-  String? subtitle,
-  BaseItemDto? themeItem,
-}) async {
-  final queueService = GetIt.instance<QueueService>();
-
-  await showThemedBottomSheet(
-    context: context,
-    item: themeItem ?? queueService.getCurrentTrack()?.baseItem,
-    routeName: routeName,
-    minDraggableHeight: 0.25,
-    buildSlivers: (context) {
-      var menu = [
-        SliverStickyHeader(
-          header: Padding(
-            padding: const EdgeInsets.only(top: 10.0, bottom: 8.0, left: 16.0, right: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2.0,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                if (subtitle != null) Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-              ],
-            ),
-          ),
-          sliver: MenuMask(
-            height: MenuMaskHeight(36.0),
-            child: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final choice = listEntries[index];
-                return choice;
-              }, childCount: listEntries.length),
-            ),
-          ),
-        ),
-      ];
-      // header + menu entries
-      var stackHeight = 42.0 + listEntries.length * ((Platform.isAndroid || Platform.isIOS) ? 72.0 : 64.0);
-      return (stackHeight, menu);
-    },
-  );
-}
-
 class ChoiceMenuOption extends StatelessWidget {
   const ChoiceMenuOption({
     super.key,
@@ -159,6 +112,7 @@ class ChoiceMenuOption extends StatelessWidget {
     required this.icon,
     required this.isSelected,
     this.enabled = true,
+    this.isDisabled = false,
     this.description,
     this.onSelect,
     this.badges = const [],
@@ -170,6 +124,7 @@ class ChoiceMenuOption extends StatelessWidget {
   final bool isSelected;
   final void Function()? onSelect;
   final bool enabled;
+  final bool isDisabled;
   final List<Widget> badges;
 
   @override
@@ -180,27 +135,40 @@ class ChoiceMenuOption extends StatelessWidget {
         child: Icon(icon, size: 32.0, color: enabled ? ColorScheme.of(context).primary : null),
       ),
       title: Text(title, maxLines: 1, overflow: TextOverflow.clip),
-      subtitle: Text.rich(
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        softWrap: true,
-        TextSpan(
-          children: [
-            WidgetSpan(
-              child: Padding(
-                padding: badges.isNotEmpty ? const EdgeInsets.only(right: 4.0) : EdgeInsets.zero,
-                child: Row(mainAxisSize: MainAxisSize.min, spacing: 4.0, children: badges),
+      subtitle: badges.isNotEmpty || description != null
+          ? Text.rich(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              softWrap: true,
+              TextSpan(
+                children: [
+                  WidgetSpan(
+                    child: Padding(
+                      padding: badges.isNotEmpty ? const EdgeInsets.only(right: 4.0) : EdgeInsets.zero,
+                      child: Row(mainAxisSize: MainAxisSize.min, spacing: 4.0, children: badges),
+                    ),
+                    alignment: PlaceholderAlignment.middle,
+                  ),
+                  if (description != null) TextSpan(text: description!, style: Theme.of(context).textTheme.bodySmall),
+                ],
               ),
-              alignment: PlaceholderAlignment.middle,
-            ),
-            if (description != null) TextSpan(text: description!, style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-      ),
+            )
+          : null,
       trailing: isSelected
           ? Padding(
               padding: const EdgeInsets.only(left: 2.0),
-              child: Icon(TablerIcons.check, size: 32.0, color: ColorScheme.of(context).primary),
+              child: isDisabled
+                  ? SizedBox(
+                      width: 32.0,
+                      child: Center(
+                        child: Icon(
+                          TablerIcons.point_filled,
+                          size: 20.0,
+                          color: TextTheme.of(context).bodyMedium?.color?.withOpacity(0.6),
+                        ),
+                      ),
+                    )
+                  : Icon(TablerIcons.check, size: 32.0, color: ColorScheme.of(context).primary),
             )
           : null,
       onTap: () async {

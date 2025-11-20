@@ -13,6 +13,7 @@ class ToggleableListTile extends ConsumerWidget {
     required this.state,
     required this.onToggle,
     this.trailing,
+    this.divider,
     this.isLoading = false,
     this.enabled = true,
     this.confirmationFeedback = true,
@@ -28,11 +29,13 @@ class ToggleableListTile extends ConsumerWidget {
   final bool isLoading;
   final bool enabled;
   final bool confirmationFeedback;
+  final bool? divider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     assert(icon != null || trailing != null, "Either icon or trailing must be provided.");
     var themeColor = Theme.of(context).colorScheme.primary;
+    final showDivider = divider ?? trailing == null;
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0, bottom: 4.0),
       child: Container(
@@ -58,22 +61,23 @@ class ToggleableListTile extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-              SizedBox(
-                height: 48.0,
-                width: 16.0,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: VerticalDivider(
-                    color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
-                    thickness: 1.5,
-                    indent: 8.0,
-                    endIndent: 8.0,
-                    width: 1.0,
+              if (showDivider)
+                SizedBox(
+                  height: 48.0,
+                  width: 16.0,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: VerticalDivider(
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                      thickness: 1.5,
+                      indent: 8.0,
+                      endIndent: 8.0,
+                      width: 1.0,
+                    ),
                   ),
                 ),
-              ),
               Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 12.0),
+                padding: EdgeInsets.only(left: showDivider ? 8.0 : 16.0, right: 12.0),
                 child: isLoading
                     ? const CircularProgressIndicator()
                     : trailing ?? Icon(icon, size: 36.0, color: themeColor),

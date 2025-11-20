@@ -3686,12 +3686,20 @@ class RadioResult {
 
   List<BaseItemDto> tracks;
   final RadioMode radioMode;
-  final BaseItemDto seedItem;
+  final BaseItemDto? seedItem;
   final bool radioState;
 
   RadioResult withTracks(List<BaseItemDto> newTracks) {
-    tracks = newTracks;
-    return this;
+    return copyWith(tracks: newTracks);
+  }
+
+  RadioResult copyWith({List<BaseItemDto>? tracks, RadioMode? radioMode, BaseItemDto? seedItem, bool? radioState}) {
+    return RadioResult(
+      tracks: tracks ?? this.tracks,
+      radioMode: radioMode ?? this.radioMode,
+      seedItem: seedItem ?? this.seedItem,
+      radioState: radioState ?? this.radioState,
+    );
   }
 
   @override

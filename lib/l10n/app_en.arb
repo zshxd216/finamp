@@ -2740,7 +2740,16 @@
   },
   "radioModeRandomUnavailableNotDownloaded": "Unavailable because '{sourceName}' isn't downloaded",
   "@radioModeRandomUnavailableNotDownloaded": {
-    "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded."
+    "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+    "placeholders": {
+      "sourceName": {
+        "type": "String"
+      }
+    }
+  },
+  "radioModeRandomUnavailableNotDownloadedGeneric": "Unavailable because not downloaded",
+  "@radioModeRandomUnavailableNotDownloadedGeneric": {
+    "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
   },
   "autoReloadPrompt": "Reload queue to apply new {type, select, network{network settings} transcoding{transcoding settings} other{settings}}",
   "@autoReloadPrompt": {
