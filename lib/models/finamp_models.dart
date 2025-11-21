@@ -3689,6 +3689,7 @@ class RadioCacheState {
     required this.radioState,
     this.generating = false,
     this.queueing = false,
+    this.failed = false,
   });
 
   List<BaseItemDto> tracks;
@@ -3697,6 +3698,7 @@ class RadioCacheState {
   final bool radioState;
   final bool generating;
   final bool queueing;
+  final bool failed;
 
   RadioCacheState copyWith({
     List<BaseItemDto>? tracks,
@@ -3706,6 +3708,7 @@ class RadioCacheState {
     bool? radioState,
     bool? generating,
     bool? queueing,
+    bool? failed,
   }) {
     return RadioCacheState(
       tracks: tracks ?? this.tracks,
@@ -3714,6 +3717,7 @@ class RadioCacheState {
       radioState: radioState ?? this.radioState,
       generating: generating ?? this.generating,
       queueing: queueing ?? this.queueing,
+      failed: failed ?? this.failed,
     );
   }
 

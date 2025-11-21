@@ -22,10 +22,14 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
-    final radioActive = ref.watch(isRadioCurrentlyActiveProvider);
+    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
+    final radioFailed = ref.watch(radioStateProvider.select((state) => state?.failed ?? false));
 
     IconData getRepeatingIcon(FinampLoopMode loopMode) {
-      if (radioActive) {
+      if (radioEnabled) {
+        if (radioFailed) {
+          return TablerIcons.radio_off;
+        }
         return TablerIcons.radio;
       }
       if (loopMode == FinampLoopMode.all) {
@@ -38,7 +42,10 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
     }
 
     String getLocalizedLoopMode(BuildContext context, FinampLoopMode loopMode) {
-      if (radioActive) {
+      if (radioEnabled) {
+        if (radioFailed) {
+          return AppLocalizations.of(context)!.radioFailedSubtitle;
+        }
         return AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name);
       }
       switch (loopMode) {
@@ -59,10 +66,19 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
           tooltip:
               "${getLocalizedLoopMode(context, snapshot.data!)}. ${AppLocalizations.of(context)!.genericToggleButtonTooltip}",
           onPressed: () async {
-            FeedbackHelper.feedback(FeedbackType.light);
-            queueService.toggleLoopMode();
+            if (radioFailed) {
+              await showRadioMenu(context, subtitle: AppLocalizations.of(context)!.radioFailedSubtitle);
+            } else {
+              FeedbackHelper.feedback(FeedbackType.light);
+              queueService.toggleLoopMode();
+            }
           },
-          onLongPress: radioActive ? () => showRadioMenu(context) : null,
+          onLongPress: () => showRadioMenu(
+            context,
+            subtitle: radioFailed
+                ? AppLocalizations.of(context)!.radioFailedSubtitle
+                : AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
+          ),
           icon: Icon(getRepeatingIcon(snapshot.data!)),
         );
       },

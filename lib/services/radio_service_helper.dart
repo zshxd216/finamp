@@ -77,10 +77,14 @@ Future<void> maybeAddRadioTracks() async {
     }
     _radioCallTimestamps.add(now);
 
-    var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
+    var localResult = _radioCacheStateStream.value!.copyWith(generating: true, failed: false);
     _radioCacheStateStream.add(localResult);
     if (localResult.tracks.length < radioTracksNeeded) {
-      localResult.tracks.addAll(await generateRadioTracks(radioTracksNeeded - localResult.tracks.length));
+      try {
+        localResult.tracks.addAll(await generateRadioTracks(radioTracksNeeded - localResult.tracks.length));
+      } catch (e) {
+        _radioLogger.warning("Couldn't generate radio tracks: $e");
+      }
     }
     final tracksToAddCount = min(switch (localResult.radioMode) {
       RadioMode.albumMix => localResult.tracks.length, // album mix returns full albums, and those should stay together
@@ -88,7 +92,12 @@ Future<void> maybeAddRadioTracks() async {
     }, localResult.tracks.length);
     final tracksToAdd = localResult.tracks.take(tracksToAddCount);
     final tracksToCache = localResult.tracks.skip(tracksToAddCount);
-    //TODO there's a deadlock if tracks can't be fetched due to e.g. offline mode. will stay locked/loading indefinitely, even if offline mode is disabled
+    if (tracksToAdd.isEmpty) {
+      _radioLogger.warning("No tracks generated for radio. Aborting.");
+      localResult = localResult.copyWith(generating: false, failed: true);
+      _radioCacheStateStream.add(localResult);
+      return;
+    }
     // Check if we have been invalidated while generating
     if (identical(localResult, _radioCacheStateStream.value) && localResult.isStillValid()) {
       localResult = localResult.copyWith(
@@ -124,7 +133,12 @@ Future<void> maybeAddRadioTracks() async {
 Future<void> startRadioPlayback(BaseItemDto source) async {
   const radioTracksNeededForInitialQueue = 30;
 
-  final tracks = await generateRadioTracks(radioTracksNeededForInitialQueue, overrideSeedItem: source);
+  final List<BaseItemDto> tracks = [];
+  try {
+    tracks.addAll(await generateRadioTracks(radioTracksNeededForInitialQueue, overrideSeedItem: source));
+  } catch (e) {
+    _radioLogger.warning("Couldn't generate radio tracks: $e");
+  }
   if (tracks.isEmpty) {
     _radioLogger.warning("No tracks generated for radio playback from source '${source.name}'. Aborting.");
     GlobalSnackbar.message((context) => AppLocalizations.of(context)!.radioNoTracksFound);

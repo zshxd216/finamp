@@ -261,7 +261,9 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
     final preferNextUp = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
+    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
     final radioActive = ref.watch(isRadioCurrentlyActiveProvider);
+    final radioFailed = ref.watch(radioStateProvider.select((state) => state?.failed ?? false));
 
     return [
       if (widget.showPlaybackControls) ...[
@@ -350,12 +352,25 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 },
               ),
               PlaybackAction(
-                icon: radioActive ? TablerIcons.radio : loopModeIcons[playbackBehavior.loop]!,
+                icon: radioEnabled
+                    ? radioFailed
+                          ? TablerIcons.radio
+                          : TablerIcons.radio_off
+                    : loopModeIcons[playbackBehavior.loop]!,
                 onPressed: () async {
+                  if (radioFailed) {
+                    await showRadioMenu(context, subtitle: AppLocalizations.of(context)!.radioFailedSubtitle);
+                    return;
+                  }
                   _queueService.toggleLoopMode();
                 },
-                onLongPress: radioActive ? () => showRadioMenu(context) : null,
-                label: radioActive
+                onLongPress: () => showRadioMenu(
+                  context,
+                  subtitle: radioFailed
+                      ? AppLocalizations.of(context)!.radioFailedSubtitle
+                      : AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
+                ),
+                label: radioEnabled
                     ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
                     : loopModeTooltips[playbackBehavior.loop]!,
                 iconColor: radioActive || playbackBehavior.loop != FinampLoopMode.none

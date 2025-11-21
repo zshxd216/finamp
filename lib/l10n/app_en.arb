@@ -2672,7 +2672,11 @@
   },
   "loopingOverriddenByRadioSubtitle": "Queue looping is disabled while radio is enabled",
   "@loopingOverriddenByRadioSubtitle": {
-    "description": "Subtitle displayed in the radio mode chooser to show that queue looping is disabled while radio mode is enabled."
+    "description": "Subtitle displayed in the radio menu to show that queue looping is disabled while radio mode is enabled."
+  },
+  "radioFailedSubtitle": "No more radio tracks found. Try changing the mode.",
+  "@radioFailedSubtitle": {
+    "description": "Subtitle displayed in the radio menu to show that no radio tracks could be generated."
   },
   "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} continuous{Continuous} albumMix{Album Mix} other{{option}}}",
   "@radioModeOptionName": {
@@ -2697,6 +2701,10 @@
   "radioModeDisabledTitle": "Radio Disabled",
   "@radioModeDisabledTitle": {
     "description": "Title displayed in the queue to show that radio mode is disabled."
+  },
+  "radioModeInactiveTitle": "Radio Paused",
+  "@radioModeInactiveTitle": {
+    "description": "Title displayed in the queue to show that the radio is enabled but not active."
   },
   "radioModeDisabledButtonTitle": "Disable Radio",
   "@radioModeDisabledButtonTitle": {

@@ -984,6 +984,8 @@ class QueueSectionHeader extends ConsumerWidget {
     final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
     final radioActive = ref.watch(isRadioCurrentlyActiveProvider);
+    final radioLoading = ref.watch(radioStateProvider.select((state) => state?.loading ?? false));
+    final radioFailed = ref.watch(radioStateProvider.select((state) => state?.failed ?? false));
 
     return Column(
       children: [
@@ -1091,12 +1093,15 @@ class QueueSectionHeader extends ConsumerWidget {
                             queueService.toggleLoopMode();
                             FeedbackHelper.feedback(FeedbackType.selection);
                           },
-                          onLongPress: () => showRadioMenu(context),
+                          onLongPress: () => showRadioMenu(
+                            context,
+                            subtitle: AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
+                          ),
                         ),
                         IconButton(
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
-                          icon: radioActive ? const Icon(TablerIcons.radio) : const Icon(TablerIcons.radio_off),
+                          icon: radioEnabled ? const Icon(TablerIcons.radio) : const Icon(TablerIcons.radio_off),
                           color: radioActive
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
@@ -1116,19 +1121,24 @@ class QueueSectionHeader extends ConsumerWidget {
         // Radio mode
         if (radioEnabled)
           ChoiceMenuListTile(
-            title: radioActive
-                ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+            title: radioEnabled
+                ? radioActive
+                      ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+                      : AppLocalizations.of(context)!.radioModeInactiveTitle
                 : AppLocalizations.of(context)!.radioModeDisabledTitle,
             subtitle: radioActive
                 ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
                 : (radioEnabled
                       ? AppLocalizations.of(context)!.radioModeDisabledBecauseNotAvailableOfflineSubtitle
                       : AppLocalizations.of(context)!.radioModeDisabledSubtitle),
-            menuCreator: () => showRadioMenu(context),
-            isLoading: ref.watch(radioStateProvider)?.loading ?? false,
+            menuCreator: () => showRadioMenu(
+              context,
+              subtitle: radioFailed ? AppLocalizations.of(context)!.radioFailedSubtitle : null,
+            ),
+            isLoading: radioLoading,
             leading: Icon(TablerIcons.radio, size: 32.0, color: radioActive ? IconTheme.of(context).color : null),
             state: radioActive,
-            icon: getRadioModeIcon(radioMode),
+            icon: radioFailed ? TablerIcons.alert_circle : getRadioModeIcon(radioMode),
             compact: true,
           ),
       ],
