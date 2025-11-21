@@ -52,15 +52,22 @@ Future<void> showRadioMenu(
               isDisabled: !radioCurrentlyActive,
               isSelected: currentRadioMode == radioModeOption,
               onSelect: () async {
+                final radioTracksWillChange = currentRadioMode != radioModeOption || startNewQueue;
                 FeedbackHelper.feedback(FeedbackType.selection);
-                await queueService.clearRadioTracks();
-                FinampSetters.setRadioMode(radioModeOption);
-                if (seedItem != null) {
+                if (radioTracksWillChange) {
+                  await queueService.clearRadioTracks();
+                }
+                if (currentRadioMode != radioModeOption) {
+                  FinampSetters.setRadioMode(radioModeOption);
+                }
+                if (seedItem != null && startNewQueue) {
                   unawaited(startRadioPlayback(seedItem));
                 } else {
                   toggleRadio(true);
                 }
-                await Future<void>.delayed(const Duration(milliseconds: 400));
+                if (radioTracksWillChange) {
+                  await Future<void>.delayed(const Duration(milliseconds: 400));
+                }
                 if (context.mounted) {
                   Navigator.of(context).pop();
                 }

@@ -15,7 +15,6 @@ class ChoiceMenuListTile extends ConsumerWidget {
     super.key,
     required this.title,
     required this.menuCreator,
-    required this.menuTitle,
     this.subtitle,
     required this.leading,
     this.icon,
@@ -24,11 +23,11 @@ class ChoiceMenuListTile extends ConsumerWidget {
     this.isLoading = false,
     this.enabled = true,
     this.confirmationFeedback = true,
+    this.compact = false,
   });
 
   final String title;
   final String? subtitle;
-  final String menuTitle;
   final Widget leading;
   final IconData? icon;
   final Widget? trailing;
@@ -36,6 +35,7 @@ class ChoiceMenuListTile extends ConsumerWidget {
   final bool isLoading;
   final bool enabled;
   final bool confirmationFeedback;
+  final bool compact;
   final Future<void> Function() menuCreator;
 
   @override
@@ -50,11 +50,12 @@ class ChoiceMenuListTile extends ConsumerWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         clipBehavior: Clip.antiAlias,
-        padding: EdgeInsets.only(bottom: 6.0),
+        padding: EdgeInsets.only(left: 10.0, bottom: compact ? 4.0 : 6.0),
         child: ListTile(
           enableFeedback: true,
           enabled: enabled,
-          leading: leading,
+          leading: Padding(padding: const EdgeInsets.only(top: 2.0), child: leading),
+          horizontalTitleGap: 16.0,
           title: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
           subtitle: subtitle != null
               ? Text(
@@ -69,15 +70,15 @@ class ChoiceMenuListTile extends ConsumerWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               SizedBox(
-                height: 48.0,
+                height: compact ? 24.0 : 48.0,
                 width: 16.0,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: VerticalDivider(
                     color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
                     thickness: 1.5,
-                    indent: 8.0,
-                    endIndent: 8.0,
+                    indent: compact ? 2.0 : 8.0,
+                    endIndent: compact ? 2.0 : 8.0,
                     width: 1.0,
                   ),
                 ),
@@ -85,8 +86,15 @@ class ChoiceMenuListTile extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 12.0),
                 child: isLoading
-                    ? const CircularProgressIndicator()
-                    : trailing ?? Icon(icon, size: 36.0, color: themeColor),
+                    ? SizedBox(
+                        height: compact ? 32.0 : 36.0,
+                        width: compact ? 32.0 : 36.0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: const CircularProgressIndicator(strokeWidth: 3),
+                        ),
+                      )
+                    : trailing ?? Icon(icon, size: compact ? 32.0 : 36.0, color: themeColor),
               ),
             ],
           ),
@@ -97,7 +105,8 @@ class ChoiceMenuListTile extends ConsumerWidget {
                   await menuCreator();
                 },
           contentPadding: EdgeInsets.zero,
-          minVerticalPadding: 0,
+          minVerticalPadding: compact ? 2.0 : null,
+          minTileHeight: compact ? 50.0 : null,
           visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
         ),
       ),

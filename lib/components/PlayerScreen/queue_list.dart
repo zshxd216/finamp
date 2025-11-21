@@ -198,27 +198,34 @@ class _QueueListState extends ConsumerState<QueueList> {
       // Scrolling to floating headers doesn't work properly, so place the key in a dedicated sliver
       SliverToBoxAdapter(key: queueHeaderKey),
       SliverStickyHeader(
-        header: QueueSectionHeader(
-          source: _source,
-          title: Row(
-            children: [
-              Text(
-                "${AppLocalizations.of(context)!.playingFrom} ",
-                style: const TextStyle(fontWeight: FontWeight.w300),
-              ),
-              Flexible(
-                child: Text(
-                  _source?.name.getLocalized(context) ?? AppLocalizations.of(context)!.unknownName,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                  overflow: TextOverflow.ellipsis,
+        header: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          reverseDuration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOutCubic,
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.antiAlias,
+          child: QueueSectionHeader(
+            source: _source,
+            title: Row(
+              children: [
+                Text(
+                  "${AppLocalizations.of(context)!.playingFrom} ",
+                  style: const TextStyle(fontWeight: FontWeight.w300),
                 ),
-              ),
-            ],
+                Flexible(
+                  child: Text(
+                    _source?.name.getLocalized(context) ?? AppLocalizations.of(context)!.unknownName,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            controls: true,
+            nextUpHeaderKey: nextUpHeaderKey,
+            queueHeaderKey: queueHeaderKey,
+            scrollController: widget.scrollController,
           ),
-          controls: true,
-          nextUpHeaderKey: nextUpHeaderKey,
-          queueHeaderKey: queueHeaderKey,
-          scrollController: widget.scrollController,
         ),
         sliver: QueueTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey),
       ),
@@ -559,16 +566,16 @@ class _NextUpTracksListState extends State<NextUpTracksList> {
   }
 }
 
-class QueueTracksList extends StatefulWidget {
+class QueueTracksList extends ConsumerStatefulWidget {
   final GlobalKey previousTracksHeaderKey;
 
   const QueueTracksList({super.key, required this.previousTracksHeaderKey});
 
   @override
-  State<QueueTracksList> createState() => _QueueTracksListState();
+  ConsumerState<QueueTracksList> createState() => _QueueTracksListState();
 }
 
-class _QueueTracksListState extends State<QueueTracksList> {
+class _QueueTracksListState extends ConsumerState<QueueTracksList> {
   final _queueService = GetIt.instance<QueueService>();
   List<FinampQueueItem>? _queue;
   List<FinampQueueItem>? _nextUp;
@@ -576,7 +583,9 @@ class _QueueTracksListState extends State<QueueTracksList> {
   @override
   Widget build(context) {
     return MenuMask(
-      height: QueueSectionHeader.defaultHeight,
+      height: ref.watch(finampSettingsProvider.radioEnabled)
+          ? QueueSectionHeader.radioActiveHeight
+          : QueueSectionHeader.defaultHeight,
       child: StreamBuilder<FinampQueueInfo?>(
         stream: _queueService.getQueueStream(),
         initialData: _queueService.getQueue(),
@@ -964,8 +973,9 @@ class QueueSectionHeader extends ConsumerWidget {
     this.controls = false,
   });
 
+  static MenuMaskHeight defaultHeight = MenuMaskHeight(132.0);
   // queue header + radio chooser tile height
-  static MenuMaskHeight defaultHeight = MenuMaskHeight(132.0 + 63.0);
+  static MenuMaskHeight radioActiveHeight = MenuMaskHeight(132.0 + 63.0);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1064,22 +1074,37 @@ class QueueSectionHeader extends ConsumerWidget {
                         IconButton(
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
-                          icon: radioActive && info?.loop != FinampLoopMode.one
-                              ? const Icon(TablerIcons.radio)
-                              : switch (info?.loop) {
-                                  FinampLoopMode.none => const Icon(TablerIcons.repeat_off),
-                                  FinampLoopMode.one => const Icon(TablerIcons.repeat_once),
-                                  FinampLoopMode.all => const Icon(TablerIcons.repeat),
-                                  null => const Icon(TablerIcons.repeat_off),
-                                },
-                          color: radioActive || info?.loop != FinampLoopMode.none
-                              ? IconTheme.of(context).color!
-                              : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
+                          icon: switch (info?.loop) {
+                            FinampLoopMode.none => const Icon(TablerIcons.repeat_off),
+                            FinampLoopMode.one => const Icon(TablerIcons.repeat_once),
+                            FinampLoopMode.all => const Icon(TablerIcons.repeat),
+                            null => const Icon(TablerIcons.repeat_off),
+                          },
+                          color: radioActive
+                              ? (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.5)
+                              : (info?.loop != FinampLoopMode.none
+                                    ? IconTheme.of(context).color!
+                                    : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(
+                                        0.85,
+                                      )),
                           onPressed: () {
                             queueService.toggleLoopMode();
                             FeedbackHelper.feedback(FeedbackType.selection);
                           },
-                          onLongPress: radioActive ? () => showRadioMenu(context) : null,
+                          onLongPress: () => showRadioMenu(context),
+                        ),
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 28.0,
+                          icon: radioActive ? const Icon(TablerIcons.radio) : const Icon(TablerIcons.radio_off),
+                          color: radioActive
+                              ? IconTheme.of(context).color!
+                              : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
+                          onPressed: () {
+                            toggleRadio();
+                            FeedbackHelper.feedback(FeedbackType.selection);
+                          },
+                          onLongPress: () => showRadioMenu(context),
                         ),
                       ],
                     );
@@ -1089,39 +1114,23 @@ class QueueSectionHeader extends ConsumerWidget {
           ),
         ),
         // Radio mode
-        ChoiceMenuListTile(
-          title: radioActive
-              ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
-              : AppLocalizations.of(context)!.radioModeDisabledTitle,
-          subtitle: radioActive
-              ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
-              : (radioEnabled
-                    ? AppLocalizations.of(context)!.radioModeDisabledBecauseNotAvailableOfflineSubtitle
-                    : AppLocalizations.of(context)!.radioModeDisabledSubtitle),
-          menuTitle: AppLocalizations.of(context)!.radioModeMenuTitle,
-          menuCreator: () => showRadioMenu(context),
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 6.0, top: 6.0),
-            child: Icon(
-              getRadioModeIcon(radioMode),
-              size: 36.0,
-              color: radioActive ? IconTheme.of(context).color : null,
-            ),
+        if (radioEnabled)
+          ChoiceMenuListTile(
+            title: radioActive
+                ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+                : AppLocalizations.of(context)!.radioModeDisabledTitle,
+            subtitle: radioActive
+                ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
+                : (radioEnabled
+                      ? AppLocalizations.of(context)!.radioModeDisabledBecauseNotAvailableOfflineSubtitle
+                      : AppLocalizations.of(context)!.radioModeDisabledSubtitle),
+            menuCreator: () => showRadioMenu(context),
+            isLoading: ref.watch(radioStateProvider)?.loading ?? false,
+            leading: Icon(TablerIcons.radio, size: 32.0, color: radioActive ? IconTheme.of(context).color : null),
+            state: radioActive,
+            icon: getRadioModeIcon(radioMode),
+            compact: true,
           ),
-          state: radioActive,
-          trailing: Switch.adaptive(
-            value: radioActive,
-            onChanged: (newValue) async {
-              if (newValue && radioEnabled && !radioActive) {
-                // was enabled but not available, so show menu to select mode
-                await showRadioMenu(context);
-                return;
-              }
-              toggleRadio();
-            },
-            padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: -8.0),
-          ),
-        ),
       ],
     );
   }

@@ -170,10 +170,11 @@ class TrackListTile extends ConsumerWidget {
               ? items.indexWhere((element) => element.id == item.id)
               : index ?? 0;
           //!!! limit the amount of tracks to prevent freezing and crashing for many tracks
-          if (items.length > QueueService.maxQueueItems) {
+          if (items.length > QueueService.maxInitialQueueItems) {
             // take 10% of the maximum before the index, and the rest after the index
-            final firstTrackIndex = startingIndex - (QueueService.maxQueueItems ~/ 10);
-            final lastTrackIndex = startingIndex + (QueueService.maxQueueItems - (QueueService.maxQueueItems ~/ 10));
+            final firstTrackIndex = startingIndex - (QueueService.maxInitialQueueItems ~/ 10);
+            final lastTrackIndex =
+                startingIndex + (QueueService.maxInitialQueueItems - (QueueService.maxInitialQueueItems ~/ 10));
             // update the initial index
             if (firstTrackIndex > 0) {
               startingIndex = startingIndex - firstTrackIndex;

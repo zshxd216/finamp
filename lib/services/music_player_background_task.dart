@@ -13,6 +13,7 @@ import 'package:finamp/services/favorite_provider.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -630,9 +631,16 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
       // A full stop will trigger a re-shuffle with an unshuffled first
       // item, so only pause.
       await pause(disableFade: true);
-      // Skipping to zero with empty queue re-triggers queue complete event
-      if (_player.effectiveIndices.isNotEmpty) {
-        await skipToIndex(0);
+      if (FinampSettingsHelper.finampSettings.radioEnabled) {
+        // Skipping to zero with empty queue re-triggers queue complete event
+        // while radio is enable, we should never reach the end of the queue
+        // if we end up reaching it, e.g. because the current radio mode becomes available (offline, etc.), we want to pause without resetting the queue, so that the user can fix the radio issue and resume, if desired.
+        // Seek back a bit to avoid resetting the track to position zero when the queue is updated
+        await seek(playbackPosition - Duration(milliseconds: 500));
+      } else {
+        if (_player.effectiveIndices.isNotEmpty) {
+          await skipToIndex(0);
+        }
       }
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe(e);

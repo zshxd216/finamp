@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
+import 'package:rxdart/rxdart.dart';
 
 final _radioLogger = Logger("Radio");
 final _radioRandom = Random();
@@ -44,18 +45,27 @@ final List<DateTime> _radioCallTimestamps = [];
 const int _radioCallLimit = 4;
 const Duration _radioCallWindow = Duration(seconds: 20);
 
-RadioCacheState? _latestResult;
+final _radioCacheStateStream = BehaviorSubject<RadioCacheState?>.seeded(null);
+final _radioCacheStateStreamProvider = StreamProvider<RadioCacheState?>((ref) {
+  if (_radioCacheStateStream.valueOrNull == null) {
+    invalidateRadioCache();
+  }
+  return _radioCacheStateStream;
+});
+final radioStateProvider = Provider<RadioCacheState?>((ref) {
+  return ref.watch(_radioCacheStateStreamProvider).value;
+});
 
 Future<void> maybeAddRadioTracks() async {
   final queueService = GetIt.instance<QueueService>();
   final currentQueue = queueService.getQueue();
 
-  if (_latestResult == null || !_latestResult!.isStillValid()) {
+  if (_radioCacheStateStream.valueOrNull == null || !_radioCacheStateStream.value!.isStillValid()) {
     invalidateRadioCache();
   }
 
   final radioTracksNeeded = calculateRadioTracksNeeded();
-  if (radioTracksNeeded > 0 && !_latestResult!.generating && !_latestResult!.queueing) {
+  if (radioTracksNeeded > 0 && !_radioCacheStateStream.value!.generating && !_radioCacheStateStream.value!.queueing) {
     // Rate-limit: prevent running if called >= _radioCallLimit times within _radioCallWindow.
     final now = DateTime.now();
     _radioCallTimestamps.removeWhere((t) => now.difference(t) > _radioCallWindow);
@@ -67,8 +77,8 @@ Future<void> maybeAddRadioTracks() async {
     }
     _radioCallTimestamps.add(now);
 
-    var localResult = _latestResult!.copyWith(generating: true);
-    _latestResult = localResult;
+    var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
+    _radioCacheStateStream.add(localResult);
     if (localResult.tracks.length < radioTracksNeeded) {
       localResult.tracks.addAll(await generateRadioTracks(radioTracksNeeded - localResult.tracks.length));
     }
@@ -78,14 +88,15 @@ Future<void> maybeAddRadioTracks() async {
     }, localResult.tracks.length);
     final tracksToAdd = localResult.tracks.take(tracksToAddCount);
     final tracksToCache = localResult.tracks.skip(tracksToAddCount);
+    //TODO there's a deadlock if tracks can't be fetched due to e.g. offline mode. will stay locked/loading indefinitely, even if offline mode is disabled
     // Check if we have been invalidated while generating
-    if (identical(localResult, _latestResult) && localResult.isStillValid()) {
+    if (identical(localResult, _radioCacheStateStream.value) && localResult.isStillValid()) {
       localResult = localResult.copyWith(
         seedItem: localResult.radioMode == RadioMode.continuous ? tracksToAdd.lastOrNull ?? localResult.seedItem : null,
         generating: false,
         queueing: true,
       );
-      _latestResult = localResult;
+      _radioCacheStateStream.add(localResult);
       if (tracksToAdd.isNotEmpty) {
         await queueService.addToQueue(
           items: tracksToAdd.toList(),
@@ -103,8 +114,8 @@ Future<void> maybeAddRadioTracks() async {
         _radioLogger.finer("Added ${tracksToAdd.map((song) => song.name).toList().join(", ")} to the queue for radio.");
       }
       // Check if we have been invalidated while adding tracks to queue
-      if (identical(localResult, _latestResult)) {
-        _latestResult = localResult.copyWith(tracks: tracksToCache.toList(), queueing: false);
+      if (identical(localResult, _radioCacheStateStream.value)) {
+        _radioCacheStateStream.add(localResult.copyWith(tracks: tracksToCache.toList(), queueing: false));
       }
     }
   }
@@ -122,11 +133,11 @@ Future<void> startRadioPlayback(BaseItemDto source) async {
 
   toggleRadio(true);
   invalidateRadioCache();
-  final localResult = _latestResult!.copyWith(
+  final localResult = _radioCacheStateStream.value!.copyWith(
     queueing: true,
-    seedItem: _latestResult!.radioMode == RadioMode.continuous ? tracks.lastOrNull ?? source : source,
+    seedItem: _radioCacheStateStream.value!.radioMode == RadioMode.continuous ? tracks.lastOrNull ?? source : source,
   );
-  _latestResult = localResult;
+  _radioCacheStateStream.add(localResult);
 
   await GetIt.instance<QueueService>().startPlayback(
     items: tracks,
@@ -138,8 +149,8 @@ Future<void> startRadioPlayback(BaseItemDto source) async {
     ),
   );
 
-  if (identical(localResult, _latestResult)) {
-    _latestResult = localResult.copyWith(queueing: false);
+  if (identical(localResult, _radioCacheStateStream.value)) {
+    _radioCacheStateStream.add(localResult.copyWith(queueing: false));
   }
 }
 
@@ -148,11 +159,13 @@ void invalidateRadioCache() {
   final radioState = FinampSettingsHelper.finampSettings.radioEnabled;
   final providers = GetIt.instance<ProviderContainer>();
   _radioLogger.info("Invalidating radio cache.");
-  _latestResult = RadioCacheState(
-    tracks: [],
-    radioMode: radioMode,
-    seedItem: providers.read(getActiveRadioSeedProvider(radioMode)),
-    radioState: radioState,
+  _radioCacheStateStream.add(
+    RadioCacheState(
+      tracks: [],
+      radioMode: radioMode,
+      seedItem: providers.read(getActiveRadioSeedProvider(radioMode)),
+      radioState: radioState,
+    ),
   );
   _radioCallTimestamps.clear();
 }

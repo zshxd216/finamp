@@ -3717,6 +3717,8 @@ class RadioCacheState {
     );
   }
 
+  bool get loading => generating || queueing;
+
   /// Ensures the radio settings used to obtain this result are still the same as the current settings
   bool isStillValid() {
     final currentRadioState = FinampSettingsHelper.finampSettings.radioEnabled;

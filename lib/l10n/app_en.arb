@@ -2720,7 +2720,7 @@
   "@radioModeDisabledSubtitle": {
     "description": "Subtitle displayed in the queue to show that radio mode is disabled."
   },
-  "radioModeDisabledBecauseNotAvailableOfflineSubtitle": "Current mode not available offline. Tap to change.",
+  "radioModeDisabledBecauseNotAvailableOfflineSubtitle": "Current mode not available offline.",
   "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
     "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
   },
