@@ -2751,6 +2751,10 @@
   "@radioModeRandomUnavailableNotDownloadedGeneric": {
     "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
   },
+  "radioNoTracksFound": "Couldn't start radio because no suitable tracks were found.",
+  "@radioNoTracksFound": {
+    "description": "Shown when the user tries to start radio mode but no suitable tracks were found to start the radio with."
+  },
   "autoReloadPrompt": "Reload queue to apply new {type, select, network{network settings} transcoding{transcoding settings} other{settings}}",
   "@autoReloadPrompt": {
     "description": "Prompt shown when the queue needs to be reloaded after changing network settings",

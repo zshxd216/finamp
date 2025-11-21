@@ -329,7 +329,7 @@ class QueueService {
       final excess = queueToSave.fullQueue.length - maxQueueItems;
       int removed = 0;
       queueToSave.previousTracks.removeWhere((e) {
-        if (removed < excess && [QueueItemSourceType.radio, QueueItemSourceType.formerNextUp].contains(e.source.type)) {
+        if (removed < excess && [QueueItemSourceType.radio].contains(e.source.type)) {
           removed++;
           return true;
         }
@@ -1122,9 +1122,13 @@ class QueueService {
     final radioSeed = _providers.read(getActiveRadioSeedProvider(radioMode));
     final radioAvailable = _providers.read(isRadioModeAvailableProvider((radioMode, radioSeed)));
     final radioActive = radioEnabled && radioAvailable;
-    if (radioActive) {
-      // disabled radio mode and reset loop mode
+
+    // if we start toggling loop modes, the radio should be disabled, to prevent it kicking back in when it becomes available
+    if (radioEnabled) {
       toggleRadio(false);
+    }
+    // if the radio was active, we also reset the loop mode
+    if (radioActive) {
       loopMode = FinampLoopMode.none;
       return;
     }
@@ -1132,10 +1136,6 @@ class QueueService {
     if (_loopMode == FinampLoopMode.all) {
       loopMode = FinampLoopMode.one;
     } else if (_loopMode == FinampLoopMode.one) {
-      if (radioAvailable) {
-        // enable radio mode and reset loop mode
-        toggleRadio(true);
-      }
       loopMode = FinampLoopMode.none;
     } else {
       loopMode = FinampLoopMode.all;

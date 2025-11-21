@@ -16,17 +16,15 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 
-Future<void> showRadioMenu(BuildContext context, {BaseItemDto? seedItem, String? subtitle}) async {
-  // await showChoiceMenu(
-  //   context: context,
-  //   routeName: "/radio-menu",
-  //   title: AppLocalizations.of(context)!.radioModeMenuTitle,
-  //   subtitle: subtitle,
-  //   themeItem: seedItem,
-  //   listEntries: getRadioChoices(context, ref),
-  //   // listEntries: [],
-  // );
+Future<void> showRadioMenu(
+  BuildContext context, {
+  BaseItemDto? seedItem,
+  bool startNewQueue = false,
+  String? subtitle,
+}) async {
   final queueService = GetIt.instance<QueueService>();
+
+  assert(startNewQueue == (seedItem != null), "A new queue must be started by (and when) overriding the seed item.");
 
   final List<Widget> menuItems = RadioMode.values
       .map<Widget>((radioModeOption) {
@@ -54,13 +52,14 @@ Future<void> showRadioMenu(BuildContext context, {BaseItemDto? seedItem, String?
               isDisabled: !radioCurrentlyActive,
               isSelected: currentRadioMode == radioModeOption,
               onSelect: () async {
+                FeedbackHelper.feedback(FeedbackType.selection);
+                await queueService.clearRadioTracks();
                 FinampSetters.setRadioMode(radioModeOption);
                 if (seedItem != null) {
                   unawaited(startRadioPlayback(seedItem));
                 } else {
                   toggleRadio(true);
                 }
-                FeedbackHelper.feedback(FeedbackType.selection);
                 await Future<void>.delayed(const Duration(milliseconds: 400));
                 if (context.mounted) {
                   Navigator.of(context).pop();

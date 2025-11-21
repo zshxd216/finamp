@@ -4,8 +4,6 @@ import 'package:logging/logging.dart';
 extension AtContrast on Color {
   static const double _tolerance = 0.05;
 
-  static final _atContrastLogger = Logger("AtContrast");
-
   // Contrast calculations
   double contrastRatio(num a, num b) {
     final ratio = (a + 0.05) / (b + 0.05);
@@ -45,8 +43,6 @@ extension AtContrast on Color {
 
       diff = (contrast.abs() - targetContrast.abs());
     }
-
-    _atContrastLogger.info("Calculated contrast in $steps steps");
 
     return hslColor.toColor();
   }

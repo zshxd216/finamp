@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:finamp/components/PlayerScreen/artist_chip.dart';
+import 'package:finamp/components/global_snackbar.dart';
+import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/models/jellyfin_models.dart';
@@ -70,8 +72,12 @@ Future<void> maybeAddRadioTracks() async {
     if (localResult.tracks.length < radioTracksNeeded) {
       localResult.tracks.addAll(await generateRadioTracks(radioTracksNeeded - localResult.tracks.length));
     }
-    final tracksToAdd = localResult.tracks.slice(0, min(radioTracksNeeded, localResult.tracks.length));
-    final tracksToCache = localResult.tracks.slice(min(radioTracksNeeded, localResult.tracks.length));
+    final tracksToAddCount = min(switch (localResult.radioMode) {
+      RadioMode.albumMix => localResult.tracks.length, // album mix returns full albums, and those should stay together
+      _ => radioTracksNeeded,
+    }, localResult.tracks.length);
+    final tracksToAdd = localResult.tracks.take(tracksToAddCount);
+    final tracksToCache = localResult.tracks.skip(tracksToAddCount);
     // Check if we have been invalidated while generating
     if (identical(localResult, _latestResult) && localResult.isStillValid()) {
       localResult = localResult.copyWith(
@@ -82,7 +88,7 @@ Future<void> maybeAddRadioTracks() async {
       _latestResult = localResult;
       if (tracksToAdd.isNotEmpty) {
         await queueService.addToQueue(
-          items: tracksToAdd,
+          items: tracksToAdd.toList(),
           source: QueueItemSource.rawId(
             type: QueueItemSourceType.radio,
             name: currentQueue.source.item != null
@@ -105,9 +111,14 @@ Future<void> maybeAddRadioTracks() async {
 }
 
 Future<void> startRadioPlayback(BaseItemDto source) async {
-  const radioTracksNeeded = 30;
+  const radioTracksNeededForInitialQueue = 30;
 
-  final tracks = await generateRadioTracks(radioTracksNeeded, overrideSeedItem: source);
+  final tracks = await generateRadioTracks(radioTracksNeededForInitialQueue, overrideSeedItem: source);
+  if (tracks.isEmpty) {
+    _radioLogger.warning("No tracks generated for radio playback from source '${source.name}'. Aborting.");
+    GlobalSnackbar.message((context) => AppLocalizations.of(context)!.radioNoTracksFound);
+    return;
+  }
 
   toggleRadio(true);
   invalidateRadioCache();
@@ -185,7 +196,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
     case RadioMode.reshuffle:
       // Adds tracks in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
       // the order.
-      final reshuffleModeAvailable = providers.read(_isRandomReshuffleRadioModeAvailableProvider(overrideSeedItem));
+      final reshuffleModeAvailable = providers.read(_areRandomAndReshuffleRadioModeAvailableProvider(overrideSeedItem));
       if (!reshuffleModeAvailable) {
         _radioLogger.warning(
           "Reshuffle radio mode selected but the provided item '${overrideSeedItem?.name}' not downloaded or the queue is empty. Returning empty track list.",
@@ -204,7 +215,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
       tracksOut = originalQueue.shuffled();
       break;
     case RadioMode.random:
-      final randomModeAvailable = providers.read(_isRandomReshuffleRadioModeAvailableProvider(overrideSeedItem));
+      final randomModeAvailable = providers.read(_areRandomAndReshuffleRadioModeAvailableProvider(overrideSeedItem));
       if (!randomModeAvailable) {
         _radioLogger.warning(
           "Random radio mode selected but the provided item '${overrideSeedItem?.name}' is not downloaded or the queue is empty. Returning empty track list.",
@@ -290,7 +301,8 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
         );
         break;
       }
-      const filterExtraAlbums = 10; // extra albums in case duplicates are removed
+      // extra albums in case duplicates are removed
+      const filterExtraAlbums = 10;
       // extra albums to randomly choose from to introduce non-determinism
       final randomnessExtraAlbums = 5;
 
@@ -334,13 +346,11 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
           case AlbumMixFallbackModes.artistSingles:
           case AlbumMixFallbackModes.performingArtistAlbums:
             BaseItemDto? artist;
-            List<BaseItemId> artistIds =
-                [
-                      if (fallbackMode != AlbumMixFallbackModes.performingArtistAlbums)
-                        ...?actualSeed.albumArtists?.map((e) => e.id),
-                      ...?actualSeed.artistItems?.map((e) => e.id),
-                    ].nonNulls.toList()
-                    as List<BaseItemId>;
+            List<BaseItemId> artistIds = [];
+            if (fallbackMode != AlbumMixFallbackModes.performingArtistAlbums) {
+              artistIds.addAll(actualSeed.albumArtists?.map((e) => e.id).whereType<BaseItemId>() ?? []);
+            }
+            artistIds.addAll(actualSeed.artistItems?.map((e) => e.id).whereType<BaseItemId>() ?? []);
             while (artist == null && artistIds.isNotEmpty) {
               final artistId = artistIds.removeAt(0);
               artist = await providers.read(artistItemProvider(artistId).future);
@@ -423,14 +433,6 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
                   (album.songCount ?? album.childCount ?? 0) > 1),
             )
             .toList();
-
-        if (filteredSimilarAlbums.isEmpty && fallbackMode == AlbumMixFallbackModes.artistAlbums) {
-          _radioLogger.warning(
-            "No suitable similar full albums found for album mix radio from artist '${actualSeed.albumArtists ?? actualSeed.artistItems?.first.name}'. Fetching singles.",
-          );
-          fallbackMode = AlbumMixFallbackModes.artistSingles;
-          continue;
-        }
 
         if (filteredSimilarAlbums.isEmpty) {
           switch (fallbackMode) {
@@ -515,12 +517,24 @@ Future<List<jellyfin_models.BaseItemDto>> _getSimilarTracks({
       );
       // instant mixes always return the track itself as the first item, filter it out
       filteredSample.removeRange(0, offsetExtraTracks);
+      final originalTrackCount = filteredSample.length;
       // filter out duplicate tracks, including upcoming ones
       final recentlyPlayedIds = currentQueue.fullQueue.reversed
           .take(repetitionThresholdTracks)
           .map((item) => item.baseItem!.id)
           .toSet();
       filteredSample.removeWhere((item) => recentlyPlayedIds.contains(item.id));
+      final filteredOutTrackCount = originalTrackCount - filteredSample.length;
+      // we requested more tracks in case of duplicates, but if those are not needed we want to stay as similar as possible, since we already have some overhead for randomness
+      final trimAmount = min(
+        min(
+          filteredOutTrackCount,
+          // ensure we only trim up to [filterExtraTracks] to not remove too many candidates
+          filterExtraTracks,
+        ),
+        filteredSample.length - minNumTracks,
+      );
+      filteredSample.removeRange(filteredSample.length - trimAmount, filteredSample.length);
       _radioLogger.finer(
         "Filtered candidates (${filteredSample.length}): ${filteredSample.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
       );
@@ -552,12 +566,12 @@ final isRadioModeAvailableProvider = AutoDisposeProviderFamily<bool, (RadioMode,
   final source = arguments.$2;
 
   final notOffline = !ref.watch(finampSettingsProvider.isOffline);
-  final randomReshuffleModeAvailable = ref.watch(_isRandomReshuffleRadioModeAvailableProvider(source));
+  final randomAndReshuffleModeAvailable = ref.watch(_areRandomAndReshuffleRadioModeAvailableProvider(source));
   final albumMixModeAvailable = ref.watch(_isAlbumMixRadioModeAvailableProvider(source));
 
   final currentModeAvailable = switch (radioMode) {
-    RadioMode.reshuffle => randomReshuffleModeAvailable,
-    RadioMode.random => randomReshuffleModeAvailable,
+    RadioMode.reshuffle => randomAndReshuffleModeAvailable,
+    RadioMode.random => randomAndReshuffleModeAvailable,
     RadioMode.similar => notOffline && source != null,
     RadioMode.continuous => notOffline && source != null,
     RadioMode.albumMix => albumMixModeAvailable,
@@ -565,7 +579,10 @@ final isRadioModeAvailableProvider = AutoDisposeProviderFamily<bool, (RadioMode,
   return currentModeAvailable;
 });
 
-final _isRandomReshuffleRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
+final _areRandomAndReshuffleRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((
+  ref,
+  BaseItemDto? baseItem,
+) {
   if (baseItem != null) {
     final downloadsService = GetIt.instance<DownloadsService>();
 
