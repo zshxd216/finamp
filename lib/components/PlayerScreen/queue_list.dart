@@ -705,11 +705,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
           const horizontalPadding = 8.0;
           const albumImageSize = 70.0;
 
-          final primaryTextColor = ColorScheme.of(context).onPrimary.atContrast(
-            ref.watch(finampSettingsProvider.useHighContrastColors) ? 8.0 : 4.5,
-            ColorScheme.of(context).primary,
-            ref.watch(brightnessProvider) == Brightness.dark,
-          );
+          final primaryTextColor = Colors.white;
 
           return SliverAppBar(
             pinned: true,
