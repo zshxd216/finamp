@@ -257,15 +257,11 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
         menuHeight = closedHeight;
     }
 
-    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
+    final nextUpNotEmpty = ref.watch(QueueService.queueProvider)?.nextUp.isNotEmpty ?? false;
     final preferNextUp = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
-    final queueService = GetIt.instance<QueueService>();
-    final queueSource = queueService.getQueue().source.item;
-    final radioSeedItem = getRadioSeedItem(queueSource);
-
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
-    final radioActive = ref.watch(isRadioCurrentlyActiveProvider(radioSeedItem));
+    final radioActive = ref.watch(isRadioCurrentlyActiveProvider);
 
     return [
       if (widget.showPlaybackControls) ...[
@@ -358,7 +354,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 onPressed: () async {
                   _queueService.toggleLoopMode();
                 },
-                onLongPress: radioActive ? () => showRadioMenu(context, seedItem: widget.item) : null,
+                onLongPress: radioActive ? () => showRadioMenu(context) : null,
                 label: radioActive
                     ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
                     : loopModeTooltips[playbackBehavior.loop]!,

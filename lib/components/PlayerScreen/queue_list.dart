@@ -7,14 +7,14 @@ import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
 import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
-import 'package:finamp/extensions/color_extensions.dart';
-import 'package:finamp/menus/choice_menu.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/components/themed_bottom_sheet.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
+import 'package:finamp/menus/choice_menu.dart';
 import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -970,12 +970,10 @@ class QueueSectionHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
-    final queueSource = queueService.getQueue().source.item;
-    final radioSeedItem = getRadioSeedItem(queueSource);
 
     final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
-    final radioActive = ref.watch(isRadioCurrentlyActiveProvider(radioSeedItem));
+    final radioActive = ref.watch(isRadioCurrentlyActiveProvider);
 
     return Column(
       children: [

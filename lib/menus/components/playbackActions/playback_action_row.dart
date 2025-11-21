@@ -1,10 +1,10 @@
+import 'package:finamp/menus/components/playbackActions/playback_action_page_indicator.dart';
 import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:finamp/menus/components/playbackActions/playback_action_page_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +34,7 @@ class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
 
   @override
   Widget build(BuildContext context) {
-    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
+    final nextUpNotEmpty = ref.watch(QueueService.queueProvider)?.nextUp.isNotEmpty ?? false;
     final lastUsedPlaybackActionRowPage = ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPage);
     final lastUsedPlaybackActionRowPageIndex = lastUsedPlaybackActionRowPage.pageIndexFor(
       nextUpIsEmpty: !nextUpNotEmpty,
@@ -78,7 +78,7 @@ class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
                   ? PlaybackActionRowPage.playNext
                   : PlaybackActionRowPage.appendNext;
 
-              final pageMap = ref.read(QueueService.queueInfoStreamProvider).value?.nextUp.isEmpty ?? true
+              final pageMap = ref.read(QueueService.queueProvider)?.nextUp.isEmpty ?? true
                   ? {0: PlaybackActionRowPage.newQueue, 1: nextUpDefault, 2: PlaybackActionRowPage.playLast}
                   : {
                       0: PlaybackActionRowPage.newQueue,

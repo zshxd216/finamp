@@ -12,7 +12,7 @@ import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:isar/isar.dart';
@@ -3681,48 +3681,50 @@ enum RadioMode {
   albumMix,
 }
 
-class RadioResult {
-  RadioResult({required this.tracks, required this.radioMode, required this.seedItem, required this.radioState});
+class RadioCacheState {
+  RadioCacheState({
+    required this.tracks,
+    required this.radioMode,
+    required this.seedItem,
+    required this.radioState,
+    this.generating = false,
+    this.queueing = false,
+  });
 
   List<BaseItemDto> tracks;
   final RadioMode radioMode;
   final BaseItemDto? seedItem;
   final bool radioState;
+  final bool generating;
+  final bool queueing;
 
-  RadioResult withTracks(List<BaseItemDto> newTracks) {
-    return copyWith(tracks: newTracks);
-  }
-
-  RadioResult copyWith({List<BaseItemDto>? tracks, RadioMode? radioMode, BaseItemDto? seedItem, bool? radioState}) {
-    return RadioResult(
+  RadioCacheState copyWith({
+    List<BaseItemDto>? tracks,
+    RadioMode? radioMode,
+    BaseItemDto? seedItem,
+    BaseItemDto? previousSeedItem,
+    bool? radioState,
+    bool? generating,
+    bool? queueing,
+  }) {
+    return RadioCacheState(
       tracks: tracks ?? this.tracks,
       radioMode: radioMode ?? this.radioMode,
       seedItem: seedItem ?? this.seedItem,
       radioState: radioState ?? this.radioState,
+      generating: generating ?? this.generating,
+      queueing: queueing ?? this.queueing,
     );
   }
 
-  @override
-  int get hashCode {
-    return Object.hash(tracks.hashCode, radioMode.hashCode, seedItem.hashCode, radioState.hashCode);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is RadioResult &&
-        other.tracks.equals(tracks) &&
-        other.radioMode == radioMode &&
-        other.seedItem == seedItem &&
-        other.radioState == radioState;
-  }
-
   /// Ensures the radio settings used to obtain this result are still the same as the current settings
-  bool isStillValid({BaseItemDto? forSeed}) {
+  bool isStillValid() {
     final currentRadioState = FinampSettingsHelper.finampSettings.radioEnabled;
     final currentRadioMode = FinampSettingsHelper.finampSettings.radioMode;
-    final currentSeedItem = getRadioSeedItem(forSeed);
-    return currentRadioState == radioState && currentRadioMode == radioMode && currentSeedItem == seedItem;
+    final currentSeedItem = GetIt.instance<ProviderContainer>().read(getActiveRadioSeedProvider(currentRadioMode));
+    return currentRadioState == radioState &&
+        currentRadioMode == radioMode &&
+        // Ignore incorrect seeds while the queue is actively being manipulated by the radio
+        (currentSeedItem == seedItem || queueing);
   }
 }

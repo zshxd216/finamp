@@ -4,8 +4,8 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:finamp/components/PlayerScreen/artist_chip.dart';
 import 'package:finamp/models/finamp_models.dart';
-import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/artist_content_provider.dart';
 import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
@@ -18,7 +18,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
-import 'package:mutex/mutex.dart';
 
 final _radioLogger = Logger("Radio");
 final _radioRandom = Random();
@@ -39,34 +38,51 @@ int calculateRadioTracksNeeded() {
   return 0;
 }
 
-final Mutex _radioGenerationLock = Mutex();
-
 final List<DateTime> _radioCallTimestamps = [];
-const int _radioCallLimit = 8;
+const int _radioCallLimit = 4;
 const Duration _radioCallWindow = Duration(seconds: 20);
+
+RadioCacheState? _latestResult;
 
 Future<void> maybeAddRadioTracks() async {
   final queueService = GetIt.instance<QueueService>();
   final currentQueue = queueService.getQueue();
 
-  // Rate-limit: prevent running if called >= _radioCallLimit times within _radioCallWindow.
-  final now = DateTime.now();
-  _radioCallTimestamps.removeWhere((t) => now.difference(t) > _radioCallWindow);
-  if (_radioCallTimestamps.length >= _radioCallLimit) {
-    _radioLogger.warning(
-      "maybeAddRadioTracks suppressed: called ${_radioCallTimestamps.length} times within the last ${_radioCallWindow.inSeconds}s.",
-    );
-    return;
+  if (_latestResult == null || !_latestResult!.isStillValid()) {
+    invalidateRadioCache();
   }
-  _radioCallTimestamps.add(now);
 
   final radioTracksNeeded = calculateRadioTracksNeeded();
-  if (radioTracksNeeded > 0 && !_radioGenerationLock.isLocked) {
-    await _radioGenerationLock.protect(() async {
-      RadioResult result = await generateRadioTracks(radioTracksNeeded);
-      if (result.tracks.isNotEmpty && result.isStillValid()) {
+  if (radioTracksNeeded > 0 && !_latestResult!.generating && !_latestResult!.queueing) {
+    // Rate-limit: prevent running if called >= _radioCallLimit times within _radioCallWindow.
+    final now = DateTime.now();
+    _radioCallTimestamps.removeWhere((t) => now.difference(t) > _radioCallWindow);
+    if (_radioCallTimestamps.length >= _radioCallLimit) {
+      _radioLogger.warning(
+        "maybeAddRadioTracks suppressed: called ${_radioCallTimestamps.length} times within the last ${_radioCallWindow.inSeconds}s.",
+      );
+      return;
+    }
+    _radioCallTimestamps.add(now);
+
+    var localResult = _latestResult!.copyWith(generating: true);
+    _latestResult = localResult;
+    if (localResult.tracks.length < radioTracksNeeded) {
+      localResult.tracks.addAll(await generateRadioTracks(radioTracksNeeded - localResult.tracks.length));
+    }
+    final tracksToAdd = localResult.tracks.slice(0, min(radioTracksNeeded, localResult.tracks.length));
+    final tracksToCache = localResult.tracks.slice(min(radioTracksNeeded, localResult.tracks.length));
+    // Check if we have been invalidated while generating
+    if (identical(localResult, _latestResult) && localResult.isStillValid()) {
+      localResult = localResult.copyWith(
+        seedItem: localResult.radioMode == RadioMode.continuous ? tracksToAdd.lastOrNull ?? localResult.seedItem : null,
+        generating: false,
+        queueing: true,
+      );
+      _latestResult = localResult;
+      if (tracksToAdd.isNotEmpty) {
         await queueService.addToQueue(
-          items: result.tracks,
+          items: tracksToAdd,
           source: QueueItemSource.rawId(
             type: QueueItemSourceType.radio,
             name: currentQueue.source.item != null
@@ -78,17 +94,57 @@ Future<void> maybeAddRadioTracks() async {
             id: currentQueue.source.item?.id.raw ?? currentQueue.source.id,
           ),
         );
-        _radioLogger.finer(
-          "Added ${result.tracks.map((song) => song.name).toList().join(", ")} to the queue for radio.",
-        );
+        _radioLogger.finer("Added ${tracksToAdd.map((song) => song.name).toList().join(", ")} to the queue for radio.");
       }
-    });
+      // Check if we have been invalidated while adding tracks to queue
+      if (identical(localResult, _latestResult)) {
+        _latestResult = localResult.copyWith(tracks: tracksToCache.toList(), queueing: false);
+      }
+    }
   }
 }
 
-//TODO this queue should eventually be moved into the QueueService as part of the virtual queue / treadmill
-List<jellyfin_models.BaseItemDto> _surplusTracksQueue = [];
-RadioMode? _lastUsedRadioMode;
+Future<void> startRadioPlayback(BaseItemDto source) async {
+  const radioTracksNeeded = 30;
+
+  final tracks = await generateRadioTracks(radioTracksNeeded, overrideSeedItem: source);
+
+  toggleRadio(true);
+  invalidateRadioCache();
+  final localResult = _latestResult!.copyWith(
+    queueing: true,
+    seedItem: _latestResult!.radioMode == RadioMode.continuous ? tracks.lastOrNull ?? source : source,
+  );
+  _latestResult = localResult;
+
+  await GetIt.instance<QueueService>().startPlayback(
+    items: tracks,
+    source: QueueItemSource.fromBaseItem(source),
+    customTrackSource: QueueItemSource(
+      type: QueueItemSourceType.radio,
+      name: QueueItemSourceName(type: QueueItemSourceNameType.radio, localizationParameter: source.name ?? ""),
+      id: source.id,
+    ),
+  );
+
+  if (identical(localResult, _latestResult)) {
+    _latestResult = localResult.copyWith(queueing: false);
+  }
+}
+
+void invalidateRadioCache() {
+  final radioMode = FinampSettingsHelper.finampSettings.radioMode;
+  final radioState = FinampSettingsHelper.finampSettings.radioEnabled;
+  final providers = GetIt.instance<ProviderContainer>();
+  _radioLogger.info("Invalidating radio cache.");
+  _latestResult = RadioCacheState(
+    tracks: [],
+    radioMode: radioMode,
+    seedItem: providers.read(getActiveRadioSeedProvider(radioMode)),
+    radioState: radioState,
+  );
+  _radioCallTimestamps.clear();
+}
 
 bool toggleRadio([bool? enable]) {
   final queueService = GetIt.instance<QueueService>();
@@ -96,198 +152,143 @@ bool toggleRadio([bool? enable]) {
   final newState = enable ?? !currentlyEnabled;
   FinampSetters.setRadioEnabled(newState);
   if (!newState) {
-    clearSurplusRadioTracks();
     unawaited(queueService.clearRadioTracks());
   }
   return newState;
 }
 
-void clearSurplusRadioTracks() {
-  _surplusTracksQueue.clear();
-  _lastUsedRadioMode = null;
-}
-
 enum AlbumMixFallbackModes { similarSingles, artistAlbums, artistSingles, performingArtistAlbums, libraryAlbums }
 
 // Generates tracks for the radio. Provide item to generate the initial radio tracks.
-Future<RadioResult> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseItemDto? overrideSeedItem}) async {
-  final radioMode = FinampSettingsHelper.finampSettings.radioMode;
-  final radioState = FinampSettingsHelper.finampSettings.radioEnabled;
-  final result = RadioResult(
-    tracks: [],
-    radioMode: radioMode,
-    seedItem: getRadioSeedItem(overrideSeedItem),
-    radioState: radioState,
-  );
-
-  if (FinampSettingsHelper.finampSettings.radioMode != _lastUsedRadioMode) {
-    // clear surplus tracks if the mode changed
-    _surplusTracksQueue.clear();
-    _lastUsedRadioMode = FinampSettingsHelper.finampSettings.radioMode;
-  } else if (minNumTracks <= _surplusTracksQueue.length) {
-    final tracksToReturn = _surplusTracksQueue.take(minNumTracks).toList();
-    _surplusTracksQueue.removeRange(0, minNumTracks);
-    return result.withTracks(tracksToReturn);
-  }
-
-  final providers = GetIt.instance<ProviderContainer>();
+Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseItemDto? overrideSeedItem}) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final downloadsService = GetIt.instance<DownloadsService>();
   final finampUserHelper = GetIt.instance<FinampUserHelper>();
   final queueService = GetIt.instance<QueueService>();
+  final providers = GetIt.instance<ProviderContainer>();
   final currentQueue = queueService.getQueue();
-  final actualSeed = getRadioSeedItem(overrideSeedItem);
   List<jellyfin_models.BaseItemDto> tracksOut = [];
 
   assert(
-    currentQueue.fullQueue.isEmpty ? overrideSeedItem != null : overrideSeedItem == null,
-    "overrideSeedItem must be provided if the queue is empty, and must not be provided if a queue exists.",
+    currentQueue.fullQueue.isNotEmpty || overrideSeedItem != null,
+    "overrideSeedItem must be provided if the queue is empty.",
   );
+
+  final actualSeed =
+      overrideSeedItem ?? providers.read(getActiveRadioSeedProvider(FinampSettingsHelper.finampSettings.radioMode));
 
   _radioLogger.finer(
-    "Generating $minNumTracks radio tracks from item '${actualSeed?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
+    "Generating $minNumTracks radio tracks from ${overrideSeedItem == null ? "queue" : "override"} item '${actualSeed?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
   );
 
-  // Items originally in the currently playing source (or manually added)
-
-  final originalQueue = actualSeed != null
-      ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
-      : currentQueue.fullQueue
-            .whereNot((e) => e.source.type == QueueItemSourceType.radio)
-            .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
-            .map((e) => e.baseItem)
-            .nonNulls
-            .toList();
   switch (FinampSettingsHelper.finampSettings.radioMode) {
     case RadioMode.reshuffle:
       // Adds tracks in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
       // the order.
-      // Tracks added to the queue manually will throw things off, though!
-      final reshuffledQueue = originalQueue.shuffled();
-      tracksOut.addAll(reshuffledQueue.take(minNumTracks));
-      _surplusTracksQueue.addAll(reshuffledQueue.skip(minNumTracks));
-      break;
-    case RadioMode.random:
-      final randomModeAvailable = providers.read(isRandomRadioModeAvailableProvider(actualSeed));
-      if (!randomModeAvailable) {
+      final reshuffleModeAvailable = providers.read(_isRandomReshuffleRadioModeAvailableProvider(overrideSeedItem));
+      if (!reshuffleModeAvailable) {
         _radioLogger.warning(
-          "Random radio mode selected but the provided item '${actualSeed?.name}' is not downloaded. Returning empty track list.",
+          "Reshuffle radio mode selected but the provided item '${overrideSeedItem?.name}' not downloaded or the queue is empty. Returning empty track list.",
         );
         break;
       }
-      tracksOut.addAll(
-        List.generate(minNumTracks, (index) {
-          // Pick a random item to add, duplicates possible!
-          int nextIndex = _radioRandom.nextInt(originalQueue.length);
-          return originalQueue[nextIndex];
-        }),
-      );
-      // add at least 25 surplus tracks to the queue
-      _surplusTracksQueue.addAll(
-        List.generate(max(25, originalQueue.length), (index) {
-          int nextIndex = _radioRandom.nextInt(originalQueue.length);
-          return originalQueue[nextIndex];
-        }),
-      );
-
+      // Items originally in the currently playing source (or manually added)
+      final originalQueue = overrideSeedItem != null
+          ? (await loadChildTracksFromBaseItem(baseItem: overrideSeedItem)).map((item) => item).toList()
+          : currentQueue.fullQueue
+                .whereNot((e) => e.source.type == QueueItemSourceType.radio)
+                .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
+                .map((e) => e.baseItem)
+                .nonNulls
+                .toList();
+      tracksOut = originalQueue.shuffled();
+      break;
+    case RadioMode.random:
+      final randomModeAvailable = providers.read(_isRandomReshuffleRadioModeAvailableProvider(overrideSeedItem));
+      if (!randomModeAvailable) {
+        _radioLogger.warning(
+          "Random radio mode selected but the provided item '${overrideSeedItem?.name}' is not downloaded or the queue is empty. Returning empty track list.",
+        );
+        break;
+      }
+      // Items originally in the currently playing source (or manually added)
+      final originalQueue = overrideSeedItem != null
+          ? (await loadChildTracksFromBaseItem(baseItem: overrideSeedItem)).map((item) => item).toList()
+          : currentQueue.fullQueue
+                .whereNot((e) => e.source.type == QueueItemSourceType.radio)
+                .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
+                .map((e) => e.baseItem)
+                .nonNulls
+                .toList();
+      tracksOut = List.generate(max(25, minNumTracks), (index) {
+        // Pick a random item to add, duplicates possible!
+        int nextIndex = _radioRandom.nextInt(originalQueue.length);
+        return originalQueue[nextIndex];
+      });
       break;
     case RadioMode.similar:
       if (actualSeed == null) {
         _radioLogger.warning("No seed item available for radio generation. Aborting.");
-        return result;
+        break;
       }
-      const offsetExtraTracks = 1; // extra track to exclude the current track
-      const filterExtraTracks = 10; // extra tracks in case duplicates are removed
       // const repetitionThresholdTracks = 50; // filter out X recent tracks
       // filter out ALL duplicates, otherwise things will start repeating too often since the base item never changes
       final repetitionThresholdTracks = currentQueue.fullQueue.length;
       // extra tracks to randomly choose from to introduce non-determinism
       final randomnessExtraTracks = 8 + (minNumTracks * 1.5).ceil();
-      List<jellyfin_models.BaseItemDto> fullSample = [];
-      (tracksOut, fullSample) = await _getSimilarTracks(
+      tracksOut = await _getSimilarTracks(
         referenceItem: actualSeed,
         minNumTracks: minNumTracks,
-        offsetExtraTracks: offsetExtraTracks,
-        filterExtraTracks: filterExtraTracks,
         randomnessExtraTracks: randomnessExtraTracks,
+        attempts: 15,
         repetitionThresholdTracks: repetitionThresholdTracks,
       );
-      int attempt = 0;
-      while (tracksOut.length < minNumTracks) {
-        attempt++;
-        final additionalTracks = attempt * 10;
-        _radioLogger.warning("No similar tracks found. Retrying with $additionalTracks more extra tracks.");
-        (tracksOut, fullSample) = await _getSimilarTracks(
-          referenceItem: actualSeed,
-          minNumTracks: minNumTracks,
-          offsetExtraTracks: offsetExtraTracks,
-          // we add the extra tracks as a filter instead of an offset, so that newly-added similar tracks are included as soon as possible
-          filterExtraTracks: filterExtraTracks + additionalTracks,
-          randomnessExtraTracks: randomnessExtraTracks,
-          repetitionThresholdTracks: repetitionThresholdTracks,
-        );
-      }
-      _surplusTracksQueue.addAll(fullSample.skip(minNumTracks));
       break;
     case RadioMode.continuous:
       if (actualSeed == null) {
         _radioLogger.warning("No seed item available for radio generation. Aborting.");
-        return result;
+        break;
       }
       // like [RadioMode.similar], but based on the last track in the queue, not the original source
-      const offsetExtraTracks = 1; // extra track to exclude the current track
-      const filterExtraTracks = 10; // extra tracks in case duplicates are removed
-      // const repetitionThresholdTracks = 50; // filter out X recent tracks
       // filter out recent tracks within 90 minutes
       final repetitionThresholdTracks = currentQueue.getTrackCountWithinDuration(Duration(minutes: 90));
       // extra tracks to randomly choose from to introduce non-determinism
       final randomnessExtraTracks = 5 + (minNumTracks * 1.5).ceil();
 
+      tracksOut = [actualSeed];
       // we fetch tracks one-by-one to be truly continuous from the start. for that we use the while loop and only ever fetch a single track at a time.
-      (tracksOut, _) = await _getSimilarTracks(
-        // use the last track as the reference so that the radio flows better
-        // if we use the current tracks it always alternates between similar tracks because there's a delay of [minUpcomingRadioTracks] before the related track is played
-        // [seedItem] is only used for generating tracks if there's no queue yet
-        referenceItem: currentQueue.fullQueue.isEmpty
-            ? overrideSeedItem ?? actualSeed
-            : currentQueue.fullQueue.last.baseItem!,
-        minNumTracks: 1,
-        offsetExtraTracks: offsetExtraTracks,
-        filterExtraTracks: filterExtraTracks,
-        randomnessExtraTracks: randomnessExtraTracks,
-        repetitionThresholdTracks: repetitionThresholdTracks,
-      );
-      int attempt = 0;
-      int lastTracksOutLength = tracksOut.length;
-      while (tracksOut.length < minNumTracks) {
-        if (attempt > 15) {
-          // prevent infinite loops
-          break;
-        }
-        // only increment attempts if no additional track was discovered
-        if (lastTracksOutLength == tracksOut.length) {
-          attempt++;
-        }
-        final additionalTracks = attempt * 10;
-        _radioLogger.warning("No similar tracks found. Retrying with $additionalTracks more extra tracks.");
-        List<jellyfin_models.BaseItemDto> tracksOutSample = [];
-        (tracksOutSample, _) = await _getSimilarTracks(
-          referenceItem: actualSeed,
+      while (tracksOut.length < minNumTracks + 1) {
+        final tracksOutSample = await _getSimilarTracks(
+          // use the last track as the reference so that the radio flows better
+          // if we use the current tracks it always alternates between similar tracks because there's a delay of [minUpcomingRadioTracks] before the related track is played
+          // [seedItem] is only used for generating tracks if there's no queue yet
+          referenceItem: tracksOut.last,
           minNumTracks: 1,
-          offsetExtraTracks: offsetExtraTracks,
-          // we add the extra tracks as a filter instead of an offset, so that newly-added similar tracks are included as soon as possible
-          filterExtraTracks: filterExtraTracks + additionalTracks,
+          attempts: 10,
           randomnessExtraTracks: randomnessExtraTracks,
           repetitionThresholdTracks: repetitionThresholdTracks,
         );
-        tracksOut += tracksOutSample;
+        if (tracksOutSample.isEmpty) {
+          _radioLogger.warning("Failed to find similar track to ${tracksOut.last.name}. Aborting.");
+          break;
+        } else {
+          tracksOut.add(tracksOutSample.first);
+        }
       }
-      // we don't add anything to the surplus queue, since we need to fetch tracks one-by-one anyway
+      // remove actualSeed from list start
+      tracksOut.removeAt(0);
       break;
     case RadioMode.albumMix:
       if (actualSeed == null) {
         _radioLogger.warning("No seed item available for radio generation. Aborting.");
-        return result;
+        break;
+      }
+      final seedId = getAlbumMixRadioModeSeedId(actualSeed);
+      if (seedId == null) {
+        _radioLogger.warning(
+          "Album mix radio mode selected but the provided item '${actualSeed.name}' is not suitable for album mix radio. Returning empty track list.",
+        );
+        break;
       }
       const filterExtraAlbums = 10; // extra albums in case duplicates are removed
       // extra albums to randomly choose from to introduce non-determinism
@@ -324,14 +325,6 @@ Future<RadioResult> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseI
         attempt++;
         if (attempt > 1) {
           _radioLogger.warning("No similar albums found. Retrying with $additionalAlbums more extra albums.");
-        }
-
-        final seedId = getAlbumMixRadioModeSeedId(actualSeed);
-        if (seedId == null) {
-          _radioLogger.warning(
-            "Album mix radio mode selected but the provided item '${actualSeed.name}' is not suitable for album mix radio. Returning empty track list.",
-          );
-          break;
         }
 
         List<jellyfin_models.BaseItemDto> similarAlbums;
@@ -485,58 +478,73 @@ Future<RadioResult> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseI
   _radioLogger.finer(
     "Selected ${tracksOut.length} tracks for '${FinampSettingsHelper.finampSettings.radioMode.name}' mode: ${tracksOut.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
   );
-  return result.withTracks(tracksOut);
+  return tracksOut;
 }
 
-Future<(List<jellyfin_models.BaseItemDto>, List<jellyfin_models.BaseItemDto>)> _getSimilarTracks({
+Future<List<jellyfin_models.BaseItemDto>> _getSimilarTracks({
   required jellyfin_models.BaseItemDto referenceItem,
   required int minNumTracks,
-  required int offsetExtraTracks,
-  required int filterExtraTracks,
   required int randomnessExtraTracks,
   required int repetitionThresholdTracks,
+  required int attempts,
 }) async {
+  const offsetExtraTracks = 1; // extra track to exclude the current track
+  const filterExtraTracks = 10; // extra tracks in case duplicates are removed
+
   assert(!FinampSettingsHelper.finampSettings.isOffline, "Similar tracks not available while offline");
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final queueService = GetIt.instance<QueueService>();
   final currentQueue = queueService.getQueue();
-  List<jellyfin_models.BaseItemDto> fullSample = [];
-  List<jellyfin_models.BaseItemDto> itemsOut = [];
-  final items = await jellyfinApiHelper.getInstantMix(
-    referenceItem,
-    limit: minNumTracks + offsetExtraTracks + filterExtraTracks + randomnessExtraTracks,
-  );
-  if (items != null) {
-    fullSample.addAll(items);
-    _radioLogger.finer(
-      "Fetched ${fullSample.length} similar radio candidates: ${fullSample.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
+  int attempt = 0;
+  while (attempt < attempts) {
+    final attemptExtraTracks = attempt * 10;
+    if (attempt > 0) {
+      _radioLogger.warning("No similar tracks found. Retrying with $attemptExtraTracks more extra tracks.");
+    }
+    attempt++;
+
+    final items = await jellyfinApiHelper.getInstantMix(
+      referenceItem,
+      limit: minNumTracks + offsetExtraTracks + filterExtraTracks + randomnessExtraTracks + attemptExtraTracks,
     );
-    // instant mixes always return the track itself as the first item, filter it out
-    fullSample.removeRange(0, offsetExtraTracks);
-    // filter out duplicate tracks, including upcoming ones
-    final recentlyPlayedIds = currentQueue.fullQueue.reversed
-        .take(repetitionThresholdTracks)
-        .map((item) => item.baseItem!.id)
-        .toSet();
-    fullSample.removeWhere((item) => recentlyPlayedIds.contains(item.id));
-    _radioLogger.finer(
-      "Filtered candidates (${fullSample.length}): ${fullSample.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
-    );
-    // pick a random subset of tracks to ensure non-determinism
-    fullSample = fullSample.shuffled();
-    itemsOut = fullSample.take(minNumTracks).toList();
+    List<jellyfin_models.BaseItemDto> filteredSample = [];
+    if (items != null) {
+      filteredSample.addAll(items);
+      _radioLogger.finer(
+        "Fetched ${filteredSample.length} similar radio candidates: ${filteredSample.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
+      );
+      // instant mixes always return the track itself as the first item, filter it out
+      filteredSample.removeRange(0, offsetExtraTracks);
+      // filter out duplicate tracks, including upcoming ones
+      final recentlyPlayedIds = currentQueue.fullQueue.reversed
+          .take(repetitionThresholdTracks)
+          .map((item) => item.baseItem!.id)
+          .toSet();
+      filteredSample.removeWhere((item) => recentlyPlayedIds.contains(item.id));
+      _radioLogger.finer(
+        "Filtered candidates (${filteredSample.length}): ${filteredSample.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
+      );
+      // pick a random subset of tracks to ensure non-determinism
+      filteredSample = filteredSample.shuffled();
+    }
+    if (filteredSample.length >= minNumTracks) {
+      return filteredSample;
+    }
   }
-  return (itemsOut, fullSample);
+  _radioLogger.warning("No similar tracks found in ${attempts + 1} attempts.  Aborting.");
+  return [];
 }
 
-final isRadioCurrentlyActiveProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? source) {
+final isRadioCurrentlyActiveProvider = Provider<bool>((ref) {
   final radioMode = ref.watch(finampSettingsProvider.radioMode);
-  final radioModeAvailable = ref.watch(isRadioModeAvailableProvider((radioMode, source)));
+  final radioModeAvailable = ref.watch(
+    isRadioModeAvailableProvider((radioMode, ref.watch(getActiveRadioSeedProvider(radioMode)))),
+  );
   final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
   return radioEnabled && radioModeAvailable;
 });
 
-final isRadioModeAvailableProvider = ProviderFamily<bool, (RadioMode, BaseItemDto?)>((
+final isRadioModeAvailableProvider = AutoDisposeProviderFamily<bool, (RadioMode, BaseItemDto?)>((
   ref,
   (RadioMode radioMode, BaseItemDto? source) arguments,
 ) {
@@ -544,35 +552,36 @@ final isRadioModeAvailableProvider = ProviderFamily<bool, (RadioMode, BaseItemDt
   final source = arguments.$2;
 
   final notOffline = !ref.watch(finampSettingsProvider.isOffline);
-  final randomModeAvailable = ref.watch(isRandomRadioModeAvailableProvider(source));
-  final albumMixModeAvailable = ref.watch(isAlbumMixRadioModeAvailableProvider(source));
+  final randomReshuffleModeAvailable = ref.watch(_isRandomReshuffleRadioModeAvailableProvider(source));
+  final albumMixModeAvailable = ref.watch(_isAlbumMixRadioModeAvailableProvider(source));
 
   final currentModeAvailable = switch (radioMode) {
-    RadioMode.reshuffle => true,
-    RadioMode.random => randomModeAvailable,
-    RadioMode.similar => notOffline,
-    RadioMode.continuous => notOffline,
+    RadioMode.reshuffle => randomReshuffleModeAvailable,
+    RadioMode.random => randomReshuffleModeAvailable,
+    RadioMode.similar => notOffline && source != null,
+    RadioMode.continuous => notOffline && source != null,
     RadioMode.albumMix => albumMixModeAvailable,
   };
   return currentModeAvailable;
 });
 
-final isRandomRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
-  final downloadsService = GetIt.instance<DownloadsService>();
+final _isRandomReshuffleRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
+  if (baseItem != null) {
+    final downloadsService = GetIt.instance<DownloadsService>();
 
-  // only available offline when downloaded
-  final randomModeAvailable =
-      !ref.watch(finampSettingsProvider.isOffline) ||
-      (baseItem != null &&
-          ref
-              .watch(
-                downloadsService.statusProvider((
-                  DownloadStub.fromItem(type: baseItem.downloadType, item: baseItem),
-                  null,
-                )),
-              )
-              .isDownloaded);
-  return randomModeAvailable;
+    // only available offline when downloaded
+    return !ref.watch(finampSettingsProvider.isOffline) ||
+        ref
+            .watch(
+              downloadsService.statusProvider((
+                DownloadStub.fromItem(type: baseItem.downloadType, item: baseItem),
+                null,
+              )),
+            )
+            .isDownloaded;
+  } else {
+    return ref.watch(QueueService.queueProvider.select((x) => (x?.trackCount ?? 0) > 0));
+  }
 });
 
 BaseItemId? getAlbumMixRadioModeSeedId(BaseItemDto? baseItem) {
@@ -585,21 +594,25 @@ BaseItemId? getAlbumMixRadioModeSeedId(BaseItemDto? baseItem) {
       : null;
 }
 
-final isAlbumMixRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
+final _isAlbumMixRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
   // only when the seed item is an album itself or part of one
   final albumMixModeAvailable = getAlbumMixRadioModeSeedId(baseItem) != null;
   return albumMixModeAvailable;
 });
 
-BaseItemDto? getRadioSeedItem([BaseItemDto? seedItem]) {
-  final queueService = GetIt.instance<QueueService>();
-  final currentQueue = queueService.getQueue();
-  final actualSeed =
-      seedItem ??
-      currentQueue.source.item ??
-      currentQueue.fullQueue.last.baseItem; // use last track if no source available
-  return actualSeed;
-}
+final getActiveRadioSeedProvider = ProviderFamily<BaseItemDto?, RadioMode>((Ref ref, RadioMode radioMode) {
+  final currentQueue = ref.watch(QueueService.queueProvider);
+  switch (radioMode) {
+    case RadioMode.continuous:
+      return currentQueue?.fullQueue.lastOrNull?.baseItem;
+    case RadioMode.reshuffle:
+    case RadioMode.random:
+      return null;
+    case RadioMode.similar:
+    case RadioMode.albumMix:
+      return currentQueue?.source.item;
+  }
+});
 
 IconData getRadioModeIcon(RadioMode radioMode) {
   return switch (radioMode) {

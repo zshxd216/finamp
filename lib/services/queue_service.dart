@@ -552,6 +552,8 @@ class QueueService {
         return;
       }
 
+      invalidateRadioCache();
+
       order ??= FinampPlaybackOrder.linear;
 
       if (initialIndex == null) {
@@ -900,7 +902,7 @@ class QueueService {
 
   Future<void> clearRadioTracks() async {
     _queueServiceLogger.finer("Clearing radio tracks from queue.");
-    clearSurplusRadioTracks();
+    invalidateRadioCache();
     final radioIndices = _queue
         .asMap()
         .entries
@@ -978,9 +980,13 @@ class QueueService {
     return _queueStream;
   }
 
-  static final queueInfoStreamProvider = StreamProvider<FinampQueueInfo?>((ref) {
+  static final _queueInfoStreamProvider = StreamProvider<FinampQueueInfo?>((ref) {
     final service = GetIt.instance<QueueService>();
     return service.getQueueStream();
+  });
+
+  static final queueProvider = Provider<FinampQueueInfo?>((ref) {
+    return ref.watch(_queueInfoStreamProvider).value ?? GetIt.instance<QueueService>().getQueue();
   });
 
   void refreshQueueStream() {
@@ -1113,9 +1119,8 @@ class QueueService {
   void toggleLoopMode() {
     final radioMode = FinampSettingsHelper.finampSettings.radioMode;
     final radioEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
-    final radioAvailable = _providers.read(
-      isRadioModeAvailableProvider((radioMode, getRadioSeedItem(_order.originalSource.item))),
-    );
+    final radioSeed = _providers.read(getActiveRadioSeedProvider(radioMode));
+    final radioAvailable = _providers.read(isRadioModeAvailableProvider((radioMode, radioSeed)));
     final radioActive = radioEnabled && radioAvailable;
     if (radioActive) {
       // disabled radio mode and reset loop mode

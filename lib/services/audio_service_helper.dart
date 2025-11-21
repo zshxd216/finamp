@@ -1,5 +1,4 @@
 import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/services/radio_service_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
 
@@ -8,7 +7,6 @@ import '../models/jellyfin_models.dart' as jellyfin_models;
 import 'downloads_service.dart';
 import 'finamp_settings_helper.dart';
 import 'finamp_user_helper.dart';
-import 'item_helper.dart';
 import 'jellyfin_api_helper.dart';
 import 'queue_service.dart';
 
@@ -186,20 +184,5 @@ class AudioServiceHelper {
       audioServiceHelperLogger.severe(e);
       return Future.error(e);
     }
-  }
-
-  Future<void> startRadioPlayback(BaseItemDto source) async {
-    toggleRadio(true);
-    // fetch first track + full upcoming radio queue
-    final result = await generateRadioTracks(1 + calculateRadioTracksNeeded(), overrideSeedItem: source);
-    await _queueService.startPlayback(
-      items: result.tracks,
-      source: QueueItemSource.fromBaseItem(source),
-      customTrackSource: QueueItemSource(
-        type: QueueItemSourceType.radio,
-        name: QueueItemSourceName(type: QueueItemSourceNameType.radio, localizationParameter: source.name ?? ""),
-        id: source.id,
-      ),
-    );
   }
 }
