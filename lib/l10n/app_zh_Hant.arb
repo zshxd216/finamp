@@ -1505,7 +1505,7 @@
         },
         "description": "Tooltip for downloadbutton on incidental downloads, which show a lock icon. It says one of the requiring downloads."
     },
-    "cacheLibraryImagesName": "'{libraryName}'的圖片暫存",
+    "cacheLibraryImagesName": "'{libraryName}'的快取圖片",
     "@cacheLibraryImagesName": {
         "placeholders": {
             "libraryName": {
