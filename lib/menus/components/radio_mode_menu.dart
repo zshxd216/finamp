@@ -31,25 +31,41 @@ Future<void> showRadioMenu(
         return Consumer(
           builder: (context, ref, child) {
             final currentRadioMode = ref.watch(finampSettingsProvider.radioMode);
-            final modeSeed = seedItem ?? ref.watch(getActiveRadioSeedProvider(radioModeOption));
-            final radioModeOptionEnabled = ref.watch(isRadioModeAvailableProvider((radioModeOption, modeSeed)));
-            final radioCurrentlyActive = ref.watch(isRadioCurrentlyActiveProvider);
+            final modeSeedItem = seedItem ?? ref.watch(getActiveRadioSeedProvider(radioModeOption));
+            final radioModeOptionAvailabilityStatus = ref.watch(
+              radioModeAvailabilityStatusProvider((radioModeOption, modeSeedItem)),
+            );
             return ChoiceMenuOption(
               title: AppLocalizations.of(context)!.radioModeOptionName(radioModeOption.name),
-              description: radioModeOptionEnabled
-                  ? AppLocalizations.of(context)!.radioModeDescription(radioModeOption.name)
-                  : (radioModeOption == RadioMode.random && !radioModeOptionEnabled)
-                  ? modeSeed?.name != null
-                        ? AppLocalizations.of(context)!.radioModeRandomUnavailableNotDownloaded(modeSeed!.name!)
-                        : AppLocalizations.of(context)!.radioModeRandomUnavailableNotDownloadedGeneric
-                  : AppLocalizations.of(context)!.radioModeUnavailableWhileOffline,
+              description: switch (radioModeOptionAvailabilityStatus) {
+                RadioModeAvailabilityStatus.available || RadioModeAvailabilityStatus.disabled => AppLocalizations.of(
+                  context,
+                )!.radioModeDescription(radioModeOption.name),
+                RadioModeAvailabilityStatus.unavailableItemTypeNotSupported => AppLocalizations.of(
+                  context,
+                )!.radioModeUnavailableForSourceItemDescription,
+                RadioModeAvailabilityStatus.unavailableOffline => AppLocalizations.of(
+                  context,
+                )!.radioModeUnavailableWhileOfflineDescription,
+                RadioModeAvailabilityStatus.unavailableNotDownloaded =>
+                  modeSeedItem?.name != null
+                      ? AppLocalizations.of(
+                          context,
+                        )!.radioModeRandomUnavailableNotDownloadedDescription(modeSeedItem!.name!)
+                      : AppLocalizations.of(context)!.radioModeRandomUnavailableNotDownloadedGenericDescription,
+                RadioModeAvailabilityStatus.unavailableQueueEmpty => AppLocalizations.of(
+                  context,
+                )!.radioModeUnavailableQueueEmptyDescription,
+              },
               badges: [
                 // similar mode is recommended
-                if (radioModeOption == RadioMode.similar && radioModeOptionEnabled) Icon(TablerIcons.star, size: 14.0),
+                if (radioModeOption == RadioMode.similar &&
+                    radioModeOptionAvailabilityStatus == RadioModeAvailabilityStatus.available)
+                  Icon(TablerIcons.star, size: 14.0),
               ],
-              enabled: radioModeOptionEnabled,
+              enabled: radioModeOptionAvailabilityStatus == RadioModeAvailabilityStatus.available,
               icon: getRadioModeIcon(radioModeOption),
-              isDisabled: !radioCurrentlyActive,
+              isDisabled: ref.watch(currentRadioAvailabilityStatusProvider) != RadioModeAvailabilityStatus.available,
               isSelected: currentRadioMode == radioModeOption,
               onSelect: () async {
                 final radioTracksWillChange = currentRadioMode != radioModeOption || startNewQueue;
@@ -83,7 +99,7 @@ Future<void> showRadioMenu(
             return ChoiceMenuOption(
               title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
               icon: TablerIcons.radio_off,
-              isSelected: !ref.watch(isRadioCurrentlyActiveProvider),
+              isSelected: ref.watch(currentRadioAvailabilityStatusProvider) == RadioModeAvailabilityStatus.disabled,
               enabled: true,
               onSelect: () async {
                 toggleRadio(false);

@@ -77,7 +77,7 @@ Future<void> maybeAddRadioTracks() async {
     }
     _radioCallTimestamps.add(now);
 
-    var localResult = _radioCacheStateStream.value!.copyWith(generating: true, failed: false);
+    var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
     _radioCacheStateStream.add(localResult);
     if (localResult.tracks.length < radioTracksNeeded) {
       try {
@@ -92,39 +92,45 @@ Future<void> maybeAddRadioTracks() async {
     }, localResult.tracks.length);
     final tracksToAdd = localResult.tracks.take(tracksToAddCount);
     final tracksToCache = localResult.tracks.skip(tracksToAddCount);
-    if (tracksToAdd.isEmpty) {
-      _radioLogger.warning("No tracks generated for radio. Aborting.");
-      localResult = localResult.copyWith(generating: false, failed: true);
-      _radioCacheStateStream.add(localResult);
-      return;
-    }
     // Check if we have been invalidated while generating
-    if (identical(localResult, _radioCacheStateStream.value) && localResult.isStillValid()) {
-      localResult = localResult.copyWith(
-        seedItem: localResult.radioMode == RadioMode.continuous ? tracksToAdd.lastOrNull ?? localResult.seedItem : null,
-        generating: false,
-        queueing: true,
-      );
-      _radioCacheStateStream.add(localResult);
-      if (tracksToAdd.isNotEmpty) {
-        await queueService.addToQueue(
-          items: tracksToAdd.toList(),
-          source: QueueItemSource.rawId(
-            type: QueueItemSourceType.radio,
-            name: currentQueue.source.item != null
-                ? QueueItemSourceName(
-                    type: QueueItemSourceNameType.radio,
-                    localizationParameter: currentQueue.source.item?.name ?? "",
-                  )
-                : QueueItemSourceName(type: QueueItemSourceNameType.radio),
-            id: currentQueue.source.item?.id.raw ?? currentQueue.source.id,
-          ),
-        );
-        _radioLogger.finer("Added ${tracksToAdd.map((song) => song.name).toList().join(", ")} to the queue for radio.");
-      }
-      // Check if we have been invalidated while adding tracks to queue
-      if (identical(localResult, _radioCacheStateStream.value)) {
-        _radioCacheStateStream.add(localResult.copyWith(tracks: tracksToCache.toList(), queueing: false));
+    if (identical(localResult, _radioCacheStateStream.value)) {
+      if (tracksToAdd.isEmpty) {
+        _radioLogger.warning("No tracks generated for radio. Aborting.");
+        localResult = localResult.copyWith(generating: false, failed: true);
+        _radioCacheStateStream.add(localResult);
+        return;
+      } else {
+        if (localResult.isStillValid()) {
+          localResult = localResult.copyWith(
+            seedItem: localResult.radioMode == RadioMode.continuous
+                ? tracksToAdd.lastOrNull ?? localResult.seedItem
+                : null,
+            generating: false,
+            queueing: true,
+            failed: false,
+          );
+          _radioCacheStateStream.add(localResult);
+          await queueService.addToQueue(
+            items: tracksToAdd.toList(),
+            source: QueueItemSource.rawId(
+              type: QueueItemSourceType.radio,
+              name: currentQueue.source.item != null
+                  ? QueueItemSourceName(
+                      type: QueueItemSourceNameType.radio,
+                      localizationParameter: currentQueue.source.item?.name ?? "",
+                    )
+                  : QueueItemSourceName(type: QueueItemSourceNameType.radio),
+              id: currentQueue.source.item?.id.raw ?? currentQueue.source.id,
+            ),
+          );
+          _radioLogger.finer(
+            "Added ${tracksToAdd.map((song) => song.name).toList().join(", ")} to the queue for radio.",
+          );
+          // Check if we have been invalidated while adding tracks to queue
+          if (identical(localResult, _radioCacheStateStream.value)) {
+            _radioCacheStateStream.add(localResult.copyWith(tracks: tracksToCache.toList(), queueing: false));
+          }
+        }
       }
     }
   }
@@ -195,7 +201,13 @@ bool toggleRadio([bool? enable]) {
   return newState;
 }
 
-enum AlbumMixFallbackModes { similarSingles, artistAlbums, artistSingles, performingArtistAlbums, libraryAlbums }
+enum AlbumMixFallbackModes {
+  similarSingles,
+  artistAlbums,
+  artistSingles,
+  performingArtistAlbums,
+  libraryAlbumsOrSingles,
+}
 
 // Generates tracks for the radio. Provide item to generate the initial radio tracks.
 Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models.BaseItemDto? overrideSeedItem}) async {
@@ -223,10 +235,12 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
     case RadioMode.reshuffle:
       // Adds tracks in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
       // the order.
-      final reshuffleModeAvailable = providers.read(_areRandomAndReshuffleRadioModeAvailableProvider(overrideSeedItem));
-      if (!reshuffleModeAvailable) {
+      final reshuffleModeAvailabilityStatus = providers.read(
+        _randomAndReshuffleRadioModeAvailabilityStatusProvider(overrideSeedItem),
+      );
+      if (reshuffleModeAvailabilityStatus != RadioModeAvailabilityStatus.available) {
         _radioLogger.warning(
-          "Reshuffle radio mode selected but the provided item '${overrideSeedItem?.name}' not downloaded or the queue is empty. Returning empty track list.",
+          "Reshuffle radio mode selected but the provided item '${overrideSeedItem?.name}' not downloaded or the queue is empty. Availability status: $reshuffleModeAvailabilityStatus. Returning empty track list.",
         );
         break;
       }
@@ -242,10 +256,12 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
       tracksOut = originalQueue.shuffled();
       break;
     case RadioMode.random:
-      final randomModeAvailable = providers.read(_areRandomAndReshuffleRadioModeAvailableProvider(overrideSeedItem));
-      if (!randomModeAvailable) {
+      final randomModeAvailabilityStatus = providers.read(
+        _randomAndReshuffleRadioModeAvailabilityStatusProvider(overrideSeedItem),
+      );
+      if (randomModeAvailabilityStatus != RadioModeAvailabilityStatus.available) {
         _radioLogger.warning(
-          "Random radio mode selected but the provided item '${overrideSeedItem?.name}' is not downloaded or the queue is empty. Returning empty track list.",
+          "Random radio mode selected but the provided item '${overrideSeedItem?.name}' is not downloaded or the queue is empty. Availability status: $randomModeAvailabilityStatus. Returning empty track list.",
         );
         break;
       }
@@ -383,7 +399,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
               artist = await providers.read(artistItemProvider(artistId).future);
             }
             if (artist == null) {
-              fallbackMode = AlbumMixFallbackModes.libraryAlbums;
+              fallbackMode = AlbumMixFallbackModes.libraryAlbumsOrSingles;
               continue;
             }
             if (fallbackMode == AlbumMixFallbackModes.performingArtistAlbums) {
@@ -405,7 +421,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
             }
 
             break;
-          case AlbumMixFallbackModes.libraryAlbums:
+          case AlbumMixFallbackModes.libraryAlbumsOrSingles:
             // just fetch a random album from the library
             if (FinampSettingsHelper.finampSettings.isOffline) {
               similarAlbums = (await downloadsService.getAllCollections(
@@ -456,7 +472,11 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
             // don't include singles unless we're falling back to them
             .where(
               (album) =>
-                  ([AlbumMixFallbackModes.similarSingles, AlbumMixFallbackModes.artistSingles].contains(fallbackMode) ||
+                  ([
+                    AlbumMixFallbackModes.similarSingles,
+                    AlbumMixFallbackModes.artistSingles,
+                    AlbumMixFallbackModes.libraryAlbumsOrSingles,
+                  ].contains(fallbackMode) ||
                   (album.songCount ?? album.childCount ?? 0) > 1),
             )
             .toList();
@@ -465,24 +485,24 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
           switch (fallbackMode) {
             case AlbumMixFallbackModes.artistAlbums:
               _radioLogger.warning(
-                "No suitable similar full albums found for album mix radio from artist '${actualSeed.albumArtists ?? actualSeed.artistItems?.first.name}'. Fetching singles.",
+                "No suitable similar full albums found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching singles.",
               );
               fallbackMode = AlbumMixFallbackModes.artistSingles;
               break;
             case AlbumMixFallbackModes.artistSingles:
               _radioLogger.warning(
-                "No suitable similar singles found for album mix radio from artist '${actualSeed.albumArtists ?? actualSeed.artistItems?.first.name}'. Fetching appears on albums.",
+                "No suitable similar singles found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching appears on albums.",
               );
               fallbackMode = AlbumMixFallbackModes.performingArtistAlbums;
               break;
             case AlbumMixFallbackModes.performingArtistAlbums:
               _radioLogger.warning(
-                "No suitable similar appears on albums found for album mix radio from artist '${actualSeed.albumArtists ?? actualSeed.artistItems?.first.name}'. Fetching from library.",
+                "No suitable similar appears on albums found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching from library.",
               );
-              fallbackMode = AlbumMixFallbackModes.libraryAlbums;
+              fallbackMode = AlbumMixFallbackModes.libraryAlbumsOrSingles;
               break;
             case AlbumMixFallbackModes.similarSingles:
-            case AlbumMixFallbackModes.libraryAlbums:
+            case AlbumMixFallbackModes.libraryAlbumsOrSingles:
             case null:
               break;
           }
@@ -491,9 +511,17 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
 
       // pick a random album from the remaining ones
       if (filteredSimilarAlbums.isNotEmpty) {
-        final randomIndex = _radioRandom.nextInt(min(filteredSimilarAlbums.length, randomnessExtraAlbums));
-        final selectedAlbum = filteredSimilarAlbums[randomIndex];
-        filteredSimilarAlbums.removeAt(randomIndex);
+        BaseItemDto selectedAlbum;
+        if (fallbackMode == AlbumMixFallbackModes.libraryAlbumsOrSingles) {
+          // since we can't filter by track count when fetching from the server, we instead sort by track count > 1 to pick a full album if available, but fall back to singles
+          filteredSimilarAlbums.sortBy<num>((album) => (album.songCount ?? album.childCount ?? 0) > 1 ? 0 : 1);
+          selectedAlbum = filteredSimilarAlbums.first;
+          filteredSimilarAlbums.removeAt(0);
+        } else {
+          final randomIndex = _radioRandom.nextInt(min(filteredSimilarAlbums.length, randomnessExtraAlbums));
+          selectedAlbum = filteredSimilarAlbums[randomIndex];
+          filteredSimilarAlbums.removeAt(randomIndex);
+        }
         _radioLogger.finer("Selected album '${selectedAlbum.name}' for album mix radio.");
         // load tracks from the selected album
         final albumTracks = await loadChildTracksFromBaseItem(baseItem: selectedAlbum);
@@ -576,57 +604,75 @@ Future<List<jellyfin_models.BaseItemDto>> _getSimilarTracks({
   return [];
 }
 
-final isRadioCurrentlyActiveProvider = Provider<bool>((ref) {
+enum RadioModeAvailabilityStatus {
+  disabled,
+  available,
+  unavailableOffline,
+  unavailableNotDownloaded,
+  unavailableItemTypeNotSupported,
+  unavailableQueueEmpty,
+}
+
+final currentRadioAvailabilityStatusProvider = Provider<RadioModeAvailabilityStatus>((ref) {
   final radioMode = ref.watch(finampSettingsProvider.radioMode);
   final radioModeAvailable = ref.watch(
-    isRadioModeAvailableProvider((radioMode, ref.watch(getActiveRadioSeedProvider(radioMode)))),
+    radioModeAvailabilityStatusProvider((radioMode, ref.watch(getActiveRadioSeedProvider(radioMode)))),
   );
   final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
-  return radioEnabled && radioModeAvailable;
+  return !radioEnabled ? RadioModeAvailabilityStatus.disabled : radioModeAvailable;
 });
 
-final isRadioModeAvailableProvider = AutoDisposeProviderFamily<bool, (RadioMode, BaseItemDto?)>((
-  ref,
-  (RadioMode radioMode, BaseItemDto? source) arguments,
-) {
-  final radioMode = arguments.$1;
-  final source = arguments.$2;
+final radioModeAvailabilityStatusProvider =
+    AutoDisposeProviderFamily<RadioModeAvailabilityStatus, (RadioMode, BaseItemDto?)>((
+      ref,
+      (RadioMode radioMode, BaseItemDto? source) arguments,
+    ) {
+      final radioMode = arguments.$1;
+      final source = arguments.$2;
 
-  final notOffline = !ref.watch(finampSettingsProvider.isOffline);
-  final randomAndReshuffleModeAvailable = ref.watch(_areRandomAndReshuffleRadioModeAvailableProvider(source));
-  final albumMixModeAvailable = ref.watch(_isAlbumMixRadioModeAvailableProvider(source));
+      final notOffline = !ref.watch(finampSettingsProvider.isOffline);
+      final randomAndReshuffleModeAvailable = ref.watch(_randomAndReshuffleRadioModeAvailabilityStatusProvider(source));
+      final albumMixModeAvailable = ref.watch(_albumMixRadioModeAvailabilityStatusProvider(source));
 
-  final currentModeAvailable = switch (radioMode) {
-    RadioMode.reshuffle => randomAndReshuffleModeAvailable,
-    RadioMode.random => randomAndReshuffleModeAvailable,
-    RadioMode.similar => notOffline && source != null,
-    RadioMode.continuous => notOffline && source != null,
-    RadioMode.albumMix => albumMixModeAvailable,
-  };
-  return currentModeAvailable;
-});
+      final currentModeAvailable = switch (radioMode) {
+        RadioMode.reshuffle => randomAndReshuffleModeAvailable,
+        RadioMode.random => randomAndReshuffleModeAvailable,
+        RadioMode.similar =>
+          notOffline && source != null
+              ? RadioModeAvailabilityStatus.available
+              : RadioModeAvailabilityStatus.unavailableOffline,
+        RadioMode.continuous =>
+          notOffline && source != null
+              ? RadioModeAvailabilityStatus.available
+              : RadioModeAvailabilityStatus.unavailableOffline,
+        RadioMode.albumMix => albumMixModeAvailable,
+      };
+      return currentModeAvailable;
+    });
 
-final _areRandomAndReshuffleRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((
-  ref,
-  BaseItemDto? baseItem,
-) {
-  if (baseItem != null) {
-    final downloadsService = GetIt.instance<DownloadsService>();
+final _randomAndReshuffleRadioModeAvailabilityStatusProvider =
+    ProviderFamily<RadioModeAvailabilityStatus, BaseItemDto?>((ref, BaseItemDto? baseItem) {
+      if (baseItem != null) {
+        final downloadsService = GetIt.instance<DownloadsService>();
 
-    // only available offline when downloaded
-    return !ref.watch(finampSettingsProvider.isOffline) ||
-        ref
-            .watch(
-              downloadsService.statusProvider((
-                DownloadStub.fromItem(type: baseItem.downloadType, item: baseItem),
-                null,
-              )),
-            )
-            .isDownloaded;
-  } else {
-    return ref.watch(QueueService.queueProvider.select((x) => (x?.trackCount ?? 0) > 0));
-  }
-});
+        // only available offline when downloaded
+        return (!ref.watch(finampSettingsProvider.isOffline) ||
+                ref
+                    .watch(
+                      downloadsService.statusProvider((
+                        DownloadStub.fromItem(type: baseItem.downloadType, item: baseItem),
+                        null,
+                      )),
+                    )
+                    .isDownloaded)
+            ? RadioModeAvailabilityStatus.available
+            : RadioModeAvailabilityStatus.unavailableNotDownloaded;
+      } else {
+        return ref.watch(QueueService.queueProvider.select((x) => (x?.trackCount ?? 0) > 0))
+            ? RadioModeAvailabilityStatus.available
+            : RadioModeAvailabilityStatus.unavailableQueueEmpty;
+      }
+    });
 
 BaseItemId? getAlbumMixRadioModeSeedId(BaseItemDto? baseItem) {
   return baseItem != null
@@ -638,10 +684,15 @@ BaseItemId? getAlbumMixRadioModeSeedId(BaseItemDto? baseItem) {
       : null;
 }
 
-final _isAlbumMixRadioModeAvailableProvider = ProviderFamily<bool, BaseItemDto?>((ref, BaseItemDto? baseItem) {
+final _albumMixRadioModeAvailabilityStatusProvider = ProviderFamily<RadioModeAvailabilityStatus, BaseItemDto?>((
+  ref,
+  BaseItemDto? baseItem,
+) {
   // only when the seed item is an album itself or part of one
   final albumMixModeAvailable = getAlbumMixRadioModeSeedId(baseItem) != null;
-  return albumMixModeAvailable;
+  return albumMixModeAvailable
+      ? RadioModeAvailabilityStatus.available
+      : RadioModeAvailabilityStatus.unavailableItemTypeNotSupported;
 });
 
 final getActiveRadioSeedProvider = ProviderFamily<BaseItemDto?, RadioMode>((Ref ref, RadioMode radioMode) {

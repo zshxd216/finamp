@@ -20,7 +20,7 @@ class StartRadioMenuEntry extends ConsumerWidget implements HideableMenuEntry {
         if (context.mounted) {
           Navigator.pop(context);
         }
-        await showRadioMenu(context, seedItem: baseItem);
+        await showRadioMenu(context, seedItem: baseItem, startNewQueue: true);
       },
     );
   }

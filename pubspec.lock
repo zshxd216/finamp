@@ -935,7 +935,7 @@ packages:
     description:
       path: "."
       ref: "feat/queue-shuffle"
-      resolved-ref: a011eb58532e26c045d2ae8e5268bb2e03080e3b
+      resolved-ref: f5237393a63da702426e4e20c6800b706a0b159f
       url: "https://github.com/Komodo5197/just_audio_media_kit.git"
     source: git
     version: "2.1.0"

@@ -93,13 +93,13 @@ class QueueService {
   FinampStorableQueueInfo? _failedSavedQueue;
   static const int _maxSavedQueues = 60;
 
-  static int get maxInitialQueueItems => Platform.isIOS
+  static int get maxInitialQueueItems => Platform.isIOS || Platform.isMacOS
       ? 1000
       : Platform.isAndroid
       ? 1000
       : 1000;
 
-  static int get maxQueueItems => Platform.isIOS
+  static int get maxQueueItems => Platform.isIOS || Platform.isMacOS
       ? 1500
       : Platform.isAndroid
       ? 5000
@@ -1126,8 +1126,8 @@ class QueueService {
     final radioMode = FinampSettingsHelper.finampSettings.radioMode;
     final radioEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
     final radioSeed = _providers.read(getActiveRadioSeedProvider(radioMode));
-    final radioAvailable = _providers.read(isRadioModeAvailableProvider((radioMode, radioSeed)));
-    final radioActive = radioEnabled && radioAvailable;
+    final radioAvailabilityStatus = _providers.read(radioModeAvailabilityStatusProvider((radioMode, radioSeed)));
+    final radioActive = radioEnabled && radioAvailabilityStatus == RadioModeAvailabilityStatus.available;
 
     // if we start toggling loop modes, the radio should be disabled, to prevent it kicking back in when it becomes available
     if (radioEnabled) {

@@ -2742,12 +2742,50 @@
     },
     "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
   },
-  "radioModeUnavailableWhileOffline": "Unavailable while offline",
-  "@radioModeUnavailableWhileOffline": {
+  "radioModeUnavailableWhileOfflineDescription": "Unavailable while offline",
+  "@radioModeUnavailableWhileOfflineDescription": {
     "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
   },
-  "radioModeRandomUnavailableNotDownloaded": "Unavailable because '{sourceName}' isn't downloaded",
-  "@radioModeRandomUnavailableNotDownloaded": {
+  "radioModeUnavailableWhileOfflineSubtitle": "{modeName} unavailable while offline",
+  "@radioModeUnavailableWhileOfflineSubtitle": {
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      }
+    },
+    "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+  },
+  "radioModeUnavailableForSourceItemDescription": "Unavailable for this queue source",
+  "@radioModeUnavailableForSourceItemDescription": {
+    "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+  },
+  "radioModeUnavailableForSourceItemSubtitle": "{modeName} unavailable for this queue source",
+  "@radioModeUnavailableForSourceItemSubtitle": {
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      }
+    },
+    "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+  },
+  "radioModeUnavailableQueueEmptyDescription": "Unavailable because the queue is empty",
+  "@radioModeUnavailableQueueEmptyDescription": {
+    "description": "Shown as the subtitle for radio modes when the queue is empty."
+  },
+  "radioModeUnavailableQueueEmptySubtitle": "{modeName} unavailable because the queue is empty",
+  "@radioModeUnavailableQueueEmptySubtitle": {
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      }
+    },
+    "description": "Shown as the subtitle for radio modes when the queue is empty."
+  },
+  "radioModeRandomUnavailableNotDownloadedDescription": "Unavailable because '{sourceName}' isn't downloaded",
+  "@radioModeRandomUnavailableNotDownloadedDescription": {
     "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
     "placeholders": {
       "sourceName": {
@@ -2755,8 +2793,31 @@
       }
     }
   },
-  "radioModeRandomUnavailableNotDownloadedGeneric": "Unavailable because not downloaded",
-  "@radioModeRandomUnavailableNotDownloadedGeneric": {
+  "radioModeRandomUnavailableNotDownloadedSubtitle": "{modeName} unavailable because '{sourceName}' isn't downloaded",
+  "@radioModeRandomUnavailableNotDownloadedSubtitle": {
+    "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      },
+      "sourceName": {
+        "type": "String"
+      }
+    }
+  },
+  "radioModeRandomUnavailableNotDownloadedGenericDescription": "Unavailable because source is not downloaded",
+  "@radioModeRandomUnavailableNotDownloadedGenericDescription": {
+    "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+  },
+  "radioModeRandomUnavailableNotDownloadedGenericSubtitle": "{modeName} unavailable because source is not downloaded",
+  "@radioModeRandomUnavailableNotDownloadedGenericSubtitle": {
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      }
+    },
     "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
   },
   "radioNoTracksFound": "Couldn't start radio because no suitable tracks were found.",

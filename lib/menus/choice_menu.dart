@@ -98,12 +98,10 @@ class ChoiceMenuListTile extends ConsumerWidget {
               ),
             ],
           ),
-          onTap: isLoading
-              ? null
-              : () async {
-                  FeedbackHelper.feedback(FeedbackType.selection);
-                  await menuCreator();
-                },
+          onTap: () async {
+            FeedbackHelper.feedback(FeedbackType.selection);
+            await menuCreator();
+          },
           contentPadding: EdgeInsets.zero,
           minVerticalPadding: compact ? 2.0 : null,
           minTileHeight: compact ? 50.0 : null,

@@ -2162,8 +2162,8 @@ class FinampQueueInfo {
   BaseItemDto? sourceLibrary;
 
   int get currentTrackIndex => previousTracks.length + (currentTrack == null ? 0 : 1);
-  int get remainingTrackCount => nextUp.length + queue.length;
-  int get trackCount => currentTrackIndex + remainingTrackCount;
+  int get upcomingTrackCount => nextUp.length + queue.length;
+  int get trackCount => currentTrackIndex + upcomingTrackCount;
   List<FinampQueueItem> get fullQueue => CombinedIterableView([
     previousTracks,
     currentTrack != null ? [currentTrack!] : <FinampQueueItem>[],

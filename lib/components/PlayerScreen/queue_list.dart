@@ -11,7 +11,6 @@ import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/components/themed_bottom_sheet.dart';
-import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
 import 'package:finamp/menus/choice_menu.dart';
@@ -461,7 +460,6 @@ class _PreviousTracksListState extends State<PreviousTracksList> with TickerProv
                     await _queueService.skipByOffset(indexOffset);
                     scrollToKey(key: widget.previousTracksHeaderKey, duration: const Duration(milliseconds: 500));
                   },
-                  allowDismiss: true,
                   onRemoveFromList: () {
                     unawaited(_queueService.removeAtOffset(indexOffset));
                   },
@@ -979,9 +977,11 @@ class QueueSectionHeader extends ConsumerWidget {
 
     final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
-    final radioActive = ref.watch(isRadioCurrentlyActiveProvider);
+    final radioSeedItem = ref.watch(getActiveRadioSeedProvider(radioMode));
+    final currentRadioAvailabilityStatus = ref.watch(currentRadioAvailabilityStatusProvider);
     final radioLoading = ref.watch(radioStateProvider.select((state) => state?.loading ?? false));
     final radioFailed = ref.watch(radioStateProvider.select((state) => state?.failed ?? false));
+    final radioModeTranslatedName = AppLocalizations.of(context)!.radioModeOptionName(radioMode.name);
 
     return Column(
       children: [
@@ -1078,7 +1078,7 @@ class QueueSectionHeader extends ConsumerWidget {
                             FinampLoopMode.all => const Icon(TablerIcons.repeat),
                             null => const Icon(TablerIcons.repeat_off),
                           },
-                          color: radioActive
+                          color: currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available
                               ? (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.5)
                               : (info?.loop != FinampLoopMode.none
                                     ? IconTheme.of(context).color!
@@ -1098,7 +1098,7 @@ class QueueSectionHeader extends ConsumerWidget {
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
                           icon: radioEnabled ? const Icon(TablerIcons.radio) : const Icon(TablerIcons.radio_off),
-                          color: radioActive
+                          color: currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
                           onPressed: () {
@@ -1117,23 +1117,49 @@ class QueueSectionHeader extends ConsumerWidget {
         // Radio mode
         if (radioEnabled)
           ChoiceMenuListTile(
-            title: radioEnabled
-                ? radioActive
-                      ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
-                      : AppLocalizations.of(context)!.radioModeInactiveTitle
-                : AppLocalizations.of(context)!.radioModeDisabledTitle,
-            subtitle: radioActive
-                ? AppLocalizations.of(context)!.radioModeEnabledSubtitle
-                : (radioEnabled
-                      ? AppLocalizations.of(context)!.radioModeDisabledBecauseNotAvailableOfflineSubtitle
-                      : AppLocalizations.of(context)!.radioModeDisabledSubtitle),
+            title: switch (currentRadioAvailabilityStatus) {
+              RadioModeAvailabilityStatus.available => AppLocalizations.of(
+                context,
+              )!.radioModeOptionTitle(radioMode.name),
+              RadioModeAvailabilityStatus.disabled => AppLocalizations.of(context)!.radioModeDisabledTitle,
+              _ => AppLocalizations.of(context)!.radioModeInactiveTitle,
+            },
+            subtitle: switch (currentRadioAvailabilityStatus) {
+              RadioModeAvailabilityStatus.available => AppLocalizations.of(context)!.radioModeEnabledSubtitle,
+              RadioModeAvailabilityStatus.disabled => AppLocalizations.of(context)!.radioModeDisabledSubtitle,
+              RadioModeAvailabilityStatus.unavailableItemTypeNotSupported => AppLocalizations.of(
+                context,
+              )!.radioModeUnavailableForSourceItemSubtitle(radioModeTranslatedName),
+              RadioModeAvailabilityStatus.unavailableOffline => AppLocalizations.of(
+                context,
+              )!.radioModeUnavailableWhileOfflineSubtitle(radioModeTranslatedName),
+              RadioModeAvailabilityStatus.unavailableNotDownloaded =>
+                radioSeedItem?.name != null
+                    ? AppLocalizations.of(
+                        context,
+                      )!.radioModeRandomUnavailableNotDownloadedSubtitle(radioModeTranslatedName, radioSeedItem!.name!)
+                    : AppLocalizations.of(
+                        context,
+                      )!.radioModeRandomUnavailableNotDownloadedGenericSubtitle(radioModeTranslatedName),
+              RadioModeAvailabilityStatus.unavailableQueueEmpty => AppLocalizations.of(
+                context,
+              )!.radioModeUnavailableQueueEmptySubtitle(radioModeTranslatedName),
+            },
             menuCreator: () => showRadioMenu(
               context,
               subtitle: radioFailed ? AppLocalizations.of(context)!.radioFailedSubtitle : null,
             ),
             isLoading: radioLoading,
-            leading: Icon(TablerIcons.radio, size: 32.0, color: radioActive ? IconTheme.of(context).color : null),
-            state: radioActive,
+            leading: Icon(
+              currentRadioAvailabilityStatus != RadioModeAvailabilityStatus.available || radioFailed
+                  ? TablerIcons.radio_off
+                  : TablerIcons.radio,
+              size: 32.0,
+              color: currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available
+                  ? IconTheme.of(context).color
+                  : null,
+            ),
+            state: currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available,
             icon: radioFailed ? TablerIcons.alert_circle : getRadioModeIcon(radioMode),
             compact: true,
           ),

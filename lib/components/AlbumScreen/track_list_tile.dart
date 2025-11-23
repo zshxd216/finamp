@@ -103,6 +103,17 @@ class TrackListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    bool playable;
+    if (ref.watch(finampSettingsProvider.isOffline)) {
+      playable = ref.watch(
+        GetIt.instance<DownloadsService>()
+            .stateProvider(DownloadStub.fromItem(type: DownloadItemType.track, item: item))
+            .select((value) => value.value?.isComplete ?? false),
+      );
+    } else {
+      playable = true;
+    }
+
     Future<void> trackListTileOnTap(bool playable) async {
       final queueService = GetIt.instance<QueueService>();
       final audioServiceHelper = GetIt.instance<AudioServiceHelper>();
@@ -225,7 +236,6 @@ class TrackListTile extends ConsumerWidget {
       forceAlbumArtists: forceAlbumArtists,
       adaptiveAdditionalInfoSortBy: adaptiveAdditionalInfoSortBy,
       isInPlaylist: isInPlaylist,
-      allowDismiss: allowDismiss,
       highlightCurrentTrack: highlightCurrentTrack,
       onRemoveFromList: onRemoveFromList,
       onTap: trackListTileOnTap,
@@ -253,6 +263,7 @@ class TrackListTile extends ConsumerWidget {
         showCover ? TrackListItemFeatures.cover : null,
         TrackListItemFeatures.duration,
         TrackListItemFeatures.addToPlaylistOrFavorite,
+        playable && allowDismiss ? TrackListItemFeatures.swipeable : null,
       ].nonNulls.toList(),
     );
   }
@@ -403,7 +414,6 @@ class QueueListTile extends StatelessWidget {
   final bool isCurrentTrack;
   final bool isInPlaylist;
   final bool allowReorder;
-  final bool allowDismiss;
   final bool highlightCurrentTrack;
 
   final void Function(bool playable) onTap;
@@ -420,7 +430,6 @@ class QueueListTile extends StatelessWidget {
     required this.isCurrentTrack,
     required this.isInPlaylist,
     required this.allowReorder,
-    this.allowDismiss = true,
     this.highlightCurrentTrack = false,
     this.parentItem,
     this.onRemoveFromList,
@@ -435,7 +444,6 @@ class QueueListTile extends StatelessWidget {
       listIndex: listIndex,
       actualIndex: item.indexNumber,
       isInPlaylist: isInPlaylist,
-      allowDismiss: allowDismiss,
       highlightCurrentTrack: highlightCurrentTrack,
       onRemoveFromList: onRemoveFromList,
       // This must be in ListTile instead of parent GestureDetector to
@@ -450,6 +458,7 @@ class QueueListTile extends StatelessWidget {
         TrackListItemFeatures.cover,
         TrackListItemFeatures.duration,
         TrackListItemFeatures.addToPlaylistOrFavorite,
+        TrackListItemFeatures.swipeable,
         allowReorder ? TrackListItemFeatures.dragHandle : null,
       ].nonNulls.toList(),
     );
@@ -493,6 +502,7 @@ class EditListTile extends StatelessWidget {
         TrackListItemFeatures.cover,
         TrackListItemFeatures.dragHandle,
         TrackListItemFeatures.fullyDraggable,
+        TrackListItemFeatures.swipeable,
         restoreInsteadOfRemove ? TrackListItemFeatures.restoreButton : TrackListItemFeatures.removeFromListButton,
       ].nonNulls.toList(),
     );
@@ -509,7 +519,6 @@ class TrackListItem extends ConsumerWidget {
   final bool forceAlbumArtists;
   final SortBy? adaptiveAdditionalInfoSortBy;
   final bool isInPlaylist;
-  final bool allowDismiss;
   final bool highlightCurrentTrack;
   final Widget leftSwipeBackground;
   final Widget rightSwipeBackground;
@@ -531,7 +540,6 @@ class TrackListItem extends ConsumerWidget {
     this.parentItem,
     this.source,
     this.isInPlaylist = false,
-    this.allowDismiss = true,
     this.showArtists = true,
     this.forceAlbumArtists = false,
     this.adaptiveAdditionalInfoSortBy,
@@ -611,25 +619,23 @@ class TrackListItem extends ConsumerWidget {
           onSecondaryTapDown: features.contains(TrackListItemFeatures.fullyDraggable)
               ? null
               : (details) => menuCallback(),
-          child: !playable
-              ? listItem
-              : Dismissible(
+          child: features.contains(TrackListItemFeatures.swipeable) && !ref.watch(finampSettingsProvider.disableGesture)
+              ? Dismissible(
                   key: Key(listIndex.toString()),
-                  direction: ref.watch(finampSettingsProvider.disableGesture) || !allowDismiss
-                      ? DismissDirection.none
-                      : getAllowedDismissDirection(
-                          swipeLeftEnabled:
-                              ref.watch(finampSettingsProvider.itemSwipeActionLeftToRight) != ItemSwipeActions.nothing,
-                          swipeRightEnabled:
-                              ref.watch(finampSettingsProvider.itemSwipeActionRightToLeft) != ItemSwipeActions.nothing,
-                        ),
+                  direction: getAllowedDismissDirection(
+                    swipeLeftEnabled:
+                        ref.watch(finampSettingsProvider.itemSwipeActionLeftToRight) != ItemSwipeActions.nothing,
+                    swipeRightEnabled:
+                        ref.watch(finampSettingsProvider.itemSwipeActionRightToLeft) != ItemSwipeActions.nothing,
+                  ),
                   dismissThresholds: const {DismissDirection.startToEnd: 0.65, DismissDirection.endToStart: 0.65},
                   // no background, dismissing really dismisses here
                   confirmDismiss: confirmDismiss,
                   background: leftSwipeBackground,
                   secondaryBackground: rightSwipeBackground,
                   child: listItem,
-                ),
+                )
+              : listItem,
         );
       },
     );
@@ -676,6 +682,7 @@ enum TrackListItemFeatures {
   addToPlaylistOrFavorite,
   dragHandle,
   fullyDraggable,
+  swipeable,
   removeFromListButton,
   restoreButton,
 }

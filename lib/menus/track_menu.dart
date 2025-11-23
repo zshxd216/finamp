@@ -262,7 +262,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
 
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
     final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
-    final radioActive = ref.watch(isRadioCurrentlyActiveProvider);
+    final currentRadioAvailabilityStatus = ref.watch(currentRadioAvailabilityStatusProvider);
     final radioFailed = ref.watch(radioStateProvider.select((state) => state?.failed ?? false));
 
     return [
@@ -373,7 +373,9 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 label: radioEnabled
                     ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
                     : loopModeTooltips[playbackBehavior.loop]!,
-                iconColor: radioActive || playbackBehavior.loop != FinampLoopMode.none
+                iconColor:
+                    currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available ||
+                        playbackBehavior.loop != FinampLoopMode.none
                     ? iconColor
                     : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
               ),
