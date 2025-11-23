@@ -400,7 +400,7 @@
     "@topTracks": {},
     "shuffleAlbums": "Alben zufällig wiedergeben",
     "@shuffleAlbums": {},
-    "couldNotLoad": "Laden {source, select, album{des Albums} playlist{der Wiedergabeliste} trackMix{des Titelmixes} artistMix{des Künstlermixes} albumMix{des Albummixes} favorites{der Favoriten} allTracks{aller Titel} filteredList{der Tracks} genre{des Genre} artist{des Künstlers} nextUpAlbum{des Album in \\\"Als Nächstes\\\"} nextUpPlaylist{der Playlist in \\\"Als Nächstes\\\"} nextUpArtist{des Künstlers in \\\"Als Nächstes\\\"} nextUpGenre{des Genres in \\\"Als Nächstes\\\"} other{}} fehlgeschlagen",
+    "couldNotLoad": "Laden {source, select, album{des Albums} playlist{der Wiedergabeliste} trackMix{des Titelmixes} artistMix{des Künstlermixes} albumMix{des Albummixes} favorites{der Favoriten} allTracks{aller Titel} filteredList{der Titel} genre{des Genre} artist{des Künstlers} nextUpAlbum{des Album in \\\"Als Nächstes\\\"} nextUpPlaylist{der Playlist in \\\"Als Nächstes\\\"} nextUpArtist{des Künstlers in \\\"Als Nächstes\\\"} nextUpGenre{des Genres in \\\"Als Nächstes\\\"} other{}} fehlgeschlagen",
     "@couldNotLoad": {},
     "bufferDurationSubtitle": "Die maximale Pufferdauer in Sekunden. Neustart erforderlich.",
     "@bufferDurationSubtitle": {},
@@ -420,15 +420,15 @@
     "@syncDownloadedPlaylists": {},
     "showFastScroller": "Schnellen Scroller anzeigen",
     "@showFastScroller": {},
-    "swipeInsertQueueNext": "Den geswipten Track als Nächstes abspielen",
+    "swipeInsertQueueNext": "Den geswipten Titel als Nächstes abspielen",
     "@swipeInsertQueueNext": {},
-    "swipeInsertQueueNextSubtitle": "Aktivieren, um den in der Liste nach links/rechts geswipten Track als Nächstes abzuspielen, statt ihn am Ende der Warteschlange einzufügen.",
+    "swipeInsertQueueNextSubtitle": "Aktivieren, um den in der Liste nach links/rechts geswipten Titel als Nächstes abzuspielen, statt ihn am Ende der Warteschlange einzufügen.",
     "@swipeInsertQueueNextSubtitle": {},
     "playNext": "Als Nächstes wiedergeben",
     "@playNext": {
         "description": "Popup menu item title for inserting an item into the play queue after the currently-playing item."
     },
-    "noMusicLibrariesTitle": "Keine Musik-Bibliotheken",
+    "noMusicLibrariesTitle": "Keine Musikbibliotheken",
     "@noMusicLibrariesTitle": {
         "description": "Title for message that shows on the views screen when no music libraries could be found."
     },
@@ -603,7 +603,7 @@
         },
         "description": "Tooltip for album artwork on track and album tiles as well as the album screen"
     },
-    "startMixNoTracksGenre": "Drücke lange auf ein Genre, um zum Mixes hinzuzufügen oder zu entfernen, bevor du einen Mix startest",
+    "startMixNoTracksGenre": "Halte ein Genre gedrückt, um es zum Mix hinzuzufügen oder zu entfernen, bevor du einen Mix startest",
     "@startMixNoTracksGenre": {
         "description": "Snackbar message that shows when the user presses the instant mix button with no genres selected"
     },
@@ -641,7 +641,7 @@
     "@playingFrom": {
         "description": "Prefix shown before the name of the main queue source, like the album or playlist that was used to start playback. Example: \"Playing from {My Nice Playlist}\""
     },
-    "emptyFilteredListSubtitle": "Keine Tracks treffen auf den Filter zu. Versuche, den Filter zu deaktivieren oder den Suchbegriff zu änden.",
+    "emptyFilteredListSubtitle": "Keine Titel treffen auf den Filter zu. Versuche, den Filter zu deaktivieren oder den Suchbegriff zu änden.",
     "@emptyFilteredListSubtitle": {
         "description": "Message shown when a list of items is filtered and no items match the filter"
     },
@@ -859,11 +859,11 @@
     "@size": {
         "description": "Label for the feature chips showing the size (original file size or transcoded size, if available) of a track"
     },
-    "showFeatureChipsToggleTitle": "Zeige erweiterte Track-Informationen an",
+    "showFeatureChipsToggleTitle": "Zeige erweiterte Titelinformationen an",
     "@showFeatureChipsToggleTitle": {
         "description": "Title for the setting that controls if the feature chips showing advanced track info are shown on the player screen"
     },
-    "showCoversOnAlbumScreenTitle": "Zeige Album Cover für Tracks",
+    "showCoversOnAlbumScreenTitle": "Zeige Album Cover für Titel",
     "@showCoversOnAlbumScreenTitle": {
         "description": "Title for the setting that controls if album covers are shown for each track separately on the album screen"
     },
@@ -873,7 +873,7 @@
     },
     "confirmFavoriteAdded": "Favorit hinzugefügt",
     "@confirmFavoriteAdded": {},
-    "emptyTopTracksList": "Du hast noch keinen Track von diesem Künstler gehört.",
+    "emptyTopTracksList": "Du hast noch keinen Titel von diesem Künstler gehört.",
     "@emptyTopTracksList": {
         "description": "Message shown as a placeholder when the top tracks list for an artist is empty"
     },
@@ -881,7 +881,7 @@
     "@skipToPreviousTrackButtonTooltip": {
         "description": "Tooltip for the button that skips to the beginning of the current track or to the previous track"
     },
-    "showFeatureChipsToggleSubtitle": "Zeige erweiterte Track-Informationen (z.B. Codec, Bit Rate und mehr) im Player an.",
+    "showFeatureChipsToggleSubtitle": "Zeige erweiterte Titelinformationen (z.B. Codec, Bit Rate und mehr) im Player an.",
     "@showFeatureChipsToggleSubtitle": {
         "description": "Subtitle for the setting that controls if the feature chips showing advanced track info are shown on the player screen"
     },
@@ -945,7 +945,7 @@
     "@volumeNormalizationModeSelectorTitle": {
         "description": "Title for the dropdown that selects the replay gain mode"
     },
-    "volumeNormalizationModeTrackBased": "Trackbezogen",
+    "volumeNormalizationModeTrackBased": "Titelbezogen",
     "@volumeNormalizationModeTrackBased": {
         "description": "'Track-based' option for the replay gain mode dropdown. In track-based mode, the track gain is always used, regardless of whether an album is playing or not."
     },
@@ -1450,7 +1450,7 @@
             }
         }
     },
-    "queueRestoreError": "Warnung: {count,plural, =1{{count} Track konnte} other{{count} Tracks konnten}} nicht aus der Warteschlange wiederhergestellt werden.",
+    "queueRestoreError": "Warnung: {count,plural, =1{{count} Titel konnte} other{{count} Titel konnten}} nicht aus der Warteschlange wiederhergestellt werden.",
     "@queueRestoreError": {
         "description": "Message that shows when some, but not all, tracks in the Now-Playing queue from the previous session cannot be restored due to server issues or being offline.",
         "placeholders": {
@@ -1610,7 +1610,7 @@
     "@shuffleAlbumsNext": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the start of Next Up"
     },
-    "startInstantMixForIndividualTracksSwitchSubtitle": "Startet beim Tippen auf einen Track im \"Track\"-Tab einen Sofort-Mix, anstatt nur einen einzelnen Track abzuspielen.",
+    "startInstantMixForIndividualTracksSwitchSubtitle": "Startet beim Tippen auf einen Titel im \"Titel\"-Tab einen Sofort-Mix, anstatt nur einen einzelnen Titel abzuspielen.",
     "@startInstantMixForIndividualTracksSwitchSubtitle": {},
     "maxConcurrentDownloadsSubtitle": "Eine Erhöhung der gleichzeitigen Downloads kann ein erhöhtes Herunterladen im Hintergrund erlauben, kann aber bei sehr großen Downloads zu Fehlern oder zu exzessiven Verzögerungen führen.",
     "@maxConcurrentDownloadsSubtitle": {
@@ -1637,7 +1637,7 @@
     "@oneLineMarqueeTextButton": {},
     "marqueeOrTruncateButtonSubtitle": "Am Ende zu langer Tracktitel … anzeigen, statt zu scrollen",
     "@marqueeOrTruncateButtonSubtitle": {},
-    "volumeNormalizationModeSelectorDescription": "Dynamisch\nBeim Abspielen mehrerer Tracks eines Albums in Reihenfolge (z.B. beim Spielen eines Albums, oder wenn Titel des gleichen Albums in einer Playlist sind) wird der Album Gain verwendet. Ansonsten wird der Track Gain verwendet.\n\nTrack-basiert:\nEs wird immer der Track Gain verwendet, selbst wenn ein ganzes Album gespielt wird.\n\nAlbum-basiert:\nDer Album Gain wird immer verwendet, es sei denn dieser ist nicht vorhanden (z.B. bei Singles). In diesem Fall wird stattdessen der Track-Gain verwendet.\n\nNur Alben:\nLautstärken-Normalisierung wird nur bei der Wiedergabe von Alben (mit dem Album Gain) angewendet, aber nicht für individuelle Tracks.",
+    "volumeNormalizationModeSelectorDescription": "Dynamisch\nBeim Abspielen mehrerer Titel eines Albums in Reihenfolge (z.B. beim Spielen eines Albums, oder wenn Titel des gleichen Albums in einer Playlist sind) wird der Album Gain verwendet. Ansonsten wird der Track Gain verwendet.\n\nTitelbezogen:\nEs wird immer der Track Gain verwendet, selbst wenn ein ganzes Album gespielt wird.\n\nAlbumbezogen:\nDer Album Gain wird immer verwendet, es sei denn dieser ist nicht vorhanden (z.B. bei Singles). In diesem Fall wird stattdessen der Track-Gain verwendet.\n\nNur für Alben:\nLautstärken-Normalisierung wird nur bei der Wiedergabe von Alben (mit dem Album Gain) angewendet, aber nicht für individuelle Titel.",
     "@volumeNormalizationModeSelectorDescription": {
         "description": "Description for the dropdown that selects the replay gain mode, shown in a dialog that opens when the user presses the info icon next to the dropdown"
     },
@@ -1673,7 +1673,7 @@
     "@genericCancel": {
         "description": "Used when the user stops an action from taking place inside a popup dialog window"
     },
-    "startInstantMixForIndividualTracksSwitchTitle": "Beginne Sofort-Mixe für individuelle Tracks",
+    "startInstantMixForIndividualTracksSwitchTitle": "Beginne Sofort-Mixe für individuelle Titel",
     "@startInstantMixForIndividualTracksSwitchTitle": {
         "description": "Title for the switch that toggles if tapping a track on the tracks tab will start an instant mix of that track instead of just playing a single track."
     },
@@ -1825,7 +1825,7 @@
     "@downloadSizeWarningCutoffSubtitle": {
         "description": "Subtitle for the setting controlling when to warn about a large download"
     },
-    "deleteFromTargetDialogText": "Du bist dabei, {itemType, select, album{das Album} playlist{die Playlist} artist{den Künstler} genre{das Genre} track{den Track} library{die Bibliothek} other{das Item}} {device, select, device{von diesem Gerät zu löschen} server{von der Bibliothek und dem Dateisystem des Servers zu löschen.{deleteType, select, canDelete{ Das Item wird dadurch auch von diesem Gerät gelöscht.} cantDelete{ Das Item wird bis zur nächsten Synchronisierung auf diesem Gerät bleiben.} notDownloaded{} other{}}\nDiese Aktion kann nicht rückgängig gemacht werden} other{}}.",
+    "deleteFromTargetDialogText": "Du bist dabei, {itemType, select, album{das Album} playlist{die Playlist} artist{den Künstler} genre{das Genre} track{den Titel} library{die Bibliothek} other{das Item}} {device, select, device{von diesem Gerät zu löschen} server{von der Bibliothek und dem Dateisystem des Servers zu löschen.{deleteType, select, canDelete{ Das Item wird dadurch auch von diesem Gerät gelöscht.} cantDelete{ Das Item wird bis zur nächsten Synchronisierung auf diesem Gerät bleiben.} notDownloaded{} other{}}\nDiese Aktion kann nicht rückgängig gemacht werden} other{}}.",
     "@deleteFromTargetDialogText": {
         "description": "(Important: Note the space in front of some cases) A Confirm Prompt used whenever an item is about to be deleted from the device or server. The Server case should explain that this cannot be reverted, this information is not needed for the device since the user can just download the track again. The delete Type adapts the server text even more in can the user can or cant delete the item."
     },
@@ -1913,7 +1913,7 @@
     "@swipeRightToLeftAction": {},
     "swipeRightToLeftActionSubtitle": "Aktion, die ausgeführt wird, wenn ein Titel in der Liste von Rechts nach Links geswipt wird.",
     "@swipeRightToLeftActionSubtitle": {},
-    "allowDeleteFromServerSubtitle": "Aktiviere oder Deaktivere die Option, einen Titel falls möglich permanent vom Dateisystem des Servers zu löschen.",
+    "allowDeleteFromServerSubtitle": "Aktiviere oder deaktivere die Option, einen Titel falls möglich permanent vom Dateisystem des Servers zu löschen.",
     "@allowDeleteFromServerSubtitle": {
         "description": "Subtitle for the setting that controls if items can be deleted from the server"
     },
@@ -1961,7 +1961,7 @@
     "@enablePlayonTitle": {
         "description": "Label for the setting to enable Jellyfin's 'Play On' feature (remote control)"
     },
-    "playbackReportingSettingsTitle": "Wiedergabe Bericht & Abspielen auf",
+    "playbackReportingSettingsTitle": "Wiedergabebericht & Abspielen auf",
     "@playbackReportingSettingsTitle": {
         "description": "Title for the playback reporting settings screen"
     },
@@ -2862,7 +2862,7 @@
     },
     "defaultWord": "Standard",
     "@defaultWord": {},
-    "useDefaultButton": "Auf Standard Akzent Farbe zurücksetzen",
+    "useDefaultButton": "Zurücksetzen auf Standard-Akzentfarbe",
     "@useDefaultButton": {},
     "colorCode": "Farb Code (Hex)",
     "@colorCode": {
@@ -2877,5 +2877,35 @@
     "invalidColorCode": "Ungültiger Farbcode",
     "@invalidColorCode": {
         "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "systemAccentColor": "Systemfarben benutzen",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "Benutzerdefinierte Akzenfarben gesperrt, da Systemfarben benutzt werden",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "Monochromes Logo benutzen",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "Dies betrifft nur das Logo in der App selbst, nicht das im Launcher.",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+    },
+    "downloadAllPlaylistsSettingWarning": "Hinweis: Diese Aktion wird alle Elemente aller Playlisten herunterladen, egal aus welcher Bibliothek diese stammen.",
+    "@downloadAllPlaylistsSettingWarning": {},
+    "snackbarOptionsMenuTitle": "Nachrichten Verwalten",
+    "@snackbarOptionsMenuTitle": {
+        "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+    },
+    "snackbarOptionsMenuViewLogsButton": "Logs anzeigen",
+    "@snackbarOptionsMenuViewLogsButton": {
+        "description": "Button title for opening the logs screen from the snackbar options menu"
+    },
+    "snackbarOptionsMenuClearAllButton": "Alle Nachrichten entfernen",
+    "@snackbarOptionsMenuClearAllButton": {
+        "description": "Button title for clearing all snackbar messages"
     }
 }
