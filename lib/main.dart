@@ -278,7 +278,8 @@ Future<void> setupHive() async {
 
   await Future.wait([
     Hive.openBox<FinampSettings>("FinampSettings", path: dir.path),
-    Hive.openBox<FinampStorableQueueInfo>("Queues", path: dir.path),
+    Hive.openBox<FinampOldStorableQueueInfo>("Queues", path: dir.path),
+    Hive.openBox<FinampStorableQueueInfo>("QueuesNew", path: dir.path),
     Hive.openBox<OfflineListen>("OfflineListens", path: dir.path),
     Hive.openBox<RawThemeResult>("CachedThemes", path: dir.path),
   ]);

@@ -25,6 +25,7 @@ import 'package:uuid/uuid.dart';
 import '../builders/annotations.dart';
 import '../services/finamp_settings_helper.dart';
 import 'jellyfin_models.dart';
+import '../services/environment_metadata.dart';
 
 part 'finamp_models.g.dart';
 
@@ -2068,6 +2069,12 @@ class FinampQueueItem {
     id = const Uuid().v4();
   }
 
+  FinampQueueItem.fromStorableQueueItem({required FinampStorableQueueItem queueItem, required MediaItem mediaItem})
+    : id = queueItem.id,
+      item = mediaItem,
+      source = queueItem.source,
+      type = queueItem.type;
+
   @HiveField(0)
   late String id;
 
@@ -2080,13 +2087,11 @@ class FinampQueueItem {
   @HiveField(3)
   QueueItemQueueType type;
 
-  BaseItemDto? get baseItem {
-    return (item.extras?["itemJson"] != null)
-        ? BaseItemDto.fromJson(item.extras!["itemJson"] as Map<String, dynamic>)
-        : null;
+  BaseItemDto get baseItem {
+    return BaseItemDto.fromJson(item.extras!["itemJson"] as Map<String, dynamic>);
   }
 
-  BaseItemId get baseItemId => item.extras?["itemJson"]["Id"] as BaseItemId;
+  BaseItemId get baseItemId => item.extras!["itemJson"]["Id"] as BaseItemId;
 }
 
 @HiveType(typeId: 58)
@@ -2253,8 +2258,8 @@ class FinampHistoryItem {
 }
 
 @HiveType(typeId: 61)
-class FinampStorableQueueInfo {
-  FinampStorableQueueInfo({
+class FinampOldStorableQueueInfo {
+  FinampOldStorableQueueInfo({
     required this.previousTracks,
     required this.currentTrack,
     required this.currentTrackSeek,
@@ -2264,15 +2269,6 @@ class FinampStorableQueueInfo {
     required this.source,
     required this.order,
   });
-
-  FinampStorableQueueInfo.fromQueueInfo(FinampQueueInfo info, int? seek, this.order)
-    : previousTracks = info.previousTracks.map<BaseItemId>((track) => track.baseItemId).toList(),
-      currentTrack = info.currentTrack?.baseItemId,
-      currentTrackSeek = seek,
-      nextUp = info.nextUp.map<BaseItemId>((track) => track.baseItemId).toList(),
-      queue = info.queue.map<BaseItemId>((track) => track.baseItemId).toList(),
-      creation = DateTime.now().millisecondsSinceEpoch,
-      source = info.source;
 
   @HiveField(0)
   List<BaseItemId> previousTracks;
@@ -3733,4 +3729,105 @@ class RadioCacheState {
         // Ignore incorrect seeds while the queue is actively being manipulated by the radio
         (currentSeedItem == seedItem || queueing);
   }
+}
+
+@HiveType(typeId: 113)
+class FinampStorableQueueInfo {
+  FinampStorableQueueInfo({
+    required this.previousTracks,
+    required this.currentTrack,
+    required this.currentTrackSeek,
+    required this.nextUp,
+    required this.queue,
+    required this.creation,
+    required this.source,
+    required this.order,
+    required this.appInfo,
+  });
+
+  FinampStorableQueueInfo.fromQueueInfo({
+    required FinampQueueInfo info,
+    required this.appInfo,
+    this.order,
+    Duration? seek,
+  }) : previousTracks = info.previousTracks
+           .map<FinampStorableQueueItem>((track) => FinampStorableQueueItem.fromQueueItem(track))
+           .toList(),
+       currentTrack = info.currentTrack != null ? FinampStorableQueueItem.fromQueueItem(info.currentTrack!) : null,
+       currentTrackSeek = seek?.inMilliseconds,
+       nextUp = info.nextUp
+           .map<FinampStorableQueueItem>((track) => FinampStorableQueueItem.fromQueueItem(track))
+           .toList(),
+       queue = info.queue
+           .map<FinampStorableQueueItem>((track) => FinampStorableQueueItem.fromQueueItem(track))
+           .toList(),
+       creation = DateTime.now().millisecondsSinceEpoch,
+       source = info.source;
+
+  @HiveField(0)
+  List<FinampStorableQueueItem> previousTracks;
+
+  @HiveField(1)
+  FinampStorableQueueItem? currentTrack;
+
+  @HiveField(2)
+  int? currentTrackSeek;
+
+  @HiveField(3)
+  List<FinampStorableQueueItem> nextUp;
+
+  @HiveField(4)
+  List<FinampStorableQueueItem> queue;
+
+  @HiveField(5)
+  // timestamp, milliseconds since epoch
+  int creation;
+
+  @HiveField(6)
+  QueueItemSource? source;
+
+  @HiveField(7)
+  FinampPlaybackOrder? order;
+
+  @HiveField(8)
+  FinampAppInfo appInfo;
+
+  @override
+  String toString() {
+    return "previous:$previousTracks current:$currentTrack seek:$currentTrackSeek next:$nextUp queue:$queue order:$order";
+  }
+
+  int get trackCount {
+    return previousTracks.length + ((currentTrack == null) ? 0 : 1) + nextUp.length + queue.length;
+  }
+}
+
+@HiveType(typeId: 114)
+class FinampStorableQueueItem {
+  FinampStorableQueueItem({
+    required this.id,
+    required this.baseItem,
+    required this.source,
+    this.type = QueueItemQueueType.queue,
+  });
+
+  FinampStorableQueueItem.fromQueueItem(FinampQueueItem queueItem)
+    : id = queueItem.id,
+      baseItem = queueItem.baseItem,
+      source = queueItem.source,
+      type = queueItem.type;
+
+  @HiveField(0)
+  String id;
+
+  @HiveField(1)
+  BaseItemDto baseItem;
+
+  @HiveField(2)
+  QueueItemSource source;
+
+  @HiveField(3)
+  QueueItemQueueType type;
+
+  BaseItemId get baseItemId => baseItem.id;
 }

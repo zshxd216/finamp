@@ -1,5 +1,6 @@
 // This file collects structured metadata about the device, app, and server
 // for logging, analytics, and diagnostics.
+library;
 
 import 'dart:io' show Platform;
 
@@ -7,11 +8,11 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:logging/logging.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'finamp_user_helper.dart';
 
 part 'environment_metadata.g.dart';
@@ -20,27 +21,37 @@ const _SharedPreferencesVersionHistoryKey = 'version_history';
 final _environmentMetadataLogger = Logger('EnvironmentMetadata');
 
 /// Contains information about the current device (id, model, OS, platform).
+@HiveType(typeId: 110)
 @JsonSerializable()
-class DeviceInfo {
+class FinampDeviceInfo {
+  @HiveField(0)
   final String deviceName;
+  @HiveField(1)
   final String deviceModel;
+  @HiveField(2)
   final String osVersion;
+  @HiveField(3)
   final String platform;
 
-  DeviceInfo({required this.deviceName, required this.deviceModel, required this.osVersion, required this.platform});
+  FinampDeviceInfo({
+    required this.deviceName,
+    required this.deviceModel,
+    required this.osVersion,
+    required this.platform,
+  });
 
-  factory DeviceInfo.fromJson(Map<String, dynamic> json) => _$DeviceInfoFromJson(json);
-  Map<String, dynamic> toJson() => _$DeviceInfoToJson(this);
+  factory FinampDeviceInfo.fromJson(Map<String, dynamic> json) => _$FinampDeviceInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$FinampDeviceInfoToJson(this);
 
   /// Detects device info based on the current platform.
-  static Future<DeviceInfo> fromPlatform() async {
+  static Future<FinampDeviceInfo> fromPlatform() async {
     final deviceInfoPlugin = DeviceInfoPlugin();
 
     if (Platform.isAndroid) {
       final info = await deviceInfoPlugin.androidInfo;
       final isTV = info.systemFeatures.contains('android.software.leanback');
       final isWatch = info.systemFeatures.contains('android.hardware.type.watch');
-      return DeviceInfo(
+      return FinampDeviceInfo(
         deviceName: info.brand,
         deviceModel: info.model,
         osVersion: info.version.release,
@@ -48,10 +59,15 @@ class DeviceInfo {
       );
     } else if (Platform.isIOS) {
       final info = await deviceInfoPlugin.iosInfo;
-      return DeviceInfo(deviceName: info.name, deviceModel: info.model, osVersion: info.systemVersion, platform: 'iOS');
+      return FinampDeviceInfo(
+        deviceName: info.name,
+        deviceModel: info.model,
+        osVersion: info.systemVersion,
+        platform: 'iOS',
+      );
     } else if (Platform.isMacOS) {
       final info = await deviceInfoPlugin.macOsInfo;
-      return DeviceInfo(
+      return FinampDeviceInfo(
         deviceName: info.computerName,
         deviceModel: info.model,
         osVersion: "${info.majorVersion}.${info.minorVersion}.${info.patchVersion}",
@@ -59,7 +75,7 @@ class DeviceInfo {
       );
     } else if (Platform.isLinux) {
       final info = await deviceInfoPlugin.linuxInfo;
-      return DeviceInfo(
+      return FinampDeviceInfo(
         deviceName: info.name,
         deviceModel: info.id,
         osVersion: info.version ?? 'Unknown',
@@ -67,7 +83,7 @@ class DeviceInfo {
       );
     } else if (Platform.isWindows) {
       final info = await deviceInfoPlugin.windowsInfo;
-      return DeviceInfo(
+      return FinampDeviceInfo(
         deviceName: info.computerName,
         deviceModel: info.deviceId,
         osVersion: info.displayVersion,
@@ -87,18 +103,27 @@ class DeviceInfo {
 }
 
 /// Contains information about the app itself (name, version, version history).
+@HiveType(typeId: 111)
 @JsonSerializable()
-class AppInfo {
+class FinampAppInfo {
+  @HiveField(0)
   final String appName;
+  @HiveField(1)
   final String packageName;
+  @HiveField(2)
   final String? source;
+  @HiveField(3)
   final String version;
+  @HiveField(4)
   final String buildNumber;
+  @HiveField(5)
   final DateTime? installTime;
+  @HiveField(6)
   final DateTime? updateTime;
+  @HiveField(7)
   final List<String>? versionHistory;
 
-  AppInfo({
+  FinampAppInfo({
     required this.appName,
     required this.packageName,
     required this.source,
@@ -109,11 +134,11 @@ class AppInfo {
     required this.versionHistory,
   });
 
-  factory AppInfo.fromJson(Map<String, dynamic> json) => _$AppInfoFromJson(json);
-  Map<String, dynamic> toJson() => _$AppInfoToJson(this);
+  factory FinampAppInfo.fromJson(Map<String, dynamic> json) => _$FinampAppInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$FinampAppInfoToJson(this);
 
   /// Detects app metadata using package_info_plus and updates stored version history.
-  static Future<AppInfo> fromPlatform() async {
+  static Future<FinampAppInfo> fromPlatform() async {
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = "${packageInfo.version} (${packageInfo.buildNumber})";
 
@@ -132,7 +157,7 @@ class AppInfo {
       _environmentMetadataLogger.warning("Failed to update version history: $e");
     }
 
-    return AppInfo(
+    return FinampAppInfo(
       appName: packageInfo.appName,
       packageName: packageInfo.packageName,
       source: packageInfo.installerStore,
@@ -157,25 +182,30 @@ class AppInfo {
 }
 
 /// Contains information about the Jellyfin server in use.
+@HiveType(typeId: 112)
 @JsonSerializable()
-class ServerInfo {
+class FinampServerInfo {
+  @HiveField(0)
   final String serverAddressType;
+  @HiveField(1)
   final int serverPort;
+  @HiveField(2)
   final String serverProtocol;
+  @HiveField(3)
   final String serverVersion;
 
-  ServerInfo({
+  FinampServerInfo({
     required this.serverAddressType,
     required this.serverPort,
     required this.serverProtocol,
     required this.serverVersion,
   });
 
-  factory ServerInfo.fromJson(Map<String, dynamic> json) => _$ServerInfoFromJson(json);
-  Map<String, dynamic> toJson() => _$ServerInfoToJson(this);
+  factory FinampServerInfo.fromJson(Map<String, dynamic> json) => _$FinampServerInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$FinampServerInfoToJson(this);
 
   /// Extracts server info from the current user's base URL.
-  static Future<ServerInfo?> fromServer() async {
+  static Future<FinampServerInfo?> fromServer() async {
     final userHelper = GetIt.instance.isRegistered<FinampUserHelper>() ? GetIt.instance<FinampUserHelper>() : null;
     final jellyfinApiHelper = GetIt.instance.isRegistered<JellyfinApiHelper>()
         ? GetIt.instance<JellyfinApiHelper>()
@@ -194,7 +224,7 @@ class ServerInfo {
     }
 
     final uri = Uri.parse(user.baseURL);
-    return ServerInfo(
+    return FinampServerInfo(
       serverAddressType: RegExp(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$').hasMatch(uri.host)
           ? 'ipv4'
           : RegExp(r'^[\da-fA-F:]+$').hasMatch(uri.host) && uri.host.contains(':')
@@ -217,16 +247,16 @@ class ServerInfo {
 /// Encapsulates device, app, and server info for logging.
 @JsonSerializable()
 class EnvironmentMetadata {
-  final DeviceInfo deviceInfo;
-  final AppInfo appInfo;
-  final ServerInfo? serverInfo;
+  final FinampDeviceInfo deviceInfo;
+  final FinampAppInfo appInfo;
+  final FinampServerInfo? serverInfo;
   EnvironmentMetadata({required this.deviceInfo, required this.appInfo, required this.serverInfo});
 
   /// Constructs a full log instance from platform and server metadata.
   static Future<EnvironmentMetadata> create({bool fetchServerInfo = true}) async {
-    final deviceInfo = await DeviceInfo.fromPlatform();
-    final appInfo = await AppInfo.fromPlatform();
-    final serverInfo = fetchServerInfo ? await ServerInfo.fromServer() : null;
+    final deviceInfo = await FinampDeviceInfo.fromPlatform();
+    final appInfo = await FinampAppInfo.fromPlatform();
+    final serverInfo = fetchServerInfo ? await FinampServerInfo.fromServer() : null;
 
     return EnvironmentMetadata(deviceInfo: deviceInfo, appInfo: appInfo, serverInfo: serverInfo);
   }

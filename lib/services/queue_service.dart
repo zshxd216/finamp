@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:collection/collection.dart';
+import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/now_playing_bar.dart';
 import 'package:finamp/gen/assets.gen.dart';
@@ -12,7 +13,12 @@ import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
+import 'package:finamp/services/downloads_service.dart';
+import 'package:finamp/services/environment_metadata.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/playback_history_service.dart';
 import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,12 +32,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
-import '../components/PlayerScreen/queue_source_helper.dart';
-import 'downloads_service.dart';
-import 'finamp_settings_helper.dart';
-import 'jellyfin_api_helper.dart';
-import 'music_player_background_task.dart';
-
 /// A track queueing service for Finamp.
 class QueueService {
   static const savedQueueSource = QueueItemSource.rawId(
@@ -44,7 +44,8 @@ class QueueService {
   final _audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
   final _downloadsService = GetIt.instance<DownloadsService>();
   final _queueServiceLogger = Logger("QueueService");
-  final _queuesBox = Hive.box<FinampStorableQueueInfo>("Queues");
+  final _queuesBoxOld = Hive.box<FinampOldStorableQueueInfo>("Queues");
+  final _queuesBoxNew = Hive.box<FinampStorableQueueInfo>("QueuesNew");
   final _providers = GetIt.instance<ProviderContainer>();
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
 
@@ -133,7 +134,7 @@ class QueueService {
       }
     });
 
-    Stream<void>.periodic(const Duration(seconds: 10)).listen((event) {
+    Stream<void>.periodic(const Duration(seconds: 10)).listen((event) async {
       // Update once per minute while playing in background, and up to once every ten seconds if
       // pausing/seeking is occurring
       // We also update on every track switch.
@@ -144,7 +145,7 @@ class QueueService {
         if (_savedQueueState == SavedQueueState.saving) {
           _saveUpdateImmediate = false;
           _saveUpdateCycleCount = 0;
-          final info = _saveCurrentQueue(withPosition: true);
+          final info = await _saveCurrentQueue(withPosition: true);
           _queueServiceLogger.finest("Saved new periodic queue $info");
         }
       } else {
@@ -313,8 +314,8 @@ class QueueService {
     _audioHandler.queueTitle.add("Finamp");
 
     if (_savedQueueState == SavedQueueState.saving) {
-      _saveCurrentQueue(withPosition: false);
-      _queueServiceLogger.finest("Saved new rebuilt queue");
+      _queueServiceLogger.finest("Saving new rebuilt queue");
+      unawaited(_saveCurrentQueue(withPosition: false));
       _saveUpdateImmediate = false;
       _saveUpdateCycleCount = 0;
     }
@@ -328,7 +329,7 @@ class QueueService {
     }
   }
 
-  FinampStorableQueueInfo _saveCurrentQueue({bool withPosition = false}) {
+  Future<FinampStorableQueueInfo> _saveCurrentQueue({bool withPosition = false}) async {
     final queueToSave = getQueue();
     // if we exceeded the queue size limit, remove as many tracks from previousTracks as needed
     if (queueToSave.fullQueue.length > maxQueueItems) {
@@ -342,12 +343,15 @@ class QueueService {
         return false;
       });
     }
+    final environment = await EnvironmentMetadata.create(fetchServerInfo: false);
     FinampStorableQueueInfo info = FinampStorableQueueInfo.fromQueueInfo(
-      queueToSave,
-      withPosition ? _audioHandler.playbackPosition.inMilliseconds : null,
-      playbackOrder,
+      info: queueToSave,
+      seek: withPosition ? _audioHandler.playbackPosition : null,
+      order: playbackOrder,
+      appInfo: environment.appInfo,
     );
-    _queuesBox.put("latest", info);
+    await _queuesBoxNew.put("latest", info);
+    await _queuesBoxOld.delete("latest");
     return info;
   }
 
@@ -356,15 +360,20 @@ class QueueService {
       try {
         _savedQueueState = SavedQueueState.init;
         archiveSavedQueue(inInit: true);
-        var info = _queuesBox.get("latest");
+        var infoOld = _queuesBoxOld.get("latest");
+        var infoNew = _queuesBoxNew.get("latest");
+        var info = infoNew;
+        if (infoOld != null) {
+          info = await migrateToNewRestorableQueueInfo(infoOld);
+        }
         if (info != null) {
-          var keys = _queuesBox.values.map((x) => DateTime.fromMillisecondsSinceEpoch(x.creation)).toList();
+          var keys = _queuesBoxNew.values.map((x) => DateTime.fromMillisecondsSinceEpoch(x.creation)).toList();
           keys.sort();
           _queueServiceLogger.finest("Stored queue dates: $keys");
           if (keys.length > _maxSavedQueues) {
             var extra = keys.getRange(0, keys.length - _maxSavedQueues).map((e) => e.millisecondsSinceEpoch.toString());
             _queueServiceLogger.finest("Deleting stored queues: $extra");
-            unawaited(_queuesBox.deleteAll(extra));
+            unawaited(_queuesBoxNew.deleteAll(extra));
           }
 
           if (FinampSettingsHelper.finampSettings.autoloadLastQueueOnStartup) {
@@ -385,9 +394,9 @@ class QueueService {
   /// occur after this is called.
   void archiveSavedQueue({bool inInit = false}) {
     if (_savedQueueState == SavedQueueState.saving || inInit) {
-      var latest = _queuesBox.get("latest");
+      var latest = _queuesBoxNew.get("latest");
       if (latest != null && latest.trackCount != 0) {
-        _queuesBox.put(latest.creation.toString(), latest);
+        _queuesBoxNew.put(latest.creation.toString(), latest);
       }
     }
   }
@@ -396,6 +405,128 @@ class QueueService {
     if (_savedQueueState == SavedQueueState.failed && _failedSavedQueue != null) {
       await loadSavedQueue(_failedSavedQueue!);
     }
+  }
+
+  Future<FinampStorableQueueInfo> migrateToNewRestorableQueueInfo(FinampOldStorableQueueInfo queueInfo) async {
+    _queueServiceLogger.finest("Migrating old queue info: $queueInfo");
+
+    final appInfo = await EnvironmentMetadata.create(fetchServerInfo: false).then((env) => env.appInfo);
+
+    if (queueInfo.trackCount == 0) {
+      return FinampStorableQueueInfo(
+        previousTracks: [],
+        currentTrack: null,
+        currentTrackSeek: null,
+        nextUp: [],
+        queue: [],
+        creation: queueInfo.creation,
+        source: queueInfo.source,
+        order: queueInfo.order,
+        appInfo: appInfo,
+      );
+    }
+
+    List<jellyfin_models.BaseItemId> allIds =
+        queueInfo.previousTracks +
+        ((queueInfo.currentTrack == null) ? [] : [queueInfo.currentTrack!]) +
+        queueInfo.nextUp +
+        queueInfo.queue;
+    Map<jellyfin_models.BaseItemId, jellyfin_models.BaseItemDto> idMap = {};
+
+    // If queue source is playlist, fetch via parent to retrieve metadata needed
+    // for removal from playlist via queueItem
+    if (!FinampSettingsHelper.finampSettings.isOffline &&
+        queueInfo.source?.type == QueueItemSourceType.playlist &&
+        queueInfo.source?.item != null) {
+      try {
+        var itemList =
+            await _jellyfinApiHelper.getItems(
+              parentItem: queueInfo.source!.item!,
+              sortBy: "ParentIndexNumber,IndexNumber,SortName",
+              includeItemTypes: "Audio",
+            ) ??
+            [];
+        for (var d2 in itemList) {
+          idMap[d2.id] = d2;
+        }
+      } catch (e) {
+        _queueServiceLogger.warning("Error loading queue source playlist, continuing anyway.  Error: $e");
+      }
+    }
+
+    // Get list of unique ids that do not yet have an associated item.
+    List<jellyfin_models.BaseItemId> missingIds = allIds.toSet().difference(idMap.keys.toSet()).toList();
+
+    if (FinampSettingsHelper.finampSettings.isOffline) {
+      for (var id in missingIds) {
+        jellyfin_models.BaseItemDto? item = _downloadsService.getTrackDownload(id: id)?.baseItem;
+        if (item != null) {
+          idMap[id] = item;
+        }
+      }
+    } else {
+      List<jellyfin_models.BaseItemDto> itemList = await _jellyfinApiHelper.getItems(itemIds: missingIds) ?? [];
+      for (var d2 in itemList) {
+        idMap[d2.id] = d2;
+      }
+    }
+
+    Map<String, List<jellyfin_models.BaseItemDto>> items = {
+      "previous": queueInfo.previousTracks.map((e) => idMap[e]).nonNulls.toList(),
+      "current": [queueInfo.currentTrack].map((e) => idMap[e]).nonNulls.toList(),
+      "next": queueInfo.nextUp.map((e) => idMap[e]).nonNulls.toList(),
+      "queue": queueInfo.queue.map((e) => idMap[e]).nonNulls.toList(),
+    };
+    int sumLengths(int sum, Iterable<jellyfin_models.BaseItemDto> val) => val.length + sum;
+    int loadedTracks = items.values.fold(0, sumLengths);
+    int droppedTracks = queueInfo.trackCount - loadedTracks;
+
+    _queueServiceLogger.info("Migrated saved queue, loaded $loadedTracks tracks, dropped $droppedTracks tracks.");
+    return FinampStorableQueueInfo(
+      previousTracks: items["previous"]!
+          .map<FinampStorableQueueItem>(
+            (track) => FinampStorableQueueItem(
+              baseItem: track,
+              id: const Uuid().v4(),
+              source: savedQueueSource,
+              type: QueueItemQueueType.previousTracks,
+            ),
+          )
+          .toList(),
+      currentTrack: items["current"]!.isNotEmpty
+          ? FinampStorableQueueItem(
+              baseItem: items["current"]!.first,
+              id: const Uuid().v4(),
+              source: savedQueueSource,
+              type: QueueItemQueueType.currentTrack,
+            )
+          : null,
+      currentTrackSeek: queueInfo.currentTrackSeek,
+      nextUp: items["next"]!
+          .map<FinampStorableQueueItem>(
+            (track) => FinampStorableQueueItem(
+              baseItem: track,
+              id: const Uuid().v4(),
+              source: savedQueueSource,
+              type: QueueItemQueueType.nextUp,
+            ),
+          )
+          .toList(),
+      queue: items["queue"]!
+          .map<FinampStorableQueueItem>(
+            (track) => FinampStorableQueueItem(
+              baseItem: track,
+              id: const Uuid().v4(),
+              source: savedQueueSource,
+              type: QueueItemQueueType.queue,
+            ),
+          )
+          .toList(),
+      creation: queueInfo.creation,
+      source: queueInfo.source,
+      order: queueInfo.order,
+      appInfo: appInfo,
+    );
   }
 
   Future<void> loadSavedQueue(
@@ -418,56 +549,13 @@ class QueueService {
       }
       refreshQueueStream();
 
-      List<jellyfin_models.BaseItemId> allIds =
-          info.previousTracks + ((info.currentTrack == null) ? [] : [info.currentTrack!]) + info.nextUp + info.queue;
-      Map<jellyfin_models.BaseItemId, jellyfin_models.BaseItemDto> idMap = existingItems ?? {};
+      List<FinampStorableQueueItem> allQueueItems = info.previousTracks
+          .followedBy((info.currentTrack == null) ? [] : [info.currentTrack!])
+          .followedBy(info.nextUp)
+          .followedBy(info.queue)
+          .toList();
 
-      // If queue source is playlist, fetch via parent to retrieve metadata needed
-      // for removal from playlist via queueItem
-      if (!FinampSettingsHelper.finampSettings.isOffline &&
-          info.source?.type == QueueItemSourceType.playlist &&
-          info.source?.item != null) {
-        try {
-          var itemList =
-              await _jellyfinApiHelper.getItems(
-                parentItem: info.source!.item!,
-                sortBy: "ParentIndexNumber,IndexNumber,SortName",
-                includeItemTypes: "Audio",
-              ) ??
-              [];
-          for (var d2 in itemList) {
-            idMap[d2.id] = d2;
-          }
-        } catch (e) {
-          _queueServiceLogger.warning("Error loading queue source playlist, continuing anyway.  Error: $e");
-        }
-      }
-
-      // Get list of unique ids that do not yet have an associated item.
-      List<jellyfin_models.BaseItemId> missingIds = allIds.toSet().difference(idMap.keys.toSet()).toList();
-
-      if (FinampSettingsHelper.finampSettings.isOffline) {
-        for (var id in missingIds) {
-          jellyfin_models.BaseItemDto? item = _downloadsService.getTrackDownload(id: id)?.baseItem;
-          if (item != null) {
-            idMap[id] = item;
-          }
-        }
-      } else {
-        List<jellyfin_models.BaseItemDto> itemList = await _jellyfinApiHelper.getItems(itemIds: missingIds) ?? [];
-        for (var d2 in itemList) {
-          idMap[d2.id] = d2;
-        }
-      }
-
-      Map<String, List<jellyfin_models.BaseItemDto>> items = {
-        "previous": info.previousTracks.map((e) => idMap[e]).nonNulls.toList(),
-        "current": [info.currentTrack].map((e) => idMap[e]).nonNulls.toList(),
-        "next": info.nextUp.map((e) => idMap[e]).nonNulls.toList(),
-        "queue": info.queue.map((e) => idMap[e]).nonNulls.toList(),
-      };
-      int sumLengths(int sum, Iterable<jellyfin_models.BaseItemDto> val) => val.length + sum;
-      int loadedTracks = items.values.fold(0, sumLengths);
+      int loadedTracks = allQueueItems.length;
       int droppedTracks = info.trackCount - loadedTracks;
 
       if (_savedQueueState != SavedQueueState.loading) {
@@ -478,9 +566,14 @@ class QueueService {
       if (loadedTracks > 0) {
         await _replaceWholeQueue(
           isRestoredQueue: true,
-          itemList: items["previous"]! + items["current"]! + items["queue"]!,
-          initialIndex: items["current"]!.isNotEmpty || items["queue"]!.isNotEmpty ? items["previous"]!.length : 0,
-          initialSeekPosition: (info.currentTrackSeek ?? 0) > (isReload ? 500 : 5000) && items["current"]!.isNotEmpty
+          itemList: [],
+          queueItemList: info.previousTracks
+              .followedBy((info.currentTrack == null) ? [] : [info.currentTrack!])
+              // skip Next Up here
+              .followedBy(info.queue)
+              .toList(),
+          initialIndex: info.currentTrack != null || info.queue.isNotEmpty ? info.previousTracks.length : 0,
+          initialSeekPosition: (info.currentTrackSeek ?? 0) > (isReload ? 500 : 5000) && info.currentTrack != null
               ? Duration(milliseconds: info.currentTrackSeek!)
               : null,
           // Always restore queues as linear to prevent them being reshuffled while restoring
@@ -491,7 +584,7 @@ class QueueService {
           source: info.source ?? savedQueueSource,
         );
 
-        await addToNextUp(items: items["next"]!);
+        await addToNextUp(items: info.nextUp.map((e) => e.baseItem).toList());
       }
       _queueServiceLogger.info("Loaded saved queue.");
       if (loadedTracks > 0 || info.trackCount == 0) {
@@ -544,6 +637,7 @@ class QueueService {
   /// will be ignored. This is used for when the user taps in the middle of an album to start from that point.
   Future<void> _replaceWholeQueue({
     required List<jellyfin_models.BaseItemDto> itemList,
+    List<FinampStorableQueueItem>? queueItemList,
     required QueueItemSource source,
     QueueItemSource? customTrackSource,
     int? initialIndex,
@@ -553,10 +647,12 @@ class QueueService {
     bool isRestoredQueue = false,
   }) async {
     try {
-      if (itemList.isEmpty) {
+      if (itemList.isEmpty && (queueItemList?.isEmpty ?? true)) {
         _queueServiceLogger.warning("Cannot start playback of empty queue! Source: $source");
         return;
       }
+
+      int itemListLength = queueItemList?.length ?? itemList.length;
 
       invalidateRadioCache();
 
@@ -564,17 +660,17 @@ class QueueService {
 
       if (initialIndex == null) {
         if (order == FinampPlaybackOrder.shuffled) {
-          initialIndex = Random().nextInt(itemList.length);
+          initialIndex = Random().nextInt(itemListLength);
         } else {
           initialIndex = 0;
         }
       }
 
-      if (initialIndex >= itemList.length) {
-        return Future.error("initialIndex is bigger than the itemList! ($initialIndex > ${itemList.length})");
+      if (initialIndex >= itemListLength) {
+        return Future.error("initialIndex is bigger than the itemList! ($initialIndex > $itemListLength)");
       }
 
-      _queueServiceLogger.finest("Replacing whole queue with ${itemList.length} items.");
+      _queueServiceLogger.finest("Replacing whole queue with $itemListLength items.");
 
       if (!isRestoredQueue) {
         archiveSavedQueue();
@@ -590,19 +686,23 @@ class QueueService {
       List<FinampQueueItem> newItems = [];
       List<int> newLinearOrder = [];
       List<int> newShuffledOrder;
-      for (int i = 0; i < itemList.length; i++) {
-        jellyfin_models.BaseItemDto item = itemList[i];
+      final bool useQueueItemList = queueItemList?.isNotEmpty ?? false;
+      queueItemList = queueItemList!;
+      for (int i = 0; i < itemListLength; i++) {
+        jellyfin_models.BaseItemDto item = useQueueItemList ? queueItemList[i].baseItem : itemList[i];
         try {
           MediaItem mediaItem = await generateMediaItem(
             item,
             contextNormalizationGain: isRestoredQueue ? null : source.contextNormalizationGain,
           );
           newItems.add(
-            FinampQueueItem(
-              item: mediaItem,
-              source: isRestoredQueue ? savedQueueSource : customTrackSource ?? source,
-              type: i == 0 ? QueueItemQueueType.currentTrack : QueueItemQueueType.queue,
-            ),
+            useQueueItemList
+                ? FinampQueueItem.fromStorableQueueItem(queueItem: queueItemList[i], mediaItem: mediaItem)
+                : FinampQueueItem(
+                    item: mediaItem,
+                    source: isRestoredQueue ? savedQueueSource : customTrackSource ?? source,
+                    type: i == 0 ? QueueItemQueueType.currentTrack : QueueItemQueueType.queue,
+                  ),
           );
           newLinearOrder.add(i);
         } catch (e, trace) {
@@ -666,12 +766,12 @@ class QueueService {
       return Future.error("Queue is empty, cannot reload!");
     }
 
-    _saveCurrentQueue(withPosition: true);
+    await _saveCurrentQueue(withPosition: true);
     if (archiveQueue) {
       archiveSavedQueue();
     }
 
-    var info = _queuesBox.get("latest");
+    var info = _queuesBoxNew.get("latest");
     if (info != null) {
       final Map<jellyfin_models.BaseItemId, jellyfin_models.BaseItemDto> existingItems = {};
       final queueInfo = getQueue();

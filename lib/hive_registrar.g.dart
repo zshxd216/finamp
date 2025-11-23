@@ -5,6 +5,7 @@
 import 'package:hive_ce/hive.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/environment_metadata.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
@@ -33,16 +34,21 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(DownloadedParentAdapter());
     registerAdapter(DownloadedTrackAdapter());
     registerAdapter(ExternalUrlAdapter());
+    registerAdapter(FinampAppInfoAdapter());
+    registerAdapter(FinampDeviceInfoAdapter());
     registerAdapter(FinampFeatureChipTypeAdapter());
     registerAdapter(FinampFeatureChipsConfigurationAdapter());
     registerAdapter(FinampHistoryItemAdapter());
     registerAdapter(FinampLoopModeAdapter());
+    registerAdapter(FinampOldStorableQueueInfoAdapter());
     registerAdapter(FinampPlaybackOrderAdapter());
     registerAdapter(FinampQueueInfoAdapter());
     registerAdapter(FinampQueueItemAdapter());
     registerAdapter(FinampQueueOrderAdapter());
+    registerAdapter(FinampServerInfoAdapter());
     registerAdapter(FinampSettingsAdapter());
     registerAdapter(FinampStorableQueueInfoAdapter());
+    registerAdapter(FinampStorableQueueItemAdapter());
     registerAdapter(FinampTranscodingCodecAdapter());
     registerAdapter(FinampTranscodingStreamingFormatAdapter());
     registerAdapter(FinampUserAdapter());
@@ -133,16 +139,21 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(DownloadedParentAdapter());
     registerAdapter(DownloadedTrackAdapter());
     registerAdapter(ExternalUrlAdapter());
+    registerAdapter(FinampAppInfoAdapter());
+    registerAdapter(FinampDeviceInfoAdapter());
     registerAdapter(FinampFeatureChipTypeAdapter());
     registerAdapter(FinampFeatureChipsConfigurationAdapter());
     registerAdapter(FinampHistoryItemAdapter());
     registerAdapter(FinampLoopModeAdapter());
+    registerAdapter(FinampOldStorableQueueInfoAdapter());
     registerAdapter(FinampPlaybackOrderAdapter());
     registerAdapter(FinampQueueInfoAdapter());
     registerAdapter(FinampQueueItemAdapter());
     registerAdapter(FinampQueueOrderAdapter());
+    registerAdapter(FinampServerInfoAdapter());
     registerAdapter(FinampSettingsAdapter());
     registerAdapter(FinampStorableQueueInfoAdapter());
+    registerAdapter(FinampStorableQueueItemAdapter());
     registerAdapter(FinampTranscodingCodecAdapter());
     registerAdapter(FinampTranscodingStreamingFormatAdapter());
     registerAdapter(FinampUserAdapter());
