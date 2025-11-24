@@ -609,8 +609,11 @@ enum RadioModeAvailabilityStatus {
   available,
   unavailableOffline,
   unavailableNotDownloaded,
-  unavailableItemTypeNotSupported,
+  unavailableSourceTypeNotSupported,
   unavailableQueueEmpty,
+  unavailableSourceNull;
+
+  bool get isAvailable => this == RadioModeAvailabilityStatus.available;
 }
 
 final currentRadioAvailabilityStatusProvider = Provider<RadioModeAvailabilityStatus>((ref) {
@@ -630,21 +633,17 @@ final radioModeAvailabilityStatusProvider =
       final radioMode = arguments.$1;
       final source = arguments.$2;
 
-      final notOffline = !ref.watch(finampSettingsProvider.isOffline);
-      final randomAndReshuffleModeAvailable = ref.watch(_randomAndReshuffleRadioModeAvailabilityStatusProvider(source));
+      final randomAndReshuffleModeAvailability = ref.watch(
+        _randomAndReshuffleRadioModeAvailabilityStatusProvider(source),
+      );
+      final similarAndContinuousModeAvailability = ref.watch(
+        _similarAndContinuousRadioModeAvailabilityStatusProvider(source),
+      );
       final albumMixModeAvailable = ref.watch(_albumMixRadioModeAvailabilityStatusProvider(source));
 
       final currentModeAvailable = switch (radioMode) {
-        RadioMode.reshuffle => randomAndReshuffleModeAvailable,
-        RadioMode.random => randomAndReshuffleModeAvailable,
-        RadioMode.similar =>
-          notOffline && source != null
-              ? RadioModeAvailabilityStatus.available
-              : RadioModeAvailabilityStatus.unavailableOffline,
-        RadioMode.continuous =>
-          notOffline && source != null
-              ? RadioModeAvailabilityStatus.available
-              : RadioModeAvailabilityStatus.unavailableOffline,
+        RadioMode.random || RadioMode.reshuffle => randomAndReshuffleModeAvailability,
+        RadioMode.similar || RadioMode.continuous => similarAndContinuousModeAvailability,
         RadioMode.albumMix => albumMixModeAvailable,
       };
       return currentModeAvailable;
@@ -674,6 +673,16 @@ final _randomAndReshuffleRadioModeAvailabilityStatusProvider =
       }
     });
 
+final _similarAndContinuousRadioModeAvailabilityStatusProvider =
+    ProviderFamily<RadioModeAvailabilityStatus, BaseItemDto?>((ref, BaseItemDto? baseItem) {
+      // only available online when source is not null
+      return ref.watch(finampSettingsProvider.isOffline)
+          ? RadioModeAvailabilityStatus.unavailableOffline
+          : baseItem == null
+          ? RadioModeAvailabilityStatus.unavailableSourceNull
+          : RadioModeAvailabilityStatus.available;
+    });
+
 BaseItemId? getAlbumMixRadioModeSeedId(BaseItemDto? baseItem) {
   return baseItem != null
       ? switch (BaseItemDtoType.fromItem(baseItem)) {
@@ -692,7 +701,7 @@ final _albumMixRadioModeAvailabilityStatusProvider = ProviderFamily<RadioModeAva
   final albumMixModeAvailable = getAlbumMixRadioModeSeedId(baseItem) != null;
   return albumMixModeAvailable
       ? RadioModeAvailabilityStatus.available
-      : RadioModeAvailabilityStatus.unavailableItemTypeNotSupported;
+      : RadioModeAvailabilityStatus.unavailableSourceTypeNotSupported;
 });
 
 final getActiveRadioSeedProvider = ProviderFamily<BaseItemDto?, RadioMode>((Ref ref, RadioMode radioMode) {

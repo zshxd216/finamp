@@ -1078,7 +1078,7 @@ class QueueSectionHeader extends ConsumerWidget {
                             FinampLoopMode.all => const Icon(TablerIcons.repeat),
                             null => const Icon(TablerIcons.repeat_off),
                           },
-                          color: currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available
+                          color: currentRadioAvailabilityStatus.isAvailable
                               ? (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.5)
                               : (info?.loop != FinampLoopMode.none
                                     ? IconTheme.of(context).color!
@@ -1098,7 +1098,7 @@ class QueueSectionHeader extends ConsumerWidget {
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
                           icon: radioEnabled ? const Icon(TablerIcons.radio) : const Icon(TablerIcons.radio_off),
-                          color: currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available
+                          color: currentRadioAvailabilityStatus.isAvailable
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
                           onPressed: () {
@@ -1127,7 +1127,8 @@ class QueueSectionHeader extends ConsumerWidget {
             subtitle: switch (currentRadioAvailabilityStatus) {
               RadioModeAvailabilityStatus.available => AppLocalizations.of(context)!.radioModeEnabledSubtitle,
               RadioModeAvailabilityStatus.disabled => AppLocalizations.of(context)!.radioModeDisabledSubtitle,
-              RadioModeAvailabilityStatus.unavailableItemTypeNotSupported => AppLocalizations.of(
+              RadioModeAvailabilityStatus.unavailableSourceTypeNotSupported ||
+              RadioModeAvailabilityStatus.unavailableSourceNull => AppLocalizations.of(
                 context,
               )!.radioModeUnavailableForSourceItemSubtitle(radioModeTranslatedName),
               RadioModeAvailabilityStatus.unavailableOffline => AppLocalizations.of(
@@ -1155,11 +1156,9 @@ class QueueSectionHeader extends ConsumerWidget {
                   ? TablerIcons.radio_off
                   : TablerIcons.radio,
               size: 32.0,
-              color: currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available
-                  ? IconTheme.of(context).color
-                  : null,
+              color: currentRadioAvailabilityStatus.isAvailable ? IconTheme.of(context).color : null,
             ),
-            state: currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available,
+            state: currentRadioAvailabilityStatus.isAvailable,
             icon: radioFailed ? TablerIcons.alert_circle : getRadioModeIcon(radioMode),
             compact: true,
           ),

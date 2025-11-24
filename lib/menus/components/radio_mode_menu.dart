@@ -41,7 +41,8 @@ Future<void> showRadioMenu(
                 RadioModeAvailabilityStatus.available || RadioModeAvailabilityStatus.disabled => AppLocalizations.of(
                   context,
                 )!.radioModeDescription(radioModeOption.name),
-                RadioModeAvailabilityStatus.unavailableItemTypeNotSupported => AppLocalizations.of(
+                RadioModeAvailabilityStatus.unavailableSourceTypeNotSupported ||
+                RadioModeAvailabilityStatus.unavailableSourceNull => AppLocalizations.of(
                   context,
                 )!.radioModeUnavailableForSourceItemDescription,
                 RadioModeAvailabilityStatus.unavailableOffline => AppLocalizations.of(
@@ -59,11 +60,10 @@ Future<void> showRadioMenu(
               },
               badges: [
                 // similar mode is recommended
-                if (radioModeOption == RadioMode.similar &&
-                    radioModeOptionAvailabilityStatus == RadioModeAvailabilityStatus.available)
+                if (radioModeOption == RadioMode.similar && radioModeOptionAvailabilityStatus.isAvailable)
                   Icon(TablerIcons.star, size: 14.0),
               ],
-              enabled: radioModeOptionAvailabilityStatus == RadioModeAvailabilityStatus.available,
+              enabled: radioModeOptionAvailabilityStatus.isAvailable,
               icon: getRadioModeIcon(radioModeOption),
               isDisabled: ref.watch(currentRadioAvailabilityStatusProvider) != RadioModeAvailabilityStatus.available,
               isSelected: currentRadioMode == radioModeOption,
@@ -99,7 +99,7 @@ Future<void> showRadioMenu(
             return ChoiceMenuOption(
               title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
               icon: TablerIcons.radio_off,
-              isSelected: ref.watch(currentRadioAvailabilityStatusProvider) == RadioModeAvailabilityStatus.disabled,
+              isSelected: ref.watch(currentRadioAvailabilityStatusProvider).isAvailable,
               enabled: true,
               onSelect: () async {
                 toggleRadio(false);

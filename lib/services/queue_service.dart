@@ -554,8 +554,26 @@ class QueueService {
           .followedBy(info.nextUp)
           .followedBy(info.queue)
           .toList();
+      List<FinampStorableQueueItem> ensureDownloadedIfOffline(Iterable<FinampStorableQueueItem?> items) {
+        if (!FinampSettingsHelper.finampSettings.isOffline) {
+          return items.nonNulls.toList();
+        }
+        return items
+            .where((e) {
+              return _downloadsService.getTrackDownload(id: e?.baseItem.id) != null;
+            })
+            .nonNulls
+            .toList();
+      }
 
-      int loadedTracks = allQueueItems.length;
+      Map<String, List<FinampStorableQueueItem>> items = {
+        "previous": ensureDownloadedIfOffline(info.previousTracks),
+        "current": ensureDownloadedIfOffline([info.currentTrack]),
+        "next": ensureDownloadedIfOffline(info.nextUp),
+        "queue": ensureDownloadedIfOffline(info.queue),
+      };
+      int sumLengths(int sum, Iterable<FinampStorableQueueItem> val) => val.length + sum;
+      int loadedTracks = items.values.fold(0, sumLengths);
       int droppedTracks = info.trackCount - loadedTracks;
 
       if (_savedQueueState != SavedQueueState.loading) {
@@ -567,12 +585,12 @@ class QueueService {
         await _replaceWholeQueue(
           isRestoredQueue: true,
           itemList: [],
-          queueItemList: info.previousTracks
-              .followedBy((info.currentTrack == null) ? [] : [info.currentTrack!])
+          queueItemList: items["previous"]!
+              .followedBy(items["current"]!)
               // skip Next Up here
-              .followedBy(info.queue)
+              .followedBy(items["queue"]!)
               .toList(),
-          initialIndex: info.currentTrack != null || info.queue.isNotEmpty ? info.previousTracks.length : 0,
+          initialIndex: items["current"] != null || items["queue"]!.isNotEmpty ? items["previous"]!.length : 0,
           initialSeekPosition: (info.currentTrackSeek ?? 0) > (isReload ? 500 : 5000) && info.currentTrack != null
               ? Duration(milliseconds: info.currentTrackSeek!)
               : null,
@@ -584,7 +602,8 @@ class QueueService {
           source: info.source ?? savedQueueSource,
         );
 
-        await addToNextUp(items: info.nextUp.map((e) => e.baseItem).toList());
+        //TODO allow passing FinampStorableQueueItem to this?
+        await addToNextUp(items: items["next"]!.map((e) => e.baseItem).toList());
       }
       _queueServiceLogger.info("Loaded saved queue.");
       if (loadedTracks > 0 || info.trackCount == 0) {
@@ -687,9 +706,8 @@ class QueueService {
       List<int> newLinearOrder = [];
       List<int> newShuffledOrder;
       final bool useQueueItemList = queueItemList?.isNotEmpty ?? false;
-      queueItemList = queueItemList!;
       for (int i = 0; i < itemListLength; i++) {
-        jellyfin_models.BaseItemDto item = useQueueItemList ? queueItemList[i].baseItem : itemList[i];
+        jellyfin_models.BaseItemDto item = useQueueItemList ? queueItemList![i].baseItem : itemList[i];
         try {
           MediaItem mediaItem = await generateMediaItem(
             item,
@@ -697,7 +715,7 @@ class QueueService {
           );
           newItems.add(
             useQueueItemList
-                ? FinampQueueItem.fromStorableQueueItem(queueItem: queueItemList[i], mediaItem: mediaItem)
+                ? FinampQueueItem.fromStorableQueueItem(queueItem: queueItemList![i], mediaItem: mediaItem)
                 : FinampQueueItem(
                     item: mediaItem,
                     source: isRestoredQueue ? savedQueueSource : customTrackSource ?? source,
@@ -1227,7 +1245,7 @@ class QueueService {
     final radioEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
     final radioSeed = _providers.read(getActiveRadioSeedProvider(radioMode));
     final radioAvailabilityStatus = _providers.read(radioModeAvailabilityStatusProvider((radioMode, radioSeed)));
-    final radioActive = radioEnabled && radioAvailabilityStatus == RadioModeAvailabilityStatus.available;
+    final radioActive = radioEnabled && radioAvailabilityStatus.isAvailable;
 
     // if we start toggling loop modes, the radio should be disabled, to prevent it kicking back in when it becomes available
     if (radioEnabled) {

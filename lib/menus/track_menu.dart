@@ -373,9 +373,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 label: radioEnabled
                     ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
                     : loopModeTooltips[playbackBehavior.loop]!,
-                iconColor:
-                    currentRadioAvailabilityStatus == RadioModeAvailabilityStatus.available ||
-                        playbackBehavior.loop != FinampLoopMode.none
+                iconColor: currentRadioAvailabilityStatus.isAvailable || playbackBehavior.loop != FinampLoopMode.none
                     ? iconColor
                     : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
               ),
