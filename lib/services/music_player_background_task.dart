@@ -1106,6 +1106,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
                       : "Add Favorite"),
           ),
         if (FinampSettingsHelper.finampSettings.showShuffleButtonOnMediaNotification)
+          //FIXME override the shuffle icon with the radio icon if that's active
+          // be sure to call [refreshPlaybackStateAndMediaNotification] when radio mode changes to manually update the notification
           MediaControl.custom(
             name: CustomPlaybackActions.shuffle.name,
             androidIcon: _player.shuffleModeEnabled

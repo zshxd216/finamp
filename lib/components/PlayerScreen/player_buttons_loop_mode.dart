@@ -23,14 +23,12 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
 
     final radioMode = ref.watch(finampSettingsProvider.radioMode);
     final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
+    final currentRadioAvailabilityStatus = ref.watch(currentRadioAvailabilityStatusProvider);
     final radioFailed = ref.watch(radioStateProvider.select((state) => state?.failed ?? false));
 
     IconData getRepeatingIcon(FinampLoopMode loopMode) {
       if (radioEnabled) {
-        if (radioFailed) {
-          return TablerIcons.radio_off;
-        }
-        return TablerIcons.radio;
+        return (currentRadioAvailabilityStatus.isAvailable && !radioFailed) ? TablerIcons.radio : TablerIcons.radio_off;
       }
       if (loopMode == FinampLoopMode.all) {
         return TablerIcons.repeat;
@@ -46,7 +44,9 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
         if (radioFailed) {
           return AppLocalizations.of(context)!.radioFailedSubtitle;
         }
-        return AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name);
+        return currentRadioAvailabilityStatus.isAvailable
+            ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+            : AppLocalizations.of(context)!.radioModeInactiveTitle;
       }
       switch (loopMode) {
         case FinampLoopMode.all:

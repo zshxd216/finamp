@@ -1152,9 +1152,7 @@ class QueueSectionHeader extends ConsumerWidget {
             ),
             isLoading: radioLoading,
             leading: Icon(
-              currentRadioAvailabilityStatus != RadioModeAvailabilityStatus.available || radioFailed
-                  ? TablerIcons.radio_off
-                  : TablerIcons.radio,
+              !currentRadioAvailabilityStatus.isAvailable || radioFailed ? TablerIcons.radio_off : TablerIcons.radio,
               size: 32.0,
               color: currentRadioAvailabilityStatus.isAvailable ? IconTheme.of(context).color : null,
             ),

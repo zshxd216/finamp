@@ -353,7 +353,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
               ),
               PlaybackAction(
                 icon: radioEnabled
-                    ? radioFailed
+                    ? (currentRadioAvailabilityStatus.isAvailable && !radioFailed)
                           ? TablerIcons.radio
                           : TablerIcons.radio_off
                     : loopModeIcons[playbackBehavior.loop]!,
@@ -371,7 +371,9 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                       : AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
                 ),
                 label: radioEnabled
-                    ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+                    ? (currentRadioAvailabilityStatus.isAvailable
+                          ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+                          : AppLocalizations.of(context)!.radioModeInactiveTitle)
                     : loopModeTooltips[playbackBehavior.loop]!,
                 iconColor: currentRadioAvailabilityStatus.isAvailable || playbackBehavior.loop != FinampLoopMode.none
                     ? iconColor

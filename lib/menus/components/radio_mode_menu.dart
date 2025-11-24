@@ -70,11 +70,12 @@ Future<void> showRadioMenu(
               onSelect: () async {
                 final radioTracksWillChange = currentRadioMode != radioModeOption || startNewQueue;
                 FeedbackHelper.feedback(FeedbackType.selection);
-                if (radioTracksWillChange) {
-                  await queueService.clearRadioTracks();
-                }
                 if (currentRadioMode != radioModeOption) {
                   FinampSetters.setRadioMode(radioModeOption);
+                }
+                // clear tracks after updating mode to ensure any later request for radio tracks use the correct settings
+                if (radioTracksWillChange) {
+                  await queueService.clearRadioTracks();
                 }
                 if (seedItem != null && startNewQueue) {
                   unawaited(startRadioPlayback(seedItem));

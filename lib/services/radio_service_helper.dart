@@ -238,7 +238,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
       final reshuffleModeAvailabilityStatus = providers.read(
         _randomAndReshuffleRadioModeAvailabilityStatusProvider(overrideSeedItem),
       );
-      if (reshuffleModeAvailabilityStatus != RadioModeAvailabilityStatus.available) {
+      if (!reshuffleModeAvailabilityStatus.isAvailable) {
         _radioLogger.warning(
           "Reshuffle radio mode selected but the provided item '${overrideSeedItem?.name}' not downloaded or the queue is empty. Availability status: $reshuffleModeAvailabilityStatus. Returning empty track list.",
         );
@@ -259,7 +259,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
       final randomModeAvailabilityStatus = providers.read(
         _randomAndReshuffleRadioModeAvailabilityStatusProvider(overrideSeedItem),
       );
-      if (randomModeAvailabilityStatus != RadioModeAvailabilityStatus.available) {
+      if (!randomModeAvailabilityStatus.isAvailable) {
         _radioLogger.warning(
           "Random radio mode selected but the provided item '${overrideSeedItem?.name}' is not downloaded or the queue is empty. Availability status: $randomModeAvailabilityStatus. Returning empty track list.",
         );
