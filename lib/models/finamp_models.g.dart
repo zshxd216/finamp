@@ -1258,33 +1258,38 @@ class FinampHistoryItemAdapter extends TypeAdapter<FinampHistoryItem> {
           typeId == other.typeId;
 }
 
-class FinampOldStorableQueueInfoAdapter
-    extends TypeAdapter<FinampOldStorableQueueInfo> {
+class FinampStorableQueueInfoAdapter
+    extends TypeAdapter<FinampStorableQueueInfo> {
   @override
   final typeId = 61;
 
   @override
-  FinampOldStorableQueueInfo read(BinaryReader reader) {
+  FinampStorableQueueInfo read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return FinampOldStorableQueueInfo(
+    return FinampStorableQueueInfo(
       previousTracks: (fields[0] as List).cast<BaseItemId>(),
       currentTrack: fields[1] as BaseItemId?,
       currentTrackSeek: (fields[2] as num?)?.toInt(),
       nextUp: (fields[3] as List).cast<BaseItemId>(),
       queue: (fields[4] as List).cast<BaseItemId>(),
       creation: (fields[5] as num).toInt(),
-      source: fields[6] as QueueItemSource?,
+      sourceIndex: (fields[9] as num?)?.toInt(),
+      sourceList: fields[8] == null
+          ? []
+          : (fields[8] as List).cast<QueueItemSource>(),
       order: fields[7] as FinampPlaybackOrder?,
+      trackSourceIndexes: (fields[10] as List?)?.cast<int>(),
+      legacySource: fields[6] as QueueItemSource?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, FinampOldStorableQueueInfo obj) {
+  void write(BinaryWriter writer, FinampStorableQueueInfo obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.previousTracks)
       ..writeByte(1)
@@ -1298,9 +1303,15 @@ class FinampOldStorableQueueInfoAdapter
       ..writeByte(5)
       ..write(obj.creation)
       ..writeByte(6)
-      ..write(obj.source)
+      ..write(obj.legacySource)
       ..writeByte(7)
-      ..write(obj.order);
+      ..write(obj.order)
+      ..writeByte(8)
+      ..write(obj.sourceList)
+      ..writeByte(9)
+      ..write(obj.sourceIndex)
+      ..writeByte(10)
+      ..write(obj.trackSourceIndexes);
   }
 
   @override
@@ -1309,7 +1320,7 @@ class FinampOldStorableQueueInfoAdapter
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FinampOldStorableQueueInfoAdapter &&
+      other is FinampStorableQueueInfoAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -1542,111 +1553,6 @@ class RawThemeResultAdapter extends TypeAdapter<RawThemeResult> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RawThemeResultAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class FinampStorableQueueInfoAdapter
-    extends TypeAdapter<FinampStorableQueueInfo> {
-  @override
-  final typeId = 113;
-
-  @override
-  FinampStorableQueueInfo read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return FinampStorableQueueInfo(
-      previousTracks: (fields[0] as List).cast<FinampStorableQueueItem>(),
-      currentTrack: fields[1] as FinampStorableQueueItem?,
-      currentTrackSeek: (fields[2] as num?)?.toInt(),
-      nextUp: (fields[3] as List).cast<FinampStorableQueueItem>(),
-      queue: (fields[4] as List).cast<FinampStorableQueueItem>(),
-      creation: (fields[5] as num).toInt(),
-      source: fields[6] as QueueItemSource?,
-      order: fields[7] as FinampPlaybackOrder?,
-      appInfo: fields[8] as FinampAppInfo,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, FinampStorableQueueInfo obj) {
-    writer
-      ..writeByte(9)
-      ..writeByte(0)
-      ..write(obj.previousTracks)
-      ..writeByte(1)
-      ..write(obj.currentTrack)
-      ..writeByte(2)
-      ..write(obj.currentTrackSeek)
-      ..writeByte(3)
-      ..write(obj.nextUp)
-      ..writeByte(4)
-      ..write(obj.queue)
-      ..writeByte(5)
-      ..write(obj.creation)
-      ..writeByte(6)
-      ..write(obj.source)
-      ..writeByte(7)
-      ..write(obj.order)
-      ..writeByte(8)
-      ..write(obj.appInfo);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FinampStorableQueueInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class FinampStorableQueueItemAdapter
-    extends TypeAdapter<FinampStorableQueueItem> {
-  @override
-  final typeId = 114;
-
-  @override
-  FinampStorableQueueItem read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return FinampStorableQueueItem(
-      id: fields[0] as String,
-      baseItem: fields[1] as BaseItemDto,
-      source: fields[2] as QueueItemSource,
-      type: fields[3] == null
-          ? QueueItemQueueType.queue
-          : fields[3] as QueueItemQueueType,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, FinampStorableQueueItem obj) {
-    writer
-      ..writeByte(4)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.baseItem)
-      ..writeByte(2)
-      ..write(obj.source)
-      ..writeByte(3)
-      ..write(obj.type);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FinampStorableQueueItemAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

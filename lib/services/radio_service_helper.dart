@@ -191,14 +191,26 @@ void invalidateRadioCache() {
 }
 
 bool toggleRadio([bool? enable]) {
-  final queueService = GetIt.instance<QueueService>();
   final currentlyEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
   final newState = enable ?? !currentlyEnabled;
   FinampSetters.setRadioEnabled(newState);
   if (!newState) {
-    unawaited(queueService.clearRadioTracks());
+    unawaited(clearRadioTracks());
   }
   return newState;
+}
+
+// Callers should set up correct radio state synchronously before calling this,
+// so that we will be ready for the radio to restart as soon as this function releases its lock.
+Future<void> clearRadioTracks() async {
+  final queueService = GetIt.instance<QueueService>();
+  invalidateRadioCache();
+  final localResult = _radioCacheStateStream.value!.copyWith(queueing: true);
+  _radioCacheStateStream.add(localResult);
+  await queueService.clearRadioTracksLocked();
+  if (identical(localResult, _radioCacheStateStream.value)) {
+    _radioCacheStateStream.add(localResult.copyWith(queueing: false));
+  }
 }
 
 enum AlbumMixFallbackModes {
@@ -351,8 +363,8 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {jellyfin_models
 
       // filter out any albums where tracks with that album as the (radio) source are already in the queue
       final existingAlbumIds = currentQueue.fullQueue
-          .where((queueItem) => queueItem.baseItem?.albumId != null)
-          .map((queueItem) => queueItem.baseItem!.albumId)
+          .where((queueItem) => queueItem.baseItem.albumId != null)
+          .map((queueItem) => queueItem.baseItem.albumId)
           .toSet();
       List<jellyfin_models.BaseItemDto> filteredSimilarAlbums = [];
 
@@ -576,7 +588,7 @@ Future<List<jellyfin_models.BaseItemDto>> _getSimilarTracks({
       // filter out duplicate tracks, including upcoming ones
       final recentlyPlayedIds = currentQueue.fullQueue.reversed
           .take(repetitionThresholdTracks)
-          .map((item) => item.baseItem!.id)
+          .map((item) => item.baseItem.id)
           .toSet();
       filteredSample.removeWhere((item) => recentlyPlayedIds.contains(item.id));
       final filteredOutTrackCount = originalTrackCount - filteredSample.length;

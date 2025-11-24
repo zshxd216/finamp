@@ -73,13 +73,13 @@ Future<void> showRadioMenu(
                 if (currentRadioMode != radioModeOption) {
                   FinampSetters.setRadioMode(radioModeOption);
                 }
-                // clear tracks after updating mode to ensure any later request for radio tracks use the correct settings
-                if (radioTracksWillChange) {
-                  await queueService.clearRadioTracks();
-                }
                 if (seedItem != null && startNewQueue) {
                   unawaited(startRadioPlayback(seedItem));
                 } else {
+                  // clear tracks after updating mode to ensure any later request for radio tracks use the correct settings
+                  if (radioTracksWillChange) {
+                    await clearRadioTracks();
+                  }
                   toggleRadio(true);
                 }
                 if (radioTracksWillChange) {
