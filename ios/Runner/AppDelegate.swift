@@ -2,13 +2,16 @@ import app_links
 import UIKit
 import Flutter
 
+let flutterEngine = FlutterEngine(name: "SharedEngine", project: nil, allowHeadlessExecution: true)
+
 @main
 @objc class AppDelegate: FlutterAppDelegate {
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        GeneratedPluginRegistrant.register(with: self)
+        flutterEngine.run()
+        GeneratedPluginRegistrant.register(with: flutterEngine)
         
         // Exclude the documents and support folders from iCloud backup since we keep songs there.
         try! setExcludeFromiCloudBackup(
@@ -27,7 +30,7 @@ import Flutter
             AppLinks.shared.handleLink(url: url)
             return true  // Returning true will stop the propagation to other packages
         }
-        
+            
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 }
