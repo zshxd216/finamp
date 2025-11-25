@@ -95,7 +95,7 @@
     "@aboutThanks": {
         "description": "Thank you message shown in the about screen."
     },
-    "loginFlowWelcomeHeading": "Benvingut a",
+    "loginFlowWelcomeHeading": "Benvingut a {styledName}",
     "@loginFlowWelcomeHeading": {
         "description": "Greeting shown on the login screen. The full message will be 'Welcome to Finamp'."
     },
@@ -648,7 +648,7 @@
     },
     "seconds": "Segons",
     "@seconds": {},
-    "setSleepTimer": "Estableix un temportitzador",
+    "setSleepTimer": "Aturar la reproducció després de",
     "@setSleepTimer": {},
     "hours": "Hores",
     "@hours": {},
@@ -764,7 +764,7 @@
             }
         }
     },
-    "sleepTimerRemainingTime": "Aturar en {time} minuts",
+    "sleepTimerRemainingTime": "Aturar en {time,plural,=1{<1 minut} other{{time} minuts}}",
     "@sleepTimerRemainingTime": {
         "description": "Button label for sleep timer. {time} is the amount of minutes left.",
         "placeholders": {
@@ -1116,5 +1116,23 @@
     "logoutButtonSubtitle": "Accedir a un servidor diferent esborrara descarregues existents",
     "@logoutButtonSubtitle": {},
     "none": "Cap",
-    "@none": {}
+    "@none": {},
+    "shuffleSome": "Reproduir a l'atzar",
+    "@shuffleSome": {},
+    "playbackActionPageNewQueue": "Nova cua",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Reproduir següent",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageNextUp": "Reproduir a continuació",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "playbackActionPageAppendToQueue": "Reproduir al final",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    }
 }
