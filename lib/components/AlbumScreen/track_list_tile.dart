@@ -284,10 +284,6 @@ Future<bool> onConfirmPlayableDismiss({
       ? FinampSettingsHelper.finampSettings.itemSwipeActionLeftToRight
       : FinampSettingsHelper.finampSettings.itemSwipeActionRightToLeft;
 
-  if (Platform.isWindows || Platform.isLinux) {
-    followUpAction = ItemSwipeActions.addToQueue;
-  }
-
   final queueService = GetIt.instance<QueueService>();
 
   final sourceItemType = switch (sourceItem) {
@@ -369,9 +365,6 @@ Widget buildSwipeActionBackground({
   required ItemSwipeActions action,
   double? iconSize,
 }) {
-  if (Platform.isWindows || Platform.isLinux) {
-    action = ItemSwipeActions.addToQueue;
-  }
 
   final icon = getSwipeActionIcon(action);
   final label = action.toLocalisedString(context);

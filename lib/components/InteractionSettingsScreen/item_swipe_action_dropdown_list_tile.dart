@@ -17,15 +17,8 @@ class ItemSwipeLeftToRightActionDropdownListTile extends ConsumerWidget {
       title: Text(AppLocalizations.of(context)!.swipeLeftToRightAction),
       subtitle: Text(AppLocalizations.of(context)!.swipeLeftToRightActionSubtitle),
       trailing: DropdownButton<ItemSwipeActions>(
-        value: (Platform.isWindows || Platform.isLinux) && action != ItemSwipeActions.nothing
-            ? ItemSwipeActions.addToQueue
-            : action,
+        value: action,
         items: ItemSwipeActions.values
-            .where(
-              (element) => (Platform.isWindows || Platform.isLinux) && element != ItemSwipeActions.nothing
-                  ? element == ItemSwipeActions.addToQueue
-                  : true,
-            )
             .map((e) => DropdownMenuItem<ItemSwipeActions>(value: e, child: Text(e.toLocalisedString(context))))
             .toList(),
         onChanged: (value) {
@@ -48,15 +41,8 @@ class ItemSwipeRightToLeftActionDropdownListTile extends ConsumerWidget {
       title: Text(AppLocalizations.of(context)!.swipeRightToLeftAction),
       subtitle: Text(AppLocalizations.of(context)!.swipeRightToLeftActionSubtitle),
       trailing: DropdownButton<ItemSwipeActions>(
-        value: (Platform.isWindows || Platform.isLinux) && action != ItemSwipeActions.nothing
-            ? ItemSwipeActions.addToQueue
-            : action,
+        value: action,
         items: ItemSwipeActions.values
-            .where(
-              (element) => (Platform.isWindows || Platform.isLinux) && element != ItemSwipeActions.nothing
-                  ? element == ItemSwipeActions.addToQueue
-                  : true,
-            )
             .map((e) => DropdownMenuItem<ItemSwipeActions>(value: e, child: Text(e.toLocalisedString(context))))
             .toList(),
         onChanged: (value) {

@@ -125,10 +125,10 @@ packages:
     dependency: "direct main"
     description:
       name: audio_session
-      sha256: "2b7fff16a552486d078bfc09a8cde19f426dc6d6329262b684182597bec5b1ac"
+      sha256: "8f96a7fecbb718cb093070f868b4cdcb8a9b1053dce342ff8ab2fde10eb9afb7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.25"
+    version: "0.2.2"
   auto_size_text:
     dependency: "direct main"
     description:
@@ -924,18 +924,20 @@ packages:
   just_audio:
     dependency: "direct main"
     description:
-      name: just_audio
-      sha256: f978d5b4ccea08f267dae0232ec5405c1b05d3f3cd63f82097ea46c015d5c09e
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.46"
+      path: just_audio
+      ref: "6dfdd07d19f6f037d3f4ff04c397639e4632c687"
+      resolved-ref: "6dfdd07d19f6f037d3f4ff04c397639e4632c687"
+      url: "https://github.com/LennartEnns/just_audio_fork.git"
+    source: git
+    version: "0.10.6"
   just_audio_media_kit:
     dependency: "direct main"
     description:
-      name: just_audio_media_kit
-      sha256: f3cf04c3a50339709e87e90b4e841eef4364ab4be2bdbac0c54cc48679f84d23
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "feat/queue-shuffle"
+      resolved-ref: "2369f51989cb7fd8e6713f20844a0d4fe6f1bc0a"
+      url: "https://github.com/Komodo5197/just_audio_media_kit.git"
+    source: git
     version: "2.1.0"
   just_audio_platform_interface:
     dependency: transitive

@@ -247,7 +247,6 @@ class PlayNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       label: AppLocalizations.of(context)!.playNext,
       compactLayout: compactLayout,
@@ -290,7 +289,6 @@ class MovePlayNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       label: AppLocalizations.of(context)!.movePlayNext,
       compactLayout: compactLayout,
@@ -332,7 +330,6 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       label: AppLocalizations.of(context)!.addToNextUp,
       compactLayout: compactLayout,
@@ -375,7 +372,6 @@ class MoveAddToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       label: AppLocalizations.of(context)!.moveAddToNextUp,
       compactLayout: compactLayout,
@@ -544,7 +540,6 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -590,7 +585,6 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -736,7 +730,6 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -789,7 +782,6 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
