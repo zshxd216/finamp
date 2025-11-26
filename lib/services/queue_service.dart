@@ -106,7 +106,7 @@ class QueueService {
 
       final previousIndex = _queueAudioSourceIndex;
       _queueAudioSourceIndex = event.queueIndex ?? 0;
-      
+
       // Ignore playback events if queue is empty.
       if (previousIndex != _queueAudioSourceIndex && _currentTrack != null) {
         _queueServiceLogger.finer("Play queue index changed, new index: $_queueAudioSourceIndex");

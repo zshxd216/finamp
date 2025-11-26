@@ -365,7 +365,6 @@ Widget buildSwipeActionBackground({
   required ItemSwipeActions action,
   double? iconSize,
 }) {
-
   final icon = getSwipeActionIcon(action);
   final label = action.toLocalisedString(context);
 
