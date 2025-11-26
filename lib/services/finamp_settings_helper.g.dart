@@ -1202,6 +1202,17 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setLastUsedPlaybackActionRowPageForQueueMenu(
+    PlaybackActionRowPage newLastUsedPlaybackActionRowPageForQueueMenu,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.lastUsedPlaybackActionRowPageForQueueMenu =
+        newLastUsedPlaybackActionRowPageForQueueMenu;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1618,6 +1629,11 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       .select((value) => value.requireValue.useSystemAccentColor);
   ProviderListenable<bool> get useMonochromeIcon => finampSettingsProvider
       .select((value) => value.requireValue.useMonochromeIcon);
+  ProviderListenable<PlaybackActionRowPage>
+  get lastUsedPlaybackActionRowPageForQueueMenu =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.lastUsedPlaybackActionRowPageForQueueMenu,
+      );
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(
         (value) => value.requireValue.downloadTranscodingProfile,

@@ -106,7 +106,7 @@ class QueueService {
 
       final previousIndex = _queueAudioSourceIndex;
       _queueAudioSourceIndex = event.queueIndex ?? 0;
-      
+
       // Ignore playback events if queue is empty.
       if (previousIndex != _queueAudioSourceIndex && _currentTrack != null) {
         _queueServiceLogger.finer("Play queue index changed, new index: $_queueAudioSourceIndex");
@@ -850,6 +850,14 @@ class QueueService {
 
     await _audioHandler.removeFinampQueueItemAt(adjustedQueueIndex);
     _buildQueueFromNativePlayerQueue();
+  }
+
+  Future<void> removeQueueItem(FinampQueueItem queueItem) async {
+    int? offset = getQueue().getOffsetForQueueItem(queueItem);
+    if (offset == null) {
+      return;
+    }
+    return removeAtOffset(offset);
   }
 
   Future<void> reorderByOffset(int oldOffset, int newOffset) async {

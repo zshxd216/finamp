@@ -15,6 +15,7 @@ import 'package:finamp/menus/components/menuEntries/restore_queue_menu_entry.dar
 import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.dart';
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action.dart';
+import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
 import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/menus/components/speed_menu.dart';
 import 'package:finamp/menus/sleep_timer_menu.dart';
@@ -49,6 +50,7 @@ Future<void> showModalTrackMenu({
   bool confirmPlaylistRemoval = true,
   bool showQueueActions = false,
   FinampStorableQueueInfo? queueInfo,
+  FinampQueueItem? queueItem,
 }) async {
   final isOffline = FinampSettingsHelper.finampSettings.isOffline;
   final canGoToAlbum = item.parentId != null;
@@ -76,6 +78,7 @@ Future<void> showModalTrackMenu({
         childBuilder: childBuilder,
         dragController: dragController,
         queueInfo: queueInfo,
+        queueItem: queueItem,
       );
     },
   );
@@ -102,6 +105,7 @@ class TrackMenu extends ConsumerStatefulWidget {
     required this.childBuilder,
     required this.dragController,
     this.queueInfo,
+    this.queueItem,
   });
 
   final BaseItemDto item;
@@ -118,6 +122,7 @@ class TrackMenu extends ConsumerStatefulWidget {
   final ScrollBuilder childBuilder;
   final DraggableScrollableController dragController;
   final FinampStorableQueueInfo? queueInfo;
+  final FinampQueueItem? queueItem;
 
   @override
   ConsumerState<TrackMenu> createState() => _TrackMenuState();
@@ -211,9 +216,9 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
     final stackHeight = ThemedBottomSheet.calculateStackHeight(
       context: context,
       menuEntries: menuEntries,
-      // Include 60 height of shorter track playback row
-      extraHeight: widget.showPlaybackControls ? 160 : 60,
-      includePlaybackrow: false,
+      extraHeight: widget.showPlaybackControls ? 100 : 00,
+      includePlaybackRow: true,
+      includePlaybackRowPageIndicator: widget.queueItem != null,
     );
 
     return Consumer(
@@ -265,9 +270,6 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
         menuHeight = closedHeight;
     }
 
-    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
-    final preferNextUp = ref.watch(finampSettingsProvider.preferNextUpPrepending);
-
     return [
       if (widget.showPlaybackControls) ...[
         StreamBuilder<PlaybackBehaviorInfo>(
@@ -306,7 +308,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
               PlaybackAction(
                 icon: playbackOrderIcons[playbackBehavior.order]!,
                 onPressed: () async {
-                  _queueService.togglePlaybackOrder();
+                  await _queueService.togglePlaybackOrder();
                 },
                 label: playbackOrderTooltips[playbackBehavior.order]!,
                 iconColor: playbackBehavior.order == FinampPlaybackOrder.shuffled
@@ -476,16 +478,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
         child: SliverToBoxAdapter(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              PlayPlaybackAction(item: widget.item),
-              if (nextUpNotEmpty || !preferNextUp) PlayNextPlaybackAction(item: widget.item),
-              if (nextUpNotEmpty || preferNextUp) AddToNextUpPlaybackAction(item: widget.item),
-              AddToQueuePlaybackAction(item: widget.item),
-            ],
-          ),
+          child: PlaybackActionRow(item: widget.item, queueItem: widget.queueItem),
         ),
       ),
       MenuMask(
