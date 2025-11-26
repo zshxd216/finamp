@@ -5,20 +5,15 @@ import 'package:finamp/menus/components/menuEntries/adaptive_download_lock_delet
 import 'package:finamp/menus/components/menuEntries/add_to_playlist_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/delete_from_server_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/instant_mix_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/mix_builder_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/restore_queue_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.dart';
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
-import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/services/finamp_settings_helper.dart';
-import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
-
-import 'components/menuEntries/menu_entry.dart';
 
 const Duration albumMenuDefaultAnimationDuration = Duration(milliseconds: 750);
 const Curve albumMenuDefaultInCurve = Curves.easeOutCubic;
@@ -40,13 +35,16 @@ Future<void> showModalAlbumMenu({
     return [
       if (queueInfo != null) RestoreQueueMenuEntry(queueInfo: queueInfo),
       AddToPlaylistMenuEntry(item: item),
-      // instant mix from arbitrary collection of tracks is not supported
-      if (item is BaseItemDto) InstantMixMenuEntry(baseItem: item),
-      // download system is not that flexible
-      if (item is BaseItemDto) AdaptiveDownloadLockDeleteMenuEntry(baseItem: item),
-      // backend is not flexible too
-      if (item is BaseItemDto) ToggleFavoriteMenuEntry(baseItem: item),
-      if (item is BaseItemDto) DeleteFromServerMenuEntry(baseItem: item),
+      if (item is BaseItemDto) ...[
+        // instant mixes from arbitrary collection of tracks is not supported
+        InstantMixMenuEntry(baseItem: item),
+        MixBuilderMenuEntry(baseItem: item),
+        // download system is not that flexible
+        AdaptiveDownloadLockDeleteMenuEntry(baseItem: item),
+        // backend is not flexible too
+        ToggleFavoriteMenuEntry(baseItem: item),
+        DeleteFromServerMenuEntry(baseItem: item),
+      ],
     ];
   }
 

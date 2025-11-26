@@ -1,5 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:finamp/components/PlayerScreen/queue_list.dart';
 import 'package:finamp/components/PlayerScreen/sleep_timer_cancel_dialog.dart';
 import 'package:finamp/components/themed_bottom_sheet.dart';
@@ -10,13 +16,13 @@ import 'package:finamp/menus/components/menuEntries/clear_queue_menu_entry.dart'
 import 'package:finamp/menus/components/menuEntries/create_playlist_from_current_queue.dart';
 import 'package:finamp/menus/components/menuEntries/delete_from_server_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/instant_mix_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/remove_from_current_playlist_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/restore_queue_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.dart';
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
-import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/menus/components/speed_menu.dart';
 import 'package:finamp/menus/sleep_timer_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -27,14 +33,6 @@ import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/metadata_provider.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
-import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
-
-import 'components/menuEntries/menu_entry.dart';
 
 const Duration trackMenuDefaultAnimationDuration = Duration(milliseconds: 500);
 const Curve trackMenuDefaultInCurve = Curves.easeOutCubic;
@@ -337,7 +335,10 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                         icon: TablerIcons.bell_z_filled,
                         onPressed: () async {
                           if (hasTimeLeft) {
-                            await showDialog(context: context, builder: (context) => const SleepTimerCancelDialog());
+                            await showDialog<SleepTimerCancelDialog>(
+                              context: context,
+                              builder: (context) => const SleepTimerCancelDialog(),
+                            );
                           } else {
                             toggleSleepTimerMenu();
                           }
