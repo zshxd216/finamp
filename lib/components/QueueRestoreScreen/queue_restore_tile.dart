@@ -27,6 +27,16 @@ class QueueRestoreTile extends ConsumerWidget {
 
     BaseItemDto? track = ref.watch(trackProvider(info.currentTrack)).value;
 
+    QueueItemSource source = info.source;
+    if (source.wantsItem) {
+      // BaseItemId uses String equals, the linter is mistaken.
+      // ignore: provider_parameters
+      final sourceItem = ref.watch(trackProvider(BaseItemId(source.id))).value;
+      if (sourceItem != null) {
+        source = source.withItem(sourceItem);
+      }
+    }
+
     return ListTileTheme(
       // Do not pad between components.  leading/trailing widgets will handle spacing.
       horizontalTitleGap: 0,
@@ -35,7 +45,7 @@ class QueueRestoreTile extends ConsumerWidget {
       child: ListTile(
         // Prevent undersized album images on desktop
         visualDensity: VisualDensity.standard,
-        title: Text(info.source?.name.getLocalized(context) ?? AppLocalizations.of(context)!.unknown),
+        title: Text(source.name.getLocalized(context)),
         titleAlignment: ListTileTitleAlignment.center,
         leading: Padding(
           padding: const EdgeInsets.only(right: 16),
@@ -66,8 +76,9 @@ class QueueRestoreTile extends ConsumerWidget {
             ),
           ],
         ),
+        // TODO add right click handler
         onLongPress: () => {
-          if (info.source?.item != null) {openItemMenu(context: context, item: info.source!.item!, queueInfo: info)},
+          if (source.item != null) {openItemMenu(context: context, item: source.item!, queueInfo: info)},
         },
         trailing: IconButton(
           icon: const Icon(TablerIcons.restore),
@@ -89,6 +100,6 @@ final AutoDisposeFutureProviderFamily<BaseItemDto?, BaseItemId?> trackProvider =
       } else if (ref.watch(finampSettingsProvider.isOffline)) {
         return GetIt.instance<DownloadsService>().getTrackInfo(id: itemId).then((value) => value?.baseItem);
       } else {
-        return GetIt.instance<JellyfinApiHelper>().getItemById(itemId).then((x) => x, onError: (_) => null);
+        return GetIt.instance<JellyfinApiHelper>().getItemByIdBatched(itemId).then((x) => x, onError: (_) => null);
       }
     });

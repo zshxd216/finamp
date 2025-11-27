@@ -999,7 +999,6 @@ class QueueItemSourceAdapter extends TypeAdapter<QueueItemSource> {
       type: fields[0] as QueueItemSourceType,
       name: fields[1] as QueueItemSourceName,
       id: fields[2] as BaseItemId,
-      item: fields[3] as BaseItemDto?,
       contextNormalizationGain: (fields[4] as num?)?.toDouble(),
     );
   }
@@ -1007,15 +1006,13 @@ class QueueItemSourceAdapter extends TypeAdapter<QueueItemSource> {
   @override
   void write(BinaryWriter writer, QueueItemSource obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.type)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
       ..write(obj.id)
-      ..writeByte(3)
-      ..write(obj.item)
       ..writeByte(4)
       ..write(obj.contextNormalizationGain);
   }

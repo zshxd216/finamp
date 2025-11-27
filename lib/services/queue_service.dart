@@ -424,26 +424,32 @@ class QueueService {
 
       List<jellyfin_models.BaseItemId> allIds =
           info.previousTracks + ((info.currentTrack == null) ? [] : [info.currentTrack!]) + info.nextUp + info.queue;
+      allIds.addAll(info.sourceList.where((x) => x.wantsItem).map((x) => jellyfin_models.BaseItemId(x.id)));
       Map<jellyfin_models.BaseItemId, jellyfin_models.BaseItemDto> idMap = existingItems ?? {};
 
       // If queue source is playlist, fetch via parent to retrieve metadata needed
       // for removal from playlist via queueItem
-      if (!FinampSettingsHelper.finampSettings.isOffline &&
-          info.source.type == QueueItemSourceType.playlist &&
-          info.source.item != null) {
-        try {
-          var itemList =
-              await _jellyfinApiHelper.getItems(
-                parentItem: info.source.item!,
-                sortBy: "ParentIndexNumber,IndexNumber,SortName",
-                includeItemTypes: "Audio",
-              ) ??
-              [];
-          for (var d2 in itemList) {
-            idMap[d2.id] = d2;
+      if (!FinampSettingsHelper.finampSettings.isOffline) {
+        for (final source in info.sourceList.where((x) => x.type == QueueItemSourceType.playlist)) {
+          try {
+            // Only id and type are really needed to fetch child items.  Full base item will be fetched later.
+            final playlist = jellyfin_models.BaseItemDto(
+              id: jellyfin_models.BaseItemId(source.id),
+              type: BaseItemDtoType.playlist.jellyfinName,
+            );
+            var itemList =
+                await _jellyfinApiHelper.getItems(
+                  parentItem: playlist,
+                  sortBy: "ParentIndexNumber,IndexNumber,SortName",
+                  includeItemTypes: "Audio",
+                ) ??
+                [];
+            for (var d2 in itemList) {
+              idMap[d2.id] = d2;
+            }
+          } catch (e) {
+            _queueServiceLogger.warning("Error loading queue source playlist, continuing anyway.  Error: $e");
           }
-        } catch (e) {
-          _queueServiceLogger.warning("Error loading queue source playlist, continuing anyway.  Error: $e");
         }
       }
 
@@ -476,7 +482,7 @@ class QueueService {
       void processTrack(jellyfin_models.BaseItemId id) {
         if (idMap.containsKey(id) && idMap[id] != null) {
           items.add(idMap[id]!);
-          sources.add(allSources[i]);
+          sources.add(allSources[i].withItem(idMap[jellyfin_models.BaseItemId(allSources[i].id)]));
         }
         i++;
       }
@@ -516,7 +522,7 @@ class QueueService {
           beginPlaying: isReload
               ? (_audioHandler.playbackState.valueOrNull?.playing ?? false)
               : (FinampSettingsHelper.finampSettings.autoplayRestoredQueue && droppedTracks == 0),
-          source: info.source,
+          source: info.source.withItem(idMap[jellyfin_models.BaseItemId(info.source.id)]),
         );
       }
       _queueServiceLogger.info("Loaded saved queue.");

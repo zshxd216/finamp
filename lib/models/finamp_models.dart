@@ -1937,7 +1937,7 @@ class QueueItemSource {
     QueueItemSourceType? type,
     QueueItemSourceNameType? nameType,
   }) {
-    final type = switch (BaseItemDtoType.fromItem(baseItem)) {
+    final defaultType = switch (BaseItemDtoType.fromItem(baseItem)) {
       BaseItemDtoType.album => QueueItemSourceType.album,
       BaseItemDtoType.playlist => QueueItemSourceType.playlist,
       BaseItemDtoType.artist => QueueItemSourceType.artist,
@@ -1953,7 +1953,7 @@ class QueueItemSource {
     };
 
     return QueueItemSource(
-      type: type,
+      type: type ?? defaultType,
       name: nameType != null
           ? QueueItemSourceName(type: nameType, localizationParameter: baseItem.name ?? "")
           : QueueItemSourceName(
@@ -1965,6 +1965,17 @@ class QueueItemSource {
       id: baseItem.id,
       item: baseItem,
       contextNormalizationGain: gain,
+    );
+  }
+
+  QueueItemSource withItem(BaseItemDto? item) {
+    if (item?.id.raw != id) return this;
+    return QueueItemSource.rawId(
+      type: type,
+      name: name,
+      id: id,
+      item: item,
+      contextNormalizationGain: contextNormalizationGain,
     );
   }
 
@@ -1985,11 +1996,13 @@ class QueueItemSource {
   @HiveField(2)
   final String id;
 
-  @HiveField(3)
+  //@HiveField(3)
   final BaseItemDto? item;
 
   @HiveField(4)
   final double? contextNormalizationGain;
+
+  bool get wantsItem => item == null && r'^[0-9a-f]{32}$'.matchAsPrefix(id) != null;
 
   @override
   bool operator ==(Object other) {
