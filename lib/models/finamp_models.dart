@@ -3813,9 +3813,9 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
   @HiveField(9)
   final Uint8List trackSourceIndexes;
 
-  QueueItemSource? get source => sourceList[sourceIndex];
+  QueueItemSource get source => sourceList[sourceIndex];
 
-  List<QueueItemSource>? get trackSources => _unpackSources().map((x) => sourceList[x]).toList();
+  List<QueueItemSource> get trackSources => _unpackSources().map((x) => sourceList[x]).toList();
 
   int get trackCount =>
       (packedPreviousTracks.length + packedCurrentTrack.length + packedNextUp.length + packedQueue.length) ~/ 16;

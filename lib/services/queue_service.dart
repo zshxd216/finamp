@@ -84,6 +84,7 @@ class QueueService {
   // the audio source used by the player. The first X items of all internal queues are merged together into this source, so that all player features, like gapless playback, are supported
   late final ShuffleOrder _shuffleOrder;
   int _queueAudioSourceIndex = 0;
+  int? _activeInitialIndex;
 
   // Flags for saving and loading saved queues
   int _saveUpdateCycleCount = 0;
@@ -184,6 +185,10 @@ class QueueService {
     final playbackHistoryService = GetIt.instance<PlaybackHistoryService>();
 
     _queueAudioSourceIndex = _audioHandler.queueIndex ?? _queueAudioSourceIndex;
+    if (_activeInitialIndex != null && _queueAudioSourceIndex != _activeInitialIndex) {
+      // We have been called on a queue load before initial index has been applied. Ignore.
+      return;
+    }
 
     List<FinampQueueItem> allTracks = _audioHandler.effectiveSequence.map((e) => e.tag as FinampQueueItem).toList();
 
@@ -424,12 +429,12 @@ class QueueService {
       // If queue source is playlist, fetch via parent to retrieve metadata needed
       // for removal from playlist via queueItem
       if (!FinampSettingsHelper.finampSettings.isOffline &&
-          info.source?.type == QueueItemSourceType.playlist &&
-          info.source?.item != null) {
+          info.source.type == QueueItemSourceType.playlist &&
+          info.source.item != null) {
         try {
           var itemList =
               await _jellyfinApiHelper.getItems(
-                parentItem: info.source!.item!,
+                parentItem: info.source.item!,
                 sortBy: "ParentIndexNumber,IndexNumber,SortName",
                 includeItemTypes: "Audio",
               ) ??
@@ -459,14 +464,36 @@ class QueueService {
         }
       }
 
-      Map<String, List<jellyfin_models.BaseItemDto>> items = {
-        "previous": info.previousTracks.map((e) => idMap[e]).nonNulls.toList(),
-        "current": [info.currentTrack].map((e) => idMap[e]).nonNulls.toList(),
-        "next": info.nextUp.map((e) => idMap[e]).nonNulls.toList(),
-        "queue": info.queue.map((e) => idMap[e]).nonNulls.toList(),
-      };
-      int sumLengths(int sum, Iterable<dynamic> val) => val.length + sum;
-      int loadedTracks = items.values.fold(0, sumLengths);
+      int prevCount = 0;
+      int curCount = 0;
+      int nextCount = 0;
+      int queueCount = 0;
+
+      List<jellyfin_models.BaseItemDto> items = [];
+      List<QueueItemSource> sources = [];
+      final allSources = info.trackSources;
+      int i = 0;
+      void processTrack(jellyfin_models.BaseItemId id) {
+        if (idMap.containsKey(id) && idMap[id] != null) {
+          items.add(idMap[id]!);
+          sources.add(allSources[i]);
+        }
+        i++;
+      }
+
+      info.previousTracks.forEach(processTrack);
+      prevCount = items.length;
+      if (info.currentTrack != null) processTrack(info.currentTrack!);
+      curCount = items.length - prevCount;
+      info.nextUp.forEach(processTrack);
+      nextCount = items.length - curCount - prevCount;
+      info.queue.forEach(processTrack);
+      queueCount = items.length - nextCount - curCount - prevCount;
+
+      assert(i == info.trackCount);
+      assert(prevCount + curCount + nextCount + queueCount == items.length);
+
+      int loadedTracks = items.length;
       int droppedTracks = info.trackCount - loadedTracks;
 
       if (_savedQueueState != SavedQueueState.loading) {
@@ -477,14 +504,11 @@ class QueueService {
       if (loadedTracks > 0) {
         await _replaceWholeQueue(
           isRestoredQueue: true,
-          itemList: items["previous"]! + items["current"]! + items["queue"]!,
-          // We need to remove nextUp sources from source list
-          trackSources: info.trackSources != null
-              ? info.trackSources!.slice(0, items["previous"]!.length + items["current"]!.length) +
-                    info.trackSources!.slice(info.trackSources!.length - items["queue"]!.length)
-              : null,
-          initialIndex: items["current"]!.isNotEmpty || items["queue"]!.isNotEmpty ? items["previous"]!.length : 0,
-          initialSeekPosition: (info.currentTrackSeek ?? 0) > (isReload ? 500 : 5000) && items["current"]!.isNotEmpty
+          itemList: items,
+          trackSources: sources,
+          initialIndex: curCount > 0 || queueCount > 0 || nextCount > 0 ? prevCount : 0,
+          nextUpLength: curCount == 0 ? max(0, nextCount - 1) : nextCount,
+          initialSeekPosition: (info.currentTrackSeek ?? 0) > (isReload ? 500 : 5000) && curCount > 0
               ? Duration(milliseconds: info.currentTrackSeek!)
               : null,
           // Always restore queues as linear to prevent them being reshuffled while restoring
@@ -492,11 +516,8 @@ class QueueService {
           beginPlaying: isReload
               ? (_audioHandler.playbackState.valueOrNull?.playing ?? false)
               : (FinampSettingsHelper.finampSettings.autoplayRestoredQueue && droppedTracks == 0),
-          source: info.source ?? savedQueueSource,
+          source: info.source,
         );
-
-        //TODO pass directly into _replacewholeQueue?  We need to properly pass sources.
-        await addToNextUp(items: items["next"]!);
       }
       _queueServiceLogger.info("Loaded saved queue.");
       if (loadedTracks > 0 || info.trackCount == 0) {
@@ -553,6 +574,7 @@ class QueueService {
     QueueItemSource? customTrackSource,
     List<QueueItemSource?>? trackSources,
     int? initialIndex,
+    int? nextUpLength,
     Duration? initialSeekPosition,
     FinampPlaybackOrder? order,
     bool beginPlaying = true,
@@ -570,6 +592,8 @@ class QueueService {
 
       order ??= FinampPlaybackOrder.linear;
 
+      nextUpLength ??= 0;
+
       if (initialIndex == null) {
         if (order == FinampPlaybackOrder.shuffled) {
           initialIndex = Random().nextInt(itemList.length);
@@ -579,7 +603,13 @@ class QueueService {
       }
 
       if (initialIndex >= itemList.length) {
-        return Future.error("initialIndex is bigger than the itemList! ($initialIndex > ${itemList.length})");
+        return Future.error("initialIndex is bigger than the itemList! ($initialIndex >= ${itemList.length})");
+      }
+
+      if (initialIndex + nextUpLength >= itemList.length) {
+        return Future.error(
+          "nextUpLength is longer than available items! ($nextUpLength >= ${itemList.length - initialIndex})",
+        );
       }
 
       _queueServiceLogger.finest("Replacing whole queue with ${itemList.length} items.");
@@ -609,7 +639,12 @@ class QueueService {
             FinampQueueItem(
               item: mediaItem,
               source: trackSources?[i] ?? (isRestoredQueue ? savedQueueSource : customTrackSource ?? source),
-              type: i == 0 ? QueueItemQueueType.currentTrack : QueueItemQueueType.queue,
+              type: switch (i) {
+                _ when i < initialIndex => QueueItemQueueType.previousTracks,
+                _ when i == initialIndex => QueueItemQueueType.currentTrack,
+                _ when i <= initialIndex + nextUpLength => QueueItemQueueType.nextUp,
+                _ => QueueItemQueueType.queue,
+              },
             ),
           );
           newLinearOrder.add(i);
@@ -624,13 +659,20 @@ class QueueService {
       }
       await _audioHandler.clearFinampQueueItems();
 
-      final Duration? queueDuration = await _audioHandler.setQueueItems(
-        newItems,
-        initialIndex: initialIndex,
-        preload: true,
-        shuffleOrder: _shuffleOrder,
-        initialPosition: initialSeekPosition ?? Duration.zero,
-      );
+      try {
+        // block _buildQueueFromNativePlayerQueue until both new sequence
+        // and intial index have been applied.
+        _activeInitialIndex = initialIndex;
+        await _audioHandler.setQueueItems(
+          newItems,
+          initialIndex: initialIndex,
+          preload: true,
+          shuffleOrder: _shuffleOrder,
+          initialPosition: initialSeekPosition ?? Duration.zero,
+        );
+      } finally {
+        _activeInitialIndex = null;
+      }
 
       //!!! keep this roughly here so the player screen opens to the correct track, but doesn't seem laggy
       if (beginPlaying) {
