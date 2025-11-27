@@ -1505,7 +1505,7 @@
         },
         "description": "Tooltip for downloadbutton on incidental downloads, which show a lock icon. It says one of the requiring downloads."
     },
-    "cacheLibraryImagesName": "'{libraryName}' 的快取圖片",
+    "cacheLibraryImagesName": "'{libraryName}'的圖片暫存",
     "@cacheLibraryImagesName": {
         "placeholders": {
             "libraryName": {
@@ -2917,5 +2917,25 @@
     "useMonochromeIconSubtitle": "僅影響 App 內圖示，不會影響裝置的應用程式圖示。",
     "@useMonochromeIconSubtitle": {
         "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+    },
+    "playbackActionPageMoveWithinQueue": "調整佇列",
+    "@playbackActionPageMoveWithinQueue": {
+        "description": "Label for the playback action page that contains all actions related to moving tracks within the queue"
+    },
+    "playbackActionPageRegularTrackOptions": "播放",
+    "@playbackActionPageRegularTrackOptions": {
+        "description": "Label for the playback action page that contains all actions of the normal track menu, like starting a new queue or duplicating the track within the existing queue"
+    },
+    "movePlayNext": "播放下一首",
+    "@movePlayNext": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "moveAddToNextUp": "移至即將播放",
+    "@moveAddToNextUp": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
+    },
+    "moveAddToQueue": "移至末端",
+    "@moveAddToQueue": {
+        "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
     }
 }
