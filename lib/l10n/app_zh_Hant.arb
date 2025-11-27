@@ -634,7 +634,7 @@
     "@activeDownloadsTitle": {},
     "noActiveDownloads": "目前沒有正在進行的下載。",
     "@noActiveDownloads": {},
-    "offlineTrackCount": "{count,plural,=1{{count} 首歌曲} other{{count} 首歌曲}}，{downloads} 次下載",
+    "offlineTrackCount": "{count,plural,=1{{count} 首歌曲} other{{count} 首歌曲}}，已下載 {downloads} 首",
     "@offlineTrackCount": {
         "placeholders": {
             "count": {
@@ -1496,7 +1496,7 @@
             }
         }
     },
-    "incidentalDownloadTooltip": "此項目是由 {parentName} 要求下載。",
+    "incidentalDownloadTooltip": "此項目須隨 {parentName} 一同下載。",
     "@incidentalDownloadTooltip": {
         "placeholders": {
             "parentName": {
@@ -1505,7 +1505,7 @@
         },
         "description": "Tooltip for downloadbutton on incidental downloads, which show a lock icon. It says one of the requiring downloads."
     },
-    "cacheLibraryImagesName": "'{libraryName}'的圖片暫存",
+    "cacheLibraryImagesName": "'{libraryName}' 的圖片暫存",
     "@cacheLibraryImagesName": {
         "placeholders": {
             "libraryName": {
@@ -2926,7 +2926,7 @@
     "@playbackActionPageRegularTrackOptions": {
         "description": "Label for the playback action page that contains all actions of the normal track menu, like starting a new queue or duplicating the track within the existing queue"
     },
-    "movePlayNext": "播放下一首",
+    "movePlayNext": "移至下一首",
     "@movePlayNext": {
         "description": "Used for moving a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
@@ -2934,7 +2934,7 @@
     "@moveAddToNextUp": {
         "description": "Used for moving a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
     },
-    "moveAddToQueue": "移至末端",
+    "moveAddToQueue": "移至佇列末端",
     "@moveAddToQueue": {
         "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
     }
