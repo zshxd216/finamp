@@ -663,7 +663,7 @@ class QueueService {
         unawaited(_audioHandler.pause(disableFade: true));
       }
     } catch (e) {
-      _queueServiceLogger.severe("Error while initializing queue: $e");
+      _queueServiceLogger.severe("Error while initializing queue: $e", e);
     }
   }
 

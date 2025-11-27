@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:background_downloader/background_downloader.dart';
+import 'package:bits/bits.dart';
 import 'package:collection/collection.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
@@ -25,6 +27,7 @@ import 'package:uuid/uuid.dart';
 import '../builders/annotations.dart';
 import '../services/finamp_settings_helper.dart';
 import 'jellyfin_models.dart';
+import 'migration_adapters.dart';
 
 part 'finamp_models.g.dart';
 
@@ -2286,108 +2289,7 @@ class FinampHistoryItem {
   }
 }
 
-@HiveType(typeId: 61)
-@immutable
-class FinampStorableQueueInfo {
-  const FinampStorableQueueInfo({
-    required this.previousTracks,
-    required this.currentTrack,
-    required this.currentTrackSeek,
-    required this.nextUp,
-    required this.queue,
-    required this.creation,
-    required this.sourceIndex,
-    required this.sourceList,
-    required this.order,
-    required this.trackSourceIndexes,
-    this.legacySource,
-  });
-
-  factory FinampStorableQueueInfo.fromQueueInfo(FinampQueueInfo info, int? seek, FinampPlaybackOrder? order) {
-    final List<QueueItemSource> sourceList = [];
-    final List<int> sourceIndexes = [];
-
-    int addSource(QueueItemSource source) {
-      final index = sourceList.indexOf(source);
-      if (index >= 0) return index;
-      sourceList.add(source);
-      return sourceList.length - 1;
-    }
-
-    void appendTrackSource(FinampQueueItem track) {
-      sourceIndexes.add(addSource(track.source));
-    }
-
-    info.previousTracks.forEach(appendTrackSource);
-    if (info.currentTrack != null) appendTrackSource(info.currentTrack!);
-    info.nextUp.forEach(appendTrackSource);
-    info.queue.forEach(appendTrackSource);
-
-    assert(sourceIndexes.length == info.trackCount);
-
-    return FinampStorableQueueInfo(
-      previousTracks: info.previousTracks.map<BaseItemId>((track) => track.baseItemId).toList(),
-      order: order,
-      currentTrack: info.currentTrack?.baseItemId,
-      currentTrackSeek: seek,
-      nextUp: info.nextUp.map<BaseItemId>((track) => track.baseItemId).toList(),
-      queue: info.queue.map<BaseItemId>((track) => track.baseItemId).toList(),
-      creation: DateTime.now().millisecondsSinceEpoch,
-      sourceList: sourceList,
-      sourceIndex: addSource(info.source),
-      trackSourceIndexes: sourceIndexes,
-    );
-  }
-
-  @HiveField(0)
-  final List<BaseItemId> previousTracks;
-
-  @HiveField(1)
-  final BaseItemId? currentTrack;
-
-  @HiveField(2)
-  final int? currentTrackSeek;
-
-  @HiveField(3)
-  final List<BaseItemId> nextUp;
-
-  @HiveField(4)
-  final List<BaseItemId> queue;
-
-  @HiveField(5)
-  // timestamp, milliseconds since epoch
-  final int creation;
-
-  @HiveField(6)
-  @Deprecated("Use [source] instead")
-  final QueueItemSource? legacySource;
-
-  @HiveField(7)
-  final FinampPlaybackOrder? order;
-
-  @HiveField(8, defaultValue: <QueueItemSource>[])
-  final List<QueueItemSource> sourceList;
-
-  @HiveField(9)
-  final int? sourceIndex;
-
-  @HiveField(10)
-  final List<int>? trackSourceIndexes;
-
-  // ignore: deprecated_member_use_from_same_package
-  QueueItemSource? get source => sourceIndex != null ? sourceList[sourceIndex!] : legacySource;
-
-  List<QueueItemSource>? get trackSources => trackSourceIndexes?.map((x) => sourceList[x]).toList();
-
-  @override
-  String toString() {
-    return "previous:${previousTracks.length} current:$currentTrack seek:$currentTrackSeek next:${nextUp.length} queue:${queue.length} order:${order?.name} sources $sourceList";
-  }
-
-  int get trackCount {
-    return previousTracks.length + ((currentTrack == null) ? 0 : 1) + nextUp.length + queue.length;
-  }
-}
+// type id 61 used to migrate FinampStorableQueueInfo
 
 @HiveType(typeId: 62)
 enum SavedQueueState {
@@ -3812,5 +3714,153 @@ class RadioCacheState {
         currentRadioMode == radioMode &&
         // Ignore incorrect seeds while the queue is actively being manipulated by the radio
         (currentSeedItem == seedItem || queueing);
+  }
+}
+
+@HiveType(typeId: 110)
+@immutable
+// Migration adapter uses hive type id 61.  We extend an empty class to prevent adapter conflicts.
+class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
+  const FinampStorableQueueInfo({
+    required this.currentTrackSeek,
+    required this.creation,
+    required this.sourceList,
+    required this.order,
+    required this.packedPreviousTracks,
+    required this.packedCurrentTrack,
+    required this.packedNextUp,
+    required this.packedQueue,
+    required this.sourceIndex,
+    required this.trackSourceIndexes,
+  });
+
+  factory FinampStorableQueueInfo.fromQueueInfo(FinampQueueInfo info, int? seek, FinampPlaybackOrder? order) {
+    final List<QueueItemSource> sourceList = [];
+    final List<int> sourceIndexes = [];
+
+    int addSource(QueueItemSource source) {
+      final index = sourceList.indexOf(source);
+      if (index >= 0) return index;
+      sourceList.add(source);
+      return sourceList.length - 1;
+    }
+
+    void appendTrackSource(FinampQueueItem track) {
+      sourceIndexes.add(addSource(track.source));
+    }
+
+    // Tracks must be processed in order due to appending to sourceIndexes.
+    // All sources must be added to sourceList before sourceIndexes can be bitpacked.
+    info.previousTracks.forEach(appendTrackSource);
+    if (info.currentTrack != null) appendTrackSource(info.currentTrack!);
+    info.nextUp.forEach(appendTrackSource);
+    info.queue.forEach(appendTrackSource);
+    final queueSource = addSource(info.source);
+
+    assert(sourceIndexes.length == info.trackCount);
+    assert(sourceList.isNotEmpty);
+
+    // BitBuffer throws exception attempting to write 0 bit entries, so create empty buffer manually.
+    final buffer = sourceList.length == 1
+        ? BitBuffer()
+        : BitBuffer.fromBits(sourceIndexes, bitsPerIndex: (sourceList.length - 1).bitLength);
+    return FinampStorableQueueInfo(
+      packedPreviousTracks: packIds(info.previousTracks.map<BaseItemId>((track) => track.baseItemId).toList()),
+      order: order,
+      packedCurrentTrack: info.currentTrack == null ? Uint8List(0) : packIds([info.currentTrack!.baseItemId]),
+      currentTrackSeek: seek,
+      packedNextUp: packIds(info.nextUp.map<BaseItemId>((track) => track.baseItemId).toList()),
+      packedQueue: packIds(info.queue.map<BaseItemId>((track) => track.baseItemId).toList()),
+      creation: DateTime.now().millisecondsSinceEpoch,
+      sourceList: sourceList,
+      sourceIndex: queueSource,
+      trackSourceIndexes: buffer.toUInt8List(),
+    );
+  }
+
+  @HiveField(0)
+  final Uint8List packedPreviousTracks;
+  List<BaseItemId> get previousTracks => _unpackIds(packedPreviousTracks);
+
+  @HiveField(1)
+  final Uint8List packedCurrentTrack;
+  BaseItemId? get currentTrack => _unpackIds(packedCurrentTrack).firstOrNull;
+
+  @HiveField(2)
+  final int? currentTrackSeek;
+
+  @HiveField(3)
+  final Uint8List packedNextUp;
+  List<BaseItemId> get nextUp => _unpackIds(packedNextUp);
+
+  @HiveField(4)
+  final Uint8List packedQueue;
+  List<BaseItemId> get queue => _unpackIds(packedQueue);
+
+  @HiveField(5)
+  // timestamp, milliseconds since epoch
+  final int creation;
+
+  @HiveField(6)
+  final FinampPlaybackOrder? order;
+
+  @HiveField(7, defaultValue: <QueueItemSource>[])
+  final List<QueueItemSource> sourceList;
+
+  @HiveField(8)
+  final int sourceIndex;
+
+  @HiveField(9)
+  final Uint8List trackSourceIndexes;
+
+  QueueItemSource? get source => sourceList[sourceIndex];
+
+  List<QueueItemSource>? get trackSources => _unpackSources().map((x) => sourceList[x]).toList();
+
+  int get trackCount =>
+      (packedPreviousTracks.length + packedCurrentTrack.length + packedNextUp.length + packedQueue.length) ~/ 16;
+
+  /// Source indexes in trackSourceIndexes are stored as n bit unsigned ints packed
+  /// into a Uint8List, where n is the smallest number that can index into all entries
+  /// in sourceList.  e.g. if sourceList.length=4, n=2.  If sourceList.length=1, n=0.
+  /// This function unpacks them into individual ints.
+  Iterable<int> _unpackSources() sync* {
+    final buffer = BitBuffer.fromUInt8List(trackSourceIndexes);
+    final entries = trackCount;
+    final entrySize = (sourceList.length - 1).bitLength;
+    assert(buffer.getSize() >= entries * entrySize);
+    final reader = buffer.reader();
+    for (int i = 0; i < entries; i++) {
+      yield reader.readBits(entrySize);
+    }
+  }
+
+  static List<BaseItemId> _unpackIds(Uint8List ids) {
+    List<BaseItemId> out = [];
+    for (int i = 0; i < ids.length; i += 16) {
+      String id = "";
+      for (int j = 0; j < 16; j++) {
+        id += ids[i + j].toRadixString(16).padLeft(2, "0");
+      }
+      out.add(BaseItemId(id));
+    }
+    return out;
+  }
+
+  /// Pack a list of BaseItemIds into a Uint8Lis.  BaseItemIds are assumed to be
+  /// 16 byte values formatted as a hexadecimal string.
+  static Uint8List packIds(List<BaseItemId> ids) {
+    final buffer = Uint8List(ids.length * 16);
+    for (int i = 0; i < buffer.length; i++) {
+      final stringIndex = (i % 16) * 2;
+      final hex = ids[i ~/ 16].raw.substring(stringIndex, stringIndex + 2);
+      buffer[i] = int.parse(hex, radix: 16);
+    }
+    return buffer;
+  }
+
+  @override
+  String toString() {
+    return "previous:${previousTracks.length} current:$currentTrack seek:$currentTrackSeek next:${nextUp.length} queue:${queue.length} order:${order?.name} sources $sourceList";
   }
 }

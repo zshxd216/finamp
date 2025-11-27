@@ -1258,73 +1258,6 @@ class FinampHistoryItemAdapter extends TypeAdapter<FinampHistoryItem> {
           typeId == other.typeId;
 }
 
-class FinampStorableQueueInfoAdapter
-    extends TypeAdapter<FinampStorableQueueInfo> {
-  @override
-  final typeId = 61;
-
-  @override
-  FinampStorableQueueInfo read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return FinampStorableQueueInfo(
-      previousTracks: (fields[0] as List).cast<BaseItemId>(),
-      currentTrack: fields[1] as BaseItemId?,
-      currentTrackSeek: (fields[2] as num?)?.toInt(),
-      nextUp: (fields[3] as List).cast<BaseItemId>(),
-      queue: (fields[4] as List).cast<BaseItemId>(),
-      creation: (fields[5] as num).toInt(),
-      sourceIndex: (fields[9] as num?)?.toInt(),
-      sourceList: fields[8] == null
-          ? []
-          : (fields[8] as List).cast<QueueItemSource>(),
-      order: fields[7] as FinampPlaybackOrder?,
-      trackSourceIndexes: (fields[10] as List?)?.cast<int>(),
-      legacySource: fields[6] as QueueItemSource?,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, FinampStorableQueueInfo obj) {
-    writer
-      ..writeByte(11)
-      ..writeByte(0)
-      ..write(obj.previousTracks)
-      ..writeByte(1)
-      ..write(obj.currentTrack)
-      ..writeByte(2)
-      ..write(obj.currentTrackSeek)
-      ..writeByte(3)
-      ..write(obj.nextUp)
-      ..writeByte(4)
-      ..write(obj.queue)
-      ..writeByte(5)
-      ..write(obj.creation)
-      ..writeByte(6)
-      ..write(obj.legacySource)
-      ..writeByte(7)
-      ..write(obj.order)
-      ..writeByte(8)
-      ..write(obj.sourceList)
-      ..writeByte(9)
-      ..write(obj.sourceIndex)
-      ..writeByte(10)
-      ..write(obj.trackSourceIndexes);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FinampStorableQueueInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
 class MediaItemIdAdapter extends TypeAdapter<MediaItemId> {
   @override
   final typeId = 69;
@@ -1553,6 +1486,70 @@ class RawThemeResultAdapter extends TypeAdapter<RawThemeResult> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RawThemeResultAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FinampStorableQueueInfoAdapter
+    extends TypeAdapter<FinampStorableQueueInfo> {
+  @override
+  final typeId = 110;
+
+  @override
+  FinampStorableQueueInfo read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return FinampStorableQueueInfo(
+      currentTrackSeek: (fields[2] as num?)?.toInt(),
+      creation: (fields[5] as num).toInt(),
+      sourceList: fields[7] == null
+          ? []
+          : (fields[7] as List).cast<QueueItemSource>(),
+      order: fields[6] as FinampPlaybackOrder?,
+      packedPreviousTracks: fields[0] as Uint8List,
+      packedCurrentTrack: fields[1] as Uint8List,
+      packedNextUp: fields[3] as Uint8List,
+      packedQueue: fields[4] as Uint8List,
+      sourceIndex: (fields[8] as num).toInt(),
+      trackSourceIndexes: fields[9] as Uint8List,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, FinampStorableQueueInfo obj) {
+    writer
+      ..writeByte(10)
+      ..writeByte(0)
+      ..write(obj.packedPreviousTracks)
+      ..writeByte(1)
+      ..write(obj.packedCurrentTrack)
+      ..writeByte(2)
+      ..write(obj.currentTrackSeek)
+      ..writeByte(3)
+      ..write(obj.packedNextUp)
+      ..writeByte(4)
+      ..write(obj.packedQueue)
+      ..writeByte(5)
+      ..write(obj.creation)
+      ..writeByte(6)
+      ..write(obj.order)
+      ..writeByte(7)
+      ..write(obj.sourceList)
+      ..writeByte(8)
+      ..write(obj.sourceIndex)
+      ..writeByte(9)
+      ..write(obj.trackSourceIndexes);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FinampStorableQueueInfoAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
