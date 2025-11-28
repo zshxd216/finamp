@@ -31,8 +31,8 @@ class FinampStorableQueueInfoMigrationAdapter extends TypeAdapter<FinampStorable
       creation: (fields[5] as num).toInt(),
       sourceIndex: 0,
       sourceList: [fields[6] as QueueItemSource? ?? QueueService.savedQueueSource],
-      order: fields[7] as FinampPlaybackOrder?,
       trackSourceIndexes: Uint8List(0),
+      packedShuffleOrder: null,
     );
   }
 

@@ -449,7 +449,7 @@ class _PreviousTracksListState extends State<PreviousTracksList> with TickerProv
                 final indexOffset = -((_previousTracks?.length ?? 0) - index);
                 return QueueListTile(
                   key: ValueKey(item.id),
-                  item: item.baseItem!,
+                  item: item.baseItem,
                   listIndex: index,
                   isInPlaylist: queueItemInPlaylist(item),
                   parentItem: item.source.item,
@@ -536,7 +536,7 @@ class _NextUpTracksListState extends State<NextUpTracksList> {
                   final indexOffset = index + 1;
                   return QueueListTile(
                     key: ValueKey(item.id),
-                    item: item.baseItem!,
+                    item: item.baseItem,
                     listIndex: index,
                     isInPlaylist: queueItemInPlaylist(item),
                     source: item.source,
@@ -627,7 +627,7 @@ class _QueueTracksListState extends ConsumerState<QueueTracksList> {
 
                 return QueueListTile(
                   key: ValueKey(item.id),
-                  item: item.baseItem!,
+                  item: item.baseItem,
                   listIndex: index,
                   isInPlaylist: queueItemInPlaylist(item),
                   source: item.source,
@@ -969,7 +969,7 @@ class QueueSectionHeader extends ConsumerWidget {
 
   static MenuMaskHeight defaultHeight = MenuMaskHeight(132.0);
   // queue header + radio chooser tile height
-  static MenuMaskHeight radioActiveHeight = MenuMaskHeight(132.0 + 63.0);
+  static MenuMaskHeight radioActiveHeight = MenuMaskHeight(132.0 + 58.0);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1165,6 +1165,7 @@ class QueueSectionHeader extends ConsumerWidget {
   }
 }
 
+// TODO fix this being visible as it scrolls under currently playing track
 class NextUpSectionHeader extends StatelessWidget {
   final bool controls;
 

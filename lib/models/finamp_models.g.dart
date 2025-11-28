@@ -1501,16 +1501,16 @@ class FinampStorableQueueInfoAdapter
     return FinampStorableQueueInfo(
       currentTrackSeek: (fields[2] as num?)?.toInt(),
       creation: (fields[5] as num).toInt(),
-      sourceList: fields[7] == null
+      sourceList: fields[6] == null
           ? []
-          : (fields[7] as List).cast<QueueItemSource>(),
-      order: fields[6] as FinampPlaybackOrder?,
+          : (fields[6] as List).cast<QueueItemSource>(),
       packedPreviousTracks: fields[0] as Uint8List,
       packedCurrentTrack: fields[1] as Uint8List,
       packedNextUp: fields[3] as Uint8List,
       packedQueue: fields[4] as Uint8List,
-      sourceIndex: (fields[8] as num).toInt(),
-      trackSourceIndexes: fields[9] as Uint8List,
+      sourceIndex: (fields[7] as num).toInt(),
+      trackSourceIndexes: fields[8] as Uint8List,
+      packedShuffleOrder: fields[9] as Uint8List?,
     );
   }
 
@@ -1531,13 +1531,13 @@ class FinampStorableQueueInfoAdapter
       ..writeByte(5)
       ..write(obj.creation)
       ..writeByte(6)
-      ..write(obj.order)
-      ..writeByte(7)
       ..write(obj.sourceList)
-      ..writeByte(8)
+      ..writeByte(7)
       ..write(obj.sourceIndex)
+      ..writeByte(8)
+      ..write(obj.trackSourceIndexes)
       ..writeByte(9)
-      ..write(obj.trackSourceIndexes);
+      ..write(obj.packedShuffleOrder);
   }
 
   @override

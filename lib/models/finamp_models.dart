@@ -2002,7 +2002,7 @@ class QueueItemSource {
   @HiveField(4)
   final double? contextNormalizationGain;
 
-  bool get wantsItem => item == null && r'^[0-9a-f]{32}$'.matchAsPrefix(id) != null;
+  bool get wantsItem => item == null && RegExp(r'^[0-9a-f]{32}$').matchAsPrefix(id) != null;
 
   @override
   bool operator ==(Object other) {
@@ -3738,16 +3738,21 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
     required this.currentTrackSeek,
     required this.creation,
     required this.sourceList,
-    required this.order,
     required this.packedPreviousTracks,
     required this.packedCurrentTrack,
     required this.packedNextUp,
     required this.packedQueue,
     required this.sourceIndex,
     required this.trackSourceIndexes,
+    required this.packedShuffleOrder,
   });
 
-  factory FinampStorableQueueInfo.fromQueueInfo(FinampQueueInfo info, int? seek, FinampPlaybackOrder? order) {
+  factory FinampStorableQueueInfo.fromQueueInfo(
+    FinampQueueInfo info,
+    int? seek,
+    FinampPlaybackOrder? order,
+    List<int> shuffleOrder,
+  ) {
     final List<QueueItemSource> sourceList = [];
     final List<int> sourceIndexes = [];
 
@@ -3777,9 +3782,29 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
     final buffer = sourceList.length == 1
         ? BitBuffer()
         : BitBuffer.fromBits(sourceIndexes, bitsPerIndex: (sourceList.length - 1).bitLength);
+
+    // Validate shuffle order matches queue tracks
+    assert(shuffleOrder.length == info.trackCount);
+    assert(shuffleOrder.toSet().length == shuffleOrder.length);
+    bool validateNextUp() {
+      if ((info.currentTrack == null ? 0 : 1) + info.nextUp.length > 1) {
+        int lastIndex = shuffleOrder[info.previousTracks.length];
+        for (int i = 1; i < (info.currentTrack == null ? 0 : 1) + info.nextUp.length; i++) {
+          final newIndex = shuffleOrder[info.previousTracks.length + i];
+          if (newIndex != lastIndex + 1) return false;
+          lastIndex = newIndex;
+        }
+      }
+      return true;
+    }
+
+    assert(validateNextUp(), shuffleOrder);
+
+    final packedOrder = info.trackCount <= 1
+        ? BitBuffer()
+        : BitBuffer.fromBits(shuffleOrder, bitsPerIndex: (info.trackCount - 1).bitLength);
     return FinampStorableQueueInfo(
       packedPreviousTracks: packIds(info.previousTracks.map<BaseItemId>((track) => track.baseItemId).toList()),
-      order: order,
       packedCurrentTrack: info.currentTrack == null ? Uint8List(0) : packIds([info.currentTrack!.baseItemId]),
       currentTrackSeek: seek,
       packedNextUp: packIds(info.nextUp.map<BaseItemId>((track) => track.baseItemId).toList()),
@@ -3788,6 +3813,7 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
       sourceList: sourceList,
       sourceIndex: queueSource,
       trackSourceIndexes: buffer.toUInt8List(),
+      packedShuffleOrder: order == FinampPlaybackOrder.shuffled ? packedOrder.toUInt8List() : null,
     );
   }
 
@@ -3815,20 +3841,24 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
   final int creation;
 
   @HiveField(6)
-  final FinampPlaybackOrder? order;
-
-  @HiveField(7, defaultValue: <QueueItemSource>[])
   final List<QueueItemSource> sourceList;
 
-  @HiveField(8)
+  @HiveField(7)
   final int sourceIndex;
 
-  @HiveField(9)
+  @HiveField(8)
   final Uint8List trackSourceIndexes;
+
+  @HiveField(9)
+  final Uint8List? packedShuffleOrder;
 
   QueueItemSource get source => sourceList[sourceIndex];
 
-  List<QueueItemSource> get trackSources => _unpackSources().map((x) => sourceList[x]).toList();
+  List<QueueItemSource> get trackSources =>
+      _unpackIntList(trackSourceIndexes, sourceList.length - 1).map((x) => sourceList[x]).toList();
+
+  List<int>? get shuffleOrder =>
+      packedShuffleOrder == null ? null : _unpackIntList(packedShuffleOrder!, max(0, trackCount - 1)).toList();
 
   int get trackCount =>
       (packedPreviousTracks.length + packedCurrentTrack.length + packedNextUp.length + packedQueue.length) ~/ 16;
@@ -3837,11 +3867,14 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
   /// into a Uint8List, where n is the smallest number that can index into all entries
   /// in sourceList.  e.g. if sourceList.length=4, n=2.  If sourceList.length=1, n=0.
   /// This function unpacks them into individual ints.
-  Iterable<int> _unpackSources() sync* {
-    final buffer = BitBuffer.fromUInt8List(trackSourceIndexes);
+  Iterable<int> _unpackIntList(Uint8List list, int maxEntry) sync* {
+    final buffer = BitBuffer.fromUInt8List(list);
     final entries = trackCount;
-    final entrySize = (sourceList.length - 1).bitLength;
-    assert(buffer.getSize() >= entries * entrySize);
+    final entrySize = maxEntry.bitLength;
+    assert(
+      buffer.getSize() >= entries * entrySize,
+      "Want $entries of size $entrySize from buffer pf size ${buffer.getSize()}",
+    );
     final reader = buffer.reader();
     for (int i = 0; i < entries; i++) {
       yield reader.readBits(entrySize);
@@ -3874,6 +3907,6 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
 
   @override
   String toString() {
-    return "previous:${previousTracks.length} current:$currentTrack seek:$currentTrackSeek next:${nextUp.length} queue:${queue.length} order:${order?.name} sources $sourceList";
+    return "previous:${previousTracks.length} current:$currentTrack seek:$currentTrackSeek next:${nextUp.length} queue:${queue.length} order:${packedShuffleOrder == null ? "linear" : "shuffled"} sources $sourceList";
   }
 }

@@ -13,7 +13,6 @@ import 'package:finamp/services/favorite_provider.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/services/queue_service.dart';
-import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1154,7 +1153,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
   int? get queueIndex => _player.shuffleModeEnabled && shuffleIndices.isNotEmpty && _player.currentIndex != null
       ? shuffleIndices.indexOf(_player.currentIndex!)
       : _player.currentIndex;
-  List<IndexedAudioSource> get effectiveSequence => _player.sequenceState.effectiveSequence;
+  SequenceState get sequenceState => _player.sequenceState;
   double get volume => _player.volume;
   bool get paused => !_player.playing;
   Duration get playbackPosition => _player.position;
