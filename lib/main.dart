@@ -378,10 +378,6 @@ Future<void> _setupPlaybackServices() async {
 
   GetIt.instance.registerSingleton<AndroidAutoHelper>(AndroidAutoHelper());
 
-  if (Platform.isIOS) {
-    GetIt.instance.registerSingleton<CarPlayHelper>(CarPlayHelper());
-  }
-
   final audioHandler = await AudioService.init(
     builder: () => MusicPlayerBackgroundTask(),
     config: AudioServiceConfig(
@@ -414,6 +410,10 @@ Future<void> _setupPlaybackServices() async {
 
   // Begin to restore queue
   unawaited(queueService.performInitialQueueLoad().catchError((dynamic x) => GlobalSnackbar.error(x)));
+
+  if (Platform.isIOS) {
+    GetIt.instance.registerSingleton<CarPlayHelper>(CarPlayHelper());
+  }
 }
 
 /// Migrates the old DownloadLocations list to a map
