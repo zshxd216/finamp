@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
@@ -34,7 +35,7 @@ class FeatureState {
   String get properties =>
       "currentTrack: '${currentTrack?.item.title}', "
       "isDownloaded: $isDownloaded, "
-      "isTranscoding: $isTranscoding, "
+      "isTranscoding: $isTranscodingAndStreaming, "
       "codec: $codec, "
       "container: $container, "
       "size: $size, "
@@ -46,19 +47,40 @@ class FeatureState {
   FinampFeatureChipsConfiguration get configuration => settings.featureChipsConfiguration;
 
   bool get isDownloaded => metadata?.isDownloaded ?? false;
-  bool get isTranscoding => !isDownloaded && (currentTrack?.item.extras?["shouldTranscode"] as bool? ?? false);
-  String get container =>
-      isTranscoding ? settings.transcodingStreamingFormat.container : metadata?.mediaSourceInfo.container ?? "";
-  String get codec => isTranscoding ? settings.transcodingStreamingFormat.codec : audioStream?.codec ?? "";
-  int? get size => isTranscoding ? null : metadata?.mediaSourceInfo.size;
-  MediaStream? get audioStream => isTranscoding
-      ? null
-      : metadata?.mediaSourceInfo.mediaStreams.firstWhereOrNull((stream) => stream.type == "Audio");
+  bool get isTranscodingAndStreaming =>
+      !isDownloaded && (currentTrack?.item.extras?["shouldTranscode"] as bool? ?? false);
+  String get container => isTranscodingAndStreaming
+      ? settings.transcodingStreamingFormat.container
+      : metadata?.mediaSourceInfo.container ?? AppLocalizations.of(context)!.unknown;
+  String get codec => isTranscodingAndStreaming
+      ? settings.transcodingStreamingFormat.codec
+      : audioStream?.codec ?? AppLocalizations.of(context)!.unknown;
+  int? get size => isTranscodingAndStreaming ? null : metadata?.mediaSourceInfo.size;
+  MediaStream? get audioStream => isTranscodingAndStreaming
+      ? MediaStream(
+          index: 0,
+          type: "Audio",
+          codec: settings.transcodingStreamingFormat.codec,
+          bitRate: settings.transcodeBitrate,
+          sampleRate: null,
+          channels: null,
+          bitDepth: metadata?.mediaSourceInfo.mediaStreams.first.bitDepth != null
+              ? min(metadata!.mediaSourceInfo.mediaStreams.first.bitDepth!, 16)
+              : null,
+          isInterlaced: false,
+          isDefault: true,
+          isForced: false,
+          isExternal: false,
+          isTextSubtitleStream: false,
+          supportsExternalStream: false,
+        )
+      : metadata?.mediaSourceInfo.mediaStreams.firstWhereOrNull((stream) => stream.type == "Audio") ??
+            metadata?.mediaSourceInfo.mediaStreams.first;
   // Transcoded downloads will not have a valid MediaStream, but will have
   // the target transcode bitrate set for the mediasource bitrate.  Other items
   // should have a valid mediaStream, so use that audio-only bitrate instead of the
   // whole-file bitrate.
-  int? get bitrate => isTranscoding
+  int? get bitrate => isTranscodingAndStreaming
       ? (settings.transcodingStreamingFormat == FinampTranscodingStreamingFormat.flacFragmentedMp4
             ? null
             : settings.transcodeBitrate)
@@ -105,10 +127,10 @@ class FeatureState {
       }
 
       if (feature == FinampFeatureChipType.playbackMode) {
-        if (currentTrack?.item.extras?["downloadedTrackPath"] != null) {
+        if (isDownloaded) {
           features.add(FeatureProperties(type: feature, text: AppLocalizations.of(context)!.playbackModeLocal));
         } else {
-          if (isTranscoding) {
+          if (isTranscodingAndStreaming) {
             features.add(FeatureProperties(type: feature, text: AppLocalizations.of(context)!.playbackModeTranscoding));
           } else {
             features.add(
