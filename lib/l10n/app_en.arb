@@ -2978,5 +2978,13 @@
   "snackbarOptionsMenuViewLogsButton": "View Logs",
   "@snackbarOptionsMenuViewLogsButton": {
     "description": "Button title for opening the logs screen from the snackbar options menu"
+  },
+  "duckOnAudioInterruptionTitle": "Reduce Volume on Interruptions",
+  "@duckOnAudioInterruptionTitle": {
+    "description": "Title for the setting that controls ducking."
+  },
+  "duckOnAudioInterruptionSubtitle": "Lower the volume (duck) when another app briefly plays audio.",
+  "@duckOnAudioInterruptionSubtitle": {
+    "description": "Subtitle for the setting that controls ducking."
   }
 }

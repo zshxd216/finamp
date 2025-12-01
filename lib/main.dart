@@ -371,8 +371,8 @@ Future<void> _setupPlaybackServices() async {
   if (Platform.isWindows) {
     AudioServiceSMTC.registerWith();
   }
-  final session = await AudioSession.instance;
-  await session.configure(const AudioSessionConfiguration.music());
+
+  await MusicPlayerBackgroundTask.configureAudioSession();
 
   GetIt.instance.registerSingleton<AndroidAutoHelper>(AndroidAutoHelper());
 

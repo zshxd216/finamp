@@ -183,6 +183,7 @@ class FinampSettingsHelper {
     FinampSetters.setAutoReloadQueue(DefaultSettings.autoReloadQueue);
     FinampSetters.setClearQueueOnStopEvent(DefaultSettings.clearQueueOnStopEvent);
     FinampSetters.setAutoplayRestoredQueue(DefaultSettings.autoplayRestoredQueue);
+    FinampSetters.setDuckOnAudioInterruption(DefaultSettings.duckOnAudioInterruption);
   }
 
   static void resetPlaybackReportingSettings() {

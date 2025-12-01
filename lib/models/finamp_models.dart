@@ -237,6 +237,7 @@ class DefaultSettings {
   static const lastUsedPlaybackActionRowPageForQueueMenu = PlaybackActionRowPage.moveWithinQueue;
   static const useSystemAccentColor = false;
   static const useMonochromeIcon = false;
+  static const duckOnAudioInterruption = true;
 }
 
 @HiveType(typeId: 28)
@@ -376,6 +377,7 @@ class FinampSettings {
     this.systemAccentColor = DefaultSettings.accentColor,
     this.useSystemAccentColor = DefaultSettings.useSystemAccentColor,
     this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
+    this.duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -812,6 +814,9 @@ class FinampSettings {
   @HiveField(139, defaultValue: DefaultSettings.lastUsedPlaybackActionRowPageForQueueMenu)
   PlaybackActionRowPage lastUsedPlaybackActionRowPageForQueueMenu =
       DefaultSettings.lastUsedPlaybackActionRowPageForQueueMenu;
+
+  @HiveField(141, defaultValue: DefaultSettings.duckOnAudioInterruption)
+  bool duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(

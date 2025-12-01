@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -75,6 +76,7 @@ class PlayerVolumeController {
   double _internalVolume = FinampSettingsHelper.finampSettings.currentVolume;
   double _replayGainVolume = 1.0;
   double _fadeVolume = 1.0;
+  bool isDucked = false;
 
   Future<void> setInternalVolume(double volume) {
     if (volume == _internalVolume) return Future.value();
@@ -95,13 +97,26 @@ class PlayerVolumeController {
     return _updateVolume();
   }
 
+  void duck() {
+    if (isDucked) return;
+    isDucked = true;
+    _updateVolume();
+  }
+
+  void unduck() {
+    if (!isDucked) return;
+    isDucked = false;
+    _updateVolume();
+  }
+
   Future<void> _updateVolume() {
     var vol1 = _internalVolume.clamp(0.0, 1.0);
     var vol2 = _replayGainVolume.clamp(0.0, 1.0);
     var vol3 = _fadeVolume.clamp(0.0, 1.0);
-    var totalVol = vol1 * vol2 * vol3;
+    var duckingFactor = isDucked ? 0.3 : 1.0;
+    var totalVol = vol1 * vol2 * vol3 * duckingFactor;
     _volumeLogger.info(
-      "Setting volume to $totalVol - user: $_internalVolume gain: $_replayGainVolume fade: $_fadeVolume",
+      "Setting volume to $totalVol - user: $_internalVolume gain: $_replayGainVolume fade: $_fadeVolume, ducking: $isDucked",
     );
     return _player.setVolume(totalVol.clamp(0.0, 1.0));
   }
@@ -238,6 +253,25 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     }
   }
 
+  static Future<void> configureAudioSession() async {
+    final session = await AudioSession.instance;
+    await session.configure(
+      FinampSettingsHelper.finampSettings.duckOnAudioInterruption
+          ? const AudioSessionConfiguration.music().copyWith(
+              // disable Android automatic ducking (https://developer.android.com/media/optimize/audio-focus#automatic_ducking)
+              // so that we can handle it manually
+              // by setting the content type to "speech"
+              // if we instead set `willPauseOnDucked` to `true`, Android will send us pause events instead of duck events
+              // and then we don't know how to properly handle them (is this just a notification or a phone call?)
+              androidAudioAttributes: const AndroidAudioAttributes(
+                contentType: AndroidAudioContentType.speech,
+                usage: AndroidAudioUsage.media,
+              ),
+            )
+          : const AudioSessionConfiguration.music(),
+    );
+  }
+
   MusicPlayerBackgroundTask() {
     _audioServiceBackgroundTaskLogger.info("Starting audio service");
 
@@ -264,8 +298,57 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     Duration maxBufferDuration = Duration(
       seconds: max(minBufferDuration.inSeconds, FinampSettingsHelper.finampSettings.bufferDuration.inSeconds),
     );
+
+    AudioSession.instance.then((session) {
+      bool wasPlayingBeforeInterruption = false;
+      session.interruptionEventStream.listen((event) {
+        bool customInterruptionHandlingNeeded = !FinampSettingsHelper.finampSettings.duckOnAudioInterruption;
+        if (!customInterruptionHandlingNeeded) {
+          return;
+        }
+        if (event.begin) {
+          switch (event.type) {
+            case AudioInterruptionType.duck:
+              // Another app started playing audio and we should duck, unless disabled in settings.
+              // pause();
+              if (FinampSettingsHelper.finampSettings.duckOnAudioInterruption) {
+                _volume.duck();
+              }
+              break;
+            case AudioInterruptionType.pause:
+            case AudioInterruptionType.unknown:
+              // Another app started playing audio and we should pause.
+              wasPlayingBeforeInterruption = _player.playing;
+              pause();
+              break;
+          }
+        } else {
+          switch (event.type) {
+            case AudioInterruptionType.duck:
+              // The interruption ended and we should unduck.
+              _volume.unduck();
+              break;
+            case AudioInterruptionType.pause:
+              // The interruption ended and we should resume.
+              if (wasPlayingBeforeInterruption) {
+                play();
+              }
+              break;
+            case AudioInterruptionType.unknown:
+              // The interruption ended but we should not resume.
+              break;
+          }
+        }
+      });
+      session.devicesChangedEventStream.listen((event) {
+        _outputLogger.info('Devices added:   ${event.devicesAdded}');
+        _outputLogger.info('Devices removed: ${event.devicesRemoved}');
+      });
+    });
+
     _player = AudioPlayer(
       maxSkipsOnError: 0,
+      handleInterruptions: false,
       audioLoadConfiguration: AudioLoadConfiguration(
         androidLoadControl: AndroidLoadControl(
           targetBufferBytes: FinampSettingsHelper.finampSettings.bufferDisableSizeConstraints
