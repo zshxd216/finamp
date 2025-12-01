@@ -261,6 +261,9 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
 
     _audioPipeline = AudioPipeline(androidAudioEffects: _androidAudioEffects, darwinAudioEffects: _iosAudioEffects);
 
+    Duration maxBufferDuration = Duration(
+      seconds: max(minBufferDuration.inSeconds, FinampSettingsHelper.finampSettings.bufferDuration.inSeconds),
+    );
     _player = AudioPlayer(
       maxSkipsOnError: 0,
       audioLoadConfiguration: AudioLoadConfiguration(
@@ -269,10 +272,16 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
               ? null
               : 1024 * 1024 * FinampSettingsHelper.finampSettings.bufferSizeMegabytes,
           // minBufferDuration: FinampSettingsHelper.finampSettings.bufferDuration, //!!! there are issues with the bufferForPlaybackDuration setting, the min duration seemingly has to be smaller than that. so we're using the default
-          minBufferDuration: minBufferDuration,
-          maxBufferDuration: Duration(
-            seconds: max(minBufferDuration.inSeconds, FinampSettingsHelper.finampSettings.bufferDuration.inSeconds),
-          ), // allows the player to fetch a bit more data in exchange for reduced request frequency
+          // it seems like the player won't fetch more than [minBufferDuration], even if the buffer isn't filled yet
+          // so if we ignore size constraints, we just set the minimum to the specified buffer size, but allow fetching even more to reduce the request frequency
+          minBufferDuration: FinampSettingsHelper.finampSettings.bufferDisableSizeConstraints
+              ? maxBufferDuration
+              : minBufferDuration,
+          maxBufferDuration:
+              // allows the player to fetch a bit more data in exchange for reduced request frequency
+              FinampSettingsHelper.finampSettings.bufferDisableSizeConstraints
+              ? (maxBufferDuration + Duration(seconds: 90))
+              : maxBufferDuration,
           prioritizeTimeOverSizeThresholds: FinampSettingsHelper
               .finampSettings
               .bufferDisableSizeConstraints, // targetBufferBytes sets the absolute maximum, but if this false and maxBufferDuration is reached, buffering will end
