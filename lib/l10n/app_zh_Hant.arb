@@ -1496,7 +1496,7 @@
             }
         }
     },
-    "incidentalDownloadTooltip": "此歌曲因 {parentName} 的需求而下載。",
+    "incidentalDownloadTooltip": "此項目由 {parentName} 下載。",
     "@incidentalDownloadTooltip": {
         "placeholders": {
             "parentName": {
