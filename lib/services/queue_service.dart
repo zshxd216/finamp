@@ -487,11 +487,11 @@ class QueueService {
       var nextTracks = info.nextUp;
       var queueTracks = info.queue;
 
-      final order = info.shuffleOrder;
+      var order = info.shuffleOrder;
       // If order!=null, we received shuffled tracks.  Unshuffle before submitting to player.
       if (order != null && info.trackCount > 0) {
         final allTracks = previousTracks + currentTracks + nextTracks + queueTracks;
-        final unshuffled = List.generate(order.length, (x) => x).map((x) => allTracks[order.indexOf(x)]).toList();
+        final unshuffled = List.generate(order.length, (x) => x).map((x) => allTracks[order!.indexOf(x)]).toList();
         final currentIndex = order[previousTracks.length < allTracks.length ? previousTracks.length : 0];
         previousTracks = unshuffled.slice(0, currentIndex);
         currentTracks = unshuffled.slice(currentIndex, currentIndex + currentTracks.length);
@@ -504,12 +504,18 @@ class QueueService {
 
       List<jellyfin_models.BaseItemDto> items = [];
       List<QueueItemSource> sources = [];
+      List<int?> postDropIndices = [];
       final allSources = info.trackSources;
       int i = 0;
+      int j = 0;
       void processTrack(jellyfin_models.BaseItemId id) {
         if (idMap.containsKey(id) && idMap[id] != null) {
           items.add(idMap[id]!);
           sources.add(allSources[i].withItem(idMap[jellyfin_models.BaseItemId(allSources[i].id)]));
+          postDropIndices.add(j);
+          j++;
+        } else {
+          postDropIndices.add(null);
         }
         i++;
       }
@@ -523,8 +529,14 @@ class QueueService {
       queueTracks.forEach(processTrack);
       queueCount = items.length - nextCount - curCount - prevCount;
 
+      if (order != null) {
+        order = order.map((x) => postDropIndices[x]).nonNulls.toList();
+      }
+
       assert(i == info.trackCount);
+      assert(j == items.length);
       assert(prevCount + curCount + nextCount + queueCount == items.length);
+      assert(order == null || order.length == items.length);
 
       int loadedTracks = items.length;
       int droppedTracks = info.trackCount - loadedTracks;
@@ -615,6 +627,12 @@ class QueueService {
     bool isRestoredQueue = false,
   }) async {
     assert(trackSources == null || (customTrackSource == null && trackSources.length == itemList.length));
+    assert(
+      shuffleOrder == null ||
+          (shuffleOrder.length == itemList.length &&
+              shuffleOrder.toSet().length == itemList.length &&
+              shuffleOrder.every((x) => x >= 0 && x < shuffleOrder.length)),
+    );
 
     try {
       if (itemList.isEmpty) {
