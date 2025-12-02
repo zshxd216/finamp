@@ -2494,5 +2494,17 @@
     "clearQueueOnStopEventSubtitle": "Rensa spelkön och stäng spelaren ifall ett 'stopp'-kommando mottages från operativsystemet. Stopp-åtgärder i appen kommer alltid att stänga spelaren och rensa kön.",
     "@clearQueueOnStopEventSubtitle": {
         "description": "Subtitle for the setting that controls if OS stop commands clear the queue."
+    },
+    "moveAddToQueue": "Flytta till slutet",
+    "@moveAddToQueue": {
+        "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
+    },
+    "createPlaylistFromCurrentQueue": "Spara spelkö till spelista",
+    "@createPlaylistFromCurrentQueue": {
+        "description": "Label for a button that adds the current queue to an existing or new playlist."
+    },
+    "movePlayNext": "Spela nästa",
+    "@movePlayNext": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     }
 }
