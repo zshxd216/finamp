@@ -438,9 +438,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             : fields[136] as Color?,
         useSystemAccentColor: fields[137] == null ? false : fields[137] as bool,
         useMonochromeIcon: fields[138] == null ? false : fields[138] as bool,
-        duckOnAudioInterruption: fields[141] == null
+        duckOnAudioInterruption: fields[140] == null
             ? true
-            : fields[141] as bool,
+            : fields[140] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -722,7 +722,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..write(obj.useMonochromeIcon)
       ..writeByte(139)
       ..write(obj.lastUsedPlaybackActionRowPageForQueueMenu)
-      ..writeByte(141)
+      ..writeByte(140)
       ..write(obj.duckOnAudioInterruption);
   }
 

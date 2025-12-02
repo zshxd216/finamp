@@ -815,7 +815,7 @@ class FinampSettings {
   PlaybackActionRowPage lastUsedPlaybackActionRowPageForQueueMenu =
       DefaultSettings.lastUsedPlaybackActionRowPageForQueueMenu;
 
-  @HiveField(141, defaultValue: DefaultSettings.duckOnAudioInterruption)
+  @HiveField(140, defaultValue: DefaultSettings.duckOnAudioInterruption)
   bool duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption;
 
   static Future<FinampSettings> create() async {

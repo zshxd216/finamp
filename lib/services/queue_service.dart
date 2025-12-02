@@ -1101,8 +1101,10 @@ class QueueService {
 
     MediaItemId? itemId;
     final tabContentType = TabContentType.fromItemType(item.type ?? "Audio");
+    bool isAndroidAutoOrMediaBrowserRequest = false;
 
     if (parentType != null) {
+      isAndroidAutoOrMediaBrowserRequest = true;
       itemId = MediaItemId(
         contentType: tabContentType,
         parentType: parentType,
@@ -1127,6 +1129,32 @@ class QueueService {
       }
     }
 
+    Uri? artUri = isAndroidAutoOrMediaBrowserRequest
+        ? _providers.read(albumImageProvider(AlbumImageRequest(item: item, maxHeight: 200, maxWidth: 200))).uri
+        : null;
+
+    // use content provider for handling media art on Android
+    if (Platform.isAndroid) {
+      final packageInfo = await PackageInfo.fromPlatform();
+      // replace with placeholder art
+      if (artUri == null) {
+        final applicationSupportDirectory = await getApplicationSupportDirectory();
+        artUri = Uri(
+          scheme: "content",
+          host: packageInfo.packageName,
+          path: path_helper.join(applicationSupportDirectory.absolute.path, Assets.images.albumWhite.path),
+        );
+      } else {
+        // store the origin in fragment since it should be unused
+        artUri = Uri(
+          scheme: "content",
+          host: packageInfo.packageName,
+          path: artUri.path,
+          fragment: ["http", "https"].contains(artUri.scheme) ? artUri.origin : null,
+        );
+      }
+    }
+
     return MediaItem(
       id: itemId?.toString() ?? uuid.v4(),
       playable:
@@ -1146,6 +1174,7 @@ class QueueService {
       },
       // Jellyfin returns microseconds * 10 for some reason
       duration: item.runTimeTicksDuration(),
+      artUri: artUri,
     );
   }
 }
