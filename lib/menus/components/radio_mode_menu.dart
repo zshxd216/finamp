@@ -100,7 +100,7 @@ Future<void> showRadioMenu(
             return ChoiceMenuOption(
               title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
               icon: TablerIcons.radio_off,
-              isSelected: ref.watch(currentRadioAvailabilityStatusProvider).isAvailable,
+              isSelected: !ref.watch(currentRadioAvailabilityStatusProvider).isAvailable,
               enabled: true,
               onSelect: () async {
                 toggleRadio(false);

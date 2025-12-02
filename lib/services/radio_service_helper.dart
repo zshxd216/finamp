@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:collection/collection.dart';
 import 'package:finamp/components/PlayerScreen/artist_chip.dart';
 import 'package:finamp/components/global_snackbar.dart';
@@ -14,6 +15,7 @@ import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/item_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -192,12 +194,17 @@ void invalidateRadioCache() {
 
 bool toggleRadio([bool? enable]) {
   final currentlyEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
-  final newState = enable ?? !currentlyEnabled;
-  FinampSetters.setRadioEnabled(newState);
-  if (!newState) {
+  final radioNowEnabled = enable ?? !currentlyEnabled;
+  FinampSetters.setRadioEnabled(radioNowEnabled);
+  if (radioNowEnabled) {
+    // override the loop mode just for the player, so that playback stops on the current track if we ever run out of radio tracks
+    GetIt.instance<MusicPlayerBackgroundTask>().setRepeatMode(AudioServiceRepeatMode.none);
+  } else {
     unawaited(clearRadioTracks());
+    // re-sync the player loop mode with Finamp's loop mode
+    GetIt.instance<QueueService>().loopMode = FinampSettingsHelper.finampSettings.loopMode;
   }
-  return newState;
+  return radioNowEnabled;
 }
 
 // Callers should set up correct radio state synchronously before calling this,
@@ -583,7 +590,7 @@ Future<List<jellyfin_models.BaseItemDto>> _getSimilarTracks({
         "Fetched ${filteredSample.length} similar radio candidates: ${filteredSample.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
       );
       // instant mixes always return the track itself as the first item, filter it out
-      filteredSample.removeRange(0, offsetExtraTracks);
+      filteredSample.removeRange(0, min(offsetExtraTracks, filteredSample.length));
       final originalTrackCount = filteredSample.length;
       // filter out duplicate tracks, including upcoming ones
       final recentlyPlayedIds = currentQueue.fullQueue.reversed
@@ -593,13 +600,16 @@ Future<List<jellyfin_models.BaseItemDto>> _getSimilarTracks({
       filteredSample.removeWhere((item) => recentlyPlayedIds.contains(item.id));
       final filteredOutTrackCount = originalTrackCount - filteredSample.length;
       // we requested more tracks in case of duplicates, but if those are not needed we want to stay as similar as possible, since we already have some overhead for randomness
-      final trimAmount = min(
+      final trimAmount = max(
+        0,
         min(
-          filteredOutTrackCount,
-          // ensure we only trim up to [filterExtraTracks] to not remove too many candidates
-          filterExtraTracks,
+          min(
+            filteredOutTrackCount,
+            // ensure we only trim up to [filterExtraTracks] to not remove too many candidates
+            filterExtraTracks,
+          ),
+          filteredSample.length - minNumTracks,
         ),
-        filteredSample.length - minNumTracks,
       );
       filteredSample.removeRange(filteredSample.length - trimAmount, filteredSample.length);
       _radioLogger.finer(
