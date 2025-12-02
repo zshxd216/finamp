@@ -157,7 +157,7 @@ class DefaultSettings {
   static const showArtistChipImage = true;
   static const trackOfflineFavorites = true;
   static const showProgressOnNowPlayingBar = true;
-  static const startInstantMixForIndividualTracks = true;
+  static const startInstantMixForIndividualTracks = false;
   static const showLyricsTimestamps = true;
   static const lyricsAlignment = LyricsAlignment.start;
   static const lyricsFontSize = LyricsFontSize.medium;

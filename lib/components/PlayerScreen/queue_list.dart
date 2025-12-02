@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dart';
@@ -770,7 +771,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     alignment: AlignmentDirectional.centerStart,
                                     widthFactor: itemLength == null
                                         ? 0
-                                        : playbackPosition!.inMilliseconds / itemLength.inMilliseconds,
+                                        : max(0, playbackPosition!.inMilliseconds / itemLength.inMilliseconds),
                                     child: DecoratedBox(
                                       decoration: ShapeDecoration(
                                         color: ColorScheme.of(context).primary,
@@ -1072,14 +1073,14 @@ class QueueSectionHeader extends ConsumerWidget {
                         IconButton(
                           padding: EdgeInsets.zero,
                           iconSize: 28.0,
-                          icon: switch (info?.loop) {
-                            FinampLoopMode.none => const Icon(TablerIcons.repeat_off),
-                            FinampLoopMode.one => const Icon(TablerIcons.repeat_once),
-                            FinampLoopMode.all => const Icon(TablerIcons.repeat),
-                            null => const Icon(TablerIcons.repeat_off),
-                          },
+                          icon: Icon(switch (radioEnabled ? null : info?.loop) {
+                            FinampLoopMode.none => TablerIcons.repeat_off,
+                            FinampLoopMode.one => TablerIcons.repeat_once,
+                            FinampLoopMode.all => TablerIcons.repeat,
+                            null => TablerIcons.repeat_off,
+                          }),
                           color: currentRadioAvailabilityStatus.isAvailable
-                              ? (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.5)
+                              ? (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.3)
                               : (info?.loop != FinampLoopMode.none
                                     ? IconTheme.of(context).color!
                                     : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(

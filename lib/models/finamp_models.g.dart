@@ -240,7 +240,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             ? true
             : fields[64] as bool,
         startInstantMixForIndividualTracks: fields[65] == null
-            ? true
+            ? false
             : fields[65] as bool,
         showLyricsTimestamps: fields[66] == null ? true : fields[66] as bool,
         lyricsAlignment: fields[67] == null
@@ -1501,9 +1501,7 @@ class FinampStorableQueueInfoAdapter
     return FinampStorableQueueInfo(
       currentTrackSeek: (fields[2] as num?)?.toInt(),
       creation: (fields[5] as num).toInt(),
-      sourceList: fields[6] == null
-          ? []
-          : (fields[6] as List).cast<QueueItemSource>(),
+      sourceList: (fields[6] as List).cast<QueueItemSource>(),
       packedPreviousTracks: fields[0] as Uint8List,
       packedCurrentTrack: fields[1] as Uint8List,
       packedNextUp: fields[3] as Uint8List,
