@@ -1179,13 +1179,18 @@ class QueueService {
     _loopMode = mode;
 
     _loopModeStream.add(mode);
-
-    if (mode == FinampLoopMode.one) {
-      _audioHandler.setRepeatMode(AudioServiceRepeatMode.one);
-    } else if (mode == FinampLoopMode.all) {
-      _audioHandler.setRepeatMode(AudioServiceRepeatMode.all);
-    } else {
+    if (FinampSettingsHelper.finampSettings.radioEnabled) {
+      // we disable looping in the player while the radio is enabled
+      // so that we can pause on the current track if we ever run out of radio tracks
       _audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
+    } else {
+      if (mode == FinampLoopMode.one) {
+        _audioHandler.setRepeatMode(AudioServiceRepeatMode.one);
+      } else if (mode == FinampLoopMode.all) {
+        _audioHandler.setRepeatMode(AudioServiceRepeatMode.all);
+      } else {
+        _audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
+      }
     }
 
     FinampSetters.setLoopMode(loopMode);

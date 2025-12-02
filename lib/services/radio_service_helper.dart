@@ -193,16 +193,15 @@ void invalidateRadioCache() {
 }
 
 bool toggleRadio([bool? enable]) {
+  final queueService = GetIt.instance<QueueService>();
   final currentlyEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
   final radioNowEnabled = enable ?? !currentlyEnabled;
   FinampSetters.setRadioEnabled(radioNowEnabled);
-  if (radioNowEnabled) {
-    // override the loop mode just for the player, so that playback stops on the current track if we ever run out of radio tracks
-    GetIt.instance<MusicPlayerBackgroundTask>().setRepeatMode(AudioServiceRepeatMode.none);
-  } else {
+  // trigger a loop mode update to configure the player correctly
+  // since for the radio we override the player loop mode
+  queueService.loopMode = queueService.loopMode;
+  if (!radioNowEnabled) {
     unawaited(clearRadioTracks());
-    // re-sync the player loop mode with Finamp's loop mode
-    GetIt.instance<QueueService>().loopMode = FinampSettingsHelper.finampSettings.loopMode;
   }
   return radioNowEnabled;
 }

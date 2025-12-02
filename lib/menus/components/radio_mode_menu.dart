@@ -65,7 +65,9 @@ Future<void> showRadioMenu(
               ],
               enabled: radioModeOptionAvailabilityStatus.isAvailable,
               icon: getRadioModeIcon(radioModeOption),
-              isDisabled: ref.watch(currentRadioAvailabilityStatusProvider) != RadioModeAvailabilityStatus.available,
+              isInactive:
+                  startNewQueue ||
+                  ref.watch(currentRadioAvailabilityStatusProvider) != RadioModeAvailabilityStatus.available,
               isSelected: currentRadioMode == radioModeOption,
               onSelect: () async {
                 final radioTracksWillChange = currentRadioMode != radioModeOption || startNewQueue;
@@ -93,27 +95,31 @@ Future<void> showRadioMenu(
           },
         );
       })
-      .followedBy(<Widget>[
-        Divider(height: 8.0, thickness: 1.5, indent: 20.0, endIndent: 20.0, radius: BorderRadius.circular(2.0)),
-        Consumer(
-          builder: (context, ref, child) {
-            return ChoiceMenuOption(
-              title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
-              icon: TablerIcons.radio_off,
-              isSelected: !ref.watch(currentRadioAvailabilityStatusProvider).isAvailable,
-              enabled: true,
-              onSelect: () async {
-                toggleRadio(false);
-                FeedbackHelper.feedback(FeedbackType.selection);
-                await Future<void>.delayed(const Duration(milliseconds: 400));
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              },
-            );
-          },
-        ),
-      ])
+      .followedBy(
+        startNewQueue
+            ? []
+            : <Widget>[
+                Divider(height: 8.0, thickness: 1.5, indent: 20.0, endIndent: 20.0, radius: BorderRadius.circular(2.0)),
+                Consumer(
+                  builder: (context, ref, child) {
+                    return ChoiceMenuOption(
+                      title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
+                      icon: TablerIcons.radio_off,
+                      isSelected: !ref.watch(currentRadioAvailabilityStatusProvider).isAvailable,
+                      enabled: true,
+                      onSelect: () async {
+                        toggleRadio(false);
+                        FeedbackHelper.feedback(FeedbackType.selection);
+                        await Future<void>.delayed(const Duration(milliseconds: 400));
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    );
+                  },
+                ),
+              ],
+      )
       .toList();
 
   await showThemedBottomSheet(

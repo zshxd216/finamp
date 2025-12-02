@@ -119,7 +119,7 @@ class ChoiceMenuOption extends StatelessWidget {
     required this.icon,
     required this.isSelected,
     this.enabled = true,
-    this.isDisabled = false,
+    this.isInactive = false,
     this.description,
     this.onSelect,
     this.badges = const [],
@@ -131,7 +131,7 @@ class ChoiceMenuOption extends StatelessWidget {
   final bool isSelected;
   final void Function()? onSelect;
   final bool enabled;
-  final bool isDisabled;
+  final bool isInactive;
   final List<Widget> badges;
 
   @override
@@ -164,7 +164,7 @@ class ChoiceMenuOption extends StatelessWidget {
       trailing: isSelected
           ? Padding(
               padding: const EdgeInsets.only(left: 2.0),
-              child: isDisabled
+              child: isInactive
                   ? SizedBox(
                       width: 32.0,
                       child: Center(
