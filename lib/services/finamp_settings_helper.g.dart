@@ -1202,6 +1202,17 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setLastUsedPlaybackActionRowPageForQueueMenu(
+    PlaybackActionRowPage newLastUsedPlaybackActionRowPageForQueueMenu,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.lastUsedPlaybackActionRowPageForQueueMenu =
+        newLastUsedPlaybackActionRowPageForQueueMenu;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setRadioEnabled(bool newRadioEnabled) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.radioEnabled = newRadioEnabled;
@@ -1634,6 +1645,11 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       .select((value) => value.requireValue.useSystemAccentColor);
   ProviderListenable<bool> get useMonochromeIcon => finampSettingsProvider
       .select((value) => value.requireValue.useMonochromeIcon);
+  ProviderListenable<PlaybackActionRowPage>
+  get lastUsedPlaybackActionRowPageForQueueMenu =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.lastUsedPlaybackActionRowPageForQueueMenu,
+      );
   ProviderListenable<bool> get radioEnabled =>
       finampSettingsProvider.select((value) => value.requireValue.radioEnabled);
   ProviderListenable<RadioMode> get radioMode =>

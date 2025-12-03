@@ -418,6 +418,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         lastUsedPlaybackActionRowPage: fields[131] == null
             ? PlaybackActionRowPage.newQueue
             : fields[131] as PlaybackActionRowPage,
+        lastUsedPlaybackActionRowPageForQueueMenu: fields[139] == null
+            ? PlaybackActionRowPage.moveWithinQueue
+            : fields[139] as PlaybackActionRowPage,
         accentColor: fields[132] == null
             ? DefaultSettings.accentColor
             : fields[132] as Color?,
@@ -444,16 +447,16 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..autoExpandPlayerScreen = fields[125] == null
           ? false
           : fields[125] as bool
-      ..radioEnabled = fields[139] == null ? false : fields[139] as bool
-      ..radioMode = fields[140] == null
+      ..radioEnabled = fields[140] == null ? false : fields[140] as bool
+      ..radioMode = fields[141] == null
           ? RadioMode.similar
-          : fields[140] as RadioMode;
+          : fields[141] as RadioMode;
   }
 
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(134)
+      ..writeByte(135)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -719,8 +722,10 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(138)
       ..write(obj.useMonochromeIcon)
       ..writeByte(139)
-      ..write(obj.radioEnabled)
+      ..write(obj.lastUsedPlaybackActionRowPageForQueueMenu)
       ..writeByte(140)
+      ..write(obj.radioEnabled)
+      ..writeByte(141)
       ..write(obj.radioMode);
   }
 
@@ -2997,6 +3002,10 @@ class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
         return PlaybackActionRowPage.appendNext;
       case 3:
         return PlaybackActionRowPage.playLast;
+      case 4:
+        return PlaybackActionRowPage.moveWithinQueue;
+      case 5:
+        return PlaybackActionRowPage.regularTrackOptions;
       default:
         return PlaybackActionRowPage.newQueue;
     }
@@ -3013,6 +3022,10 @@ class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
         writer.writeByte(2);
       case PlaybackActionRowPage.playLast:
         writer.writeByte(3);
+      case PlaybackActionRowPage.moveWithinQueue:
+        writer.writeByte(4);
+      case PlaybackActionRowPage.regularTrackOptions:
+        writer.writeByte(5);
     }
   }
 

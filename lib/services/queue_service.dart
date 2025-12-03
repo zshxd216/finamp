@@ -1006,7 +1006,7 @@ class QueueService {
     _buildQueueFromNativePlayerQueue();
   }
 
-  /// This function emoves all upcoming radio tracks. Prefer calling clearRadioTracks
+  /// This function removes all upcoming radio tracks. Prefer calling clearRadioTracks
   /// in radio_service_helper, which wraps this with a radio state lock.
   Future<void> clearRadioTracksLocked() async {
     _queueServiceLogger.finer("Clearing radio tracks from queue.");
@@ -1040,6 +1040,14 @@ class QueueService {
       }
     }
     _buildQueueFromNativePlayerQueue();
+  }
+
+  Future<void> removeQueueItem(FinampQueueItem queueItem) async {
+    int? offset = getQueue().getOffsetForQueueItem(queueItem);
+    if (offset == null) {
+      return;
+    }
+    return removeAtOffset(offset);
   }
 
   Future<void> reorderByOffset(int oldOffset, int newOffset) async {

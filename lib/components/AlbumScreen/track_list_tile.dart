@@ -291,10 +291,6 @@ Future<bool> onConfirmPlayableDismiss({
       ? FinampSettingsHelper.finampSettings.itemSwipeActionLeftToRight
       : FinampSettingsHelper.finampSettings.itemSwipeActionRightToLeft;
 
-  if (Platform.isWindows || Platform.isLinux) {
-    followUpAction = ItemSwipeActions.addToQueue;
-  }
-
   final queueService = GetIt.instance<QueueService>();
 
   final sourceItemType = switch (sourceItem) {
@@ -376,10 +372,6 @@ Widget buildSwipeActionBackground({
   required ItemSwipeActions action,
   double? iconSize,
 }) {
-  if (Platform.isWindows || Platform.isLinux) {
-    action = ItemSwipeActions.addToQueue;
-  }
-
   final icon = getSwipeActionIcon(action);
   final label = action.toLocalisedString(context);
 
@@ -408,7 +400,7 @@ DismissDirection getAllowedDismissDirection({required bool swipeLeftEnabled, req
 
 class QueueListTile extends StatelessWidget {
   final BaseItemDto item;
-  final QueueItemSource source;
+  final FinampQueueItem queueItem;
   final BaseItemDto? parentItem;
   final int? listIndex;
   final bool isCurrentTrack;
@@ -424,7 +416,7 @@ class QueueListTile extends StatelessWidget {
   const QueueListTile({
     super.key,
     required this.item,
-    required this.source,
+    required this.queueItem,
     required this.listIndex,
     required this.onTap,
     required this.isCurrentTrack,
@@ -439,8 +431,8 @@ class QueueListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return TrackListItem(
       baseItem: item,
+      queueItem: queueItem,
       parentItem: parentItem,
-      source: source,
       listIndex: listIndex,
       actualIndex: item.indexNumber,
       isInPlaylist: isInPlaylist,
@@ -512,7 +504,7 @@ class EditListTile extends StatelessWidget {
 class TrackListItem extends ConsumerWidget {
   final BaseItemDto baseItem;
   final BaseItemDto? parentItem;
-  final QueueItemSource? source;
+  final FinampQueueItem? queueItem;
   final int? listIndex;
   final int? actualIndex;
   final bool showArtists;
@@ -538,7 +530,7 @@ class TrackListItem extends ConsumerWidget {
     required this.confirmDismiss,
     required this.features,
     this.parentItem,
-    this.source,
+    this.queueItem,
     this.isInPlaylist = false,
     this.showArtists = true,
     this.forceAlbumArtists = false,
@@ -573,7 +565,7 @@ class TrackListItem extends ConsumerWidget {
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0),
       child: TrackListItemTile(
         baseItem: baseItem,
-        source: source,
+        queueItem: queueItem,
         listIndex: listIndex,
         actualIndex: actualIndex,
         showArtists: showArtists,
@@ -604,6 +596,7 @@ class TrackListItem extends ConsumerWidget {
               parentItem: parentItem,
               onRemoveFromList: onRemoveFromList,
               confirmPlaylistRemoval: false,
+              queueItem: queueItem,
             );
           }
         }
@@ -695,7 +688,7 @@ class TrackListItemTile extends ConsumerWidget {
     required this.onTap,
     required this.actualIndex,
     required this.features,
-    this.source,
+    this.queueItem,
     this.listIndex,
     this.showArtists = true,
     this.forceAlbumArtists = false,
@@ -707,7 +700,7 @@ class TrackListItemTile extends ConsumerWidget {
   });
 
   final BaseItemDto baseItem;
-  final QueueItemSource? source;
+  final FinampQueueItem? queueItem;
   final bool isCurrentTrack;
   final int? listIndex;
   final int? actualIndex;
@@ -772,7 +765,7 @@ class TrackListItemTile extends ConsumerWidget {
       item: DownloadStub.fromItem(item: baseItem, type: DownloadItemType.track),
       size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1,
     );
-    final isRadioTrack = source?.type == QueueItemSourceType.radio;
+    final isRadioTrack = queueItem?.source.type == QueueItemSourceType.radio;
     final addSpaceAfterSpecialIcons =
         (downloadedIndicator.isVisible(ref) || (baseItem.hasLyrics ?? false) || isRadioTrack) &&
         (showDateAdded || showDateLastPlayed);
@@ -1074,7 +1067,7 @@ class TrackListItemTile extends ConsumerWidget {
                   ),
                 if (showOverflowMenu)
                   OverflowMenuButton(
-                    onPressed: () => showModalTrackMenu(context: context, item: baseItem),
+                    onPressed: () => showModalTrackMenu(context: context, item: baseItem, queueItem: queueItem),
                     color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
                     label: AppLocalizations.of(context)!.menuButtonLabel,
                   ),

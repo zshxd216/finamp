@@ -1,3 +1,4 @@
+import 'package:finamp/models/finamp_models.dart';
 import 'package:flutter/material.dart';
 
 class PlaybackActionPageIndicator extends StatelessWidget {
@@ -8,7 +9,7 @@ class PlaybackActionPageIndicator extends StatelessWidget {
     this.compactLayout = false,
   });
 
-  final Map<String, Widget> pages;
+  final Map<PlaybackActionRowPage, Widget> pages;
   final PageController pageController;
   final bool compactLayout;
 
@@ -48,7 +49,7 @@ class PlaybackActionPageIndicator extends StatelessWidget {
                       borderRadius: BorderRadius.circular(9999.0),
                     ),
                     child: Text(
-                      pages.keys.elementAt(index),
+                      pages.keys.elementAt(index).toLocalisedString(context),
                       style: (pageController.page ?? pageController.initialPage).round() == index
                           ? textColorSelected
                           : textColor,
