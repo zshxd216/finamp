@@ -13,6 +13,7 @@ import 'package:finamp/services/favorite_provider.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart' as RadioServiceHelper;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -941,6 +942,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
         case CustomPlaybackActions.shuffle:
           final queueService = GetIt.instance<QueueService>();
           return queueService.togglePlaybackOrder();
+        case CustomPlaybackActions.radio:
+          RadioServiceHelper.toggleRadio();
         case CustomPlaybackActions.toggleFavorite:
           return toggleFavoriteStatusOfCurrentTrack();
       }
@@ -1086,6 +1089,11 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
       }
     }
 
+    final radioEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
+    final radioActive = GetIt.instance<ProviderContainer>()
+        .read(RadioServiceHelper.currentRadioAvailabilityStatusProvider)
+        .isAvailable;
+
     return PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
@@ -1105,25 +1113,40 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
                       : "Add Favorite"),
           ),
         if (FinampSettingsHelper.finampSettings.showShuffleButtonOnMediaNotification)
-          //FIXME override the shuffle icon with the radio icon if that's active
-          // be sure to call [refreshPlaybackStateAndMediaNotification] when radio mode changes to manually update the notification
-          MediaControl.custom(
-            name: CustomPlaybackActions.shuffle.name,
-            androidIcon: _player.shuffleModeEnabled
-                ? "drawable/baseline_shuffle_on_24"
-                : "drawable/baseline_shuffle_24",
-            label: _player.shuffleModeEnabled
-                ? (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
-                      ? AppLocalizations.of(
-                          GlobalSnackbar.materialAppScaffoldKey.currentContext!,
-                        )!.playbackOrderShuffledButtonLabel
-                      : "Shuffle enabled")
-                : (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
-                      ? AppLocalizations.of(
-                          GlobalSnackbar.materialAppScaffoldKey.currentContext!,
-                        )!.playbackOrderLinearButtonLabel
-                      : "Shuffle disabled"),
-          ),
+          //TODO eventually we probably want separate settings for this, and not store them as individual booleans in Hive
+          radioEnabled
+              ? MediaControl.custom(
+                  name: CustomPlaybackActions.radio.name,
+                  androidIcon: radioActive ? "drawable/tabler_icons_radio_24" : "drawable/tabler_icons_radio_off_24",
+                  label: radioActive
+                      ? (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
+                            ? AppLocalizations.of(
+                                GlobalSnackbar.materialAppScaffoldKey.currentContext!,
+                              )!.radioModeActiveTitle
+                            : "Radio active")
+                      : (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
+                            ? AppLocalizations.of(
+                                GlobalSnackbar.materialAppScaffoldKey.currentContext!,
+                              )!.radioModeInactiveTitle
+                            : "Radio paused"),
+                )
+              : MediaControl.custom(
+                  name: CustomPlaybackActions.shuffle.name,
+                  androidIcon: _player.shuffleModeEnabled
+                      ? "drawable/baseline_shuffle_on_24"
+                      : "drawable/baseline_shuffle_24",
+                  label: _player.shuffleModeEnabled
+                      ? (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
+                            ? AppLocalizations.of(
+                                GlobalSnackbar.materialAppScaffoldKey.currentContext!,
+                              )!.playbackOrderShuffledButtonLabel
+                            : "Shuffle enabled")
+                      : (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
+                            ? AppLocalizations.of(
+                                GlobalSnackbar.materialAppScaffoldKey.currentContext!,
+                              )!.playbackOrderLinearButtonLabel
+                            : "Shuffle disabled"),
+                ),
         if (FinampSettingsHelper.finampSettings.showStopButtonOnMediaNotification)
           MediaControl.stop.copyWith(androidIcon: "drawable/baseline_stop_24"),
       ],

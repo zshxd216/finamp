@@ -52,6 +52,7 @@ final _radioCacheStateStreamProvider = StreamProvider<RadioCacheState?>((ref) {
   if (_radioCacheStateStream.valueOrNull == null) {
     invalidateRadioCache();
   }
+  GetIt.instance<MusicPlayerBackgroundTask>().refreshPlaybackStateAndMediaNotification();
   return _radioCacheStateStream;
 });
 final radioStateProvider = Provider<RadioCacheState?>((ref) {
@@ -203,6 +204,7 @@ bool toggleRadio([bool? enable]) {
   if (!radioNowEnabled) {
     unawaited(clearRadioTracks());
   }
+  GetIt.instance<MusicPlayerBackgroundTask>().refreshPlaybackStateAndMediaNotification();
   return radioNowEnabled;
 }
 

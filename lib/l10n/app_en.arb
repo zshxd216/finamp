@@ -2698,6 +2698,10 @@
     },
     "description": "Title displayed in the queue, showing which radio mode/algorithm is currently being used."
   },
+  "radioModeActiveTitle": "Radio Active",
+  "@radioModeActiveTitle": {
+    "description": "Title displayed in the queue to show that radio mode is enabled and active."
+  },
   "radioModeDisabledTitle": "Radio Disabled",
   "@radioModeDisabledTitle": {
     "description": "Title displayed in the queue to show that radio mode is disabled."
