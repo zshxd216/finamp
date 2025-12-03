@@ -78,14 +78,23 @@ Future<void> maybeAddRadioTracks() async {
     }
     _radioCallTimestamps.add(now);
 
+    _radioLogger.fine("$radioTracksNeeded new radio tracks are needed");
+
     var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
     _radioCacheStateStream.add(localResult);
     if (localResult.tracks.length < radioTracksNeeded) {
+      _radioLogger.finer("Radio cache exhausted, generating new radio tracks");
       try {
-        localResult.tracks.addAll(await generateRadioTracks(radioTracksNeeded - localResult.tracks.length));
+        final generatedTracks = await generateRadioTracks(radioTracksNeeded - localResult.tracks.length);
+        localResult.tracks.addAll(generatedTracks);
+        _radioLogger.finer("Successfully generated ${generatedTracks.length} new radio tracks.");
       } catch (e) {
         _radioLogger.warning("Couldn't generate radio tracks: $e");
       }
+    } else {
+      _radioLogger.finer(
+        "Radio cache still contained enough items (${localResult.tracks.length}), sourcing from there.",
+      );
     }
     final tracksToAddCount = min(switch (localResult.radioMode) {
       RadioMode.albumMix => localResult.tracks.length, // album mix returns full albums, and those should stay together
@@ -249,9 +258,9 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? ov
     "Generating $minNumTracks radio tracks from ${overrideSeedItem == null ? "queue" : "override"} item '${actualSeed?.name}' using '${FinampSettingsHelper.finampSettings.radioMode.name}' mode.",
   );
 
+  /// Adds tracks in such a manner to simulate "shuffle-repeat all",
+  /// but with each repeat iteration re-shuffling the order.
   Future<List<BaseItemDto>> reshuffleMode() async {
-    // Adds tracks in such a manner to simulate "shuffle + repeat all", but with each repeat iteration re-shuffling
-    // the order.
     final reshuffleModeAvailabilityStatus = providers.read(
       _randomAndReshuffleRadioModeAvailabilityStatusProvider(overrideSeedItem),
     );
@@ -272,6 +281,8 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? ov
     return originalQueue.shuffled();
   }
 
+  /// Adds tracks from the source completely randomly,
+  /// even allowing the same track to repeat
   Future<List<BaseItemDto>> randomMode() async {
     final randomModeAvailabilityStatus = providers.read(
       _randomAndReshuffleRadioModeAvailabilityStatusProvider(overrideSeedItem),
@@ -297,30 +308,30 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? ov
     });
   }
 
+  /// Adds tracks which are similar to the queue source, with a slightly randomized order
+  /// Filters out any duplicates
   Future<List<BaseItemDto>> similarMode() async {
     if (actualSeed == null) {
       throw Exception("No seed item available for radio generation. Aborting.");
     }
-    // filter out ALL duplicates, otherwise things will start repeating too often since the base item never changes
-    final repetitionThresholdTracks = currentQueue.fullQueue.length;
     // extra tracks to randomly choose from to introduce non-determinism
     final randomnessExtraTracks = 8 + (minNumTracks * 1.5).ceil();
     return await _getSimilarTracks(
       referenceItem: actualSeed,
       minNumTracks: minNumTracks,
       randomnessExtraTracks: randomnessExtraTracks,
-      attempts: 15,
-      repetitionThresholdTracks: repetitionThresholdTracks,
+      maxAttempts: 15,
+      // filter out ALL duplicates, otherwise things will start repeating too often
+      // since the base item never changes
+      repetitionThresholdTracks: currentQueue.trackCount,
     );
   }
 
+  /// Like [RadioMode.similar], but based on the last track in the queue, not the original source
   Future<List<BaseItemDto>> continuousMode() async {
     if (actualSeed == null) {
       throw Exception("No seed item available for radio generation. Aborting.");
     }
-    // like [RadioMode.similar], but based on the last track in the queue, not the original source
-    // filter out recent tracks within 90 minutes
-    final repetitionThresholdTracks = currentQueue.getTrackCountWithinDuration(Duration(minutes: 90));
     // extra tracks to randomly choose from to introduce non-determinism
     final randomnessExtraTracks = 5 + (minNumTracks * 1.5).ceil();
 
@@ -333,9 +344,10 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? ov
         // [seedItem] is only used for generating tracks if there's no queue yet
         referenceItem: continuousTracks.last,
         minNumTracks: 1,
-        attempts: 10,
+        maxAttempts: 10,
         randomnessExtraTracks: randomnessExtraTracks,
-        repetitionThresholdTracks: repetitionThresholdTracks,
+        // filter out recent tracks within 90 minutes
+        repetitionThresholdTracks: currentQueue.getTrackCountWithinDuration(Duration(minutes: 90)),
       );
       if (continuousTracksSample.isEmpty) {
         _radioLogger.warning("Failed to find similar track to ${continuousTracks.last.name}. Aborting.");
@@ -394,7 +406,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? ov
       final additionalAlbums = 2 * attempt + pow(attempt, 2.75).toInt(); // ~ 0, 3, 10, 27, 50, 100
       attempt++;
       if (attempt > 1) {
-        _radioLogger.warning("No similar albums found. Retrying with $additionalAlbums more extra albums.");
+        _radioLogger.warning("No similar albums found. Retrying with $additionalAlbums extra albums.");
       }
 
       List<BaseItemDto> similarAlbums;
@@ -569,7 +581,7 @@ Future<List<BaseItemDto>> _getSimilarTracks({
   required int minNumTracks,
   required int randomnessExtraTracks,
   required int repetitionThresholdTracks,
-  required int attempts,
+  required int maxAttempts,
 }) async {
   const offsetExtraTracks = 1; // extra track to exclude the current track
   const filterExtraTracks = 10; // extra tracks in case duplicates are removed
@@ -577,12 +589,11 @@ Future<List<BaseItemDto>> _getSimilarTracks({
   assert(!FinampSettingsHelper.finampSettings.isOffline, "Similar tracks not available while offline");
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final queueService = GetIt.instance<QueueService>();
-  final currentQueue = queueService.getQueue();
   int attempt = 0;
-  while (attempt < attempts) {
+  while (attempt < maxAttempts) {
     final attemptExtraTracks = attempt * 10;
     if (attempt > 0) {
-      _radioLogger.warning("No similar tracks found. Retrying with $attemptExtraTracks more extra tracks.");
+      _radioLogger.warning("No similar tracks found. Retrying with $attemptExtraTracks extra tracks.");
     }
     attempt++;
 
@@ -596,11 +607,14 @@ Future<List<BaseItemDto>> _getSimilarTracks({
       _radioLogger.finer(
         "Fetched ${filteredSample.length} similar radio candidates: ${filteredSample.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
       );
-      // instant mixes always return the track itself as the first item, filter it out
-      filteredSample.removeRange(0, min(offsetExtraTracks, filteredSample.length));
+      // instant mixes always return the track itself as the first item, filter it out, as well as any offset tracks we added to skip over already-included similar tracks
+      filteredSample.removeRange(0, min(offsetExtraTracks + 1, filteredSample.length));
       final originalTrackCount = filteredSample.length;
       // filter out duplicate tracks, including upcoming ones
-      final recentlyPlayedIds = currentQueue.fullQueue.reversed
+      final recentlyPlayedIds = queueService
+          .getQueue()
+          .fullQueue
+          .reversed
           .take(repetitionThresholdTracks)
           .map((item) => item.baseItem.id)
           .toSet();
@@ -629,8 +643,7 @@ Future<List<BaseItemDto>> _getSimilarTracks({
       return filteredSample;
     }
   }
-  _radioLogger.warning("No similar tracks found in ${attempts + 1} attempts.  Aborting.");
-  return [];
+  throw Exception("No similar tracks found in ${maxAttempts + 1} attempts. Aborting.");
 }
 
 enum RadioModeAvailabilityStatus {
