@@ -31,14 +31,16 @@ Future<(int, BaseItemDtoType)> itemAmount(
           showTrackCountForArtists || ref.watch(finampSettingsProvider.defaultArtistType) == ArtistType.artist;
       if (ref.watch(finampSettingsProvider.isOffline)) {
         var items = await (showTrackCountForArtists
-            ? ref.watch(getArtistAlbumsProvider(baseItem, library, null).future)
-            : ref.watch(getPerformingArtistTracksProvider(baseItem, library, null).future));
+            ? ref.watch(getArtistAlbumsProvider(artist: baseItem, libraryFilter: library).future)
+            : ref.watch(getPerformingArtistTracksProvider(artist: baseItem, libraryFilter: library).future));
         itemCount = items.length;
       } else {
         var items = await jellyfinApiHelper.getItemsWithTotalRecordCount(
           libraryFilter: library,
           parentItem: baseItem,
-          includeItemTypes: showTrackCountForArtists ? BaseItemDtoType.track.idString : BaseItemDtoType.album.idString,
+          includeItemTypes: showTrackCountForArtists
+              ? BaseItemDtoType.track.jellyfinName
+              : BaseItemDtoType.album.jellyfinName,
           limit: 1,
           artistType: showTrackCountForArtists ? ArtistType.artist : ArtistType.albumArtist,
         );
@@ -66,7 +68,7 @@ Future<(int, BaseItemDtoType)> itemAmount(
           parentItem: library,
           genreFilter: baseItem,
           limit: 1,
-          includeItemTypes: BaseItemDtoType.album.idString,
+          includeItemTypes: BaseItemDtoType.album.jellyfinName,
         );
         itemCount = items.totalRecordCount;
       }

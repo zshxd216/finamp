@@ -11,6 +11,7 @@ class PlaybackAction extends ConsumerWidget {
     required this.onPressed,
     required this.label,
     required this.iconColor,
+    this.onLongPress,
     this.enabled = true,
     this.addShuffleIcon = false,
     this.compactLayout = false,
@@ -19,6 +20,7 @@ class PlaybackAction extends ConsumerWidget {
   final IconData icon;
   final String? value;
   final void Function() onPressed;
+  final void Function()? onLongPress;
   final String label;
   final Color iconColor;
   final bool enabled;
@@ -80,6 +82,7 @@ class PlaybackAction extends ConsumerWidget {
                 onPressed();
               }
             : null,
+        onLongPress: onLongPress,
         visualDensity: VisualDensity.compact,
         padding: compactLayout
             ? EdgeInsets.only(top: 5.0, left: 4.0, right: 4.0, bottom: 5.0)

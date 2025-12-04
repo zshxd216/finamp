@@ -1,24 +1,23 @@
 import 'dart:io';
 
+import 'package:finamp/components/AlbumScreen/downloaded_indicator.dart';
+import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/favorite_button.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
 import 'package:finamp/services/datetime_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/generate_subtitle.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/services/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../models/finamp_models.dart';
-import '../../models/jellyfin_models.dart';
-import '../../services/generate_subtitle.dart';
-import '../../services/jellyfin_api_helper.dart';
-import '../AlbumScreen/downloaded_indicator.dart';
-import '../album_image.dart';
 
 /// ListTile content for CollectionItem. You probably shouldn't use this widget
 /// directly, use CollectionItem instead.
@@ -103,7 +102,7 @@ class ItemCollectionListTile extends ConsumerWidget {
 
     TabContentType? associatedTabContentType;
     try {
-      associatedTabContentType = TabContentType.fromItemType(itemType.idString ?? "");
+      associatedTabContentType = TabContentType.fromItemType(itemType.jellyfinName ?? "");
     } on FormatException {
       associatedTabContentType = null;
     }
