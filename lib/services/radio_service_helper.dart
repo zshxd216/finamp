@@ -278,11 +278,14 @@ Future<List<BaseItemDto>> generateRadioTracks(
         "Reshuffle radio mode selected but the provided item '${overrideSeedItem?.name}' not downloaded or the queue is empty. Availability status: $reshuffleModeAvailabilityStatus. Returning empty track list.",
       );
     }
+    final queueWithoutRadioTracks = currentQueue.fullQueue
+        .whereNot((e) => e.source.type == QueueItemSourceType.radio)
+        .toList();
     // Items originally in the currently playing source (or manually added)
-    final originalQueue = overrideSeedItem != null
-        ? (await loadChildTracksFromBaseItem(baseItem: overrideSeedItem)).map((item) => item).toList()
-        : currentQueue.fullQueue
-              .whereNot((e) => e.source.type == QueueItemSourceType.radio)
+    final originalQueue = actualSeed != null
+        ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
+        // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
+        : (queueWithoutRadioTracks.isEmpty ? currentQueue.fullQueue : queueWithoutRadioTracks)
               .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
               .map((e) => e.baseItem)
               .nonNulls
@@ -301,11 +304,14 @@ Future<List<BaseItemDto>> generateRadioTracks(
         "Random radio mode selected but the provided item '${overrideSeedItem?.name}' is not downloaded or the queue is empty. Availability status: $randomModeAvailabilityStatus. Returning empty track list.",
       );
     }
+    final queueWithoutRadioTracks = currentQueue.fullQueue
+        .whereNot((e) => e.source.type == QueueItemSourceType.radio)
+        .toList();
     // Items originally in the currently playing source (or manually added)
-    final originalQueue = overrideSeedItem != null
-        ? (await loadChildTracksFromBaseItem(baseItem: overrideSeedItem)).map((item) => item).toList()
-        : currentQueue.fullQueue
-              .whereNot((e) => e.source.type == QueueItemSourceType.radio)
+    final originalQueue = actualSeed != null
+        ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
+        // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
+        : (queueWithoutRadioTracks.isEmpty ? currentQueue.fullQueue : queueWithoutRadioTracks)
               .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
               .map((e) => e.baseItem)
               .nonNulls

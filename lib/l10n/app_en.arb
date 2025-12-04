@@ -2589,10 +2589,6 @@
     },
     "description": "Label for the type of device in the output menu"
   },
-  "desktopShuffleWarning": "Changing shuffle mode is not currently available on desktop.",
-  "@desktopShuffleWarning": {
-    "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
-  },
   "itemCount": "{childType, select, track{{amount, plural, =1{1 track} other{{amount} tracks}}} album{{amount, plural, =1{1 album} other{{amount} albums}}} other{{amount, plural, =1{1 item} other{{amount} items}}}}",
   "@itemCount": {
     "description": "Amount of various child item, like artist albums, performing artist tracks, or genre albums. Shown for example in the menu headers.",
