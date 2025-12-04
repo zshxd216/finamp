@@ -66,8 +66,11 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
           tooltip:
               "${getLocalizedLoopMode(context, snapshot.data!)}. ${AppLocalizations.of(context)!.genericToggleButtonTooltip}",
           onPressed: () async {
-            if (radioFailed) {
-              await showRadioMenu(context, subtitle: AppLocalizations.of(context)!.radioFailedSubtitle);
+            if (radioEnabled) {
+              await showRadioMenu(
+                context,
+                subtitle: radioFailed ? AppLocalizations.of(context)!.radioFailedSubtitle : null,
+              );
             } else {
               FeedbackHelper.feedback(FeedbackType.light);
               queueService.toggleLoopMode();

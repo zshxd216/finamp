@@ -103,7 +103,8 @@ Future<void> showRadioMenu(
                 Consumer(
                   builder: (context, ref, child) {
                     return ChoiceMenuOption(
-                      title: AppLocalizations.of(context)!.radioModeDisabledButtonTitle,
+                      title: AppLocalizations.of(context)!.radioModeDisableButtonTitle,
+                      description: AppLocalizations.of(context)!.radioModeDisableButtonSubtitle,
                       icon: TablerIcons.radio_off,
                       isSelected: !ref.watch(currentRadioAvailabilityStatusProvider).isAvailable,
                       enabled: true,

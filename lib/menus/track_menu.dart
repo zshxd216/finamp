@@ -360,8 +360,11 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                           : TablerIcons.radio_off
                     : loopModeIcons[playbackBehavior.loop]!,
                 onPressed: () async {
-                  if (radioFailed) {
-                    await showRadioMenu(context, subtitle: AppLocalizations.of(context)!.radioFailedSubtitle);
+                  if (radioEnabled) {
+                    await showRadioMenu(
+                      context,
+                      subtitle: radioFailed ? AppLocalizations.of(context)!.radioFailedSubtitle : null,
+                    );
                     return;
                   }
                   _queueService.toggleLoopMode();

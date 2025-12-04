@@ -2730,9 +2730,13 @@
   "@radioModeInactiveTitle": {
     "description": "Title displayed in the queue to show that the radio is enabled but not active."
   },
-  "radioModeDisabledButtonTitle": "Disable Radio",
-  "@radioModeDisabledButtonTitle": {
+  "radioModeDisableButtonTitle": "Disable Radio",
+  "@radioModeDisableButtonTitle": {
     "description": "Title for the option that disables radio mode."
+  },
+  "radioModeDisableButtonSubtitle": "Switches back to the previous loop mode",
+  "@radioModeDisableButtonSubtitle": {
+    "description": "Subtitle for the option that disables radio mode."
   },
   "radioModeOptionConfirmation": "Switched to {option, select, reshuffle{reshuffle mode} random{random mode} similar{similar mode} continuous{continuous mode} albumMix{album mix} other{{option}}}",
   "@radioModeOptionConfirmation": {
@@ -2847,6 +2851,10 @@
   "radioNoTracksFound": "Couldn't start radio because no suitable tracks were found.",
   "@radioNoTracksFound": {
     "description": "Shown when the user tries to start radio mode but no suitable tracks were found to start the radio with."
+  },
+  "loopingUnavailableWhileRadioActiveWarning": "Changing the loop mode is not available while radio is active, as the queue will continue endlessly.",
+  "@loopingUnavailableWhileRadioActiveWarning": {
+    "description": "Warning message when trying to change the loop mode while radio is active."
   },
   "autoReloadPrompt": "Reload queue to apply new {type, select, network{network settings} transcoding{transcoding settings} other{settings}}",
   "@autoReloadPrompt": {

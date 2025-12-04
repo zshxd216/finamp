@@ -8,6 +8,7 @@ import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
 import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
+import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
@@ -1079,7 +1080,7 @@ class QueueSectionHeader extends ConsumerWidget {
                             FinampLoopMode.all => TablerIcons.repeat,
                             null => TablerIcons.repeat_off,
                           }),
-                          color: currentRadioAvailabilityStatus.isAvailable
+                          color: radioEnabled
                               ? (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.3)
                               : (info?.loop != FinampLoopMode.none
                                     ? IconTheme.of(context).color!
@@ -1087,6 +1088,12 @@ class QueueSectionHeader extends ConsumerWidget {
                                         0.85,
                                       )),
                           onPressed: () {
+                            if (radioEnabled) {
+                              GlobalSnackbar.message(
+                                (scaffold) => AppLocalizations.of(context)!.loopingUnavailableWhileRadioActiveWarning,
+                              );
+                              return;
+                            }
                             queueService.toggleLoopMode();
                             FeedbackHelper.feedback(FeedbackType.selection);
                           },
