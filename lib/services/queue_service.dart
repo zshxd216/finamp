@@ -342,7 +342,7 @@ class QueueService {
     if (queueToSave.fullQueue.length > maxQueueItems) {
       final excess = queueToSave.fullQueue.length - maxQueueItems;
       // create a copy of previous tracks to avoid modifying the original list, which is tied directly to Finamp's internal queue
-      final trimmedPreviousTracks = [...queueToSave.previousTracks];
+      var trimmedPreviousTracks = [...queueToSave.previousTracks];
       List<int> indicesToRemove = [];
       trimmedPreviousTracks.forEachIndexed((index, e) {
         if (indicesToRemove.length < excess && [QueueItemSourceType.radio].contains(e.source.type)) {
@@ -350,18 +350,26 @@ class QueueService {
         }
       });
       if (indicesToRemove.isNotEmpty) {
-        for (var index in indicesToRemove.reversed) {
-          trimmedPreviousTracks.removeAt(index);
-          shuffleIndices.removeWhere((x) => x == index);
+        final List<int> shuffleIndicesToRemove;
+        if (playbackOrder == FinampPlaybackOrder.shuffled) {
+          shuffleIndicesToRemove = indicesToRemove.map((x) => shuffleIndices[x]).toList();
+        } else {
+          shuffleIndicesToRemove = indicesToRemove;
         }
+        trimmedPreviousTracks = trimmedPreviousTracks
+            .mapIndexed((i, x) => indicesToRemove.contains(i) ? null : x)
+            .nonNulls
+            .toList();
+        shuffleIndices = shuffleIndices.map((x) => shuffleIndicesToRemove.contains(x) ? null : x).nonNulls.toList();
         queueToSave.previousTracks = trimmedPreviousTracks;
         // repair shuffle indices to close "gaps"
         for (int i = 0; i < shuffleIndices.length; i++) {
-          int removedBefore = indicesToRemove.where((x) => x < shuffleIndices[i]).length;
+          int removedBefore = shuffleIndicesToRemove.where((x) => x < shuffleIndices[i]).length;
           shuffleIndices[i] = shuffleIndices[i] - removedBefore;
         }
       }
     }
+    assert(queueToSave.trackCount == shuffleIndices.length);
     FinampStorableQueueInfo info = FinampStorableQueueInfo.fromQueueInfo(
       queueToSave,
       withPosition ? _audioHandler.playbackPosition.inMilliseconds : null,
@@ -637,25 +645,26 @@ class QueueService {
   }) async {
     if (trackSources != null) {
       if (trackSources.length != itemList.length) {
-        _queueServiceLogger.warning(
+        _queueServiceLogger.severe(
           "trackSources length (${trackSources.length}) does not match itemList length (${itemList.length})",
         );
+        assert(false);
         trackSources = null;
-      } else {
-        if (customTrackSource != null) {
-          _queueServiceLogger.warning(
-            "Valid trackSources and customTrackSource are provided, ignoring customTrackSource since trackSources are more fine-grained",
-          );
-          customTrackSource = null;
-        }
       }
     }
-    assert(
-      shuffleOrder == null ||
-          (shuffleOrder.length == itemList.length &&
-              shuffleOrder.toSet().length == itemList.length &&
-              shuffleOrder.every((x) => x >= 0 && x < shuffleOrder.length)),
-    );
+    if (shuffleOrder != null) {
+      if (shuffleOrder.length != itemList.length ||
+          shuffleOrder.toSet().length != itemList.length ||
+          shuffleOrder.any((x) => x < 0 || x >= shuffleOrder!.length)) {
+        _queueServiceLogger.severe(
+          "received invalid shuffleOrder $shuffleOrder for  itemList length (${itemList.length})",
+        );
+        // If an invalid shuffleOrder is received in release mode, ignore it and continue.  But if we are
+        // in debug mode, throw.
+        assert(false);
+        shuffleOrder = null;
+      }
+    }
 
     try {
       if (itemList.isEmpty) {
@@ -1431,9 +1440,13 @@ class NextUpShuffleOrder extends ShuffleOrder {
       throw Exception("NextUpShuffleOrder always expects an initialIndex.");
     }
 
-    _queueService._buildQueueFromNativePlayerQueue(logUpdate: false, indexOverride: initialIndex);
-    FinampQueueInfo queueInfo = _queueService.getQueue();
-    assert(queueInfo.trackCount == indices.length);
+    // calculate next up size manually insted of using _queueService._queueNextUp because that could be out of date, and we
+    // don't want to call _queueService._buildQueueFromNativePlayerQueue on an in-progress queue with an invalid shuffle order.
+    List<FinampQueueItem> allTracks = GetIt.instance<MusicPlayerBackgroundTask>().sequenceState.effectiveSequence
+        .map((e) => e.tag as FinampQueueItem)
+        .toList();
+    assert(allTracks.length == indices.length);
+    assert(initialIndex >= 0 && initialIndex < allTracks.length);
 
     if (indices.length <= 1) {
       return;
@@ -1448,10 +1461,16 @@ class NextUpShuffleOrder extends ShuffleOrder {
       indicesString += "$index, ";
     }
     _queueService.queueServiceLogger.finest("Shuffled indices: $indicesString");
-    _queueService.queueServiceLogger.finest("Current Track: ${queueInfo.currentTrack}");
+    _queueService.queueServiceLogger.finest("Current Track: ${allTracks[initialIndex]}");
 
     int nextUpLength = 0;
-    nextUpLength = queueInfo.nextUp.length;
+    for (int i = initialIndex + 1; i < allTracks.length; i++) {
+      if (allTracks[i].type == QueueItemQueueType.nextUp) {
+        nextUpLength++;
+      } else {
+        break;
+      }
+    }
 
     const initialPos = 0; // current item will always be at the front
 

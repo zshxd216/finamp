@@ -3806,6 +3806,8 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
     assert(shuffleOrder.length == info.trackCount);
     assert(shuffleOrder.toSet().length == shuffleOrder.length);
     bool validateNextUp() {
+      // If we are not shuffled, the order will not be stored, so we do not need to and cannot validate.
+      if (order != FinampPlaybackOrder.shuffled) return true;
       if ((info.currentTrack == null ? 0 : 1) + info.nextUp.length > 1) {
         int lastIndex = shuffleOrder[info.previousTracks.length];
         for (int i = 1; i < (info.currentTrack == null ? 0 : 1) + info.nextUp.length; i++) {
@@ -3817,7 +3819,7 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
       return true;
     }
 
-    assert(validateNextUp(), shuffleOrder);
+    assert(validateNextUp(), shuffleOrder.toString());
 
     final packedOrder = info.trackCount <= 1
         ? BitBuffer()

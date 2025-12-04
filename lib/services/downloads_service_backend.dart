@@ -423,6 +423,12 @@ class IsarTaskQueue implements TaskQueue {
   void taskFinished(Task task) {
     _activeDownloads.remove(int.parse(task.taskId));
   }
+
+  // We do not currently pause or resume the downloads
+  @override
+  Future<void> pauseAll() async {}
+  @override
+  Future<void> resumeAll() async {}
 }
 
 /// A class for storing pending deletes in Isar.  This is used to save unlinked

@@ -141,10 +141,10 @@ packages:
     dependency: "direct main"
     description:
       name: background_downloader
-      sha256: c59bff0b66a6704bed8bfb09c67571df88167906e0f5543a722373b3d180a743
+      sha256: a3b340e42bc45598918944e378dc6a05877e587fcd0e1b8d2ea26339de87bdf9
       url: "https://pub.dev"
     source: hosted
-    version: "9.2.3"
+    version: "9.4.0"
   balanced_text:
     dependency: "direct main"
     description:
@@ -731,10 +731,10 @@ packages:
     dependency: "direct main"
     description:
       name: gaimon
-      sha256: fca9d9bef76604a4d3ad5d212a349406c68f78ed01172f40bebcbd5b4f55087a
+      sha256: "30633697e071b5fab1b33f1f03e1497156ebd5b92b721f3603c88046339a4af5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.1"
+    version: "1.4.2"
   get_it:
     dependency: "direct main"
     description:
@@ -1047,10 +1047,10 @@ packages:
     dependency: transitive
     description:
       name: media_kit
-      sha256: dfd5ab85d49a1806b1314a0b81f3d14da48f0db0a657336b2d77c5f17db28944
+      sha256: "2a207ea7baf1a2ea2ff2016d512e572ca6fc02a937769effb5c27b4d682b4a53"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.2"
+    version: "1.2.3"
   media_kit_libs_linux:
     dependency: "direct main"
     description:
@@ -1473,10 +1473,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "46a46fd64659eff15f4638bbe19de43f9483f0e0bf024a9fb6b3582064bacc7b"
+      sha256: "83af5c682796c0f7719c2bbf74792d113e40ae97981b8f266fa84574573556bc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.17"
+    version: "2.4.18"
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -2013,5 +2013,5 @@ packages:
     source: hosted
     version: "2.1.0"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.38.0"
