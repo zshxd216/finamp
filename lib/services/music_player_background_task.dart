@@ -257,18 +257,17 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     final session = await AudioSession.instance;
     await session.configure(
       FinampSettingsHelper.finampSettings.duckOnAudioInterruption
-          ? const AudioSessionConfiguration.music().copyWith(
+          ? const AudioSessionConfiguration.music()
+          : const AudioSessionConfiguration.music().copyWith(
               // disable Android automatic ducking (https://developer.android.com/media/optimize/audio-focus#automatic_ducking)
-              // so that we can handle it manually
-              // by setting the content type to "speech"
+              // so that we can handle it manually, by setting the content type to "speech"
               // if we instead set `willPauseOnDucked` to `true`, Android will send us pause events instead of duck events
               // and then we don't know how to properly handle them (is this just a notification or a phone call?)
               androidAudioAttributes: const AndroidAudioAttributes(
                 contentType: AndroidAudioContentType.speech,
                 usage: AndroidAudioUsage.media,
               ),
-            )
-          : const AudioSessionConfiguration.music(),
+            ),
     );
   }
 
@@ -309,11 +308,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
         if (event.begin) {
           switch (event.type) {
             case AudioInterruptionType.duck:
-              // Another app started playing audio and we should duck, unless disabled in settings.
-              // pause();
-              if (FinampSettingsHelper.finampSettings.duckOnAudioInterruption) {
-                _volume.duck();
-              }
+              // if we are in here, then ducking should be disabled anyway, so this is a no-op
               break;
             case AudioInterruptionType.pause:
             case AudioInterruptionType.unknown:
@@ -326,6 +321,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
           switch (event.type) {
             case AudioInterruptionType.duck:
               // The interruption ended and we should unduck.
+              // keeping this in here won't hurt, and ensures we never become stuck in a ducked state
               _volume.unduck();
               break;
             case AudioInterruptionType.pause:

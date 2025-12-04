@@ -1134,7 +1134,7 @@ class QueueService {
         : null;
 
     // use content provider for handling media art on Android
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid && isAndroidAutoOrMediaBrowserRequest) {
       final packageInfo = await PackageInfo.fromPlatform();
       // replace with placeholder art
       if (artUri == null) {
