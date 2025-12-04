@@ -102,9 +102,7 @@ class QueueService {
       ? 1000
       : 1000;
 
-  static int get maxQueueItems => Platform.isIOS || Platform.isMacOS
-      ? 1500
-      : 5000;
+  static int get maxQueueItems => Platform.isIOS || Platform.isMacOS ? 1500 : 5000;
 
   QueueService() {
     // _queueServiceLogger.level = Level.OFF;

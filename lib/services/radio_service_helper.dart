@@ -85,7 +85,12 @@ Future<void> maybeAddRadioTracks() async {
     if (localResult.tracks.length < radioTracksNeeded) {
       _radioLogger.finer("Radio cache exhausted, generating new radio tracks");
       try {
-        final generatedTracks = await generateRadioTracks(radioTracksNeeded - localResult.tracks.length);
+        // generate new tracks, passing the existing cache to avoid generating duplicates in some modes
+        // we still want to add the new tracks tot he existing cache instead of replacing, so that modes like reshuffle don't break
+        final generatedTracks = await generateRadioTracks(
+          radioTracksNeeded - localResult.tracks.length,
+          cachedTracks: localResult.tracks,
+        );
         localResult.tracks.addAll(generatedTracks);
         _radioLogger.finer("Successfully generated ${generatedTracks.length} new radio tracks.");
       } catch (e) {
@@ -237,7 +242,11 @@ enum AlbumMixFallbackModes {
 }
 
 // Generates tracks for the radio. Provide item to generate the initial radio tracks.
-Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? overrideSeedItem}) async {
+Future<List<BaseItemDto>> generateRadioTracks(
+  int minNumTracks, {
+  BaseItemDto? overrideSeedItem,
+  List<BaseItemDto> cachedTracks = const [],
+}) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final downloadsService = GetIt.instance<DownloadsService>();
   final finampUserHelper = GetIt.instance<FinampUserHelper>();
@@ -319,6 +328,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? ov
     return await _getSimilarTracks(
       referenceItem: actualSeed,
       minNumTracks: minNumTracks,
+      additionalExistingTracks: cachedTracks,
       randomnessExtraTracks: randomnessExtraTracks,
       maxAttempts: 15,
       // filter out ALL duplicates, otherwise things will start repeating too often
@@ -344,6 +354,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? ov
         // [seedItem] is only used for generating tracks if there's no queue yet
         referenceItem: continuousTracks.last,
         minNumTracks: 1,
+        additionalExistingTracks: cachedTracks,
         maxAttempts: 10,
         randomnessExtraTracks: randomnessExtraTracks,
         // filter out recent tracks within 90 minutes
@@ -579,6 +590,7 @@ Future<List<BaseItemDto>> generateRadioTracks(int minNumTracks, {BaseItemDto? ov
 Future<List<BaseItemDto>> _getSimilarTracks({
   required BaseItemDto referenceItem,
   required int minNumTracks,
+  required List<BaseItemDto> additionalExistingTracks,
   required int randomnessExtraTracks,
   required int repetitionThresholdTracks,
   required int maxAttempts,
@@ -616,7 +628,9 @@ Future<List<BaseItemDto>> _getSimilarTracks({
           .fullQueue
           .reversed
           .take(repetitionThresholdTracks)
-          .map((item) => item.baseItem.id)
+          .map((item) => item.baseItem)
+          .followedBy(additionalExistingTracks)
+          .map((item) => item.id)
           .toSet();
       filteredSample.removeWhere((item) => recentlyPlayedIds.contains(item.id));
       final filteredOutTrackCount = originalTrackCount - filteredSample.length;
