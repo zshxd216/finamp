@@ -595,7 +595,7 @@ Future<List<BaseItemDto>> _getSimilarTracks({
   required int repetitionThresholdTracks,
   required int maxAttempts,
 }) async {
-  const offsetExtraTracks = 1; // extra track to exclude the current track
+  const skippedTracks = 1; // extra track to exclude the current track
   const filterExtraTracks = 10; // extra tracks in case duplicates are removed
 
   assert(!FinampSettingsHelper.finampSettings.isOffline, "Similar tracks not available while offline");
@@ -611,7 +611,7 @@ Future<List<BaseItemDto>> _getSimilarTracks({
 
     final items = await jellyfinApiHelper.getInstantMix(
       referenceItem,
-      limit: minNumTracks + offsetExtraTracks + filterExtraTracks + randomnessExtraTracks + attemptExtraTracks,
+      limit: minNumTracks + skippedTracks + filterExtraTracks + randomnessExtraTracks + attemptExtraTracks,
     );
     List<BaseItemDto> filteredSample = [];
     if (items != null) {
@@ -619,8 +619,9 @@ Future<List<BaseItemDto>> _getSimilarTracks({
       _radioLogger.finer(
         "Fetched ${filteredSample.length} similar radio candidates: ${filteredSample.map((e) => "'${e.artists?.firstOrNull} - ${e.name}'").join(", ")}",
       );
-      // instant mixes always return the track itself as the first item, filter it out, as well as any offset tracks we added to skip over already-included similar tracks
-      filteredSample.removeRange(0, min(offsetExtraTracks + 1, filteredSample.length));
+      // instant mixes always return the track itself as the first item, filter it out
+      // this will also work with [skippedTracks] > 1, emulating a [startIndex] parameter
+      filteredSample.removeRange(0, min(skippedTracks, filteredSample.length));
       final originalTrackCount = filteredSample.length;
       // filter out duplicate tracks, including upcoming ones
       final recentlyPlayedIds = queueService

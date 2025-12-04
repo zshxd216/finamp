@@ -337,23 +337,36 @@ class QueueService {
 
   FinampStorableQueueInfo _saveCurrentQueue({bool withPosition = false}) {
     final queueToSave = getQueue();
+    List<int> shuffleIndices = [..._latestShuffleIndices];
     // if we exceeded the queue size limit, remove as many tracks from previousTracks as needed
     if (queueToSave.fullQueue.length > maxQueueItems) {
       final excess = queueToSave.fullQueue.length - maxQueueItems;
-      int removed = 0;
-      queueToSave.previousTracks.removeWhere((e) {
-        if (removed < excess && [QueueItemSourceType.radio].contains(e.source.type)) {
-          removed++;
-          return true;
+      // create a copy of previous tracks to avoid modifying the original list, which is tied directly to Finamp's internal queue
+      final trimmedPreviousTracks = [...queueToSave.previousTracks];
+      List<int> indicesToRemove = [];
+      trimmedPreviousTracks.forEachIndexed((index, e) {
+        if (indicesToRemove.length < excess && [QueueItemSourceType.radio].contains(e.source.type)) {
+          indicesToRemove.add(index);
         }
-        return false;
       });
+      if (indicesToRemove.isNotEmpty) {
+        for (var index in indicesToRemove.reversed) {
+          trimmedPreviousTracks.removeAt(index);
+          shuffleIndices.removeWhere((x) => x == index);
+        }
+        queueToSave.previousTracks = trimmedPreviousTracks;
+        // repair shuffle indices to close "gaps"
+        for (int i = 0; i < shuffleIndices.length; i++) {
+          int removedBefore = indicesToRemove.where((x) => x < shuffleIndices[i]).length;
+          shuffleIndices[i] = shuffleIndices[i] - removedBefore;
+        }
+      }
     }
     FinampStorableQueueInfo info = FinampStorableQueueInfo.fromQueueInfo(
       queueToSave,
       withPosition ? _audioHandler.playbackPosition.inMilliseconds : null,
       playbackOrder,
-      _latestShuffleIndices,
+      shuffleIndices,
     );
     _queuesBox.put("latest", info);
     return info;
@@ -622,7 +635,21 @@ class QueueService {
     bool beginPlaying = true,
     bool isRestoredQueue = false,
   }) async {
-    assert(trackSources == null || (customTrackSource == null && trackSources.length == itemList.length));
+    if (trackSources != null) {
+      if (trackSources.length != itemList.length) {
+        _queueServiceLogger.warning(
+          "trackSources length (${trackSources.length}) does not match itemList length (${itemList.length})",
+        );
+        trackSources = null;
+      } else {
+        if (customTrackSource != null) {
+          _queueServiceLogger.warning(
+            "Valid trackSources and customTrackSource are provided, ignoring customTrackSource since trackSources are more fine-grained",
+          );
+          customTrackSource = null;
+        }
+      }
+    }
     assert(
       shuffleOrder == null ||
           (shuffleOrder.length == itemList.length &&
