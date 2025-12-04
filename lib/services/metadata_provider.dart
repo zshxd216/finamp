@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:collection/collection.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -60,10 +63,15 @@ final AutoDisposeFutureProviderFamily<MetadataProvider?, BaseItemDto> metadataPr
         if (downloadItem != null && downloadItem.state.isComplete) {
           metadataProviderLogger.fine("Got offline metadata for '${item.name}'");
           var profile = downloadItem.fileTranscodingProfile;
+          var audioStream = downloadItem.baseItem!.mediaSources?.first.mediaStreams.firstWhere(
+            (s) => s.type == "Audio",
+            orElse: () => downloadItem.baseItem!.mediaSources!.first.mediaStreams.first,
+          );
           // We could explicitly get a mediaSource of type Default, but just grabbing
           // the first seems to generally work?
-          var codec = profile?.codec != FinampTranscodingCodec.original
-              ? profile?.codec.name
+          var codec = profile?.codec != FinampTranscodingCodec.original ? profile?.codec.name : audioStream?.codec;
+          var container = profile?.codec != FinampTranscodingCodec.original
+              ? profile?.codec.container
               : downloadItem.baseItem!.mediaSources?.first.container;
           var bitrate = profile?.codec != FinampTranscodingCodec.original
               ? profile?.stereoBitrate
@@ -73,7 +81,25 @@ final AutoDisposeFutureProviderFamily<MetadataProvider?, BaseItemDto> metadataPr
           // just return the lyrics stream, as those are not affected and will not
           // be shown if the mediaStream is not present
           List<MediaStream> mediaStream = profile?.codec != FinampTranscodingCodec.original
-              ? downloadItem.baseItem!.mediaStreams?.where((x) => x.type == "Lyric").toList() ?? []
+              ? [
+                      MediaStream(
+                        index: 0,
+                        type: "Audio",
+                        codec: codec,
+                        bitRate: bitrate,
+                        sampleRate: null,
+                        channels: null,
+                        bitDepth: audioStream?.bitDepth,
+                        isInterlaced: false,
+                        isDefault: true,
+                        isForced: false,
+                        isExternal: false,
+                        isTextSubtitleStream: false,
+                        supportsExternalStream: false,
+                      ),
+                    ]
+                    .followedBy(downloadItem.baseItem!.mediaStreams?.where((x) => x.type == "Lyric").toList() ?? [])
+                    .toList()
               : downloadItem.baseItem!.mediaStreams ?? [];
 
           localPlaybackInfo = PlaybackInfoResponse(
@@ -97,7 +123,7 @@ final AutoDisposeFutureProviderFamily<MetadataProvider?, BaseItemDto> metadataPr
                 ignoreIndex: false,
                 genPtsInput: false,
                 bitrate: bitrate,
-                container: codec,
+                container: container,
                 name: downloadItem.baseItem!.mediaSources?.first.name,
                 size: await downloadsService.getFileSize(downloadStub),
               ),
@@ -126,6 +152,9 @@ final AutoDisposeFutureProviderFamily<MetadataProvider?, BaseItemDto> metadataPr
         if (localPlaybackInfo != null && (playbackInfo.mediaSources?.isNotEmpty ?? false)) {
           playbackInfo.mediaSources!.first.protocol = localPlaybackInfo.mediaSources!.first.protocol;
           playbackInfo.mediaSources!.first.bitrate = localPlaybackInfo.mediaSources!.first.bitrate;
+          var remoteBitDepth = playbackInfo.mediaSources!.first.mediaStreams
+              .firstWhereOrNull((x) => x.type == "Audio")
+              ?.bitDepth;
           // Use lyrics mediastream from online item, but take all other streams
           // from downloaded item
           playbackInfo.mediaSources!.first.mediaStreams = playbackInfo.mediaSources!.first.mediaStreams
@@ -134,6 +163,11 @@ final AutoDisposeFutureProviderFamily<MetadataProvider?, BaseItemDto> metadataPr
           playbackInfo.mediaSources!.first.mediaStreams.addAll(
             localPlaybackInfo.mediaSources!.first.mediaStreams.where((x) => x.type != "Lyric"),
           );
+          var audioStream = playbackInfo.mediaSources!.first.mediaStreams.firstWhereOrNull((x) => x.type == "Audio");
+          // we don't specify a bit depth when downloading, so the remote bit depth should be accurate
+          if (audioStream != null) {
+            audioStream.bitDepth = remoteBitDepth;
+          }
           playbackInfo.mediaSources!.first.container = localPlaybackInfo.mediaSources!.first.container;
           playbackInfo.mediaSources!.first.size = localPlaybackInfo.mediaSources!.first.size;
         }
