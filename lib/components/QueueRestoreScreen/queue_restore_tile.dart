@@ -1,20 +1,19 @@
 import 'dart:async';
 
 import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
+import 'package:finamp/components/album_image.dart';
+import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/downloads_service.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../models/finamp_models.dart';
-import '../../services/downloads_service.dart';
-import '../../services/finamp_settings_helper.dart';
-import '../../services/jellyfin_api_helper.dart';
-import '../../services/queue_service.dart';
-import '../album_image.dart';
-import '../global_snackbar.dart';
 
 class QueueRestoreTile extends ConsumerWidget {
   const QueueRestoreTile({super.key, required this.info});
@@ -28,6 +27,16 @@ class QueueRestoreTile extends ConsumerWidget {
 
     BaseItemDto? track = ref.watch(trackProvider(info.currentTrack)).value;
 
+    QueueItemSource source = info.source;
+    if (source.wantsItem) {
+      // BaseItemId uses String equals, the linter is mistaken.
+      // ignore: provider_parameters
+      final sourceItem = ref.watch(trackProvider(BaseItemId(source.id))).value;
+      if (sourceItem != null) {
+        source = source.withItem(sourceItem);
+      }
+    }
+
     return ListTileTheme(
       // Do not pad between components.  leading/trailing widgets will handle spacing.
       horizontalTitleGap: 0,
@@ -36,7 +45,7 @@ class QueueRestoreTile extends ConsumerWidget {
       child: ListTile(
         // Prevent undersized album images on desktop
         visualDensity: VisualDensity.standard,
-        title: Text(info.source?.name.getLocalized(context) ?? AppLocalizations.of(context)!.unknown),
+        title: Text(source.name.getLocalized(context)),
         titleAlignment: ListTileTitleAlignment.center,
         leading: Padding(
           padding: const EdgeInsets.only(right: 16),
@@ -67,8 +76,9 @@ class QueueRestoreTile extends ConsumerWidget {
             ),
           ],
         ),
+        // TODO add right click handler
         onLongPress: () => {
-          if (info.source?.item != null) {openItemMenu(context: context, item: info.source!.item!, queueInfo: info)},
+          if (source.item != null) {openItemMenu(context: context, item: source.item!, queueInfo: info)},
         },
         trailing: IconButton(
           icon: const Icon(TablerIcons.restore),
@@ -90,6 +100,6 @@ final AutoDisposeFutureProviderFamily<BaseItemDto?, BaseItemId?> trackProvider =
       } else if (ref.watch(finampSettingsProvider.isOffline)) {
         return GetIt.instance<DownloadsService>().getTrackInfo(id: itemId).then((value) => value?.baseItem);
       } else {
-        return GetIt.instance<JellyfinApiHelper>().getItemById(itemId).then((x) => x, onError: (_) => null);
+        return GetIt.instance<JellyfinApiHelper>().getItemByIdBatched(itemId).then((x) => x, onError: (_) => null);
       }
     });

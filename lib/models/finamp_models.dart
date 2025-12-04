@@ -3,14 +3,18 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:background_downloader/background_downloader.dart';
+import 'package:bits/bits.dart';
 import 'package:collection/collection.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:isar/isar.dart';
@@ -23,6 +27,7 @@ import 'package:uuid/uuid.dart';
 import '../builders/annotations.dart';
 import '../services/finamp_settings_helper.dart';
 import 'jellyfin_models.dart';
+import 'migration_adapters.dart';
 
 part 'finamp_models.g.dart';
 
@@ -152,7 +157,7 @@ class DefaultSettings {
   static const showArtistChipImage = true;
   static const trackOfflineFavorites = true;
   static const showProgressOnNowPlayingBar = true;
-  static const startInstantMixForIndividualTracks = true;
+  static const startInstantMixForIndividualTracks = false;
   static const showLyricsTimestamps = true;
   static const lyricsAlignment = LyricsAlignment.start;
   static const lyricsFontSize = LyricsFontSize.medium;
@@ -237,6 +242,8 @@ class DefaultSettings {
   static const lastUsedPlaybackActionRowPageForQueueMenu = PlaybackActionRowPage.moveWithinQueue;
   static const useSystemAccentColor = false;
   static const useMonochromeIcon = false;
+  static const radioMode = RadioMode.similar;
+  static const radioEnabled = false;
   static const duckOnAudioInterruption = true;
 }
 
@@ -815,7 +822,13 @@ class FinampSettings {
   PlaybackActionRowPage lastUsedPlaybackActionRowPageForQueueMenu =
       DefaultSettings.lastUsedPlaybackActionRowPageForQueueMenu;
 
-  @HiveField(140, defaultValue: DefaultSettings.duckOnAudioInterruption)
+  @HiveField(140, defaultValue: DefaultSettings.radioEnabled)
+  bool radioEnabled = DefaultSettings.radioEnabled;
+
+  @HiveField(141, defaultValue: DefaultSettings.radioMode)
+  RadioMode radioMode = DefaultSettings.radioMode;
+
+  @HiveField(142, defaultValue: DefaultSettings.duckOnAudioInterruption)
   bool duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption;
 
   static Future<FinampSettings> create() async {
@@ -857,7 +870,7 @@ class FinampSettings {
   }
 }
 
-enum CustomPlaybackActions { shuffle, toggleFavorite }
+enum CustomPlaybackActions { shuffle, toggleFavorite, radio }
 
 /// Custom storage locations for storing music/images.
 @HiveType(typeId: 31)
@@ -1687,6 +1700,8 @@ enum DownloadItemStatus {
   final bool isRequired;
   final bool outdated;
   final bool isIncidental;
+
+  bool get isDownloaded => isRequired || isIncidental;
 }
 
 /// The type of a BaseItemDto as determined from its type field.
@@ -1716,9 +1731,9 @@ enum BaseItemDtoType {
   // "PlaylistsFolder" "Program" "Recording" "Season" "Series" "Studio" "Trailer" "TvChannel"
   // "TvProgram" "UserRootFolder" "UserView" "Video" "Year"
 
-  const BaseItemDtoType(this.idString, this.expectChanges, this.childTypes, this.downloadType);
+  const BaseItemDtoType(this.jellyfinName, this.expectChanges, this.childTypes, this.downloadType);
 
-  final String? idString;
+  final String? jellyfinName;
   final bool expectChanges;
   final List<BaseItemDtoType>? childTypes;
   final DownloadItemType? downloadType;
@@ -1889,6 +1904,8 @@ enum QueueItemSourceType {
   track,
   @HiveField(21)
   remoteClient,
+  @HiveField(22)
+  radio,
 }
 
 @HiveType(typeId: 53)
@@ -1931,7 +1948,7 @@ class QueueItemSource {
     QueueItemSourceType? type,
     QueueItemSourceNameType? nameType,
   }) {
-    final type = switch (BaseItemDtoType.fromItem(baseItem)) {
+    final defaultType = switch (BaseItemDtoType.fromItem(baseItem)) {
       BaseItemDtoType.album => QueueItemSourceType.album,
       BaseItemDtoType.playlist => QueueItemSourceType.playlist,
       BaseItemDtoType.artist => QueueItemSourceType.artist,
@@ -1947,7 +1964,7 @@ class QueueItemSource {
     };
 
     return QueueItemSource(
-      type: type,
+      type: type ?? defaultType,
       name: nameType != null
           ? QueueItemSourceName(type: nameType, localizationParameter: baseItem.name ?? "")
           : QueueItemSourceName(
@@ -1959,6 +1976,17 @@ class QueueItemSource {
       id: baseItem.id,
       item: baseItem,
       contextNormalizationGain: gain,
+    );
+  }
+
+  QueueItemSource withItem(BaseItemDto? item) {
+    if (item?.id.raw != id) return this;
+    return QueueItemSource.rawId(
+      type: type,
+      name: name,
+      id: id,
+      item: item,
+      contextNormalizationGain: contextNormalizationGain,
     );
   }
 
@@ -1979,11 +2007,28 @@ class QueueItemSource {
   @HiveField(2)
   final String id;
 
-  @HiveField(3)
+  //@HiveField(3)
   final BaseItemDto? item;
 
   @HiveField(4)
   final double? contextNormalizationGain;
+
+  bool get wantsItem => item == null && RegExp(r'^[0-9a-f]{32}$').matchAsPrefix(id) != null;
+
+  @override
+  bool operator ==(Object other) {
+    return other is QueueItemSource &&
+        other.type == type &&
+        other.name == name &&
+        other.id == id &&
+        other.contextNormalizationGain == contextNormalizationGain;
+  }
+
+  @override
+  int get hashCode => Object.hash(type, name, id, contextNormalizationGain);
+
+  @override
+  String toString() => name.toString();
 }
 
 @HiveType(typeId: 55)
@@ -2008,6 +2053,8 @@ enum QueueItemSourceNameType {
   queue,
   @HiveField(9)
   remoteClient,
+  @HiveField(10)
+  radio,
 }
 
 @HiveType(typeId: 56)
@@ -2047,8 +2094,35 @@ class QueueItemSourceName {
         return AppLocalizations.of(context)!.queue;
       case QueueItemSourceNameType.remoteClient:
         return "";
+      case QueueItemSourceNameType.radio:
+        if (localizationParameter != null) {
+          return AppLocalizations.of(context)!.radioForItem(localizationParameter!);
+        } else {
+          return AppLocalizations.of(context)!.radio;
+        }
     }
   }
+
+  @override
+  String toString() {
+    switch (type) {
+      case QueueItemSourceNameType.preTranslated:
+        return "QueueSource(${type.name},$pretranslatedName)";
+      default:
+        return "QueueSource(${type.name},$localizationParameter)";
+    }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is QueueItemSourceName &&
+        other.type == type &&
+        other.pretranslatedName == pretranslatedName &&
+        other.localizationParameter == localizationParameter;
+  }
+
+  @override
+  int get hashCode => Object.hash(type, pretranslatedName, localizationParameter);
 }
 
 @HiveType(typeId: 57)
@@ -2069,13 +2143,11 @@ class FinampQueueItem {
   @HiveField(3)
   QueueItemQueueType type;
 
-  BaseItemDto? get baseItem {
-    return (item.extras?["itemJson"] != null)
-        ? BaseItemDto.fromJson(item.extras!["itemJson"] as Map<String, dynamic>)
-        : null;
+  BaseItemDto get baseItem {
+    return BaseItemDto.fromJson(item.extras!["itemJson"] as Map<String, dynamic>);
   }
 
-  BaseItemId get baseItemId => item.extras?["itemJson"]["Id"] as BaseItemId;
+  BaseItemId get baseItemId => item.extras!["itemJson"]["Id"] as BaseItemId;
 }
 
 @HiveType(typeId: 58)
@@ -2085,6 +2157,7 @@ class FinampQueueOrder {
     required this.originalSource,
     required this.linearOrder,
     required this.shuffledOrder,
+    required this.sourceLibrary,
   }) {
     id = const Uuid().v4();
   }
@@ -2107,6 +2180,9 @@ class FinampQueueOrder {
 
   @HiveField(4)
   late String id;
+
+  @HiveField(5)
+  BaseItemDto? sourceLibrary;
 }
 
 @HiveType(typeId: 59)
@@ -2119,6 +2195,7 @@ class FinampQueueInfo {
     required this.queue,
     required this.source,
     required this.saveState,
+    required this.sourceLibrary,
   });
 
   @HiveField(0)
@@ -2142,9 +2219,12 @@ class FinampQueueInfo {
   @HiveField(6)
   String id;
 
+  @HiveField(7)
+  BaseItemDto? sourceLibrary;
+
   int get currentTrackIndex => previousTracks.length + (currentTrack == null ? 0 : 1);
-  int get remainingTrackCount => nextUp.length + queue.length;
-  int get trackCount => currentTrackIndex + remainingTrackCount;
+  int get upcomingTrackCount => nextUp.length + queue.length;
+  int get trackCount => currentTrackIndex + upcomingTrackCount;
   List<FinampQueueItem> get fullQueue => CombinedIterableView([
     previousTracks,
     currentTrack != null ? [currentTrack!] : <FinampQueueItem>[],
@@ -2167,6 +2247,17 @@ class FinampQueueInfo {
       total += item.item.duration?.inMicroseconds ?? 0;
     }
     return Duration(microseconds: total);
+  }
+
+  int getTrackCountWithinDuration(Duration duration) {
+    var totalDuration = Duration.zero;
+    var trackCount = 0;
+    fullQueue.reversed.takeWhile((item) {
+      totalDuration += item.item.duration ?? Duration.zero;
+      trackCount += 1;
+      return totalDuration < duration;
+    }).toList();
+    return trackCount;
   }
 
   int? getTrackIndexAfter(Duration offset) {
@@ -2231,7 +2322,7 @@ class FinampHistoryItem {
   /// The percentage of the item that has been played (up until the current moment if still playing)
   /// This shows the listened duration, not the "played" duration. so skipping ahead does not increase the play percentage
   double? get playPercentage {
-    final totalDuration = item.baseItem?.runTimeTicksDuration() ?? item.item.duration;
+    final totalDuration = item.baseItem.runTimeTicksDuration() ?? item.item.duration;
     if (totalDuration == null) {
       return null;
     }
@@ -2239,62 +2330,7 @@ class FinampHistoryItem {
   }
 }
 
-@HiveType(typeId: 61)
-class FinampStorableQueueInfo {
-  FinampStorableQueueInfo({
-    required this.previousTracks,
-    required this.currentTrack,
-    required this.currentTrackSeek,
-    required this.nextUp,
-    required this.queue,
-    required this.creation,
-    required this.source,
-    required this.order,
-  });
-
-  FinampStorableQueueInfo.fromQueueInfo(FinampQueueInfo info, int? seek, this.order)
-    : previousTracks = info.previousTracks.map<BaseItemId>((track) => track.baseItemId).toList(),
-      currentTrack = info.currentTrack?.baseItemId,
-      currentTrackSeek = seek,
-      nextUp = info.nextUp.map<BaseItemId>((track) => track.baseItemId).toList(),
-      queue = info.queue.map<BaseItemId>((track) => track.baseItemId).toList(),
-      creation = DateTime.now().millisecondsSinceEpoch,
-      source = info.source;
-
-  @HiveField(0)
-  List<BaseItemId> previousTracks;
-
-  @HiveField(1)
-  BaseItemId? currentTrack;
-
-  @HiveField(2)
-  int? currentTrackSeek;
-
-  @HiveField(3)
-  List<BaseItemId> nextUp;
-
-  @HiveField(4)
-  List<BaseItemId> queue;
-
-  @HiveField(5)
-  // timestamp, milliseconds since epoch
-  int creation;
-
-  @HiveField(6)
-  QueueItemSource? source;
-
-  @HiveField(7)
-  FinampPlaybackOrder? order;
-
-  @override
-  String toString() {
-    return "previous:$previousTracks current:$currentTrack seek:$currentTrackSeek next:$nextUp queue:$queue order:$order";
-  }
-
-  int get trackCount {
-    return previousTracks.length + ((currentTrack == null) ? 0 : 1) + nextUp.length + queue.length;
-  }
-}
+// type id 61 used to migrate FinampStorableQueueInfo
 
 @HiveType(typeId: 62)
 enum SavedQueueState {
@@ -3648,4 +3684,255 @@ class RawThemeResult {
   @HiveField(1)
   final int _backgroundInt;
   Color get background => Color(_backgroundInt);
+}
+
+@HiveType(typeId: 109)
+enum RadioMode {
+  @HiveField(0)
+  similar,
+  @HiveField(1)
+  continuous,
+  @HiveField(2)
+  reshuffle,
+  @HiveField(3)
+  random,
+  @HiveField(4)
+  albumMix,
+}
+
+class RadioCacheState {
+  RadioCacheState({
+    required this.tracks,
+    required this.radioMode,
+    required this.seedItem,
+    required this.radioState,
+    this.generating = false,
+    this.queueing = false,
+    this.failed = false,
+  });
+
+  List<BaseItemDto> tracks;
+  final RadioMode radioMode;
+  final BaseItemDto? seedItem;
+  final bool radioState;
+  final bool generating;
+  final bool queueing;
+  final bool failed;
+
+  RadioCacheState copyWith({
+    List<BaseItemDto>? tracks,
+    RadioMode? radioMode,
+    BaseItemDto? seedItem,
+    BaseItemDto? previousSeedItem,
+    bool? radioState,
+    bool? generating,
+    bool? queueing,
+    bool? failed,
+  }) {
+    return RadioCacheState(
+      tracks: tracks ?? this.tracks,
+      radioMode: radioMode ?? this.radioMode,
+      seedItem: seedItem ?? this.seedItem,
+      radioState: radioState ?? this.radioState,
+      generating: generating ?? this.generating,
+      queueing: queueing ?? this.queueing,
+      failed: failed ?? this.failed,
+    );
+  }
+
+  bool get loading => generating || queueing;
+
+  /// Ensures the radio settings used to obtain this result are still the same as the current settings
+  bool isStillValid() {
+    final currentRadioState = FinampSettingsHelper.finampSettings.radioEnabled;
+    final currentRadioMode = FinampSettingsHelper.finampSettings.radioMode;
+    final currentSeedItem = GetIt.instance<ProviderContainer>().read(getActiveRadioSeedProvider(currentRadioMode));
+    return currentRadioState == radioState &&
+        currentRadioMode == radioMode &&
+        // Ignore incorrect seeds while the queue is actively being manipulated by the radio
+        (currentSeedItem == seedItem || queueing);
+  }
+}
+
+@HiveType(typeId: 110)
+@immutable
+// Migration adapter uses hive type id 61.  We extend an empty class to prevent adapter conflicts.
+class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
+  const FinampStorableQueueInfo({
+    required this.currentTrackSeek,
+    required this.creation,
+    required this.sourceList,
+    required this.packedPreviousTracks,
+    required this.packedCurrentTrack,
+    required this.packedNextUp,
+    required this.packedQueue,
+    required this.sourceIndex,
+    required this.trackSourceIndexes,
+    required this.packedShuffleOrder,
+  });
+
+  factory FinampStorableQueueInfo.fromQueueInfo(
+    FinampQueueInfo info,
+    int? seek,
+    FinampPlaybackOrder? order,
+    List<int> shuffleOrder,
+  ) {
+    final List<QueueItemSource> sourceList = [];
+    final List<int> sourceIndexes = [];
+
+    int addSource(QueueItemSource source) {
+      final index = sourceList.indexOf(source);
+      if (index >= 0) return index;
+      sourceList.add(source);
+      return sourceList.length - 1;
+    }
+
+    void appendTrackSource(FinampQueueItem track) {
+      sourceIndexes.add(addSource(track.source));
+    }
+
+    // Tracks must be processed in order due to appending to sourceIndexes.
+    // All sources must be added to sourceList before sourceIndexes can be bitpacked.
+    info.previousTracks.forEach(appendTrackSource);
+    if (info.currentTrack != null) appendTrackSource(info.currentTrack!);
+    info.nextUp.forEach(appendTrackSource);
+    info.queue.forEach(appendTrackSource);
+    final queueSource = addSource(info.source);
+
+    assert(sourceIndexes.length == info.trackCount);
+    assert(sourceList.isNotEmpty);
+
+    // BitBuffer throws exception attempting to write 0 bit entries, so create empty buffer manually.
+    final buffer = sourceList.length == 1
+        ? BitBuffer()
+        : BitBuffer.fromBits(sourceIndexes, bitsPerIndex: (sourceList.length - 1).bitLength);
+
+    // Validate shuffle order matches queue tracks
+    assert(shuffleOrder.length == info.trackCount);
+    assert(shuffleOrder.toSet().length == shuffleOrder.length);
+    bool validateNextUp() {
+      // If we are not shuffled, the order will not be stored, so we do not need to and cannot validate.
+      if (order != FinampPlaybackOrder.shuffled) return true;
+      if ((info.currentTrack == null ? 0 : 1) + info.nextUp.length > 1) {
+        int lastIndex = shuffleOrder[info.previousTracks.length];
+        for (int i = 1; i < (info.currentTrack == null ? 0 : 1) + info.nextUp.length; i++) {
+          final newIndex = shuffleOrder[info.previousTracks.length + i];
+          if (newIndex != lastIndex + 1) return false;
+          lastIndex = newIndex;
+        }
+      }
+      return true;
+    }
+
+    assert(validateNextUp(), shuffleOrder.toString());
+
+    final packedOrder = info.trackCount <= 1
+        ? BitBuffer()
+        : BitBuffer.fromBits(shuffleOrder, bitsPerIndex: (info.trackCount - 1).bitLength);
+    return FinampStorableQueueInfo(
+      packedPreviousTracks: packIds(info.previousTracks.map<BaseItemId>((track) => track.baseItemId).toList()),
+      packedCurrentTrack: info.currentTrack == null ? Uint8List(0) : packIds([info.currentTrack!.baseItemId]),
+      currentTrackSeek: seek,
+      packedNextUp: packIds(info.nextUp.map<BaseItemId>((track) => track.baseItemId).toList()),
+      packedQueue: packIds(info.queue.map<BaseItemId>((track) => track.baseItemId).toList()),
+      creation: DateTime.now().millisecondsSinceEpoch,
+      sourceList: sourceList,
+      sourceIndex: queueSource,
+      trackSourceIndexes: buffer.toUInt8List(),
+      packedShuffleOrder: order == FinampPlaybackOrder.shuffled ? packedOrder.toUInt8List() : null,
+    );
+  }
+
+  @HiveField(0)
+  final Uint8List packedPreviousTracks;
+  List<BaseItemId> get previousTracks => _unpackIds(packedPreviousTracks);
+
+  @HiveField(1)
+  final Uint8List packedCurrentTrack;
+  BaseItemId? get currentTrack => _unpackIds(packedCurrentTrack).firstOrNull;
+
+  @HiveField(2)
+  final int? currentTrackSeek;
+
+  @HiveField(3)
+  final Uint8List packedNextUp;
+  List<BaseItemId> get nextUp => _unpackIds(packedNextUp);
+
+  @HiveField(4)
+  final Uint8List packedQueue;
+  List<BaseItemId> get queue => _unpackIds(packedQueue);
+
+  @HiveField(5)
+  // timestamp, milliseconds since epoch
+  final int creation;
+
+  @HiveField(6)
+  final List<QueueItemSource> sourceList;
+
+  @HiveField(7)
+  final int sourceIndex;
+
+  @HiveField(8)
+  final Uint8List trackSourceIndexes;
+
+  @HiveField(9)
+  final Uint8List? packedShuffleOrder;
+
+  QueueItemSource get source => sourceList[sourceIndex];
+
+  List<QueueItemSource> get trackSources =>
+      _unpackIntList(trackSourceIndexes, sourceList.length - 1).map((x) => sourceList[x]).toList();
+
+  List<int>? get shuffleOrder =>
+      packedShuffleOrder == null ? null : _unpackIntList(packedShuffleOrder!, max(0, trackCount - 1)).toList();
+
+  int get trackCount =>
+      (packedPreviousTracks.length + packedCurrentTrack.length + packedNextUp.length + packedQueue.length) ~/ 16;
+
+  /// Source indexes in trackSourceIndexes are stored as n bit unsigned ints packed
+  /// into a Uint8List, where n is the smallest number that can index into all entries
+  /// in sourceList.  e.g. if sourceList.length=4, n=2.  If sourceList.length=1, n=0.
+  /// This function unpacks them into individual ints.
+  Iterable<int> _unpackIntList(Uint8List list, int maxEntry) sync* {
+    final buffer = BitBuffer.fromUInt8List(list);
+    final entries = trackCount;
+    final entrySize = maxEntry.bitLength;
+    assert(
+      buffer.getSize() >= entries * entrySize,
+      "Want $entries of size $entrySize from buffer pf size ${buffer.getSize()}",
+    );
+    final reader = buffer.reader();
+    for (int i = 0; i < entries; i++) {
+      yield reader.readBits(entrySize);
+    }
+  }
+
+  static List<BaseItemId> _unpackIds(Uint8List ids) {
+    List<BaseItemId> out = [];
+    for (int i = 0; i < ids.length; i += 16) {
+      String id = "";
+      for (int j = 0; j < 16; j++) {
+        id += ids[i + j].toRadixString(16).padLeft(2, "0");
+      }
+      out.add(BaseItemId(id));
+    }
+    return out;
+  }
+
+  /// Pack a list of BaseItemIds into a Uint8Lis.  BaseItemIds are assumed to be
+  /// 16 byte values formatted as a hexadecimal string.
+  static Uint8List packIds(List<BaseItemId> ids) {
+    final buffer = Uint8List(ids.length * 16);
+    for (int i = 0; i < buffer.length; i++) {
+      final stringIndex = (i % 16) * 2;
+      final hex = ids[i ~/ 16].raw.substring(stringIndex, stringIndex + 2);
+      buffer[i] = int.parse(hex, radix: 16);
+    }
+    return buffer;
+  }
+
+  @override
+  String toString() {
+    return "previous:${previousTracks.length} current:$currentTrack seek:$currentTrackSeek next:${nextUp.length} queue:${queue.length} order:${packedShuffleOrder == null ? "linear" : "shuffled"} sources $sourceList";
+  }
 }

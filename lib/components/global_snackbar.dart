@@ -96,6 +96,7 @@ class GlobalSnackbar {
         actionOverflowThreshold: 0.5,
         duration: (isConfirmation && action == null) ? const Duration(milliseconds: 1500) : const Duration(seconds: 4),
         action: action?.call(context),
+        persist: false,
       ),
     );
   }
@@ -177,6 +178,7 @@ class GlobalSnackbar {
           ),
         ),
         duration: const Duration(seconds: 4),
+        persist: false,
       ),
     );
 

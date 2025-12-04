@@ -14,6 +14,7 @@ import 'package:finamp/services/favorite_provider.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart' as RadioServiceHelper;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -718,9 +719,16 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
       // A full stop will trigger a re-shuffle with an unshuffled first
       // item, so only pause.
       await pause(disableFade: true);
-      // Skipping to zero with empty queue re-triggers queue complete event
-      if (_player.effectiveIndices.isNotEmpty) {
-        await skipToIndex(0);
+      if (FinampSettingsHelper.finampSettings.radioEnabled) {
+        // Skipping to zero with empty queue re-triggers queue complete event
+        // while radio is enable, we should never reach the end of the queue
+        // if we end up reaching it, e.g. because the current radio mode becomes available (offline, etc.), we want to pause without resetting the queue, so that the user can fix the radio issue and resume, if desired.
+        // Seek back a bit to avoid resetting the track to position zero when the queue is updated
+        await seek(playbackPosition - Duration(milliseconds: 500));
+      } else {
+        if (_player.effectiveIndices.isNotEmpty) {
+          await skipToIndex(0);
+        }
       }
     } catch (e) {
       _audioServiceBackgroundTaskLogger.severe(e);
@@ -1022,6 +1030,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
         case CustomPlaybackActions.shuffle:
           final queueService = GetIt.instance<QueueService>();
           return queueService.togglePlaybackOrder();
+        case CustomPlaybackActions.radio:
+          RadioServiceHelper.toggleRadio();
         case CustomPlaybackActions.toggleFavorite:
           return toggleFavoriteStatusOfCurrentTrack();
       }
@@ -1167,6 +1177,11 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
       }
     }
 
+    final radioEnabled = FinampSettingsHelper.finampSettings.radioEnabled;
+    final radioActive = GetIt.instance<ProviderContainer>()
+        .read(RadioServiceHelper.currentRadioAvailabilityStatusProvider)
+        .isAvailable;
+
     return PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
@@ -1186,23 +1201,40 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
                       : "Add Favorite"),
           ),
         if (FinampSettingsHelper.finampSettings.showShuffleButtonOnMediaNotification)
-          MediaControl.custom(
-            name: CustomPlaybackActions.shuffle.name,
-            androidIcon: _player.shuffleModeEnabled
-                ? "drawable/baseline_shuffle_on_24"
-                : "drawable/baseline_shuffle_24",
-            label: _player.shuffleModeEnabled
-                ? (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
-                      ? AppLocalizations.of(
-                          GlobalSnackbar.materialAppScaffoldKey.currentContext!,
-                        )!.playbackOrderShuffledButtonLabel
-                      : "Shuffle enabled")
-                : (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
-                      ? AppLocalizations.of(
-                          GlobalSnackbar.materialAppScaffoldKey.currentContext!,
-                        )!.playbackOrderLinearButtonLabel
-                      : "Shuffle disabled"),
-          ),
+          //TODO eventually we probably want separate settings for this, and not store them as individual booleans in Hive
+          radioEnabled
+              ? MediaControl.custom(
+                  name: CustomPlaybackActions.radio.name,
+                  androidIcon: radioActive ? "drawable/tabler_icons_radio_24" : "drawable/tabler_icons_radio_off_24",
+                  label: radioActive
+                      ? (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
+                            ? AppLocalizations.of(
+                                GlobalSnackbar.materialAppScaffoldKey.currentContext!,
+                              )!.radioModeActiveTitle
+                            : "Radio active")
+                      : (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
+                            ? AppLocalizations.of(
+                                GlobalSnackbar.materialAppScaffoldKey.currentContext!,
+                              )!.radioModeInactiveTitle
+                            : "Radio paused"),
+                )
+              : MediaControl.custom(
+                  name: CustomPlaybackActions.shuffle.name,
+                  androidIcon: _player.shuffleModeEnabled
+                      ? "drawable/baseline_shuffle_on_24"
+                      : "drawable/baseline_shuffle_24",
+                  label: _player.shuffleModeEnabled
+                      ? (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
+                            ? AppLocalizations.of(
+                                GlobalSnackbar.materialAppScaffoldKey.currentContext!,
+                              )!.playbackOrderShuffledButtonLabel
+                            : "Shuffle enabled")
+                      : (GlobalSnackbar.materialAppScaffoldKey.currentContext != null
+                            ? AppLocalizations.of(
+                                GlobalSnackbar.materialAppScaffoldKey.currentContext!,
+                              )!.playbackOrderLinearButtonLabel
+                            : "Shuffle disabled"),
+                ),
         if (FinampSettingsHelper.finampSettings.showStopButtonOnMediaNotification)
           MediaControl.stop.copyWith(androidIcon: "drawable/baseline_stop_24"),
       ],
@@ -1232,7 +1264,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
   int? get queueIndex => _player.shuffleModeEnabled && shuffleIndices.isNotEmpty && _player.currentIndex != null
       ? shuffleIndices.indexOf(_player.currentIndex!)
       : _player.currentIndex;
-  List<IndexedAudioSource> get effectiveSequence => _player.sequenceState.effectiveSequence;
+  SequenceState get sequenceState => _player.sequenceState;
   double get volume => _player.volume;
   bool get paused => !_player.playing;
   Duration get playbackPosition => _player.position;

@@ -643,12 +643,24 @@ class JellyfinApiHelper {
   }
 
   /// Starts an instant mix using the data from the item provided.
-  Future<List<BaseItemDto>?> getInstantMix(BaseItemDto? parentItem) async {
+  Future<List<BaseItemDto>?> getInstantMix(BaseItemDto parentItem, {int? limit}) async {
     assert(_verifyCallable());
     var response = await jellyfinApi.getInstantMix(
-      id: parentItem!.id,
+      id: parentItem.id,
       userId: _finampUserHelper.currentUser!.id,
-      limit: FinampSettingsHelper.finampSettings.trackShuffleItemCount,
+      limit: limit ?? FinampSettingsHelper.finampSettings.trackShuffleItemCount,
+    );
+
+    return (QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items);
+  }
+
+  /// Get's similar albums based off a source album.
+  Future<List<BaseItemDto>?> getSimilarAlbums(BaseItemId parentId, {int? limit}) async {
+    assert(_verifyCallable());
+    var response = await jellyfinApi.getSimilarAlbums(
+      id: parentId,
+      userId: _finampUserHelper.currentUser!.id,
+      limit: limit ?? FinampSettingsHelper.finampSettings.trackShuffleItemCount,
     );
 
     return (QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items);
@@ -1198,6 +1210,7 @@ class JellyfinApiHelper {
     if (stack.contains('ProviderElementBase.buildState') ||
         stack.contains('initState ') ||
         stack.contains('didUpdateWidget') ||
+        stack.contains('new QueueService') ||
         stack.contains('PagingController.notifyPageRequestListeners')) {
       return true;
     }

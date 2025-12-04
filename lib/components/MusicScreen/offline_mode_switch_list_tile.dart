@@ -1,10 +1,12 @@
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/network_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:get_it/get_it.dart';
 
 class OfflineModeSwitchListTile extends ConsumerWidget {
   const OfflineModeSwitchListTile({super.key});
@@ -40,6 +42,7 @@ class OfflineModeSwitchListTile extends ConsumerWidget {
           FinampSetters.setAutoOfflineListenerActive(false);
         }
         FinampSetters.setIsOffline(value);
+        GetIt.instance<MusicPlayerBackgroundTask>().refreshPlaybackStateAndMediaNotification();
       },
     );
   }

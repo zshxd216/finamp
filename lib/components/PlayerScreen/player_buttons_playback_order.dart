@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 
-class PlayerButtonsShuffle extends StatelessWidget {
+class PlayerButtonsPlaybackOrder extends StatelessWidget {
   final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
   final _queueService = GetIt.instance<QueueService>();
 
-  PlayerButtonsShuffle({super.key});
+  PlayerButtonsPlaybackOrder({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -80,6 +80,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(QueueItemSourceNameAdapter());
     registerAdapter(QueueItemSourceNameTypeAdapter());
     registerAdapter(QueueItemSourceTypeAdapter());
+    registerAdapter(RadioModeAdapter());
     registerAdapter(RawThemeResultAdapter());
     registerAdapter(ReleaseDateFormatAdapter());
     registerAdapter(ResponseProfileAdapter());
@@ -179,6 +180,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(QueueItemSourceNameAdapter());
     registerAdapter(QueueItemSourceNameTypeAdapter());
     registerAdapter(QueueItemSourceTypeAdapter());
+    registerAdapter(RadioModeAdapter());
     registerAdapter(RawThemeResultAdapter());
     registerAdapter(ReleaseDateFormatAdapter());
     registerAdapter(ResponseProfileAdapter());

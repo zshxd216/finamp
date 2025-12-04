@@ -1213,6 +1213,22 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setRadioEnabled(bool newRadioEnabled) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.radioEnabled = newRadioEnabled;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setRadioMode(RadioMode newRadioMode) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.radioMode = newRadioMode;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setDuckOnAudioInterruption(bool newDuckOnAudioInterruption) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.duckOnAudioInterruption = newDuckOnAudioInterruption;
@@ -1642,6 +1658,10 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select(
         (value) => value.requireValue.lastUsedPlaybackActionRowPageForQueueMenu,
       );
+  ProviderListenable<bool> get radioEnabled =>
+      finampSettingsProvider.select((value) => value.requireValue.radioEnabled);
+  ProviderListenable<RadioMode> get radioMode =>
+      finampSettingsProvider.select((value) => value.requireValue.radioMode);
   ProviderListenable<bool> get duckOnAudioInterruption => finampSettingsProvider
       .select((value) => value.requireValue.duckOnAudioInterruption);
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>

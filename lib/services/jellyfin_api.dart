@@ -221,6 +221,16 @@ abstract class JellyfinApi extends ChopperService {
   });
 
   @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
+  @GET(path: "/Albums/{id}/Similar")
+  Future<dynamic> getSimilarAlbums({
+    @Path() required BaseItemId id,
+    @Query() String? userId,
+    @Query() List<String>? excludeArtistIds,
+    @Query() int? limit,
+    @Query() List<String>? fields,
+  });
+
+  @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
   @Get(path: "/Users/{userId}/Items/{itemId}")
   Future<dynamic> getItemById({
     /// User id.

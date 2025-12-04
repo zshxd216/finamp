@@ -319,7 +319,7 @@ class FinampThemeFromImage extends _$FinampThemeFromImage {
     );
 
     final accent = colors.highlight.atContrast(
-      ref.watch(finampSettingsProvider.useHighContrastColors) ? 8.0 : 4.5,
+      ref.watch(finampSettingsProvider.useHighContrastColors) ? 8.0 : 5.5,
       background,
       isDark,
     );
@@ -347,12 +347,12 @@ ColorScheme getGrayTheme(Brightness brightness) {
 
   Color accent = brightness == Brightness.dark
       ? grayForDarkTheme.atContrast(
-          FinampSettingsHelper.finampSettings.useHighContrastColors ? 8.0 : 4.5,
+          FinampSettingsHelper.finampSettings.useHighContrastColors ? 8.0 : 5.5,
           Color.alphaBlend(Colors.black.withOpacity(0.675), grayForDarkTheme),
           true,
         )
       : grayForLightTheme.atContrast(
-          FinampSettingsHelper.finampSettings.useHighContrastColors ? 8.0 : 4.5,
+          FinampSettingsHelper.finampSettings.useHighContrastColors ? 8.0 : 5.5,
           Color.alphaBlend(Colors.white.withOpacity(0.675), grayForLightTheme),
           true,
         );

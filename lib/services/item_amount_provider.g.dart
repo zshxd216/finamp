@@ -11,7 +11,7 @@ part of 'item_amount_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$itemAmountHash() => r'8da83bff4a3dcf484161e3dc9c353024456f34c9';
+String _$itemAmountHash() => r'f0816a738e069d6cea64d0214af1b2301c4a113b';
 
 /// Copied from Dart SDK
 class _SystemHash {

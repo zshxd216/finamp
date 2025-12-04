@@ -231,10 +231,8 @@ class EnvironmentMetadata {
     return EnvironmentMetadata(deviceInfo: deviceInfo, appInfo: appInfo, serverInfo: serverInfo);
   }
 
-  /// Serializes log to JSON
-  Map<String, dynamic> toJson() {
-    return _$EnvironmentMetadataToJson(this);
-  }
+  factory EnvironmentMetadata.fromJson(Map<String, dynamic> json) => _$EnvironmentMetadataFromJson(json);
+  Map<String, dynamic> toJson() => _$EnvironmentMetadataToJson(this);
 
   String get pretty =>
       "${deviceInfo.pretty}\n"

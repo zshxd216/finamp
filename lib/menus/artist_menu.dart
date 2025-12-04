@@ -7,6 +7,7 @@ import 'package:finamp/menus/components/menuEntries/instant_mix_menu_entry.dart'
 import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/mix_builder_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/restore_queue_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/start_radio_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.dart';
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
@@ -31,6 +32,7 @@ Future<void> showModalArtistMenu({
       AddToPlaylistMenuEntry(item: baseItem),
       InstantMixMenuEntry(baseItem: baseItem),
       MixBuilderMenuEntry(baseItem: baseItem),
+      StartRadioMenuEntry(baseItem: baseItem),
       AdaptiveDownloadLockDeleteMenuEntry(baseItem: baseItem),
       ToggleFavoriteMenuEntry(baseItem: baseItem),
     ];

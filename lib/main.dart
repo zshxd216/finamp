@@ -6,7 +6,6 @@ import 'package:app_links/app_links.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:background_downloader/background_downloader.dart';
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/gen/assets.gen.dart';
@@ -32,6 +31,7 @@ import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/android_auto_helper.dart';
 import 'package:finamp/services/audio_service_smtc.dart';
 import 'package:finamp/services/data_source_service.dart';
+import 'package:finamp/services/dbus_manager.dart';
 import 'package:finamp/services/discord_rpc.dart';
 import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/downloads_service_backend.dart';
@@ -39,7 +39,6 @@ import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_logs_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
-import 'package:finamp/services/dbus_manager.dart';
 import 'package:finamp/services/keep_screen_on_helper.dart';
 import 'package:finamp/services/network_manager.dart';
 import 'package:finamp/services/offline_listen_helper.dart';
@@ -76,6 +75,7 @@ import 'components/LogsScreen/share_logs_button.dart';
 import 'components/PlayerScreen/player_split_screen_scaffold.dart';
 import 'components/global_snackbar.dart';
 import 'models/finamp_models.dart';
+import 'models/migration_adapters.dart';
 import 'models/theme_mode_adapter.dart';
 import 'screens/active_downloads_screen.dart';
 import 'screens/add_download_location_screen.dart';
@@ -277,6 +277,7 @@ Future<void> setupHive() async {
   Hive.registerAdapter(ThemeModeAdapter());
   Hive.registerAdapter(ColorAdapter());
   Hive.registerAdapter(LocaleAdapter());
+  Hive.registerAdapter(FinampStorableQueueInfoMigrationAdapter());
 
   await Future.wait([
     Hive.openBox<FinampSettings>("FinampSettings", path: dir.path),
@@ -318,7 +319,7 @@ Future<void> _setupProviders() async {
   AutoOffline.startWatching();
 
   unawaited(
-    Stream.periodic(Duration(seconds: 1)).forEach((_) {
+    Stream<void>.periodic(Duration(seconds: 1)).forEach((_) {
       if (!SchedulerBinding.instance.framesEnabled) {
         (providerScopeKey.currentContext as InheritedElement?)?.build();
       }

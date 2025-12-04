@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:finamp/color_schemes.g.dart';
@@ -302,7 +303,11 @@ class NowPlayingBar extends StatelessWidget {
                                                     alignment: AlignmentDirectional.centerStart,
                                                     widthFactor: itemLength == null
                                                         ? 0
-                                                        : playbackPosition!.inMilliseconds / itemLength.inMilliseconds,
+                                                        : max(
+                                                            0,
+                                                            playbackPosition!.inMilliseconds /
+                                                                itemLength.inMilliseconds,
+                                                          ),
                                                     child: DecoratedBox(
                                                       decoration: ShapeDecoration(
                                                         color: IconTheme.of(context).color!.withOpacity(0.75),
