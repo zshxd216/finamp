@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
@@ -6,6 +7,7 @@ import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/current_track_metadata_provider.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/metadata_provider.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
@@ -13,8 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
-
-import '../../services/finamp_settings_helper.dart';
 
 final _defaultBackgroundColour = Colors.white.withOpacity(0.1);
 final featureLogger = Logger("Features");
@@ -35,7 +35,8 @@ class FeatureState {
   String get properties =>
       "currentTrack: '${currentTrack?.item.title}', "
       "isDownloaded: $isDownloaded, "
-      "isTranscoding: $isTranscoding, "
+      "isTranscoding: $isTranscodingAndStreaming, "
+      "codec: $codec, "
       "container: $container, "
       "size: $size, "
       "audioStream: ${audioStream?.toJson().toString()}, "
@@ -46,19 +47,43 @@ class FeatureState {
   FinampFeatureChipsConfiguration get configuration => settings.featureChipsConfiguration;
 
   bool get isDownloaded => metadata?.isDownloaded ?? false;
-  bool get isTranscoding => !isDownloaded && (currentTrack?.item.extras?["shouldTranscode"] as bool? ?? false);
-  String get container =>
-      isTranscoding ? settings.transcodingStreamingFormat.codec : metadata?.mediaSourceInfo.container ?? "";
-  int? get size => isTranscoding ? null : metadata?.mediaSourceInfo.size;
-  MediaStream? get audioStream => isTranscoding
-      ? null
-      : metadata?.mediaSourceInfo.mediaStreams.firstWhereOrNull((stream) => stream.type == "Audio");
+  bool get isTranscodingAndStreaming =>
+      !isDownloaded && (currentTrack?.item.extras?["shouldTranscode"] as bool? ?? false);
+  String get container => isTranscodingAndStreaming
+      ? settings.transcodingStreamingFormat.container
+      : metadata?.mediaSourceInfo.container ?? AppLocalizations.of(context)!.unknown;
+  String get codec => isTranscodingAndStreaming
+      ? settings.transcodingStreamingFormat.codec
+      : audioStream?.codec ?? AppLocalizations.of(context)!.unknown;
+  int? get size => isTranscodingAndStreaming ? null : metadata?.mediaSourceInfo.size;
+  MediaStream? get audioStream => isTranscodingAndStreaming
+      ? MediaStream(
+          index: 0,
+          type: "Audio",
+          codec: settings.transcodingStreamingFormat.codec,
+          bitRate: settings.transcodeBitrate,
+          sampleRate: null,
+          channels: null,
+          bitDepth: metadata?.mediaSourceInfo.mediaStreams.first.bitDepth != null
+              ? min(metadata!.mediaSourceInfo.mediaStreams.first.bitDepth!, 16)
+              : null,
+          isInterlaced: false,
+          isDefault: true,
+          isForced: false,
+          isExternal: false,
+          isTextSubtitleStream: false,
+          supportsExternalStream: false,
+        )
+      : metadata?.mediaSourceInfo.mediaStreams.firstWhereOrNull((stream) => stream.type == "Audio") ??
+            metadata?.mediaSourceInfo.mediaStreams.first;
   // Transcoded downloads will not have a valid MediaStream, but will have
   // the target transcode bitrate set for the mediasource bitrate.  Other items
   // should have a valid mediaStream, so use that audio-only bitrate instead of the
   // whole-file bitrate.
-  int? get bitrate => isTranscoding
-      ? (settings.transcodingStreamingFormat.codec == 'flac' ? null : settings.transcodeBitrate)
+  int? get bitrate => isTranscodingAndStreaming
+      ? (settings.transcodingStreamingFormat == FinampTranscodingStreamingFormat.flacFragmentedMp4
+            ? null
+            : settings.transcodeBitrate)
       : audioStream?.bitRate ?? metadata?.mediaSourceInfo.bitrate;
   int? get sampleRate => audioStream?.sampleRate;
   int? get bitDepth => audioStream?.bitDepth;
@@ -102,10 +127,10 @@ class FeatureState {
       }
 
       if (feature == FinampFeatureChipType.playbackMode) {
-        if (currentTrack?.item.extras?["downloadedTrackPath"] != null) {
+        if (isDownloaded) {
           features.add(FeatureProperties(type: feature, text: AppLocalizations.of(context)!.playbackModeLocal));
         } else {
-          if (isTranscoding) {
+          if (isTranscodingAndStreaming) {
             features.add(FeatureProperties(type: feature, text: AppLocalizations.of(context)!.playbackModeTranscoding));
           } else {
             features.add(
@@ -127,7 +152,7 @@ class FeatureState {
               FeatureProperties(
                 type: feature,
                 text:
-                    "${configuration.features.contains(FinampFeatureChipType.codec) ? container.toUpperCase() : ""}${configuration.features.contains(FinampFeatureChipType.codec) && configuration.features.contains(FinampFeatureChipType.bitRate) && bitrate != null ? " @ " : ""}${configuration.features.contains(FinampFeatureChipType.bitRate) && bitrate != null ? AppLocalizations.of(context)!.kiloBitsPerSecondLabel(bitrate! ~/ 1000) : ""}",
+                    "${configuration.features.contains(FinampFeatureChipType.codec) ? codec.toUpperCase() : ""}${configuration.features.contains(FinampFeatureChipType.codec) && configuration.features.contains(FinampFeatureChipType.bitRate) && bitrate != null ? " @ " : ""}${configuration.features.contains(FinampFeatureChipType.bitRate) && bitrate != null ? AppLocalizations.of(context)!.kiloBitsPerSecondLabel(bitrate! ~/ 1000) : ""}",
               ),
             );
           }
