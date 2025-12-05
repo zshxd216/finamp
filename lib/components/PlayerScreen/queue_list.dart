@@ -140,7 +140,12 @@ class _QueueListState extends ConsumerState<QueueList> {
             widget.scrollController.hasClients &&
             FinampSettingsHelper.finampSettings.previousTracksExpaned) {
           final changeHeight = _queueService.getQueue().previousTracks.length * QueueListTile.height;
-          widget.scrollController.position.correctBy(changeHeight - 50);
+          var target = widget.scrollController.position.pixels + changeHeight - 50;
+          target = target.clamp(
+            widget.scrollController.position.minScrollExtent,
+            widget.scrollController.position.maxScrollExtent,
+          );
+          widget.scrollController.position.correctPixels(target);
         }
       });
     }
