@@ -2947,5 +2947,201 @@
     "moveAddToQueue": "Déplacer vers la fin",
     "@moveAddToQueue": {
         "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
+    },
+    "startRadio": "Démarrer la radio",
+    "@startRadio": {
+        "description": "Menu label for starting a radio from a playlist, album, etc."
+    },
+    "radio": "Radio",
+    "@radio": {
+        "description": "Title for the queue source when the user is playing a track added via radio"
+    },
+    "radioForItem": "{radioSource} - Radio",
+    "@radioForItem": {
+        "description": "Suffix added to a queue source when playing a radio track. Example: \"Never Gonna Give You Up - Radio\"",
+        "placeholders": {
+            "radioSource": {
+                "type": "String",
+                "example": "Never Gonna Give You Up"
+            }
+        }
+    },
+    "radioModeSettingsTitle": "Mode Radio",
+    "@radioModeSettingsTitle": {
+        "description": "Title for the setting that controls the radio mode/algorithm."
+    },
+    "radioModeSettingsSubtitle": "Définit la méthode utilisée par la fonction radio pour sélectionner les titres à ajouter.",
+    "@radioModeSettingsSubtitle": {
+        "description": "Subtitle for the setting that controls the radio mode/algorithm."
+    },
+    "radioModeMenuTitle": "Choisir le mode radio",
+    "@radioModeMenuTitle": {
+        "description": "Title for menu that allows users to choose the radio mode."
+    },
+    "loopingOverriddenByRadioSubtitle": "La boucle de file d'attente est désactivée lorsque la radio est activée.",
+    "@loopingOverriddenByRadioSubtitle": {
+        "description": "Subtitle displayed in the radio menu to show that queue looping is disabled while radio mode is enabled."
+    },
+    "radioFailedSubtitle": "Plus aucune station de radio trouvée. Essayez de changer de mode.",
+    "@radioFailedSubtitle": {
+        "description": "Subtitle displayed in the radio menu to show that no radio tracks could be generated."
+    },
+    "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Aléatoire} similar{Similaire} continuous{Continuous} albumMix{Mix d'albums} other{{option}}}",
+    "@radioModeOptionName": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Radio mode names in radio mode/algorithm dropdown"
+    },
+    "radioModeOptionTitle": "{option, select, reshuffle{Mode de réorganisation} random{Mode aléatoire} similar{Mode similaire} continuous{Mode continu} albumMix{Mix d'albums} other{{option}}} Activé",
+    "@radioModeOptionTitle": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Title displayed in the queue, showing which radio mode/algorithm is currently being used."
+    },
+    "radioModeActiveTitle": "Radio activée",
+    "@radioModeActiveTitle": {
+        "description": "Title displayed in the queue to show that radio mode is enabled and active."
+    },
+    "radioModeDisabledTitle": "Radio désactivée",
+    "@radioModeDisabledTitle": {
+        "description": "Title displayed in the queue to show that radio mode is disabled."
+    },
+    "radioModeInactiveTitle": "Radio en pause",
+    "@radioModeInactiveTitle": {
+        "description": "Title displayed in the queue to show that the radio is enabled but not active."
+    },
+    "radioModeDisableButtonTitle": "Désactiver la radio",
+    "@radioModeDisableButtonTitle": {
+        "description": "Title for the option that disables radio mode."
+    },
+    "radioModeDisableButtonSubtitle": "Revient au mode de boucle précédent",
+    "@radioModeDisableButtonSubtitle": {
+        "description": "Subtitle for the option that disables radio mode."
+    },
+    "radioModeOptionConfirmation": "Passage à {option, select, reshuffle{mode de réorganisation} aléatoire{mode aléatoire} similaire{mode similaire} continu{mode continu} albumMix{mix d'album} autre{{option}}}",
+    "@radioModeOptionConfirmation": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Confirmation displayed when the radio mode is changed."
+    },
+    "radioModeEnabledSubtitle": "Appuyez pour configurer",
+    "@radioModeEnabledSubtitle": {
+        "description": "Subtitle displayed in the queue to show when radio mode is enabled."
+    },
+    "radioModeDisabledSubtitle": "Appuyez pour activer",
+    "@radioModeDisabledSubtitle": {
+        "description": "Subtitle displayed in the queue to show that radio mode is disabled."
+    },
+    "radioModeDisabledBecauseNotAvailableOfflineSubtitle": "Le mode actuel n'est pas disponible hors ligne.",
+    "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
+        "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
+    },
+    "radioModeDescription": "{mode, select, reshuffle{Réorganiser la file d'attente en continu} random{Ajouter des pistes aléatoirement à partir de la sélection initiale} similar{Ajouter en fonction de la file d'attente d'origine} continuous{Ajouter en fonction de la piste actuelle} albumMix{Ajouter des albums similaires} other{}}",
+    "@radioModeDescription": {
+        "placeholders": {
+            "mode": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
+    },
+    "radioModeUnavailableWhileOfflineDescription": "Indisponible hors ligne",
+    "@radioModeUnavailableWhileOfflineDescription": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+    },
+    "radioModeUnavailableWhileOfflineSubtitle": "{modeName} indisponible hors ligne",
+    "@radioModeUnavailableWhileOfflineSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+    },
+    "radioModeUnavailableForSourceItemDescription": "Source de file d'attente indisponible",
+    "@radioModeUnavailableForSourceItemDescription": {
+        "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+    },
+    "radioModeUnavailableForSourceItemSubtitle": "{modeName} indisponible pour cette source de file d'attente",
+    "@radioModeUnavailableForSourceItemSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+    },
+    "radioModeUnavailableQueueEmptyDescription": "Indisponible car la file d'attente est vide",
+    "@radioModeUnavailableQueueEmptyDescription": {
+        "description": "Shown as the subtitle for radio modes when the queue is empty."
+    },
+    "radioModeUnavailableQueueEmptySubtitle": "{modeName} indisponible car la file d'attente est vide",
+    "@radioModeUnavailableQueueEmptySubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the queue is empty."
+    },
+    "radioModeRandomUnavailableNotDownloadedDescription": "Indisponible car '{sourceName}' n'a pas été téléchargé",
+    "@radioModeRandomUnavailableNotDownloadedDescription": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+        "placeholders": {
+            "sourceName": {
+                "type": "String"
+            }
+        }
+    },
+    "radioModeRandomUnavailableNotDownloadedSubtitle": "{modeName} indisponible car '{sourceName}' n'est pas téléchargé",
+    "@radioModeRandomUnavailableNotDownloadedSubtitle": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            },
+            "sourceName": {
+                "type": "String"
+            }
+        }
+    },
+    "radioModeRandomUnavailableNotDownloadedGenericDescription": "Indisponible car la source n'a pas été téléchargée",
+    "@radioModeRandomUnavailableNotDownloadedGenericDescription": {
+        "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+    },
+    "radioModeRandomUnavailableNotDownloadedGenericSubtitle": "{modeName} indisponible car la source n'a pas été téléchargée",
+    "@radioModeRandomUnavailableNotDownloadedGenericSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+    },
+    "radioNoTracksFound": "Impossible de démarrer la radio car aucun titre approprié n'a été trouvé.",
+    "@radioNoTracksFound": {
+        "description": "Shown when the user tries to start radio mode but no suitable tracks were found to start the radio with."
+    },
+    "loopingUnavailableWhileRadioActiveWarning": "Le changement de mode de boucle n'est pas possible lorsque la radio est active, car la file d'attente se poursuivra indéfiniment.",
+    "@loopingUnavailableWhileRadioActiveWarning": {
+        "description": "Warning message when trying to change the loop mode while radio is active."
     }
 }
