@@ -406,20 +406,6 @@ Future<List<BaseItemDto>> generateRadioTracks(
         ? AlbumMixFallbackModes.artistAlbums
         : null;
     while (filteredSimilarAlbums.isEmpty) {
-      // if there are similar albums and we just haven't found any full albums, switch to similar singles
-      if (attempt >= 5 || (fallbackMode != null && similarAlbumsAvailable)) {
-        if (fallbackMode == null) {
-          fallbackMode = AlbumMixFallbackModes.artistAlbums;
-          attempt = 0;
-        } else if (fallbackMode == AlbumMixFallbackModes.artistAlbums) {
-          // prefer similar singles over artist singles
-          fallbackMode = AlbumMixFallbackModes.similarSingles;
-          attempt = 0;
-        } else {
-          // prevent infinite loops
-          break;
-        }
-      }
       final additionalAlbums = 2 * attempt + pow(attempt, 2.75).toInt(); // ~ 0, 3, 10, 27, 50, 100
       attempt++;
       if (attempt > 1) {
@@ -504,7 +490,7 @@ Future<List<BaseItemDto>> generateRadioTracks(
         // Jellyfin can't guarantee that there are similar albums, since the suggestions are based on genre tags
         // If a genre only contains that one album, no similar albums will be returned
         _radioLogger.warning(
-          "No similar albums found for album mix radio from item '${actualSeed.name}'. Fetching based on album artist.",
+          "No new similar albums found for album mix radio from item '${actualSeed.name}'. Fetching based on album artist.",
         );
         similarAlbumsAvailable = false;
         fallbackMode = AlbumMixFallbackModes.artistAlbums;
@@ -532,22 +518,30 @@ Future<List<BaseItemDto>> generateRadioTracks(
               "No suitable similar full albums found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching singles.",
             );
             fallbackMode = AlbumMixFallbackModes.artistSingles;
-            break;
+            continue;
           case AlbumMixFallbackModes.artistSingles:
             _radioLogger.warning(
               "No suitable similar singles found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching appears on albums.",
             );
             fallbackMode = AlbumMixFallbackModes.performingArtistAlbums;
-            break;
+            continue;
           case AlbumMixFallbackModes.performingArtistAlbums:
             _radioLogger.warning(
               "No suitable similar appears on albums found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching from library.",
             );
             fallbackMode = AlbumMixFallbackModes.libraryAlbumsOrSingles;
-            break;
+            similarAlbumsAvailable = false;
+            continue;
           case AlbumMixFallbackModes.similarSingles:
           case AlbumMixFallbackModes.libraryAlbumsOrSingles:
+            break;
           case null:
+            if (attempt >= 5) {
+              _radioLogger.warning(
+                "No new suitable similar albums found for album mix radio for item '${actualSeed.name}' after $attempt attempts. Switching to fallbacks",
+              );
+              fallbackMode = AlbumMixFallbackModes.artistAlbums;
+            }
             break;
         }
       }
