@@ -3091,11 +3091,15 @@
   "@dragToReorder": {
     "description": "Label shown on drag handles of track list  tiles in the queue list"
   },
+  "addDownloadLocationsErrorTitle": "Could not write to download location",
+  "@addDownloadLocationsErrorTitle": {
+    "description": "Title of popup dialog when adding a download location fails"
+  },
   "addDownloadLocationsErrorPrompt": "Writing to selected directory failed.  You should modify permissions or choose another location.",
   "@addDownloadLocationsErrorPrompt": {
     "description": "Label shown on popup dialog when adding a download location when writing songs fails"
   },
-  "androidImageErrorPrompt": "WARNING: We are unable to write images to the android Music folder due to OS restrictions.  You should choose another location.",
+  "androidImageErrorPrompt": "We are unable to write images to the android Music folder due to OS restrictions.  You should choose another location.",
   "@androidImageErrorPrompt": {
     "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
   },
