@@ -3026,7 +3026,7 @@
     "@radioModeDisableButtonSubtitle": {
         "description": "Subtitle for the option that disables radio mode."
     },
-    "radioModeOptionConfirmation": "Passage à {option, select, reshuffle{mode de réorganisation} aléatoire{mode aléatoire} similaire{mode similaire} continu{mode continu} albumMix{mix d'album} autre{{option}}}",
+    "radioModeOptionConfirmation": "Passage à {option, select, reshuffle{mode de réorganisation} random{mode aléatoire} similar{mode similaire} continuous{mode continu} albumMix{mix d'album} other{{option}}}",
     "@radioModeOptionConfirmation": {
         "placeholders": {
             "option": {
