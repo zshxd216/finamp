@@ -156,7 +156,7 @@
     "@pathReturnSlashErrorMessage": {},
     "directoryMustBeEmpty": "Klasör boş olmalı",
     "@directoryMustBeEmpty": {},
-    "customLocationsBuggy": "İzinlerden kaynaklanan sorunlar dolayısıyla özel konum seçmek fazlasıyla bug'a yol açmakta. Şimdilik kullanmanızı önermiyorum, çözmenin bir yolunu düşünüyorum.",
+    "customLocationsBuggy": "Özel konumlar aşırı derecede sorunlu olabilir ve önerilmemektedir. \"Müzik\" klasörü altındaki konumlar albüm resimlerini kaydetmeye engel olur. Bu bir işletim sistemi limitidir.",
     "@customLocationsBuggy": {},
     "enterLowPriorityStateOnPauseSubtitle": "Şarkı duraklatıldığında bildirimin temizlenebilmesini sağlar. Ayrıca Android'in hizmeti kapatmasına izin verir.",
     "@enterLowPriorityStateOnPauseSubtitle": {},
@@ -371,7 +371,7 @@
     "@layoutAndTheme": {},
     "enterLowPriorityStateOnPause": "Bekletmede Düşük Öncelik Durumuna Geç",
     "@enterLowPriorityStateOnPause": {},
-    "shuffleAllTrackCountSubtitle": "Tüm parçaları karıştır düğmesini kullanırken karıştırılacak parça sayısı.",
+    "shuffleAllTrackCountSubtitle": "Tüm parçalardaki ya da türlerdeki karıştır düğmesini kullanırken karıştırılacak parça sayısı.",
     "@shuffleAllTrackCountSubtitle": {},
     "viewType": "Görüntüleme Tipi",
     "@viewType": {},
@@ -1761,7 +1761,7 @@
     "@genericToggleButtonTooltip": {
         "description": "Tooltip for toggle buttons that can be tapped to toggle their state"
     },
-    "deleteDownloadsPrompt": "{itemType, select, album{album} playlist{playlist} artist{artist} genre{genre} track{track} library{library} other{item}} '{itemName}' bu cihazdan silinceğine emin misin?",
+    "deleteDownloadsPrompt": "{itemType, select, album{album} playlist{playlist} artist{artist} genre{genre} track{track} library{library} other{item}} '{itemName}' adlı dosyanın bu cihazdan silinceğine emin misin?",
     "@deleteDownloadsPrompt": {
         "placeholders": {
             "itemName": {
@@ -1909,5 +1909,57 @@
                 "example": "5"
             }
         }
+    },
+    "appearsOnAlbums": "Ayrıca şurda çıkıyor:",
+    "@appearsOnAlbums": {},
+    "performingArtists": "Söyleyen Sanatçılar",
+    "@performingArtists": {},
+    "performingArtist": "Söyleyen Sanatçı",
+    "@performingArtist": {},
+    "playbackActionPageRegularTrackOptions": "Oynat",
+    "@playbackActionPageRegularTrackOptions": {
+        "description": "Label for the playback action page that contains all actions of the normal track menu, like starting a new queue or duplicating the track within the existing queue"
+    },
+    "accentColor": "Tema Rengi",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Bir Tema Rengi Seç",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "systemAccentColor": "Tema Rengi İçin Sistem Rengini Kullan",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "Özel Tema Rengi kapatıldı çünkü Sistem Rengi şu anda Tema Rengi için kullanılıyor",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "Tek Renkli Resim Kullan",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "Bu sadece uygulama içerisindeki logoyu değiştirir, ana ekrandaki logoya dokunmaz.",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+    },
+    "defaultWord": "Varsayılan",
+    "@defaultWord": {},
+    "useDefaultButton": "Varsayılan Tema Rengine dön",
+    "@useDefaultButton": {},
+    "colorCode": "Renk Kodu (Hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "mesela #FFFFFF ya da #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field. Don't translate 'coffee', unless the translation is also a valid hex color code."
+    },
+    "save": "Kaydet",
+    "@save": {},
+    "invalidColorCode": "Hatalı renk kodu",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
     }
 }
