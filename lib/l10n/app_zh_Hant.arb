@@ -2976,7 +2976,7 @@
     "@radioFailedSubtitle": {
         "description": "Subtitle displayed in the radio menu to show that no radio tracks could be generated."
     },
-    "radioModeOptionName": "{option, select, reshuffle{重新挑選} random{隨機} similar{相似歌曲} continuous{持續播放} albumMix{專輯混播} other{{option}}}",
+    "radioModeOptionName": "{option, select, reshuffle{隨機重排} random{隨機歌曲} similar{相似歌曲} continuous{連續播放} albumMix{專輯混播} other{{option}}}",
     "@radioModeOptionName": {
         "placeholders": {
             "option": {
@@ -2986,7 +2986,7 @@
         },
         "description": "Radio mode names in radio mode/algorithm dropdown"
     },
-    "radioModeOptionTitle": "{option, select, reshuffle{重新挑選模式} random{隨機模式} similar{相似歌曲模式} continuous{持續播放模式} albumMix{專輯混合模式} other{{option}}} 已啟用",
+    "radioModeOptionTitle": "{option, select, reshuffle{隨機重排模式} random{隨機歌曲模式} similar{相似歌曲模式} continuous{連續播放模式} albumMix{專輯混播模式} other{{option}}}已啟用",
     "@radioModeOptionTitle": {
         "placeholders": {
             "option": {
@@ -3016,7 +3016,7 @@
     "@radioModeDisableButtonSubtitle": {
         "description": "Subtitle for the option that disables radio mode."
     },
-    "radioModeOptionConfirmation": "已切換為 {option, select, reshuffle{重新挑選} random{隨機} similar{相似歌曲} continuous{持續播放} albumMix{專輯混播} other{{option}}}",
+    "radioModeOptionConfirmation": "已切換為{option, select, reshuffle{隨機重排} random{隨機歌曲} similar{相似歌曲} continuous{連續播放} albumMix{專輯混播} other{{option}}}",
     "@radioModeOptionConfirmation": {
         "placeholders": {
             "option": {
@@ -3038,7 +3038,7 @@
     "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
         "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
     },
-    "radioModeDescription": "{mode,select,reshuffle{持續重新挑選佇列內容}random{從初始選擇中隨機加入歌曲}similar{根據原始佇列加入相似歌曲}continuous{根據目前歌曲加入內容}albumMix{加入相似的專輯}other{}}",
+    "radioModeDescription": "{mode, select, reshuffle{持續隨機重排播放佇列} random{從初始選擇中隨機加入歌曲} similar{根據原始播放佇列加入} continuous{根據目前歌曲加入} albumMix{加入相似專輯} other{}}",
     "@radioModeDescription": {
         "placeholders": {
             "mode": {
@@ -3130,7 +3130,7 @@
     "@radioNoTracksFound": {
         "description": "Shown when the user tries to start radio mode but no suitable tracks were found to start the radio with."
     },
-    "loopingUnavailableWhileRadioActiveWarning": "電台啟用時無法變更循環模式，因為佇列會無限延續。",
+    "loopingUnavailableWhileRadioActiveWarning": "電台啟用時無法變更循環模式，因為佇列將無限延續。",
     "@loopingUnavailableWhileRadioActiveWarning": {
         "description": "Warning message when trying to change the loop mode while radio is active."
     }
