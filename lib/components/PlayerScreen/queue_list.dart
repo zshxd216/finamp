@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:collection/collection.dart';
 import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dart';
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
@@ -13,6 +14,7 @@ import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/components/themed_bottom_sheet.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
 import 'package:finamp/menus/choice_menu.dart';
@@ -710,7 +712,17 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
           const horizontalPadding = 8.0;
           const albumImageSize = 70.0;
 
-          final primaryTextColor = Colors.white;
+          final elapsedPartBackgroundColor = ColorScheme.of(context).primary;
+          final remainingPartBackgroundColor = Color.alphaBlend(
+            elapsedPartBackgroundColor.withOpacity(0.7),
+            // this is an approximation, the actual background has the blurred cover image
+            ref.watch(brightnessProvider) == Brightness.dark ? Colors.black : Colors.white,
+          );
+          final averageBackgroundColor = Color.alphaBlend(
+            elapsedPartBackgroundColor.withOpacity(0.5),
+            remainingPartBackgroundColor,
+          );
+          Color primaryTextColor = AtContrast.getContrastiveTintedTextColor(onBackground: averageBackgroundColor);
 
           return SliverAppBar(
             pinned: true,
@@ -726,7 +738,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
               child: Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
-                  color: ColorScheme.of(context).primary.withOpacity(0.7),
+                  color: remainingPartBackgroundColor,
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
                 ),
                 child: Row(
@@ -780,7 +792,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                         : max(0, playbackPosition!.inMilliseconds / itemLength.inMilliseconds),
                                     child: DecoratedBox(
                                       decoration: ShapeDecoration(
-                                        color: ColorScheme.of(context).primary,
+                                        color: elapsedPartBackgroundColor,
                                         shape: const RoundedRectangleBorder(
                                           borderRadius: BorderRadius.only(
                                             topRight: Radius.circular(12),
