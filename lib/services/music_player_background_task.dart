@@ -346,6 +346,13 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     _player = AudioPlayer(
       maxSkipsOnError: 0,
       handleInterruptions: false,
+      androidAudioOffloadPreferences: AndroidAudioOffloadPreferences(
+        audioOffloadMode: FinampSettingsHelper.finampSettings.forceAudioOffloadingOnAndroid
+            ? AndroidAudioOffloadMode.enabled
+            : AndroidAudioOffloadMode.disabled,
+        isGaplessSupportRequired: true,
+        isSpeedChangeSupportRequired: true,
+      ),
       audioLoadConfiguration: AudioLoadConfiguration(
         androidLoadControl: AndroidLoadControl(
           targetBufferBytes: FinampSettingsHelper.finampSettings.bufferDisableSizeConstraints

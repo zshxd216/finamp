@@ -778,8 +778,6 @@
   "@yesButtonLabel": {},
   "noButtonLabel": "No",
   "@noButtonLabel": {},
-  "setSleepTimer": "Pause Playback After",
-  "@setSleepTimer": {},
   "hours": "Hours",
   "@hours": {},
   "seconds": "Seconds",
@@ -3182,5 +3180,13 @@
   "duckOnAudioInterruptionSubtitle": "Lower the volume (duck) when another app briefly plays audio.",
   "@duckOnAudioInterruptionSubtitle": {
     "description": "Subtitle for the setting that controls ducking."
+  },
+  "forceAudioOffloadingOnAndroidTitle": "Force Audio Offloading",
+  "@forceAudioOffloadingOnAndroidTitle": {
+    "description": "Title for the setting that controls audio offloading on Android."
+  },
+  "forceAudioOffloadingOnAndroidSubtitle": "Offload audio processing to hardware, if supported by the device.",
+  "@forceAudioOffloadingOnAndroidSubtitle": {
+    "description": "Subtitle for the setting that controls audio offloading on Android."
   }
 }

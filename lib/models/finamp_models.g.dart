@@ -441,6 +441,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         duckOnAudioInterruption: fields[142] == null
             ? true
             : fields[142] as bool,
+        forceAudioOffloadingOnAndroid: fields[143] == null
+            ? false
+            : fields[143] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -459,7 +462,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(136)
+      ..writeByte(137)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -731,7 +734,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(141)
       ..write(obj.radioMode)
       ..writeByte(142)
-      ..write(obj.duckOnAudioInterruption);
+      ..write(obj.duckOnAudioInterruption)
+      ..writeByte(143)
+      ..write(obj.forceAudioOffloadingOnAndroid);
   }
 
   @override

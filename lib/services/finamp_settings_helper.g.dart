@@ -1237,6 +1237,17 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setForceAudioOffloadingOnAndroid(
+    bool newForceAudioOffloadingOnAndroid,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.forceAudioOffloadingOnAndroid =
+        newForceAudioOffloadingOnAndroid;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1664,6 +1675,10 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select((value) => value.requireValue.radioMode);
   ProviderListenable<bool> get duckOnAudioInterruption => finampSettingsProvider
       .select((value) => value.requireValue.duckOnAudioInterruption);
+  ProviderListenable<bool> get forceAudioOffloadingOnAndroid =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.forceAudioOffloadingOnAndroid,
+      );
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(
         (value) => value.requireValue.downloadTranscodingProfile,

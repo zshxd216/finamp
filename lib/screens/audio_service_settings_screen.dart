@@ -38,6 +38,7 @@ class _AudioServiceSettingsScreenState extends State<AudioServiceSettingsScreen>
         children: [
           if (Platform.isAndroid) const StopForegroundSelector(),
           if (Platform.isAndroid) const EnableDuckingOnInterruptionsToggle(),
+          if (Platform.isAndroid) const ForceAudioOffloadingOnAndroidToggle(),
           const TrackShuffleItemCountEditor(),
           const AudioFadeInDurationListTile(),
           const AudioFadeOutDurationListTile(),
@@ -258,6 +259,22 @@ class EnableDuckingOnInterruptionsToggle extends ConsumerWidget {
       onChanged: (newValue) async {
         FinampSetters.setDuckOnAudioInterruption(newValue);
         await MusicPlayerBackgroundTask.configureAudioSession();
+      },
+    );
+  }
+}
+
+class ForceAudioOffloadingOnAndroidToggle extends ConsumerWidget {
+  const ForceAudioOffloadingOnAndroidToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.forceAudioOffloadingOnAndroidTitle),
+      subtitle: Text(AppLocalizations.of(context)!.forceAudioOffloadingOnAndroidSubtitle),
+      value: ref.watch(finampSettingsProvider.forceAudioOffloadingOnAndroid),
+      onChanged: (newValue) async {
+        FinampSetters.setForceAudioOffloadingOnAndroid(newValue);
       },
     );
   }

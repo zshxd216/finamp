@@ -245,6 +245,7 @@ class DefaultSettings {
   static const radioMode = RadioMode.similar;
   static const radioEnabled = false;
   static const duckOnAudioInterruption = true;
+  static const forceAudioOffloadingOnAndroid = false;
 }
 
 @HiveType(typeId: 28)
@@ -385,6 +386,7 @@ class FinampSettings {
     this.useSystemAccentColor = DefaultSettings.useSystemAccentColor,
     this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
     this.duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption,
+    this.forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -830,6 +832,9 @@ class FinampSettings {
 
   @HiveField(142, defaultValue: DefaultSettings.duckOnAudioInterruption)
   bool duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption;
+
+  @HiveField(143, defaultValue: DefaultSettings.forceAudioOffloadingOnAndroid)
+  bool forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
