@@ -15,6 +15,7 @@ import 'package:finamp/services/current_album_image_provider.dart';
 import 'package:finamp/services/datetime_helper.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/item_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
@@ -215,12 +216,8 @@ class TrackListTile extends ConsumerWidget {
             await audioServiceHelper.startInstantMixForItem(item);
           } else {
             await queueService.startPlayback(
-              items: [item],
-              source: QueueItemSource(
-                name: QueueItemSourceName(type: QueueItemSourceNameType.preTranslated, pretranslatedName: item.name),
-                type: QueueItemSourceType.track,
-                id: item.id,
-              ),
+              items: await loadChildTracks(item: item, genreFilter: genreFilter),
+              source: QueueItemSource.fromBaseItem(item),
             );
           }
         }
