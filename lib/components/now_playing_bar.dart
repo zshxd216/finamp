@@ -411,14 +411,14 @@ class NowPlayingBar extends StatelessWidget {
                                                                       style: TextStyle(
                                                                         fontSize: 14,
                                                                         fontWeight: FontWeight.w400,
-                                                                        color: Colors.white.withOpacity(0.8),
+                                                                        color: primaryTextColor.withOpacity(0.8),
                                                                       ),
                                                                     ),
                                                                     const SizedBox(width: 2),
                                                                     Text(
                                                                       '/',
                                                                       style: TextStyle(
-                                                                        color: Colors.white.withOpacity(0.8),
+                                                                        color: primaryTextColor.withOpacity(0.8),
                                                                         fontSize: 14,
                                                                         fontWeight: FontWeight.w400,
                                                                       ),
@@ -432,7 +432,7 @@ class NowPlayingBar extends StatelessWidget {
                                                                           ? "${mediaState.mediaItem?.duration?.inHours.toString()}:${((mediaState.mediaItem?.duration?.inMinutes ?? 0) % 60).toString().padLeft(2, '0')}:${((mediaState.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}"
                                                                           : "${mediaState.mediaItem?.duration?.inMinutes.toString()}:${((mediaState.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}",
                                                                       style: TextStyle(
-                                                                        color: Colors.white.withOpacity(0.8),
+                                                                        color: primaryTextColor.withOpacity(0.8),
                                                                         fontSize: 14,
                                                                         fontWeight: FontWeight.w400,
                                                                       ),
@@ -459,7 +459,7 @@ class NowPlayingBar extends StatelessWidget {
                                                   child: AddToPlaylistButton(
                                                     item: currentTrackBaseItem,
                                                     queueItem: currentTrack,
-                                                    color: Colors.white,
+                                                    color: primaryTextColor,
                                                     size: 28,
                                                     visualDensity: const VisualDensity(horizontal: -4),
                                                   ),
