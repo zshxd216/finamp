@@ -163,24 +163,28 @@ Future<void> startRadioPlayback(BaseItemDto source) async {
     _ => 30,
   };
 
-  invalidateRadioCache();
+  invalidateRadioCache(); // we're starting a new queue, any older state is invalid now
   var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
   _radioCacheStateStream.add(localResult);
 
+  List<BaseItemDto> generatedTracks = [];
   try {
-    localResult.tracks.addAll(
-      await generateRadioTracks(radioTracksNeededForInitialQueue, overrideSeedItem: source, forNewQueue: true),
+    generatedTracks = await generateRadioTracks(
+      radioTracksNeededForInitialQueue,
+      overrideSeedItem: source,
+      forNewQueue: true,
     );
   } catch (e) {
     _radioLogger.warning("Couldn't generate radio tracks: $e");
   }
 
   final tracksToAddCount = min(switch (localResult.radioMode) {
-    RadioMode.albumMix => localResult.tracks.length, // album mix returns full albums, and those should stay together
+    RadioMode.albumMix => generatedTracks.length, // album mix returns full albums, and those should stay together
+    RadioMode.reshuffle => generatedTracks.length, // we append the full shuffled source at once
     _ => radioTracksNeededForInitialQueue,
-  }, localResult.tracks.length);
-  final tracksToAdd = localResult.tracks.take(tracksToAddCount);
-  final tracksToCache = localResult.tracks.skip(tracksToAddCount);
+  }, generatedTracks.length);
+  final tracksToAdd = generatedTracks.take(tracksToAddCount);
+  final tracksToCache = generatedTracks.skip(tracksToAddCount);
 
   if (tracksToAdd.isEmpty) {
     _radioLogger.warning("No tracks generated for radio playback from source '${source.name}'. Aborting.");
@@ -189,6 +193,7 @@ Future<void> startRadioPlayback(BaseItemDto source) async {
   }
 
   toggleRadio(true);
+  invalidateRadioCache(); // we're still starting a new queue, and acquire a new lock here
   localResult = _radioCacheStateStream.value!.copyWith(
     generating: false,
     queueing: true,
@@ -244,14 +249,21 @@ bool toggleRadio([bool? enable]) {
   return radioNowEnabled;
 }
 
-// Callers should set up correct radio state synchronously before calling this,
-// so that we will be ready for the radio to restart as soon as this function releases its lock.
+/// Callers should set up correct radio state synchronously before calling this,
+/// so that we will be ready for the radio to restart as soon as this function releases its lock.
 Future<void> clearRadioTracks() async {
-  final queueService = GetIt.instance<QueueService>();
+  await withRadioLock(() async {
+    await GetIt.instance<QueueService>().clearRadioTracksLocked();
+  });
+}
+
+/// Callers should set up correct radio state synchronously before calling this,
+/// so that we will be ready for the radio to restart as soon as this function releases its lock.
+Future<void> withRadioLock(Future<void> Function() action) async {
   invalidateRadioCache();
-  final localResult = _radioCacheStateStream.value!.copyWith(queueing: true);
+  var localResult = _radioCacheStateStream.value!.copyWith(queueing: true);
   _radioCacheStateStream.add(localResult);
-  await queueService.clearRadioTracksLocked();
+  await action();
   if (identical(localResult, _radioCacheStateStream.value)) {
     _radioCacheStateStream.add(localResult.copyWith(queueing: false));
   }
