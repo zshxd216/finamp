@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dart';
 import 'package:finamp/components/PlayerScreen/album_chip.dart';
 import 'package:finamp/components/PlayerScreen/artist_chip.dart';
@@ -29,13 +31,13 @@ class TrackNameContent extends ConsumerWidget {
 
     final jellyfin_models.BaseItemDto trackBaseItemDto = currentTrack.baseItem;
 
-    final content = Column(
+    Widget getContent(BoxConstraints constraints, double padding) => Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Center(
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 280),
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth - padding),
             child: Semantics.fromProperties(
               properties: SemanticsProperties(
                 label: "${currentTrack.item.title} (${AppLocalizations.of(context)!.title})",
@@ -89,6 +91,7 @@ class TrackNameContent extends ConsumerWidget {
                             alignment: TextAlign.center,
                           ),
                         );
+                        
                       } else {
                         return Text(
                           text,
@@ -137,7 +140,7 @@ class TrackNameContent extends ConsumerWidget {
         double padding = ((constraints.maxWidth - 260) / 4).clamp(0, 20);
         return Padding(
           padding: EdgeInsets.only(left: padding, right: padding, bottom: 4.0),
-          child: content,
+          child: getContent(constraints, padding),
         );
       },
     );
