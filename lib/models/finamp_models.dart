@@ -3698,11 +3698,11 @@ enum RadioMode {
   @HiveField(1)
   continuous,
   @HiveField(2)
-  reshuffle,
-  @HiveField(3)
-  random,
-  @HiveField(4)
   albumMix,
+  @HiveField(3)
+  reshuffle,
+  @HiveField(4)
+  random,
 }
 
 class RadioCacheState {

@@ -3062,11 +3062,11 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
       case 1:
         return RadioMode.continuous;
       case 2:
-        return RadioMode.reshuffle;
-      case 3:
-        return RadioMode.random;
-      case 4:
         return RadioMode.albumMix;
+      case 3:
+        return RadioMode.reshuffle;
+      case 4:
+        return RadioMode.random;
       default:
         return RadioMode.similar;
     }
@@ -3079,11 +3079,11 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
         writer.writeByte(0);
       case RadioMode.continuous:
         writer.writeByte(1);
-      case RadioMode.reshuffle:
-        writer.writeByte(2);
-      case RadioMode.random:
-        writer.writeByte(3);
       case RadioMode.albumMix:
+        writer.writeByte(2);
+      case RadioMode.reshuffle:
+        writer.writeByte(3);
+      case RadioMode.random:
         writer.writeByte(4);
     }
   }
