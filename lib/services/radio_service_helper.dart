@@ -152,36 +152,60 @@ Future<void> maybeAddRadioTracks() async {
 }
 
 Future<void> startRadioPlayback(BaseItemDto source) async {
-  const radioTracksNeededForInitialQueue = 30;
+  final currentRadioMode = FinampSettingsHelper.finampSettings.radioMode;
+  final int radioTracksNeededForInitialQueue = switch (currentRadioMode) {
+    // continuous mode requires successive requests, so reduce the amount of tracks so the queue starts faster
+    // additional tracks will be loaded after the queue has started
+    RadioMode.continuous => 3,
+    // if we find true albums right away, this threshold should be easily surpassed
+    // if not, searching for fallbacks could take a few requests, so accept fewer tracks to start the queue, then delegate further loading
+    RadioMode.albumMix => 7,
+    _ => 30,
+  };
 
-  final List<BaseItemDto> tracks = [];
+  invalidateRadioCache();
+  var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
+  _radioCacheStateStream.add(localResult);
+
   try {
-    tracks.addAll(await generateRadioTracks(radioTracksNeededForInitialQueue, overrideSeedItem: source));
+    localResult.tracks.addAll(
+      await generateRadioTracks(radioTracksNeededForInitialQueue, overrideSeedItem: source, forNewQueue: true),
+    );
   } catch (e) {
     _radioLogger.warning("Couldn't generate radio tracks: $e");
   }
-  if (tracks.isEmpty) {
+
+  final tracksToAddCount = min(switch (localResult.radioMode) {
+    RadioMode.albumMix => localResult.tracks.length, // album mix returns full albums, and those should stay together
+    _ => radioTracksNeededForInitialQueue,
+  }, localResult.tracks.length);
+  final tracksToAdd = localResult.tracks.take(tracksToAddCount);
+  final tracksToCache = localResult.tracks.skip(tracksToAddCount);
+
+  if (tracksToAdd.isEmpty) {
     _radioLogger.warning("No tracks generated for radio playback from source '${source.name}'. Aborting.");
     GlobalSnackbar.message((context) => AppLocalizations.of(context)!.radioNoTracksFound);
     return;
   }
 
   toggleRadio(true);
-  invalidateRadioCache();
-  final localResult = _radioCacheStateStream.value!.copyWith(
+  localResult = _radioCacheStateStream.value!.copyWith(
+    generating: false,
     queueing: true,
-    seedItem: _radioCacheStateStream.value!.radioMode == RadioMode.continuous ? tracks.lastOrNull ?? source : source,
+    seedItem: currentRadioMode == RadioMode.continuous ? tracksToAdd.lastOrNull ?? source : source,
+    tracks: tracksToCache.toList(),
   );
   _radioCacheStateStream.add(localResult);
 
   await GetIt.instance<QueueService>().startPlayback(
-    items: tracks,
+    items: tracksToAdd.toList(),
     source: QueueItemSource.fromBaseItem(source),
     customTrackSource: QueueItemSource(
       type: QueueItemSourceType.radio,
       name: QueueItemSourceName(type: QueueItemSourceNameType.radio, localizationParameter: source.name ?? ""),
       id: source.id,
     ),
+    skipRadioCacheInvalidation: true,
   );
 
   if (identical(localResult, _radioCacheStateStream.value)) {
@@ -246,6 +270,7 @@ Future<List<BaseItemDto>> generateRadioTracks(
   int minNumTracks, {
   BaseItemDto? overrideSeedItem,
   List<BaseItemDto> cachedTracks = const [],
+  bool forNewQueue = false,
 }) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final downloadsService = GetIt.instance<DownloadsService>();
@@ -330,7 +355,7 @@ Future<List<BaseItemDto>> generateRadioTracks(
       throw Exception("No seed item available for radio generation. Aborting.");
     }
     // extra tracks to randomly choose from to introduce non-determinism
-    final randomnessExtraTracks = 8 + (minNumTracks * 1.5).ceil();
+    final randomnessExtraTracks = 8 + (minNumTracks * 0.5).ceil();
     return await _getSimilarTracks(
       referenceItem: actualSeed,
       minNumTracks: minNumTracks,
@@ -340,6 +365,8 @@ Future<List<BaseItemDto>> generateRadioTracks(
       // filter out ALL duplicates, otherwise things will start repeating too often
       // since the base item never changes
       repetitionThresholdTracks: currentQueue.trackCount,
+      // don't use old queue to filter out tracks if we're starting a new queue
+      ignoreDuplicatesFromQueue: forNewQueue,
     );
   }
 
@@ -365,6 +392,8 @@ Future<List<BaseItemDto>> generateRadioTracks(
         randomnessExtraTracks: randomnessExtraTracks,
         // filter out recent tracks within 90 minutes
         repetitionThresholdTracks: currentQueue.getTrackCountWithinDuration(Duration(minutes: 90)),
+        // don't use old queue to filter out tracks if we're starting a new queue
+        ignoreDuplicatesFromQueue: forNewQueue,
       );
       if (continuousTracksSample.isEmpty) {
         _radioLogger.warning("Failed to find similar track to ${continuousTracks.last.name}. Aborting.");
@@ -594,6 +623,7 @@ Future<List<BaseItemDto>> _getSimilarTracks({
   required int randomnessExtraTracks,
   required int repetitionThresholdTracks,
   required int maxAttempts,
+  bool ignoreDuplicatesFromQueue = false,
 }) async {
   const skippedTracks = 1; // extra track to exclude the current track
   const filterExtraTracks = 10; // extra tracks in case duplicates are removed
@@ -609,10 +639,10 @@ Future<List<BaseItemDto>> _getSimilarTracks({
     }
     attempt++;
 
-    final items = await jellyfinApiHelper.getInstantMix(
-      referenceItem,
-      limit: minNumTracks + skippedTracks + filterExtraTracks + randomnessExtraTracks + attemptExtraTracks,
-    );
+    final trackLimit = minNumTracks + skippedTracks + filterExtraTracks + randomnessExtraTracks + attemptExtraTracks;
+    _radioLogger.finer("Fetching (up to) $trackLimit similar tracks for reference item '${referenceItem.name}'.");
+
+    final items = await jellyfinApiHelper.getInstantMix(referenceItem, limit: trackLimit);
     List<BaseItemDto> filteredSample = [];
     if (items != null) {
       filteredSample.addAll(items);
@@ -624,15 +654,18 @@ Future<List<BaseItemDto>> _getSimilarTracks({
       filteredSample.removeRange(0, min(skippedTracks, filteredSample.length));
       final originalTrackCount = filteredSample.length;
       // filter out duplicate tracks, including upcoming ones
-      final recentlyPlayedIds = queueService
-          .getQueue()
-          .fullQueue
-          .reversed
-          .take(repetitionThresholdTracks)
-          .map((item) => item.baseItem)
-          .followedBy(additionalExistingTracks)
-          .map((item) => item.id)
-          .toSet();
+      final recentlyPlayedIds =
+          (ignoreDuplicatesFromQueue
+                  ? <BaseItemDto>[]
+                  : queueService
+                        .getQueue()
+                        .fullQueue
+                        .reversed
+                        .take(repetitionThresholdTracks)
+                        .map((item) => item.baseItem))
+              .followedBy(additionalExistingTracks)
+              .map((item) => item.id)
+              .toSet();
       filteredSample.removeWhere((item) => recentlyPlayedIds.contains(item.id));
       final filteredOutTrackCount = originalTrackCount - filteredSample.length;
       // we requested more tracks in case of duplicates, but if those are not needed we want to stay as similar as possible, since we already have some overhead for randomness

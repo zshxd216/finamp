@@ -612,6 +612,7 @@ class QueueService {
     QueueItemSource? customTrackSource,
     FinampPlaybackOrder? order,
     int? startingIndex,
+    bool skipRadioCacheInvalidation = false,
   }) async {
     // _initialQueue = list; // save original PlaybackList for looping/restarting and meta info
 
@@ -621,6 +622,7 @@ class QueueService {
       customTrackSource: customTrackSource,
       order: order,
       initialIndex: startingIndex,
+      skipRadioCacheInvalidation: skipRadioCacheInvalidation,
     );
     _queueServiceLogger.info(
       "Started playing '${GlobalSnackbar.materialAppScaffoldKey.currentContext != null ? source.name.getLocalized(GlobalSnackbar.materialAppScaffoldKey.currentContext!) : source.name.type}' (${source.type}) in order $order from index $startingIndex",
@@ -642,6 +644,7 @@ class QueueService {
     FinampPlaybackOrder? order,
     bool beginPlaying = true,
     bool isRestoredQueue = false,
+    bool skipRadioCacheInvalidation = false,
   }) async {
     if (trackSources != null) {
       if (trackSources.length != itemList.length) {
@@ -672,7 +675,9 @@ class QueueService {
         return;
       }
 
-      invalidateRadioCache();
+      if (!skipRadioCacheInvalidation) {
+        invalidateRadioCache();
+      }
 
       order ??= FinampPlaybackOrder.linear;
 
@@ -829,6 +834,11 @@ class QueueService {
       _savedQueueState = SavedQueueState.saving;
     }
 
+    // avoid radio eagerly adding new tracks from cache (or requesting new tracks) right after the queue is cleared
+    final previousRadioState = FinampSettingsHelper.finampSettings.radioEnabled;
+    FinampSetters.setRadioEnabled(false);
+    invalidateRadioCache();
+
     await _audioHandler.clearFinampQueueItems();
 
     await _audioHandler.stopPlayback();
@@ -836,6 +846,8 @@ class QueueService {
     _buildQueueFromNativePlayerQueue();
     // await _audioHandler.initializeAudioSource(_queueAudioSource,
     //     preload: false);
+
+    FinampSetters.setRadioEnabled(previousRadioState);
 
     return;
   }
