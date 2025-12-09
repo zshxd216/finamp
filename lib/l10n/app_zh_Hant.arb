@@ -2986,7 +2986,7 @@
         },
         "description": "Radio mode names in radio mode/algorithm dropdown"
     },
-    "radioModeOptionTitle": "{option, select, reshuffle{隨機重排模式} random{隨機歌曲模式} similar{相似歌曲模式} continuous{連續播放模式} albumMix{專輯混播模式} other{{option}}}已啟用",
+    "radioModeOptionTitle": "{option, select, reshuffle{隨機重排模式} random{隨機歌曲模式} similar{相似歌曲模式} continuous{連續播放模式} albumMix{專輯混播模式} other{{option}}}",
     "@radioModeOptionTitle": {
         "placeholders": {
             "option": {
