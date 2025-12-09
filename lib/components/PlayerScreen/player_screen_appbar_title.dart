@@ -1,11 +1,10 @@
 import 'package:balanced_text/balanced_text.dart';
+import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../models/finamp_models.dart';
-import 'queue_source_helper.dart';
 
 class PlayerScreenAppBarTitle extends StatefulWidget {
   const PlayerScreenAppBarTitle({super.key, required this.maxLines});

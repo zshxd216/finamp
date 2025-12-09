@@ -21,8 +21,6 @@ class FinampAppBarButton extends StatelessWidget {
           return TablerIcons.chevron_right;
         case AxisDirection.up:
           return TablerIcons.chevron_up;
-        default:
-          return TablerIcons.chevron_down;
       }
     }
 
