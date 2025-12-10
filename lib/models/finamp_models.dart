@@ -3705,6 +3705,14 @@ enum RadioMode {
   random,
 }
 
+enum AlbumMixFallbackModes {
+  similarSingles,
+  artistAlbums,
+  artistSingles,
+  performingArtistAlbums,
+  libraryAlbumsOrSingles,
+}
+
 class RadioCacheState {
   RadioCacheState({
     required this.tracks,
@@ -3714,6 +3722,7 @@ class RadioCacheState {
     this.generating = false,
     this.queueing = false,
     this.failed = false,
+    this.albumMixFallbackMode,
   });
 
   List<BaseItemDto> tracks;
@@ -3723,6 +3732,7 @@ class RadioCacheState {
   final bool generating;
   final bool queueing;
   final bool failed;
+  final AlbumMixFallbackModes? albumMixFallbackMode;
 
   RadioCacheState copyWith({
     List<BaseItemDto>? tracks,
@@ -3733,6 +3743,7 @@ class RadioCacheState {
     bool? generating,
     bool? queueing,
     bool? failed,
+    AlbumMixFallbackModes? fallbackMode,
   }) {
     return RadioCacheState(
       tracks: tracks ?? this.tracks,
@@ -3742,6 +3753,7 @@ class RadioCacheState {
       generating: generating ?? this.generating,
       queueing: queueing ?? this.queueing,
       failed: failed ?? this.failed,
+      albumMixFallbackMode: fallbackMode ?? this.albumMixFallbackMode,
     );
   }
 
