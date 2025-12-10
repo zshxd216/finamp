@@ -32,7 +32,7 @@ authorsBefore = set([commit["author"]["name"] for commit in commitsBefore])
 authorsWithin = set([commit["author"]["name"] for commit in commitsWithin])
 newAuthors = authorsWithin.difference(authorsBefore)
 
-print(f"- {len(newAuthors)} authors made their first commit", end=" ")
+print(f"- {len(newAuthors)} authors made their *first* commit", end=" ")
 print(f"(now a total of {len(authorsBefore) + len(newAuthors)} people contributed)")
 
 additions = [sum([file["additions"] for file in commit["files"]]) for commit in commitsWithin]
@@ -57,13 +57,13 @@ commitsPerAuthor = [[author, len([commit for commit in commitsWithin if commit["
 commitsPerAuthor.sort(key=lambda a: -a[1])
 print(f"- top new contributers based on commits")
 for i, a in enumerate(commitsPerAuthor[:5]):
-    print(f"   {i+1}. {a[0]} with {a[1]} commits")
+    print(f"   {i+1}. **{a[0]}** with `{a[1]}` commits")
 
 changesPerAuthor = [[author, sum([sum([(file["additions"] - file["deletions"]) for file in commit["files"]]) for commit in commitsWithin if commit["author"]["name"] == author])] for author in newAuthors]
 changesPerAuthor.sort(key=lambda a: -a[1])
 print(f"- top new contributers based on additions")
 for i, a in enumerate(changesPerAuthor[:5]):
-    print(f"   {i+1}. {a[0]} with {a[1]} additions")
+    print(f"   {i+1}. **{a[0]}** with `{a[1]}` additions")
 
 
 commitsPerAuthorLifeTime = [[author, len([commit for commit in commits if commit["author"]["name"] == author])] for author in authors]
@@ -71,19 +71,19 @@ commitsPerAuthorLifeTime.sort(key=lambda a: -a[1])
 
 print(f"- top contributers based on commits")
 for i, a in enumerate(commitsPerAuthorLifeTime[:5]):
-    print(f"   {i+1}. {a[0]} with {a[1]} commits")
+    print(f"   {i+1}. **{a[0]}** with `{a[1]}` commits")
 
 changesPerAuthorLifeTime = [[author, sum([sum([(file["additions"] - file["deletions"]) for file in commit["files"]]) for commit in commits if commit["author"]["name"] == author])] for author in authors]
 changesPerAuthorLifeTime.sort(key=lambda a: -a[1])
 print(f"- top contributers based on additions")
 for i, a in enumerate(changesPerAuthorLifeTime[:5]):
-    print(f"   {i+1}. {a[0]} with {a[1]} additions")
+    print(f"   {i+1}. **{a[0]}** with `{a[1]}` additions")
 
 firstCommitOfYear = list(commitsWithin)
 firstCommitOfYear.sort(key=lambda x: x["author"]["time"])
 firstCommitOfYear = firstCommitOfYear[0]
 
 gitcheckout(firstCommitOfYear["hash"])
-print(f"In the begining of {year} the lib folder was {du("./finamp/lib")} Big", end=" ")
+print(f"In the beginning of {year} the lib folder was `{du("./finamp/lib")}` Big", end=" ")
 gitcheckout(activeBranch)
-print(f"and now its {du("./finamp/lib")}!")
+print(f"and now its `{du("./finamp/lib")}`!")
