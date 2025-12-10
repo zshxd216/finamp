@@ -35,75 +35,68 @@ class TrackNameContent extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Center(
-          child: Container(
-            constraints: BoxConstraints(maxWidth: constraints.maxWidth - padding),
-            child: Semantics.fromProperties(
-              properties: SemanticsProperties(
-                label: "${currentTrack.item.title} (${AppLocalizations.of(context)!.title})",
-              ),
-              excludeSemantics: true,
-              container: true,
-              child: Consumer(
-                builder: (context, ref, _) {
-                  final text = currentTrack.item.title;
-                  final isTwoLineMode = controller.shouldShow(PlayerHideable.twoLineTitle);
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: constraints.maxWidth - padding),
+          child: Semantics.fromProperties(
+            properties: SemanticsProperties(
+              label: "${currentTrack.item.title} (${AppLocalizations.of(context)!.title})",
+            ),
+            excludeSemantics: true,
+            container: true,
+            child: Consumer(
+              builder: (context, ref, _) {
+                final text = currentTrack.item.title;
+                final isTwoLineMode = controller.shouldShow(PlayerHideable.twoLineTitle);
 
-                  final textStyle = TextStyle(
-                    fontSize: 20,
-                    height: 1.2,
-                    fontWeight: Theme.brightnessOf(context) == Brightness.light ? FontWeight.w500 : FontWeight.w600,
+                final textStyle = TextStyle(
+                  fontSize: 20,
+                  height: 1.2,
+                  fontWeight: Theme.brightnessOf(context) == Brightness.light ? FontWeight.w500 : FontWeight.w600,
+                );
+
+                final textSpan = TextSpan(text: text, style: textStyle);
+                final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr, maxLines: 2)
+                  ..layout(maxWidth: 280);
+
+                final wouldOverflow = textPainter.didExceedMaxLines;
+                textPainter.dispose();
+
+                if (!isTwoLineMode) {
+                  return Text(
+                    text,
+                    style: textStyle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   );
-
-                  final textSpan = TextSpan(text: text, style: textStyle);
-                  final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr, maxLines: 2)
-                    ..layout(maxWidth: 280);
-
-                  final wouldOverflow = textPainter.didExceedMaxLines;
-                  textPainter.dispose();
-
-                  if (!isTwoLineMode) {
-                    return Text(
-                      text,
-                      style: textStyle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
+                } else {
+                  if (wouldOverflow && ref.watch(finampSettingsProvider.oneLineMarqueeTextButton)) {
+                    return SizedBox(
+                      width: 280,
+                      height: 30,
+                      child: ScrollingTextHelper(
+                        id: ValueKey(currentTrack.item.id),
+                        text: text,
+                        style: textStyle,
+                        alignment: TextAlign.center,
+                      ),
                     );
                   } else {
-                    if (!wouldOverflow) {
-                      return Text(
-                        text,
-                        style: textStyle,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      );
-                    } else {
-                      if (ref.watch(finampSettingsProvider.oneLineMarqueeTextButton)) {
-                        return SizedBox(
-                          width: 280,
-                          height: 30,
-                          child: ScrollingTextHelper(
-                            id: ValueKey(currentTrack.item.id),
-                            text: text,
-                            style: textStyle,
-                            alignment: TextAlign.center,
-                          ),
-                        );
-                      } else {
-                        return Text(
+                    return SizedBox(
+                      height: 48.0,
+                      child: Center(
+                        child: Text(
                           text,
                           style: textStyle,
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                        );
-                      }
-                    }
+                        ),
+                      ),
+                    );
                   }
-                },
-              ),
+                }
+              },
             ),
           ),
         ),

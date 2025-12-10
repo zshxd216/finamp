@@ -1280,6 +1280,9 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     // Moved here because currentTrackMetadataProvider depends on queueService
     // If metadataProvider is sloooooow, this allows it to catch up
     GetIt.instance<ProviderContainer>().listen(currentTrackMetadataProvider, (previous, next) {
+      // update media notification to reflect favorite state
+      refreshPlaybackStateAndMediaNotification();
+
       if (FinampSettingsHelper.finampSettings.volumeNormalizationMode != VolumeNormalizationMode.albumBased &&
           FinampSettingsHelper.finampSettings.volumeNormalizationMode != VolumeNormalizationMode.hybrid) {
         return;
