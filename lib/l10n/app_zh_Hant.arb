@@ -3038,7 +3038,7 @@
     "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
         "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
     },
-    "radioModeDescription": "{mode, select, reshuffle{持續隨機重排播放佇列} random{從初始選擇中隨機加入歌曲} similar{根據原始播放佇列加入} continuous{根據目前歌曲加入} albumMix{加入相似專輯} other{}}",
+    "radioModeDescription": "{mode, select,reshuffle{持續隨機重排播放佇列}random{從初始選擇隨機排序歌曲}similar{根據原播放佇列加入相似歌曲}continuous{根據目前歌曲加入相似歌曲}albumMix{加入相關專輯的歌曲}other{}}",
     "@radioModeDescription": {
         "placeholders": {
             "mode": {
