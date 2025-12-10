@@ -17,7 +17,8 @@ print(f"In {year} .... ")
 
 commits = []
 for commit in data["projects"][0]["commits"]:
-    if (commit["message"].endswith("Translations update from Hosted Weblate")): continue
+    if (commit["message"].endswith("Translations update from Hosted Weblate")):
+        continue
     commit["files"] = [file for file in commit["files"] if (not file["filepath"].startswith("lib/l10n")) and (not file["filepath"].endswith(".g.dart"))]
     commits.append(commit)
 commitsBefore = [commit for commit in commits if not commit["author"]["time"].startswith(str(year))]
@@ -48,9 +49,8 @@ print(f"  - {round(sum(deletions) / len(deletions))} deletions per commit")
 commitMessages = [len(x["message"].split(" ")) for x in commitsWithin]
 print(f"- commit messages contained {sum(commitMessages)} words in total")
 
-merges = [x for x in commitsWithin if commit["isMerge"]]
-print(f"- {len(merges)} PRs got merged")
-
+merges = [int(x["isMerge"]) for x in commitsWithin]
+print(f"- {sum(merges)} PRs got merged")
 
 
 commitsPerAuthor = [[author, len([commit for commit in commitsWithin if commit["author"]["name"] == author])] for author in newAuthors]
