@@ -16,30 +16,31 @@ data = json.load(open("./gitstat_result.json"))
 print(f"In {year} .... ")
 
 commits = []
-for x in data["projects"][0]["commits"]:
-    if (x["message"].endswith("Translations update from Hosted Weblate")): continue
-    x["files"] = [y for y in x["files"] if not y["filepath"].startswith("lib/l10n")]
-    commits.append(x)
-commitsBefore = [x for x in commits if not x["author"]["time"].startswith(str(year))]
-commitsWithin = [x for x in commits if x["author"]["time"].startswith(str(year))]
+for commit in data["projects"][0]["commits"]:
+    if (commit["message"].endswith("Translations update from Hosted Weblate")): continue
+    commit["files"] = [file for file in commit["files"] if (not file["filepath"].startswith("lib/l10n")) and (not file["filepath"].endswith(".g.dart"))]
+    commits.append(commit)
+commitsBefore = [commit for commit in commits if not commit["author"]["time"].startswith(str(year))]
+commitsWithin = [commit for commit in commits if commit["author"]["time"].startswith(str(year))]
 
-print(f"- {len(commitsWithin)} commits were made", end="")
+print(f"- {len(commitsWithin)} commits were made", end=" ")
 print(f"(now a total of {len(commitsBefore) + len(commitsWithin)} commits)")
 
 authors = set([x["author"]["name"] for x in commits])
-authorsBefore = set([x["author"]["name"] for x in commitsBefore])
-authorsWithin = set([x["author"]["name"] for x in commitsWithin])
+authorsBefore = set([commit["author"]["name"] for commit in commitsBefore])
+authorsWithin = set([commit["author"]["name"] for commit in commitsWithin])
 newAuthors = authorsWithin.difference(authorsBefore)
 
-print(f"- {len(newAuthors)} authors made their first commit", end="")
+print(f"- {len(newAuthors)} authors made their first commit", end=" ")
 print(f"(now a total of {len(authorsBefore) + len(newAuthors)} people contributed)")
 
-additions = [sum([y["additions"] for y in x["files"]]) for x in commitsWithin]
-deletions = [sum([y["deletions"] for y in x["files"]]) for x in commitsWithin]
+additions = [sum([file["additions"] for file in commit["files"]]) for commit in commitsWithin]
+deletions = [sum([file["deletions"] for file in commit["files"]]) for commit in commitsWithin]
 
 print(f"- {sum(additions)} lines of codes were added")
 print(f"- {sum(deletions)} lines of codes were removed")
 print(f"- So a total of {sum(additions) + sum(deletions)} changes")
+print(f"- And a final difference of {sum(additions) - sum(deletions)} additions")
 print(f"- which averages to ...")
 print(f"  - {round(sum(additions) / len(additions))} additions per commit")
 print(f"  - {round(sum(deletions) / len(deletions))} deletions per commit")
@@ -47,39 +48,36 @@ print(f"  - {round(sum(deletions) / len(deletions))} deletions per commit")
 commitMessages = [len(x["message"].split(" ")) for x in commitsWithin]
 print(f"- commit messages contained {sum(commitMessages)} words in total")
 
-merges = [x for x in commitsWithin if x["isMerge"]]
+merges = [x for x in commitsWithin if commit["isMerge"]]
 print(f"- {len(merges)} PRs got merged")
 
 
 
-commitsPerAuthor = [[a, len([x for x in commitsWithin if x["author"]["name"] == a])] for a in newAuthors]
+commitsPerAuthor = [[author, len([commit for commit in commitsWithin if commit["author"]["name"] == author])] for author in newAuthors]
 commitsPerAuthor.sort(key=lambda a: -a[1])
 print(f"- top new contributers based on commits")
 for i, a in enumerate(commitsPerAuthor[:5]):
     print(f"   {i+1}. {a[0]} with {a[1]} commits")
 
-changesPerAuthor = [[a, sum([sum([z["additions"] + z["deletions"] for z in x["files"]]) for x in commitsWithin if x["author"]["name"] == a])] for a in newAuthors]
+changesPerAuthor = [[author, sum([sum([(file["additions"] - file["deletions"]) for file in commit["files"]]) for commit in commitsWithin if commit["author"]["name"] == author])] for author in newAuthors]
 changesPerAuthor.sort(key=lambda a: -a[1])
-print(f"- top new contributers based on changes")
+print(f"- top new contributers based on additions")
 for i, a in enumerate(changesPerAuthor[:5]):
-    print(f"   {i+1}. {a[0]} with {a[1]} changes")
+    print(f"   {i+1}. {a[0]} with {a[1]} additions")
 
 
-
-
-commitsPerAuthorLifeTime = [[a, len([x for x in commits if x["author"]["name"] == a])] for a in authors]
+commitsPerAuthorLifeTime = [[author, len([commit for commit in commits if commit["author"]["name"] == author])] for author in authors]
 commitsPerAuthorLifeTime.sort(key=lambda a: -a[1])
+
 print(f"- top contributers based on commits")
 for i, a in enumerate(commitsPerAuthorLifeTime[:5]):
     print(f"   {i+1}. {a[0]} with {a[1]} commits")
 
-changesPerAuthorLifeTime = [[a, sum([sum([z["additions"] + z["deletions"] for z in x["files"]]) for x in commits if x["author"]["name"] == a])] for a in authors]
+changesPerAuthorLifeTime = [[author, sum([sum([(file["additions"] - file["deletions"]) for file in commit["files"]]) for commit in commits if commit["author"]["name"] == author])] for author in authors]
 changesPerAuthorLifeTime.sort(key=lambda a: -a[1])
-print(f"- top contributers based on changes")
+print(f"- top contributers based on additions")
 for i, a in enumerate(changesPerAuthorLifeTime[:5]):
-    print(f"   {i+1}. {a[0]} with {a[1]} changes")
-
-
+    print(f"   {i+1}. {a[0]} with {a[1]} additions")
 
 firstCommitOfYear = list(commitsWithin)
 firstCommitOfYear.sort(key=lambda x: x["author"]["time"])
