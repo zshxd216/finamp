@@ -698,7 +698,7 @@
     "@addToNextUp": {
         "description": "Used for adding a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
     },
-    "shuffleNext": "Sekoita Seuraavaksi-jonoksi",
+    "shuffleNext": "Sekoita seuraavaksi",
     "@shuffleNext": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
@@ -1231,7 +1231,7 @@
     "@noActiveDownloads": {},
     "activeDownloadsTitle": "Aktiiviset lataukset",
     "@activeDownloadsTitle": {},
-    "shareOfflineListens": "Jaa offline kuuntelut",
+    "shareOfflineListens": "Jaa offline-kuuntelut",
     "@shareOfflineListens": {
         "description": "Button for exporting the JSON file containing any playback events that couldn't be submitted to the server, either because offline mode was enabled or the connection failed"
     },
@@ -1523,7 +1523,7 @@
     "@deleteFromTargetDialogText": {
         "description": "(Important: Note the space in front of some cases) A Confirm Prompt used whenever an item is about to be deleted from the device or server. The Server case should explain that this cannot be reverted, this information is not needed for the device since the user can just download the track again. The delete Type adapts the server text even more in can the user can or cant delete the item."
     },
-    "confirmPlayNext": "{type, select, track{Track} album{Album} artist{Artist} playlist{Playlist} genre{Genre} other{Item}} toistetaan seuraavaksi",
+    "confirmPlayNext": "{type, select, track{Kappale} album{Albumi} artist{Artisti} playlist{Soittolista} genre{Tyylilaji} other{Kohde}} seuraavaksi",
     "@confirmPlayNext": {
         "description": "A confirmation message that is shown after successfully adding a track to the front of the \"Next Up\" queue",
         "placeholders": {
