@@ -1301,7 +1301,7 @@ class DownloadStub {
       isarId: getHash(id.raw, type),
       jsonItem: null,
       type: type,
-      name: name ?? "Unlocalized $id",
+      name: name ?? "[$id]",
       baseItemType: BaseItemDtoType.noItem,
     );
   }
@@ -1320,7 +1320,7 @@ class DownloadStub {
       isarId: getHash(id, DownloadItemType.finampCollection),
       jsonItem: jsonEncode(collection.toJson()),
       type: DownloadItemType.finampCollection,
-      name: name ?? "Unlocalized Finamp Collection $id",
+      name: name ?? "[$id]",
       baseItemType: BaseItemDtoType.noItem,
     );
   }
