@@ -192,6 +192,7 @@ Future<void> startRadioPlayback(BaseItemDto source) async {
     return;
   }
 
+  FinampSetters.setRadioMode(currentRadioMode);
   toggleRadio(true);
   invalidateRadioCache(); // we're still starting a new queue, and acquire a new lock here
   localResult = _radioCacheStateStream.value!.copyWith(
@@ -243,18 +244,10 @@ bool toggleRadio([bool? enable]) {
   // since for the radio we override the player loop mode
   queueService.loopMode = queueService.loopMode;
   if (!radioNowEnabled) {
-    unawaited(clearRadioTracks());
+    unawaited(queueService.clearRadioTracks());
   }
   GetIt.instance<MusicPlayerBackgroundTask>().refreshPlaybackStateAndMediaNotification();
   return radioNowEnabled;
-}
-
-/// Callers should set up correct radio state synchronously before calling this,
-/// so that we will be ready for the radio to restart as soon as this function releases its lock.
-Future<void> clearRadioTracks() async {
-  await withRadioLock(() async {
-    await GetIt.instance<QueueService>().clearRadioTracksLocked();
-  });
 }
 
 /// Callers should set up correct radio state synchronously before calling this,
@@ -321,12 +314,22 @@ Future<List<BaseItemDto>> generateRadioTracks(
     // Items originally in the currently playing source (or manually added)
     final originalQueue = actualSeed != null
         ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
-        // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
-        : (queueWithoutRadioTracks.isEmpty ? currentQueue.fullQueue : queueWithoutRadioTracks)
-              .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
-              .map((e) => e.baseItem)
-              .nonNulls
+        : <BaseItemDto>[]
+              // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
+              .followedBy(
+                (forNewQueue ? <FinampQueueItem>[] : queueWithoutRadioTracks)
+                    .where(
+                      (e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true,
+                    )
+                    .map((e) => e.baseItem)
+                    .nonNulls,
+              )
               .toList();
+    if (originalQueue.isEmpty) {
+      throw Exception(
+        "Reshuffle radio mode selected but no valid tracks found in the current queue or from the provided seed item '${actualSeed?.name}'.",
+      );
+    }
     return originalQueue.shuffled();
   }
 
@@ -347,11 +350,16 @@ Future<List<BaseItemDto>> generateRadioTracks(
     // Items originally in the currently playing source (or manually added)
     final originalQueue = actualSeed != null
         ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
-        // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
-        : (queueWithoutRadioTracks.isEmpty ? currentQueue.fullQueue : queueWithoutRadioTracks)
-              .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
-              .map((e) => e.baseItem)
-              .nonNulls
+        : <BaseItemDto>[]
+              // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
+              .followedBy(
+                (forNewQueue ? <FinampQueueItem>[] : queueWithoutRadioTracks)
+                    .where(
+                      (e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true,
+                    )
+                    .map((e) => e.baseItem)
+                    .nonNulls,
+              )
               .toList();
     return List.generate(max(25, minNumTracks), (index) {
       // Pick a random item to add, duplicates possible!
@@ -813,7 +821,7 @@ final getActiveRadioSeedProvider = ProviderFamily<BaseItemDto?, RadioMode>((Ref 
       return currentQueue?.fullQueue.lastOrNull?.baseItem;
     case RadioMode.reshuffle:
     case RadioMode.random:
-      return null;
+      return currentQueue?.source.type == QueueItemSourceType.radio ? currentQueue?.source.item : null;
     case RadioMode.similar:
     case RadioMode.albumMix:
       return currentQueue?.source.item;

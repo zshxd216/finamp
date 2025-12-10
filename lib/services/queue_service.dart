@@ -1050,40 +1050,44 @@ class QueueService {
     _buildQueueFromNativePlayerQueue();
   }
 
-  /// This function removes all upcoming radio tracks. Prefer calling clearRadioTracks
-  /// in radio_service_helper, which wraps this with a radio state lock.
-  Future<void> clearRadioTracksLocked() async {
+  /// This function removes all upcoming radio tracks.
+  /// Callers should set up correct radio state synchronously before calling this,
+  /// so that we will be ready for the radio to restart as soon as this function releases its lock.
+  /// i.e., there's a chance for [maybeAddRadioTracks] to fire in the async gap after the lock releases before the caller regains execution, so the radio settings should be set up beforehand so that the state doesn't get invalidated immediately.
+  Future<void> clearRadioTracks() async {
     _queueServiceLogger.finer("Clearing radio tracks from queue.");
-    final radioIndices = _queue
-        .asMap()
-        .entries
-        .where((entry) {
-          return entry.value.source.type == QueueItemSourceType.radio;
-        })
-        .map((entry) => entry.key)
-        .toList();
-    if (radioIndices.isEmpty) {
-      return;
-    }
-    List<int> adjustedIndicesToRemove = [];
-    for (final index in radioIndices) {
-      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex + _queueNextUp.length + index + 1);
-      adjustedIndicesToRemove.add(adjustedQueueIndex);
-    }
-    int currentRangeEnd = adjustedIndicesToRemove.last;
-    int currentRangeStart = currentRangeEnd;
-    // remove from the back to avoid index shifting
-    for (final adjustedIndex in adjustedIndicesToRemove.reversed.skip(1)) {
-      if (adjustedIndex == currentRangeStart - 1 && adjustedIndex != adjustedIndicesToRemove.first) {
-        currentRangeStart = adjustedIndex;
-      } else {
-        // remove in batches to improve performance
-        await _audioHandler.removeFinampQueueItemRange(adjustedIndex, currentRangeEnd + 1);
-        currentRangeStart = adjustedIndex;
-        currentRangeEnd = adjustedIndex;
+    await withRadioLock(() async {
+      final radioIndices = _queue
+          .asMap()
+          .entries
+          .where((entry) {
+            return entry.value.source.type == QueueItemSourceType.radio;
+          })
+          .map((entry) => entry.key)
+          .toList();
+      if (radioIndices.isEmpty) {
+        return;
       }
-    }
-    _buildQueueFromNativePlayerQueue();
+      List<int> adjustedIndicesToRemove = [];
+      for (final index in radioIndices) {
+        int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex + _queueNextUp.length + index + 1);
+        adjustedIndicesToRemove.add(adjustedQueueIndex);
+      }
+      int currentRangeEnd = adjustedIndicesToRemove.last;
+      int currentRangeStart = currentRangeEnd;
+      // remove from the back to avoid index shifting
+      for (final adjustedIndex in adjustedIndicesToRemove.reversed.skip(1)) {
+        if (adjustedIndex == currentRangeStart - 1 && adjustedIndex != adjustedIndicesToRemove.first) {
+          currentRangeStart = adjustedIndex;
+        } else {
+          // remove in batches to improve performance
+          await _audioHandler.removeFinampQueueItemRange(adjustedIndex, currentRangeEnd + 1);
+          currentRangeStart = adjustedIndex;
+          currentRangeEnd = adjustedIndex;
+        }
+      }
+      _buildQueueFromNativePlayerQueue();
+    });
   }
 
   Future<void> removeQueueItem(FinampQueueItem queueItem) async {
