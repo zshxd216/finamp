@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/components/Buttons/finamp_extended_floating_action_button.dart';
 import 'package:finamp/components/PlayerScreen/player_screen_appbar_title.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/extensions/string.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
@@ -454,10 +455,15 @@ class _LyricLine extends ConsumerWidget {
     );
     final currentLineStyle = unSyncedStyle;
     final lowlightStyle = unSyncedStyle.copyWith(color: Colors.grey);
-    final cueHighlightStyle = currentLineStyle.copyWith(color: Theme.of(context).colorScheme.primary);
+    // ensure we use a highlight color that has decent contrast against the non-cue current line text color
+    final highlightColor = Theme.of(context).colorScheme.primary.contrastAgainst(currentLineStyle.color!) < 1.25
+        ? jellyfinBlueColor
+        : Theme.of(context).colorScheme.primary;
+    // final cueHighlightStyle = currentLineStyle.copyWith(color: Theme.of(context).colorScheme.primary);
+    final cueHighlightStyle = currentLineStyle.copyWith(color: highlightColor);
     final cueGreyStyle = currentLineStyle.copyWith(color: Colors.white);
     final cueFadeStyle = currentLineStyle.copyWith(
-      color: Color.alphaBlend(Theme.of(context).colorScheme.primary.withOpacity(0.6), Colors.white),
+      color: Color.alphaBlend(highlightColor.withOpacity(0.6), Colors.white),
     );
 
     return GestureDetector(
