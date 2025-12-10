@@ -1893,7 +1893,7 @@
     "@allowDeleteFromServerTitle": {
         "description": "Title for the setting that controls if items can be deleted from the server"
     },
-    "specialDownloads": "其它",
+    "specialDownloads": "其他",
     "@specialDownloads": {
         "description": "Title for the special downloads section on the downloads screen."
     },
