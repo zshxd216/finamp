@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:finamp/color_schemes.g.dart';
+import 'package:finamp/components/Buttons/finamp_extended_floating_action_button.dart';
 import 'package:finamp/components/PlayerScreen/player_screen_appbar_title.dart';
 import 'package:finamp/extensions/string.dart';
 import 'package:finamp/l10n/app_localizations.dart';
@@ -731,18 +732,13 @@ class EnableAutoScrollButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return !autoScrollEnabled
-        ? FloatingActionButton.extended(
-            onPressed: () {
+        ? FinampExtendedFloatingActionButton(
+            onTap: () {
               FeedbackHelper.feedback(FeedbackType.heavy);
               onEnableAutoScroll?.call();
             },
-            backgroundColor: IconTheme.of(context).color!.withOpacity(0.70),
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
-            icon: Icon(TablerIcons.arrow_bar_to_up, size: 28.0, color: Colors.white.withOpacity(0.9)),
-            label: Text(
-              AppLocalizations.of(context)!.enableAutoScroll,
-              style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14.0, fontWeight: FontWeight.normal),
-            ),
+            icon: TablerIcons.arrow_bar_to_up,
+            label: AppLocalizations.of(context)!.enableAutoScroll,
           )
         : const SizedBox.shrink();
   }

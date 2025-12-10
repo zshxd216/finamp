@@ -5,6 +5,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:collection/collection.dart';
 import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dart';
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
+import 'package:finamp/components/Buttons/finamp_extended_floating_action_button.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
 import 'package:finamp/components/album_image.dart';
@@ -379,22 +380,13 @@ class JumpToCurrentButtonState extends State<JumpToCurrentButton> {
   @override
   Widget build(BuildContext context) {
     return _jumpToCurrentTrackDirection != 0
-        ? FloatingActionButton.extended(
-            onPressed: () {
+        ? FinampExtendedFloatingActionButton(
+            icon: _jumpToCurrentTrackDirection < 0 ? TablerIcons.arrow_bar_to_up : TablerIcons.arrow_bar_to_down,
+            label: AppLocalizations.of(context)!.scrollToCurrentTrack,
+            onTap: () {
               FeedbackHelper.feedback(FeedbackType.heavy);
               scrollToKey(key: widget.previousTracksHeaderKey, duration: const Duration(milliseconds: 500));
             },
-            backgroundColor: IconTheme.of(context).color!.withOpacity(0.70),
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
-            icon: Icon(
-              _jumpToCurrentTrackDirection < 0 ? TablerIcons.arrow_bar_to_up : TablerIcons.arrow_bar_to_down,
-              size: 28.0,
-              color: Colors.white.withOpacity(0.9),
-            ),
-            label: Text(
-              AppLocalizations.of(context)!.scrollToCurrentTrack,
-              style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14.0, fontWeight: FontWeight.w500),
-            ),
           )
         : const SizedBox.shrink();
   }

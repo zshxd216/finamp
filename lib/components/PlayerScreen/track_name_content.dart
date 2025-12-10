@@ -91,7 +91,6 @@ class TrackNameContent extends ConsumerWidget {
                             alignment: TextAlign.center,
                           ),
                         );
-                        
                       } else {
                         return Text(
                           text,
