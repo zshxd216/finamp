@@ -1103,11 +1103,24 @@ class QueueService {
 
     int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
 
-    //!!! the player will automatically change the shuffle indices of the ConcatenatingAudioSource if shuffle is enabled, so we need to use the regular track index here
-    final oldIndex = adjustedQueueIndex + oldOffset;
-    final newIndex = oldOffset < newOffset ? adjustedQueueIndex + newOffset - 1 : adjustedQueueIndex + newOffset;
+    if (playbackOrder == FinampPlaybackOrder.shuffled) {
+      final newShuffleOrder = [..._shuffleOrder.indices];
+      final int itemToMove = newShuffleOrder.removeAt(adjustedQueueIndex + oldOffset);
+      newShuffleOrder.insert(adjustedQueueIndex + newOffset, itemToMove);
+      try {
+        _shuffleOrder.overrideShuffle(newShuffleOrder);
+        await _audioHandler.shuffle();
+      } finally {
+        _shuffleOrder.overrideShuffle(null);
+      }
+    } else {
+      //!!! the player will automatically change the shuffle indices of the ConcatenatingAudioSource if shuffle is enabled, so we need to use the regular track index here
+      final oldIndex = adjustedQueueIndex + oldOffset;
+      final newIndex = oldOffset < newOffset ? adjustedQueueIndex + newOffset - 1 : adjustedQueueIndex + newOffset;
 
-    await _audioHandler.moveFinampQueueItem(oldIndex, newIndex);
+      await _audioHandler.moveFinampQueueItem(oldIndex, newIndex);
+    }
+
     _buildQueueFromNativePlayerQueue();
   }
 
