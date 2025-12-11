@@ -1101,12 +1101,13 @@ class QueueService {
   Future<void> reorderByOffset(int oldOffset, int newOffset) async {
     _queueServiceLogger.fine("Reordering queue item at offset $oldOffset to offset $newOffset");
 
-    int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
-
     if (playbackOrder == FinampPlaybackOrder.shuffled) {
       final newShuffleOrder = [..._shuffleOrder.indices];
-      final int itemToMove = newShuffleOrder.removeAt(adjustedQueueIndex + oldOffset);
-      newShuffleOrder.insert(adjustedQueueIndex + newOffset, itemToMove);
+      final int itemToMove = newShuffleOrder.removeAt(_queueAudioSourceIndex + oldOffset);
+      newShuffleOrder.insert(
+        newOffset < oldOffset ? _queueAudioSourceIndex + newOffset : _queueAudioSourceIndex + newOffset - 1,
+        itemToMove,
+      );
       try {
         _shuffleOrder.overrideShuffle(newShuffleOrder);
         await _audioHandler.shuffle();
@@ -1114,6 +1115,8 @@ class QueueService {
         _shuffleOrder.overrideShuffle(null);
       }
     } else {
+      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
+
       //!!! the player will automatically change the shuffle indices of the ConcatenatingAudioSource if shuffle is enabled, so we need to use the regular track index here
       final oldIndex = adjustedQueueIndex + oldOffset;
       final newIndex = oldOffset < newOffset ? adjustedQueueIndex + newOffset - 1 : adjustedQueueIndex + newOffset;

@@ -304,19 +304,20 @@ Future<List<BaseItemDto>> generateRadioTracks(
         .whereNot((e) => e.source.type == QueueItemSourceType.radio)
         .toList();
     // Items originally in the currently playing source (or manually added)
-    final originalQueue = actualSeed != null
-        ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
-        : <BaseItemDto>[]
-              // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
-              .followedBy(
-                (forNewQueue ? <FinampQueueItem>[] : queueWithoutRadioTracks)
-                    .where(
-                      (e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true,
-                    )
-                    .map((e) => e.baseItem)
-                    .nonNulls,
-              )
-              .toList();
+    final originalQueue =
+        (actualSeed != null
+                ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
+                : <BaseItemDto>[])
+            // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
+            .followedBy(
+              (forNewQueue ? <FinampQueueItem>[] : queueWithoutRadioTracks)
+                  .where(
+                    (e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true,
+                  )
+                  .map((e) => e.baseItem)
+                  .nonNulls,
+            )
+            .toList();
     if (originalQueue.isEmpty) {
       throw Exception(
         "Reshuffle radio mode selected but no valid tracks found in the current queue or from the provided seed item '${actualSeed?.name}'.",
@@ -340,19 +341,20 @@ Future<List<BaseItemDto>> generateRadioTracks(
         .whereNot((e) => e.source.type == QueueItemSourceType.radio)
         .toList();
     // Items originally in the currently playing source (or manually added)
-    final originalQueue = actualSeed != null
-        ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
-        : <BaseItemDto>[]
-              // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
-              .followedBy(
-                (forNewQueue ? <FinampQueueItem>[] : queueWithoutRadioTracks)
-                    .where(
-                      (e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true,
-                    )
-                    .map((e) => e.baseItem)
-                    .nonNulls,
-              )
-              .toList();
+    final originalQueue =
+        (actualSeed != null
+                ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
+                : <BaseItemDto>[])
+            // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
+            .followedBy(
+              (forNewQueue ? <FinampQueueItem>[] : queueWithoutRadioTracks)
+                  .where(
+                    (e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true,
+                  )
+                  .map((e) => e.baseItem)
+                  .nonNulls,
+            )
+            .toList();
     return List.generate(max(25, minNumTracks), (index) {
       // Pick a random item to add, duplicates possible!
       int nextIndex = _radioRandom.nextInt(originalQueue.length);
@@ -421,9 +423,16 @@ Future<List<BaseItemDto>> generateRadioTracks(
 
   Future<List<BaseItemDto>> albumMixMode() async {
     int attempt = 0;
-    AlbumMixFallbackModes? fallbackMode =
-        _radioCacheStateStream.valueOrNull?.albumMixFallbackMode ??
-        (FinampSettingsHelper.finampSettings.isOffline ? AlbumMixFallbackModes.artistAlbums : null);
+
+    RadioCacheState? localRadioState = _radioCacheStateStream.valueOrNull;
+    AlbumMixFallbackModes? fallbackMode;
+    if (overrideSeedItem == null) {
+      assert(actualSeed == localRadioState?.seedItem, "Inconsistent seed item state in album mix radio generation.");
+      fallbackMode = localRadioState?.albumMixFallbackMode;
+    }
+    if (fallbackMode == null && FinampSettingsHelper.finampSettings.isOffline) {
+      fallbackMode = AlbumMixFallbackModes.artistAlbums;
+    }
 
     try {
       if (actualSeed == null) {
@@ -611,9 +620,8 @@ Future<List<BaseItemDto>> generateRadioTracks(
     } catch (e) {
       rethrow;
     } finally {
-      final cacheState = _radioCacheStateStream.valueOrNull;
-      if (cacheState?.isStillValid() ?? false) {
-        _radioCacheStateStream.add(cacheState?.copyWith(fallbackMode: fallbackMode));
+      if (localRadioState?.isStillValid() ?? false) {
+        _radioCacheStateStream.add(localRadioState?.copyWith(fallbackMode: fallbackMode));
       }
     }
   }
