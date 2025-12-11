@@ -2724,6 +2724,10 @@
   "@radioModeInactiveTitle": {
     "description": "Title displayed in the queue to show that the radio is enabled but not active."
   },
+  "radioModeEnableButtonTitle": "Enable Radio",
+  "@radioModeEnableButtonTitle": {
+    "description": "Title for the option that enables radio mode."
+  },
   "radioModeDisableButtonTitle": "Disable Radio",
   "@radioModeDisableButtonTitle": {
     "description": "Title for the option that disables radio mode."

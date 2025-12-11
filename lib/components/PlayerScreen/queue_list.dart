@@ -19,6 +19,7 @@ import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
 import 'package:finamp/menus/choice_menu.dart';
+import 'package:finamp/menus/components/icon_button_with_semantics.dart';
 import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -911,15 +912,11 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     ),
                                   ),
                                   IconButton(
+                                    tooltip: AppLocalizations.of(context)!.menuButtonLabel,
                                     iconSize: 28,
                                     visualDensity: const VisualDensity(horizontal: -4),
                                     // visualDensity: VisualDensity.compact,
-                                    icon: Icon(
-                                      TablerIcons.dots_vertical,
-                                      size: 28,
-                                      color: primaryTextColor,
-                                      weight: 1.5,
-                                    ),
+                                    icon: Icon(TablerIcons.dots, size: 28, color: primaryTextColor, weight: 1.5),
                                     onPressed: () {
                                       Feedback.forLongPress(context);
                                       showModalTrackMenu(
@@ -1061,15 +1058,18 @@ class QueueSectionHeader extends ConsumerWidget {
                     PlaybackBehaviorInfo? info = snapshot.data;
                     return Row(
                       children: [
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 28.0,
+                        IconButtonWithSemantics(
+                          label: info?.order == FinampPlaybackOrder.shuffled
+                              ? AppLocalizations.of(context)!.playbackOrderShuffledButtonTooltip
+                              : AppLocalizations.of(context)!.playbackOrderLinearButtonTooltip,
                           icon: info?.order == FinampPlaybackOrder.shuffled
-                              ? (const Icon(TablerIcons.arrows_shuffle))
-                              : (const Icon(TablerIcons.arrows_right)),
+                              ? (TablerIcons.arrows_shuffle)
+                              : (TablerIcons.arrows_right),
+                          iconSize: 28.0,
                           color: info?.order == FinampPlaybackOrder.shuffled
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
+                          visualDensity: VisualDensity.standard,
                           onPressed: () async {
                             await queueService.togglePlaybackOrder();
                             FeedbackHelper.feedback(FeedbackType.selection);
@@ -1080,15 +1080,22 @@ class QueueSectionHeader extends ConsumerWidget {
                             }
                           },
                         ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 28.0,
-                          icon: Icon(switch (radioEnabled ? null : info?.loop) {
+                        IconButtonWithSemantics(
+                          label: radioEnabled
+                              ? AppLocalizations.of(context)!.loopingUnavailableWhileRadioActiveWarning
+                              : switch (info?.loop) {
+                                  FinampLoopMode.none => AppLocalizations.of(context)!.loopModeNoneButtonLabel,
+                                  FinampLoopMode.one => AppLocalizations.of(context)!.loopModeOneButtonLabel,
+                                  FinampLoopMode.all => AppLocalizations.of(context)!.loopModeAllButtonLabel,
+                                  null => AppLocalizations.of(context)!.loopModeNoneButtonLabel,
+                                },
+                          icon: switch (radioEnabled ? null : info?.loop) {
                             FinampLoopMode.none => TablerIcons.repeat_off,
                             FinampLoopMode.one => TablerIcons.repeat_once,
                             FinampLoopMode.all => TablerIcons.repeat,
                             null => TablerIcons.repeat_off,
-                          }),
+                          },
+                          iconSize: 28.0,
                           color: radioEnabled
                               ? (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.3)
                               : (info?.loop != FinampLoopMode.none
@@ -1096,6 +1103,7 @@ class QueueSectionHeader extends ConsumerWidget {
                                     : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(
                                         0.85,
                                       )),
+                          visualDensity: VisualDensity.standard,
                           onPressed: () {
                             if (radioEnabled) {
                               GlobalSnackbar.message(
@@ -1111,13 +1119,16 @@ class QueueSectionHeader extends ConsumerWidget {
                             subtitle: AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
                           ),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
+                        IconButtonWithSemantics(
+                          label: radioEnabled
+                              ? AppLocalizations.of(context)!.radioModeDisableButtonTitle
+                              : AppLocalizations.of(context)!.radioModeEnableButtonTitle,
+                          icon: radioEnabled ? TablerIcons.radio : TablerIcons.radio_off,
                           iconSize: 28.0,
-                          icon: radioEnabled ? const Icon(TablerIcons.radio) : const Icon(TablerIcons.radio_off),
                           color: currentRadioAvailabilityStatus.isAvailable
                               ? IconTheme.of(context).color!
                               : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
+                          visualDensity: VisualDensity.standard,
                           onPressed: () {
                             toggleRadio();
                             FeedbackHelper.feedback(FeedbackType.selection);
