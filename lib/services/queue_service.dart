@@ -84,9 +84,8 @@ class QueueService {
 
   // external queue state
 
-  // the audio source used by the player. The first X items of all internal queues are merged together into this source, so that all player features, like gapless playback, are supported
   late final NextUpShuffleOrder _shuffleOrder;
-  int _queueAudioSourceIndex = 0;
+  int _currentQueueIndex = 0;
   int? _activeInitialIndex;
 
   // Flags for saving and loading saved queues
@@ -120,12 +119,12 @@ class QueueService {
     _audioHandler.playbackState.listen((event) async {
       // int indexDifference = (event.currentIndex ?? 0) - _queueAudioSourceIndex;
 
-      final previousIndex = _queueAudioSourceIndex;
-      _queueAudioSourceIndex = event.queueIndex ?? 0;
+      final previousIndex = _currentQueueIndex;
+      _currentQueueIndex = event.queueIndex ?? 0;
 
       // Ignore playback events if queue is empty.
-      if (previousIndex != _queueAudioSourceIndex && _currentTrack != null) {
-        _queueServiceLogger.finer("Play queue index changed, new index: $_queueAudioSourceIndex");
+      if (previousIndex != _currentQueueIndex && _currentTrack != null) {
+        _queueServiceLogger.finer("Play queue index changed, new index: $_currentQueueIndex");
         _buildQueueFromNativePlayerQueue();
       } else {
         _saveUpdateImmediate = true;
@@ -183,8 +182,8 @@ class QueueService {
   void _buildQueueFromNativePlayerQueue({bool logUpdate = true, int? indexOverride}) {
     final playbackHistoryService = GetIt.instance<PlaybackHistoryService>();
 
-    _queueAudioSourceIndex = indexOverride ?? _audioHandler.queueIndex ?? _queueAudioSourceIndex;
-    if (_activeInitialIndex != null && _queueAudioSourceIndex != _activeInitialIndex) {
+    _currentQueueIndex = indexOverride ?? _audioHandler.queueIndex ?? _currentQueueIndex;
+    if (_activeInitialIndex != null && _currentQueueIndex != _activeInitialIndex) {
       // We have been during the middle of a queue replacement.  Ignore to avoid stripping next up entries.
       _queueServiceLogger.warning("Ignoring call to _buildQueueFromNativePlayerQueue while in queue replacement");
       return;
@@ -203,7 +202,7 @@ class QueueService {
 
     // split the queue by old type
     for (int i = 0; i < allTracks.length; i++) {
-      if (i < _queueAudioSourceIndex) {
+      if (i < _currentQueueIndex) {
         _queuePreviousTracks.add(allTracks[i]);
         if ([
           QueueItemSourceType.nextUp,
@@ -219,7 +218,7 @@ class QueueService {
           );
         }
         _queuePreviousTracks.last.type = QueueItemQueueType.previousTracks;
-      } else if (i == _queueAudioSourceIndex) {
+      } else if (i == _currentQueueIndex) {
         _currentTrack = allTracks[i];
         _currentTrack!.type = QueueItemQueueType.currentTrack;
       } else {
@@ -952,7 +951,7 @@ class QueueService {
         );
       }
 
-      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
+      int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex);
       int offset = min(_audioHandler.audioSources.length, 1);
       int offsetLog = offset;
 
@@ -1022,7 +1021,7 @@ class QueueService {
       int offset = _queueNextUp.length + min(_audioHandler.audioSources.length, 1);
       int offsetLog = offset;
 
-      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
+      int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex);
 
       for (final queueItem in queueItems) {
         _queueServiceLogger.fine(
@@ -1044,7 +1043,7 @@ class QueueService {
   }
 
   Future<void> removeAtOffset(int offset) async {
-    int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex + offset);
+    int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex + offset);
 
     await _audioHandler.removeFinampQueueItemAt(adjustedQueueIndex);
     _buildQueueFromNativePlayerQueue();
@@ -1070,7 +1069,7 @@ class QueueService {
       }
       List<int> adjustedIndicesToRemove = [];
       for (final index in radioIndices) {
-        int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex + _queueNextUp.length + index + 1);
+        int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex + _queueNextUp.length + index + 1);
         adjustedIndicesToRemove.add(adjustedQueueIndex);
       }
       int currentRangeEnd = adjustedIndicesToRemove.last;
@@ -1103,9 +1102,9 @@ class QueueService {
 
     if (playbackOrder == FinampPlaybackOrder.shuffled) {
       final newShuffleOrder = [..._shuffleOrder.indices];
-      final int itemToMove = newShuffleOrder.removeAt(_queueAudioSourceIndex + oldOffset);
+      final int itemToMove = newShuffleOrder.removeAt(_currentQueueIndex + oldOffset);
       newShuffleOrder.insert(
-        newOffset < oldOffset ? _queueAudioSourceIndex + newOffset : _queueAudioSourceIndex + newOffset - 1,
+        oldOffset < newOffset ? _currentQueueIndex + newOffset - 1 : _currentQueueIndex + newOffset,
         itemToMove,
       );
       try {
@@ -1115,11 +1114,8 @@ class QueueService {
         _shuffleOrder.overrideShuffle(null);
       }
     } else {
-      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
-
-      //!!! the player will automatically change the shuffle indices of the ConcatenatingAudioSource if shuffle is enabled, so we need to use the regular track index here
-      final oldIndex = adjustedQueueIndex + oldOffset;
-      final newIndex = oldOffset < newOffset ? adjustedQueueIndex + newOffset - 1 : adjustedQueueIndex + newOffset;
+      final oldIndex = _currentQueueIndex + oldOffset;
+      final newIndex = oldOffset < newOffset ? _currentQueueIndex + newOffset - 1 : _currentQueueIndex + newOffset;
 
       await _audioHandler.moveFinampQueueItem(oldIndex, newIndex);
     }
@@ -1128,7 +1124,7 @@ class QueueService {
   }
 
   Future<void> clearNextUp() async {
-    int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
+    int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex);
 
     // remove all items from Next Up
     if (_queueNextUp.isNotEmpty) {
