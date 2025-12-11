@@ -35,7 +35,7 @@ def get_commit_stats(commit_hash, cwd):
     total_deletions = 0
 
     if not output:
-        return files_changed, 0, 0
+        return files_changed
 
     for line in output.split('\n'):
         if not line.strip():
@@ -61,17 +61,12 @@ def get_commit_stats(commit_hash, cwd):
             "total_changes": additions + deletions
         })
 
-        total_additions += additions
-        total_deletions += deletions
-
-    return files_changed, total_additions, total_deletions
+    return files_changed
 
 def main():
     if not os.path.exists(os.path.join(PATH, ".git")):
         print(f"Error: No git repository found at {PATH}")
         return
-
-    print(f"Processing repository at: {PATH}...")
 
     hashes_output = run_git_command(['log', '--pretty=format:%H'], PATH)
     if not hashes_output:
@@ -85,9 +80,8 @@ def main():
     print(f"Found {total_commits} commits. Extracting details...")
 
     for i, commit_hash in enumerate(commit_hashes):
-        # Progress indicator
-        if i % 100 == 0:
-            print(f"Processing {i}/{total_commits}...")
+        if i % 10 == 0:
+            print(f"Processing {i}/{total_commits} ({round(i / total_commits * 100, 0)}%)...", end="\r")
 
         meta_cmd = [
             'show', 
@@ -113,13 +107,9 @@ def main():
 
         body = "\n".join(lines[8:])
 
-        # Determine Merge Status
         is_merge = len(parents) > 1
-        # Detect if it's a GitHub PR Merge via standard commit message pattern
-        is_pr_merge = is_merge and ("Merge pull request" in subject or "Merge branch" in subject)
 
-        # Get File Stats
-        files, adds, dels = get_commit_stats(c_hash, PATH)
+        files = get_commit_stats(c_hash, PATH)
 
         commit_entry = {
             "hash": c_hash,
@@ -127,12 +117,7 @@ def main():
             "date": date_iso,
             "is_merge": is_merge,
             "message": subject,
-            "stats": {
-                "total_changes": adds + dels,
-                "total_additions": adds,
-                "total_deletions": dels,
-                "files": files
-            }
+            "files": files
         }
 
         history_data.append(commit_entry)
@@ -141,7 +126,7 @@ def main():
     output_file = "repo_history.json"
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(history_data, f, indent=2)
-    print(f"\nSuccess! Extracted {len(history_data)} commits to '{output_file}'.")
+    print(f"\nDone! {len(history_data)} commits parsed")
 
     return history_data
 
