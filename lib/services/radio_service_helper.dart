@@ -620,7 +620,9 @@ Future<List<BaseItemDto>> generateRadioTracks(
     } catch (e) {
       rethrow;
     } finally {
-      if (localRadioState != null && identical(localRadioState, _radioCacheStateStream.valueOrNull)) {
+      // if it's a regular radio track generation, update the fallback mode for the current cache state
+      // if the cache gets replaced/invalidated before we get here, we only end up modifying the old cache state which isn't used anymore
+      if (localRadioState != null && overrideSeedItem == null) {
         localRadioState.updateAlbumMixFallbackMode(fallbackMode);
       }
     }
