@@ -3722,8 +3722,8 @@ class RadioCacheState {
     this.generating = false,
     this.queueing = false,
     this.failed = false,
-    this.albumMixFallbackMode,
-  });
+    AlbumMixFallbackModes? albumMixFallbackMode,
+  }) : _albumMixFallbackMode = albumMixFallbackMode;
 
   List<BaseItemDto> tracks;
   final RadioMode radioMode;
@@ -3732,7 +3732,7 @@ class RadioCacheState {
   final bool generating;
   final bool queueing;
   final bool failed;
-  final AlbumMixFallbackModes? albumMixFallbackMode;
+  AlbumMixFallbackModes? _albumMixFallbackMode;
 
   RadioCacheState copyWith({
     List<BaseItemDto>? tracks,
@@ -3743,7 +3743,6 @@ class RadioCacheState {
     bool? generating,
     bool? queueing,
     bool? failed,
-    AlbumMixFallbackModes? fallbackMode,
   }) {
     return RadioCacheState(
       tracks: tracks ?? this.tracks,
@@ -3753,11 +3752,15 @@ class RadioCacheState {
       generating: generating ?? this.generating,
       queueing: queueing ?? this.queueing,
       failed: failed ?? this.failed,
-      albumMixFallbackMode: fallbackMode ?? this.albumMixFallbackMode,
     );
   }
 
   bool get loading => generating || queueing;
+
+  AlbumMixFallbackModes? get albumMixFallbackMode => _albumMixFallbackMode;
+  void updateAlbumMixFallbackMode(AlbumMixFallbackModes? mode) {
+    _albumMixFallbackMode = mode;
+  }
 
   /// Ensures the radio settings used to obtain this result are still the same as the current settings
   bool isStillValid() {

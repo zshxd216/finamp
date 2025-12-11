@@ -620,8 +620,8 @@ Future<List<BaseItemDto>> generateRadioTracks(
     } catch (e) {
       rethrow;
     } finally {
-      if (localRadioState?.isStillValid() ?? false) {
-        _radioCacheStateStream.add(localRadioState?.copyWith(fallbackMode: fallbackMode));
+      if (localRadioState != null && identical(localRadioState, _radioCacheStateStream.valueOrNull)) {
+        localRadioState.updateAlbumMixFallbackMode(fallbackMode);
       }
     }
   }
