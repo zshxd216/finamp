@@ -1,6 +1,7 @@
 import app_links
 import UIKit
 import Flutter
+import CarPlay
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -21,6 +22,9 @@ import Flutter
             isExcluded: true
         )
         
+        // Setup CarPlay method channel
+        setupCarPlayChannel()
+        
         // Retrieve the link from parameters
         if let url = AppLinks.shared.getLink(launchOptions: launchOptions) {
             // We have a link, propagate it to your Flutter app or not
@@ -29,6 +33,25 @@ import Flutter
         }
         
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+    
+    private func setupCarPlayChannel() {
+        guard let controller = window?.rootViewController as? FlutterViewController else {
+            return
+        }
+        
+        let carPlayChannel = FlutterMethodChannel(name: "finamp/carplay", binaryMessenger: controller.binaryMessenger)
+        
+        carPlayChannel.setMethodCallHandler { (call: FlutterMethodCall, result: @escaping FlutterResult) in
+            switch call.method {
+            case "updateNowPlaying":
+                result(nil)
+            case "updateBrowseContent":
+                result(nil)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        }
     }
 }
 

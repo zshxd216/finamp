@@ -25,6 +25,7 @@ import 'package:logging/logging.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'android_auto_helper.dart';
+import 'carplay_helper.dart';
 import 'finamp_settings_helper.dart';
 import 'metadata_provider.dart';
 
@@ -112,6 +113,7 @@ class PlayerVolumeController {
 /// can control music.
 class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, QueueHandler {
   final _androidAutoHelper = GetIt.instance<AndroidAutoHelper>();
+  late final CarPlayHelper? _carPlayHelper = Platform.isIOS ? GetIt.instance<CarPlayHelper>() : null;
 
   AppLocalizations? _appLocalizations;
 
@@ -316,6 +318,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
                 playerSequence[replayQueueIndex!].tag as FinampQueueItem?;
             if (queueItem != null) {
               _applyVolumeNormalization(queueItem.item);
+              // Update CarPlay now playing
+              _carPlayHelper?.updateNowPlaying();
             }
           }
         }
