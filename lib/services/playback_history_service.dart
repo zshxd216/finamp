@@ -56,7 +56,7 @@ class PlaybackHistoryService {
       } else if (_audioService.playbackState.valueOrNull?.processingState == AudioProcessingState.completed ||
           currentTrack == null) {
         _playbackHistoryServiceLogger.info("Handling playback stop event");
-        _reportPlaybackStopped();
+        reportPlaybackStopped();
         // stop periodic background updates if playback has ended
         _periodicUpdateTimer?.cancel();
       }
@@ -440,7 +440,7 @@ class PlaybackHistoryService {
     );
   }
 
-  Future<void> _reportPlaybackStopped() async {
+  Future<void> reportPlaybackStopped() async {
     final playbackInfo = generateGenericPlaybackProgressInfo();
     if (playbackInfo != null) {
       final playbackStopTime = DateTime.now();

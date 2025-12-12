@@ -148,6 +148,21 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
 
     initialSheetExtent = widget.showPlaybackControls ? 0.6 : 0.45;
     oldExtent = initialSheetExtent;
+
+    // set correct initial height for sleep timer menu based on previous mode
+    var oldTimer = FinampSettingsHelper.finampSettings.sleepTimer;
+    var newSleepTimer = SleepTimer(
+      oldTimer?.secondsLength ?? DefaultSettings.sleepTimerDurationSeconds,
+      oldTimer?.tracksLength ?? 0,
+    );
+    sleepTimerMenuHeight = switch (newSleepTimer) {
+      // after current track
+      SleepTimer(tracksLength: 1) => SleepTimerMenu.afterCurrentTrackTypeMenuHeight,
+      // after duration
+      SleepTimer(tracksLength: > 1) => SleepTimerMenu.durationTypeMenuHeight,
+      // after track count
+      _ => SleepTimerMenu.tracksTypeMenuHeight,
+    };
   }
 
   bool isBaseItemInQueueItem(BaseItemDto baseItem, FinampQueueItem? queueItem) {

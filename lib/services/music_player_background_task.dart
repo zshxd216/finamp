@@ -13,6 +13,7 @@ import 'package:finamp/services/current_track_metadata_provider.dart';
 import 'package:finamp/services/favorite_provider.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:finamp/services/playback_history_service.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:finamp/services/radio_service_helper.dart' as RadioServiceHelper;
 import 'package:flutter/foundation.dart';
@@ -470,8 +471,12 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     // trigger sleep timer early if we're almost at the end of the final track
     _player.positionStream.listen((position) {
       if (sleepTimer?.remainingTracks == 1 &&
-          ((mediaItem.value?.duration ?? Duration.zero) - position) <=
-              FinampSettingsHelper.finampSettings.audioFadeOutDuration) {
+          ((mediaItem.value?.duration ?? Duration.zero) - position).inMilliseconds / _player.speed <=
+              // even if fade out is disabled, we stop a bit early to avoid advancing to the next track
+              max(
+                Duration(milliseconds: 500).inMilliseconds,
+                FinampSettingsHelper.finampSettings.audioFadeOutDuration.inMilliseconds,
+              )) {
         sleepTimer?.onTrackCompleted();
       }
     });
@@ -570,6 +575,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
       return _player.play();
     }
   }
+
+  double get speed => _player.speed;
 
   @override
   Future<void> setSpeed(final double speed) async {
@@ -1146,6 +1153,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     pause();
     _timer.value?.cancel();
     _timer.value = null;
+    // stop playback reporting, since the playback is not expected to resume in the near future
+    GetIt.instance<PlaybackHistoryService>().reportPlaybackStopped();
   }
 
   /// Starts the new sleep timer
