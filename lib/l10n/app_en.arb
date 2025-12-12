@@ -3192,5 +3192,9 @@
   "forceAudioOffloadingOnAndroidSubtitle": "Offload audio processing to hardware, if supported by the device.",
   "@forceAudioOffloadingOnAndroidSubtitle": {
     "description": "Subtitle for the setting that controls audio offloading on Android."
+  },
+  "explicit": "Explicit",
+  "@explicit": {
+    "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
   }
 }

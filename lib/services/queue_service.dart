@@ -1457,6 +1457,7 @@ class QueueService {
         "downloadedTrackPath": downloadedTrack?.file?.path,
         "isDownloaded": isDownloaded,
         "android.media.extra.DOWNLOAD_STATUS": isDownloaded ? 2 : 0,
+        "android.media.IS_EXPLICIT": item.isExplicit ? 1 : 0,
         "isOffline": FinampSettingsHelper.finampSettings.isOffline,
         "contextNormalizationGain": contextNormalizationGain,
       },

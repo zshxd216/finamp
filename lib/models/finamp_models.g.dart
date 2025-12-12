@@ -2501,6 +2501,8 @@ class FinampFeatureChipTypeAdapter extends TypeAdapter<FinampFeatureChipType> {
         return FinampFeatureChipType.normalizationGain;
       case 8:
         return FinampFeatureChipType.sampleRate;
+      case 9:
+        return FinampFeatureChipType.explicit;
       default:
         return FinampFeatureChipType.playCount;
     }
@@ -2527,6 +2529,8 @@ class FinampFeatureChipTypeAdapter extends TypeAdapter<FinampFeatureChipType> {
         writer.writeByte(7);
       case FinampFeatureChipType.sampleRate:
         writer.writeByte(8);
+      case FinampFeatureChipType.explicit:
+        writer.writeByte(9);
     }
   }
 
@@ -8910,6 +8914,7 @@ const _$FinampFeatureChipTypeEnumMap = {
   FinampFeatureChipType.size: 'size',
   FinampFeatureChipType.normalizationGain: 'normalizationGain',
   FinampFeatureChipType.sampleRate: 'sampleRate',
+  FinampFeatureChipType.explicit: 'explicit',
 };
 
 FinampOutputRoute _$FinampOutputRouteFromJson(Map<String, dynamic> json) =>

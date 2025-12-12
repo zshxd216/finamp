@@ -878,7 +878,21 @@ class TrackListItemTile extends ConsumerWidget {
                       alignment: PlaceholderAlignment.baseline,
                       baseline: TextBaseline.alphabetic,
                     ),
-                  if (baseItem.hasLyrics ?? false) const WidgetSpan(child: SizedBox(width: 5)),
+                  if (baseItem.isExplicit)
+                    WidgetSpan(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 2.0),
+                        child: Transform.translate(
+                          offset: isOnDesktop ? Offset(-1.5, 3.3) : Offset(-1.5, 1.7),
+                          child: Icon(
+                            TablerIcons.explicit,
+                            size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 3,
+                          ),
+                        ),
+                      ),
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                    ),
                   if (addSpaceAfterSpecialIcons) const WidgetSpan(child: SizedBox(width: 5)),
                   if (showPlayCount)
                     TextSpan(

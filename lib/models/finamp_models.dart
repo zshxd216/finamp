@@ -173,6 +173,7 @@ class DefaultSettings {
   static const featureChipsConfiguration = FinampFeatureChipsConfiguration(
     enabled: true,
     features: [
+      FinampFeatureChipType.explicit,
       FinampFeatureChipType.playCount,
       FinampFeatureChipType.additionalPeople,
       FinampFeatureChipType.playbackMode,
@@ -2819,7 +2820,9 @@ enum FinampFeatureChipType {
   @HiveField(7)
   normalizationGain,
   @HiveField(8)
-  sampleRate;
+  sampleRate,
+  @HiveField(9)
+  explicit;
 
   /// Human-readable version of the [FinampFeatureChipType]
   @override
@@ -2848,6 +2851,8 @@ enum FinampFeatureChipType {
         return "Normalization Gain";
       case FinampFeatureChipType.sampleRate:
         return "Sample Rate";
+      case FinampFeatureChipType.explicit:
+        return "Explicit";
     }
   }
 
@@ -2871,6 +2876,8 @@ enum FinampFeatureChipType {
         return AppLocalizations.of(context)!.normalizationGain;
       case FinampFeatureChipType.sampleRate:
         return AppLocalizations.of(context)!.sampleRate;
+      case FinampFeatureChipType.explicit:
+        return AppLocalizations.of(context)!.explicit;
     }
   }
 }
