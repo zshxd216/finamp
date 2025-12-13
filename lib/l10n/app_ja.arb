@@ -229,8 +229,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "いいえ",
     "@noButtonLabel": {},
-    "setSleepTimer": "再生を一時停止",
-    "@setSleepTimer": {},
     "minutes": "分",
     "@minutes": {},
     "addToPlaylistTitle": "プレイリストに追加",

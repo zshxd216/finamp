@@ -19,7 +19,7 @@
     "@password": {},
     "logs": "Journaux",
     "@logs": {},
-    "next": "Prochain",
+    "next": "Suivant",
     "@next": {},
     "selectMusicLibraries": "Selectionner des bibliothèques",
     "@selectMusicLibraries": {
@@ -71,7 +71,7 @@
     "@sortBy": {},
     "album": "Album",
     "@album": {},
-    "albumArtist": "Artistes d'albums",
+    "albumArtist": "Artiste d'album",
     "@albumArtist": {},
     "artist": "Artiste",
     "@artist": {},
@@ -85,7 +85,7 @@
     "@dateAdded": {},
     "datePlayed": "Date de la dernière lecture",
     "@datePlayed": {},
-    "playCount": "nombre de lectures",
+    "playCount": "Nombre de lectures",
     "@playCount": {},
     "premiereDate": "Date de lancement",
     "@premiereDate": {},
@@ -308,8 +308,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "Non",
     "@noButtonLabel": {},
-    "setSleepTimer": "Mettre la lecture en pause après",
-    "@setSleepTimer": {},
     "minutes": "Minutes",
     "@minutes": {},
     "invalidNumber": "Nombre invalide",
@@ -680,7 +678,7 @@
     "@loginFlowNamelessUser": {
         "description": "Name for a user that doesn't have a name set on the server."
     },
-    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} titre} other{{trackCount} titres}}, {imageCount,plural,=1{{imageCount} image} other{{imageCount} images}}\n{syncCount,plural,=1{{syncCount} noeud syncing} other{{syncCount} noeuds}}{repairing, plural, =0{} other{\nReparations en cours}}",
+    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} titre} other{{trackCount} titres}}, {imageCount,plural,=1{{imageCount} image} other{{imageCount} images}}\n{syncCount,plural,=1{{syncCount} nœud syncing} other{{syncCount} nœuds}}{repairing, plural, =0{} other{\nRéparations en cours}}",
     "@downloadedCountUnified": {
         "description": "Display of downloaded track and image count on downloads screen.",
         "placeholders": {
@@ -1036,7 +1034,7 @@
     "@loopModeAllButtonLabel": {
         "description": "Label for the button that toggles the loop mode between off, loop one, and loop all, while the queue is in loop all mode"
     },
-    "queuesScreen": "Récupérer des files d'attente",
+    "queuesScreen": "Sessions d'écoute précédentes",
     "@queuesScreen": {
         "description": "Title for the screen where older now playing queues can be restored"
     },
@@ -1235,7 +1233,7 @@
     "@downloadTranscodeEnableTitle": {
         "description": "Title for Enable Transcoded Downloads dropdown"
     },
-    "downloadTranscodeCodecTitle": "Sélectionnez le format pour le téléchargement",
+    "downloadTranscodeCodecTitle": "Format utilisé pour le téléchargement",
     "@downloadTranscodeCodecTitle": {
         "description": "Title for Select Download Codec dropdown"
     },
@@ -1308,7 +1306,7 @@
     "@reportQueueToServer": {
         "description": "Label for the setting that toggles reporting of the current queue to the Jellyfin server"
     },
-    "startInstantMixForIndividualTracksSwitchSubtitle": "Lorsque cette option est activée, appuyer sur un titre dans l’onglet Pistes lancera un mixage instantané de celui-ci au lieu d’une unique lecture.",
+    "startInstantMixForIndividualTracksSwitchSubtitle": "Lorsque cette option est activée, appuyer sur un titre dans l’onglet Pistes lancera un mix instantané de celui-ci au lieu d’une unique lecture.",
     "@startInstantMixForIndividualTracksSwitchSubtitle": {},
     "repairDownloads": "Réparation des problèmes avec les fichiers téléchargés ou leurs métadonnées.",
     "@repairDownloads": {
@@ -1445,7 +1443,7 @@
     "@redownloadSubtitle": {
         "description": "subtitle for download transcode setting which redownloads tracks with higher allowed qualities"
     },
-    "enableVibrationSubtitle": "Activer ou non le mode vibreur.",
+    "enableVibrationSubtitle": "Activer ou non le vibreur.",
     "@enableVibrationSubtitle": {},
     "defaultDownloadLocationButton": "Choisir cet emplacement pour le téléchargement. Désactiver pour choisir à chaque téléchargement.",
     "@defaultDownloadLocationButton": {
@@ -1527,9 +1525,9 @@
     "@swipeLeftToRightAction": {},
     "appearsOnAlbums": "Apparaît dans",
     "@appearsOnAlbums": {},
-    "albumArtists": "Artistes d'albums",
+    "albumArtists": "Artistes d'album",
     "@albumArtists": {},
-    "performingArtists": "Artistes",
+    "performingArtists": "Artistes interprètes",
     "@performingArtists": {},
     "swipeRightToLeftAction": "Action de balayage vers la gauche",
     "@swipeRightToLeftAction": {},
@@ -1539,7 +1537,7 @@
     "@transcodingStreamingFormatTitle": {
         "description": "Title for the dropdown that selects the format for transcoded streams"
     },
-    "transcodingStreamingFormatSubtitle": "Sélectionnez le format à utiliser pour la diffusion audio transcodée. Les pistes déjà en file d'attente ne seront pas affectées.",
+    "transcodingStreamingFormatSubtitle": "Format utilisé pour la diffusion audio transcodée. Les pistes déjà en file d'attente ne seront pas affectées.",
     "@transcodingStreamingFormatSubtitle": {},
     "periodicPlaybackSessionUpdateFrequencyDetails": "Si le serveur Jellyfin n'a reçu aucune mise à jour d'un client au cours des 5 dernières minutes, il considère que la lecture est terminée. Cela signifie que pour les pistes de plus de 5 minutes, la lecture pourrait être signalée à tort comme terminée, ce qui réduirait la qualité des données de lecture.",
     "@periodicPlaybackSessionUpdateFrequencyDetails": {
@@ -2007,7 +2005,7 @@
     },
     "removeFavorite": "Retirer des favoris",
     "@removeFavorite": {},
-    "addFavorite": "Ajouter en favori",
+    "addFavorite": "Ajouter aux favoris",
     "@addFavorite": {},
     "stopAndClearQueue": "Arrêter la lecture et vider la file d'attente",
     "@stopAndClearQueue": {
@@ -2113,7 +2111,7 @@
     "@applyFilterOnGenreChipTapTitle": {
         "description": "Title for the setting that controls if taps on genre chips should apply a genre filter to the current screen or should redirect to the GenreScreen."
     },
-    "genreFilterPlaylistScreensSubtitle": "Lorsqu'elles sont activées, les playlists (accessibles par genre) n'affichent que les titres correspondant au genre actuellement consulté. (Il est toujours possible de désactiver manuellement le filtre de genre pour afficher tous les titres.)",
+    "genreFilterPlaylistScreensSubtitle": "Lorsqu'elles sont activées, les playlists (accessibles par genre) n'affichent que les titres correspondant au genre actuellement consulté. (Il est toujours possible de retirer manuellement le filtre de genre pour réafficher tous les titres et albums.)",
     "@genreFilterPlaylistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
@@ -2177,10 +2175,6 @@
     "@artistScreen": {
         "description": "Name for the view/screen that shows artists"
     },
-    "desktopShuffleWarning": "Le changement de mode aléatoire n'est actuellement pas disponible sur le bureau.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
-    },
     "autoReloadQueueSubtitle": "Recharge automatiquement la file d'attente lorsque la source change (par exemple, mode hors ligne activé ou changement d'adresse de serveur). Si cette option est désactivée, Finamp vous le signalera.",
     "@autoReloadQueueSubtitle": {
         "description": "Subtitle for the setting that controls if the queue is automatically reloaded when the source changes"
@@ -2229,7 +2223,7 @@
     "@genreListsInheritSorting": {
         "description": "Label for the setting that controls if a See All Genre Lists should inherit the Genre Sorting and Filtering."
     },
-    "genreFilterArtistScreensSubtitle": "Lorsque cette option est activée, la section Artistes (accessible via un genre) affiche uniquement les titres et albums correspondant au genre actuellement consulté. (Il est toujours possible de désactiver manuellement le filtre de genre pour afficher tous les titres et albums.)",
+    "genreFilterArtistScreensSubtitle": "Lorsque cette option est activée, la section Artistes (accessible via un genre) affiche uniquement les titres et albums correspondant au genre actuellement consulté. (Il est toujours possible de retirer manuellement le filtre de genre pour réafficher tous les titres et albums.)",
     "@genreFilterArtistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
     },
@@ -2488,11 +2482,11 @@
     "@syncPlaybackSpeedAndPitchLabel": {
         "description": "Label for the checkbox that toggled is the pitch is adjusted along with the playback speed, or if the pitch is kept constant. Shown in the speed submenu on the track menu"
     },
-    "serverSharingMenuTitle": "Partage de serveur de réseau local",
+    "serverSharingMenuTitle": "Partage de serveur sur le réseau local",
     "@serverSharingMenuTitle": {
         "description": "Title for the server sharing menu that allows the user to share their server address with other devices on the local network"
     },
-    "serverSharingMenuButtonTitle": "Serveur partagé",
+    "serverSharingMenuButtonTitle": "Partage de serveur",
     "@serverSharingMenuButtonTitle": {
         "description": "Title for the button in the drawer that opens the server sharing menu"
     },
@@ -2504,7 +2498,7 @@
     "@serverSharingMenuConfirmationDialogConfirmationButtonLabel": {
         "description": "Positive action label for the dialog shown when enabling server sharing while offline mode is enabled"
     },
-    "serverSharingMenuControlTitleSharingEnabled": "Serveur de partage",
+    "serverSharingMenuControlTitleSharingEnabled": "Partagé",
     "@serverSharingMenuControlTitleSharingEnabled": {
         "description": "Title of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned on"
     },
@@ -2512,7 +2506,7 @@
     "@serverSharingMenuControlSubtitleSharingDisabled": {
         "description": "Subtitle of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned off"
     },
-    "serverSharingMenuControlTitleSharingDisabled": "Ne pas partager",
+    "serverSharingMenuControlTitleSharingDisabled": "Non partagé",
     "@serverSharingMenuControlTitleSharingDisabled": {
         "description": "Title of the toggle control in the server sharing menu used to turn server sharing on or off, when it's currently turned off"
     },
@@ -2528,7 +2522,7 @@
     "@serverSharingMenuDetails": {
         "description": "Description text shown in the server sharing menu, below the description"
     },
-    "quickConnectAuthorizationMenuButtonTitle": "»Autoriser la connexion rapide",
+    "quickConnectAuthorizationMenuButtonTitle": "Connexion rapide",
     "@quickConnectAuthorizationMenuButtonTitle": {
         "description": "Title for the button in the drawer that opens the quick connect authorization menu"
     },
@@ -2572,11 +2566,11 @@
     "@accessibility": {
         "description": "Title for the accessibility settings screen"
     },
-    "useHighContrastColorsTitle": "Utilisez des couleurs à contraste élevé",
+    "useHighContrastColorsTitle": "Utiliser des couleurs à contraste élevé",
     "@useHighContrastColorsTitle": {
         "description": "Title for the setting that controls if high contrast colors are used throughout the app"
     },
-    "useHighContrastColorsSubtitle": "Utilisez des couleurs dynamiques à contraste élevé pour une meilleure visibilité.",
+    "useHighContrastColorsSubtitle": "Utiliser des couleurs dynamiques à contraste élevé pour une meilleure visibilité.",
     "@useHighContrastColorsSubtitle": {
         "description": "Subtitle for the setting that controls if high contrast colors are used throughout the app"
     },
@@ -2871,5 +2865,277 @@
     "discardChangesConfirmButton": "Annuler les modifications",
     "@discardChangesConfirmButton": {
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "accentColor": "Couleur d'accentuation",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Choisissez une couleur d'accentuation",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "Défaut",
+    "@defaultWord": {},
+    "useDefaultButton": "Réinitialiser la couleur d'accentuation par défaut",
+    "@useDefaultButton": {},
+    "colorCode": "Code couleur (Hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "e.g. #FFFFFF or #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "Sauvegarder",
+    "@save": {},
+    "invalidColorCode": "Code couleur invalide",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "downloadAllPlaylistsSettingWarning": "Remarque : Cette opération téléchargera tous les éléments de toutes les playlists, quelle que soit la bibliothèque d'origine.",
+    "@downloadAllPlaylistsSettingWarning": {},
+    "snackbarOptionsMenuTitle": "Gérer les messages",
+    "@snackbarOptionsMenuTitle": {
+        "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+    },
+    "snackbarOptionsMenuClearAllButton": "Effacer tous les messages",
+    "@snackbarOptionsMenuClearAllButton": {
+        "description": "Button title for clearing all snackbar messages"
+    },
+    "snackbarOptionsMenuViewLogsButton": "Consulter les journaux",
+    "@snackbarOptionsMenuViewLogsButton": {
+        "description": "Button title for opening the logs screen from the snackbar options menu"
+    },
+    "systemAccentColor": "Utiliser l'accentuation système",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "La couleur d'accentuation personnalisée est désactivée car la couleur d'accentuation système est utilisée",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "Utiliser un logo monochrome",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "Cela n'affecte que l'icône dans l'application, et non l'icône de lancement.",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+    },
+    "playbackActionPageMoveWithinQueue": "Déplacer dans la file d'attente",
+    "@playbackActionPageMoveWithinQueue": {
+        "description": "Label for the playback action page that contains all actions related to moving tracks within the queue"
+    },
+    "playbackActionPageRegularTrackOptions": "Lecture",
+    "@playbackActionPageRegularTrackOptions": {
+        "description": "Label for the playback action page that contains all actions of the normal track menu, like starting a new queue or duplicating the track within the existing queue"
+    },
+    "movePlayNext": "Lecture suivante",
+    "@movePlayNext": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "moveAddToNextUp": "Déplacer à la suite",
+    "@moveAddToNextUp": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
+    },
+    "moveAddToQueue": "Déplacer vers la fin",
+    "@moveAddToQueue": {
+        "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
+    },
+    "startRadio": "Démarrer la radio",
+    "@startRadio": {
+        "description": "Menu label for starting a radio from a playlist, album, etc."
+    },
+    "radio": "Radio",
+    "@radio": {
+        "description": "Title for the queue source when the user is playing a track added via radio"
+    },
+    "radioForItem": "{radioSource} - Radio",
+    "@radioForItem": {
+        "description": "Suffix added to a queue source when playing a radio track. Example: \"Never Gonna Give You Up - Radio\"",
+        "placeholders": {
+            "radioSource": {
+                "type": "String",
+                "example": "Never Gonna Give You Up"
+            }
+        }
+    },
+    "radioModeSettingsTitle": "Mode Radio",
+    "@radioModeSettingsTitle": {
+        "description": "Title for the setting that controls the radio mode/algorithm."
+    },
+    "radioModeSettingsSubtitle": "Définit la méthode utilisée par la fonction radio pour sélectionner les titres à ajouter.",
+    "@radioModeSettingsSubtitle": {
+        "description": "Subtitle for the setting that controls the radio mode/algorithm."
+    },
+    "radioModeMenuTitle": "Choisir le mode radio",
+    "@radioModeMenuTitle": {
+        "description": "Title for menu that allows users to choose the radio mode."
+    },
+    "loopingOverriddenByRadioSubtitle": "La boucle de file d'attente est désactivée lorsque la radio est activée.",
+    "@loopingOverriddenByRadioSubtitle": {
+        "description": "Subtitle displayed in the radio menu to show that queue looping is disabled while radio mode is enabled."
+    },
+    "radioFailedSubtitle": "Plus aucune station de radio trouvée. Essayez de changer de mode.",
+    "@radioFailedSubtitle": {
+        "description": "Subtitle displayed in the radio menu to show that no radio tracks could be generated."
+    },
+    "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Aléatoire} similar{Similaire} continuous{Continuous} albumMix{Mix d'albums} other{{option}}}",
+    "@radioModeOptionName": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Radio mode names in radio mode/algorithm dropdown"
+    },
+    "radioModeOptionTitle": "{option, select, reshuffle{Mode de réorganisation} random{Mode aléatoire} similar{Mode similaire} continuous{Mode continu} albumMix{Mix d'albums} other{{option}}} Activé",
+    "@radioModeOptionTitle": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Title displayed in the queue, showing which radio mode/algorithm is currently being used."
+    },
+    "radioModeActiveTitle": "Radio activée",
+    "@radioModeActiveTitle": {
+        "description": "Title displayed in the queue to show that radio mode is enabled and active."
+    },
+    "radioModeDisabledTitle": "Radio désactivée",
+    "@radioModeDisabledTitle": {
+        "description": "Title displayed in the queue to show that radio mode is disabled."
+    },
+    "radioModeInactiveTitle": "Radio en pause",
+    "@radioModeInactiveTitle": {
+        "description": "Title displayed in the queue to show that the radio is enabled but not active."
+    },
+    "radioModeDisableButtonTitle": "Désactiver la radio",
+    "@radioModeDisableButtonTitle": {
+        "description": "Title for the option that disables radio mode."
+    },
+    "radioModeDisableButtonSubtitle": "Revient au mode de boucle précédent",
+    "@radioModeDisableButtonSubtitle": {
+        "description": "Subtitle for the option that disables radio mode."
+    },
+    "radioModeOptionConfirmation": "Passage à {option, select, reshuffle{mode de réorganisation} random{mode aléatoire} similar{mode similaire} continuous{mode continu} albumMix{mix d'album} other{{option}}}",
+    "@radioModeOptionConfirmation": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Confirmation displayed when the radio mode is changed."
+    },
+    "radioModeEnabledSubtitle": "Appuyez pour configurer",
+    "@radioModeEnabledSubtitle": {
+        "description": "Subtitle displayed in the queue to show when radio mode is enabled."
+    },
+    "radioModeDisabledSubtitle": "Appuyez pour activer",
+    "@radioModeDisabledSubtitle": {
+        "description": "Subtitle displayed in the queue to show that radio mode is disabled."
+    },
+    "radioModeDisabledBecauseNotAvailableOfflineSubtitle": "Le mode actuel n'est pas disponible hors ligne.",
+    "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
+        "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
+    },
+    "radioModeDescription": "{mode, select, reshuffle{Réorganiser la file d'attente en continu} random{Ajouter des pistes aléatoirement à partir de la sélection initiale} similar{Ajouter en fonction de la file d'attente d'origine} continuous{Ajouter en fonction de la piste actuelle} albumMix{Ajouter des albums similaires} other{}}",
+    "@radioModeDescription": {
+        "placeholders": {
+            "mode": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
+    },
+    "radioModeUnavailableWhileOfflineDescription": "Indisponible hors ligne",
+    "@radioModeUnavailableWhileOfflineDescription": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+    },
+    "radioModeUnavailableWhileOfflineSubtitle": "{modeName} indisponible hors ligne",
+    "@radioModeUnavailableWhileOfflineSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+    },
+    "radioModeUnavailableForSourceItemDescription": "Source de file d'attente indisponible",
+    "@radioModeUnavailableForSourceItemDescription": {
+        "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+    },
+    "radioModeUnavailableForSourceItemSubtitle": "{modeName} indisponible pour cette source de file d'attente",
+    "@radioModeUnavailableForSourceItemSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+    },
+    "radioModeUnavailableQueueEmptyDescription": "Indisponible car la file d'attente est vide",
+    "@radioModeUnavailableQueueEmptyDescription": {
+        "description": "Shown as the subtitle for radio modes when the queue is empty."
+    },
+    "radioModeUnavailableQueueEmptySubtitle": "{modeName} indisponible car la file d'attente est vide",
+    "@radioModeUnavailableQueueEmptySubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the queue is empty."
+    },
+    "radioModeRandomUnavailableNotDownloadedDescription": "Indisponible car '{sourceName}' n'a pas été téléchargé",
+    "@radioModeRandomUnavailableNotDownloadedDescription": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+        "placeholders": {
+            "sourceName": {
+                "type": "String"
+            }
+        }
+    },
+    "radioModeRandomUnavailableNotDownloadedSubtitle": "{modeName} indisponible car '{sourceName}' n'est pas téléchargé",
+    "@radioModeRandomUnavailableNotDownloadedSubtitle": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            },
+            "sourceName": {
+                "type": "String"
+            }
+        }
+    },
+    "radioModeRandomUnavailableNotDownloadedGenericDescription": "Indisponible car la source n'a pas été téléchargée",
+    "@radioModeRandomUnavailableNotDownloadedGenericDescription": {
+        "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+    },
+    "radioModeRandomUnavailableNotDownloadedGenericSubtitle": "{modeName} indisponible car la source n'a pas été téléchargée",
+    "@radioModeRandomUnavailableNotDownloadedGenericSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+    },
+    "radioNoTracksFound": "Impossible de démarrer la radio car aucun titre approprié n'a été trouvé.",
+    "@radioNoTracksFound": {
+        "description": "Shown when the user tries to start radio mode but no suitable tracks were found to start the radio with."
+    },
+    "loopingUnavailableWhileRadioActiveWarning": "Le changement de mode de boucle n'est pas possible lorsque la radio est active, car la file d'attente se poursuivra indéfiniment.",
+    "@loopingUnavailableWhileRadioActiveWarning": {
+        "description": "Warning message when trying to change the loop mode while radio is active."
     }
 }

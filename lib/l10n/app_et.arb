@@ -256,8 +256,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "Ei",
     "@noButtonLabel": {},
-    "setSleepTimer": "Peata taasesitus pärast",
-    "@setSleepTimer": {},
     "minutes": "minutit",
     "@minutes": {},
     "invalidNumber": "Sobimatu number",

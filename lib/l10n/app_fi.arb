@@ -201,8 +201,6 @@
     "@cancelSleepTimer": {},
     "yesButtonLabel": "Kyllä",
     "@yesButtonLabel": {},
-    "setSleepTimer": "Pysäytä toisto jälkeen ajan",
-    "@setSleepTimer": {},
     "minutes": "Minuuttia",
     "@minutes": {},
     "sleepTimerTooltip": "Uniajastin",
@@ -698,7 +696,7 @@
     "@addToNextUp": {
         "description": "Used for adding a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
     },
-    "shuffleNext": "Sekoita Seuraavaksi-jonoksi",
+    "shuffleNext": "Sekoita seuraavaksi",
     "@shuffleNext": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     },
@@ -718,7 +716,7 @@
     "@yourLikes": {
         "description": "Title for the queue source when the user is playing their liked tracks"
     },
-    "playingFromType": "Toistetaan lähteestä {source, select, album{Albumi} playlist{Soittolista} trackMix{Kappalemix} artistMix{Artistimix} albumMix{Albumimix} genreMix{Genre Mix} favorites{Suosikit} allTracks{Kaikki raidat} filteredList{Kappaleet} genre{Genre} artist{Artisti} track{Raita} nextUpAlbum{Seuraavaksi-Albumi} nextUpPlaylist{ Seuraavaksi-Soittolista} nextUpArtist{Seuraavaksi-Artisti} nextUpGenre{Seuraavaksi-Genre} remoteClient{Etäohjauslaite} other{}}",
+    "playingFromType": "Toistetaan lähteestä {source, select, album{Albumi} playlist{Soittolista} trackMix{Kappalemix} artistMix{Artistimix} albumMix{Albumimix} genreMix{Genre Mix} favorites{Suosikit} allTracks{Kaikki raidat} filteredList{Kappaleet} genre{Genre} artist{Artisti} track{Raita} nextUpAlbum{Seuraavaksi-Albumi} nextUpPlaylist{ Seuraavaksi-Soittolista} nextUpArtist{Seuraavaksi-Artisti} nextUpGenre{Seuraavaksi-Genre} remoteClient{Etäohjauslaite} radio{Radio} other{}}",
     "@playingFromType": {
         "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
         "placeholders": {
@@ -1217,7 +1215,7 @@
     "@savedQueue": {
         "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
     },
-    "aboutContributionPrompt": "Pyyteettömien ja upeiden ihmisten vapaa-ajallaan tekemä sovellus.\nVoit olla yksi heistä!",
+    "aboutContributionPrompt": "Pyyteettömien ja upeiden ihmisten vapaa-ajallaan tekemä sovellus.\nVoit myös olla yksi heistä!",
     "@aboutContributionPrompt": {
         "description": "Text shown in the about screen, explaining that the app is made by volunteers and that the user could be one of them."
     },
@@ -1231,7 +1229,7 @@
     "@noActiveDownloads": {},
     "activeDownloadsTitle": "Aktiiviset lataukset",
     "@activeDownloadsTitle": {},
-    "shareOfflineListens": "Jaa offline kuuntelut",
+    "shareOfflineListens": "Jaa offline-kuuntelut",
     "@shareOfflineListens": {
         "description": "Button for exporting the JSON file containing any playback events that couldn't be submitted to the server, either because offline mode was enabled or the connection failed"
     },
@@ -1523,7 +1521,7 @@
     "@deleteFromTargetDialogText": {
         "description": "(Important: Note the space in front of some cases) A Confirm Prompt used whenever an item is about to be deleted from the device or server. The Server case should explain that this cannot be reverted, this information is not needed for the device since the user can just download the track again. The delete Type adapts the server text even more in can the user can or cant delete the item."
     },
-    "confirmPlayNext": "{type, select, track{Track} album{Album} artist{Artist} playlist{Playlist} genre{Genre} other{Item}} toistetaan seuraavaksi",
+    "confirmPlayNext": "{type, select, track{Kappale} album{Albumi} artist{Artisti} playlist{Soittolista} genre{Tyylilaji} other{Kohde}} seuraavaksi",
     "@confirmPlayNext": {
         "description": "A confirmation message that is shown after successfully adding a track to the front of the \"Next Up\" queue",
         "placeholders": {
@@ -1783,7 +1781,7 @@
     "@periodicPlaybackSessionUpdateFrequencySubtitle": {
         "description": "Description of the setting that controls how frequently (in seconds) the current playback session is reported to the Jellyfin server"
     },
-    "shuffleAlbumsToNextUp": "Sekoita albumit Seuraavaksi-jonon loppuun",
+    "shuffleAlbumsToNextUp": "Sekoita albumit seuraavaksi-jonon loppuun",
     "@shuffleAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of Next Up"
     },
@@ -1970,10 +1968,6 @@
     "libraryDownloads": "Kirjaston lataukset",
     "@libraryDownloads": {
         "description": "Title for the library downloads section on the downloads screen."
-    },
-    "desktopShuffleWarning": "Sekoitustilan vaihto ei tällä hetkellä saatavilla sovelluksen työpöytäversiossa.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "playbackReporting": "Toiston raportointi",
     "@playbackReporting": {},
@@ -2821,5 +2815,321 @@
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
     },
     "shuffleSome": "Sekoita joitakin",
-    "@shuffleSome": {}
+    "@shuffleSome": {},
+    "playbackActionPageNextUp": "Lisää seuraavaksi-jonon loppuun",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "updatePlaylistButtonLabel": "Päivitä soittolista",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "Tallennetaan muutoksia…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "accentColor": "Tehosteväri",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Valitse tehosteväri",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "Oletus",
+    "@defaultWord": {},
+    "useDefaultButton": "Nollaa tehosteväri oletusarvoon",
+    "@useDefaultButton": {},
+    "colorCode": "Värikoodi (Hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "esim. #FFFFFF or #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "Tallenna",
+    "@save": {},
+    "invalidColorCode": "Virheellinen värikoodi",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "downloadAllPlaylistsSettingWarning": "Huom: Tämä lataa kaikki kohteet kaikilta soittolistoilta, riippumatta siitä mistä kirjastosta ne ovat.",
+    "@downloadAllPlaylistsSettingWarning": {},
+    "autoplayRestoredQueueSubtitle": "Jonot jotka palautetaan automaattisesti käynnistyksessä tai jonon palautusnäkymässä, alkavat soimaan automaattisesti.  Jonot, joiden täydellinen palautus epäonnistuu, eivät ikinä toistu automaattisesti, tästä asetuksesta riippumatta.",
+    "@autoplayRestoredQueueSubtitle": {
+        "description": "Subtitle for the setting that controls if restored queues automatically play."
+    },
+    "missingBlurhashWarning": "Varoitus: Jellyfin-palvelin näyttää olevan väärin määritelty, eikä laske blurhash-arvoja.  Tämä estää Finampia poistamasta kuvien päällekkäisiä latauksia.  Korjaa palvelinasetukset ja suorita latausten korjaus.",
+    "@missingBlurhashWarning": {
+        "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
+    },
+    "noPermissionToEditMetadata": "Sinun täytyy olla ylläpitäjä muokataksesi metatietojen kuvia.",
+    "@noPermissionToEditMetadata": {
+        "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
+    },
+    "removedTracks": "Poistetut raidat",
+    "@removedTracks": {
+        "description": "Section header for the list of removed tracks on the playlist edit screen"
+    },
+    "removedTracksEmptyListPlaceholder": "Poistetut raidat näkyvät tässä",
+    "@removedTracksEmptyListPlaceholder": {
+        "description": "Placeholder text shown when there are no removed tracks"
+    },
+    "restoreTrack": "Palauta raita",
+    "@restoreTrack": {
+        "description": "Button title for restoring a track that was marked to be removed"
+    },
+    "discardChangesTitle": "Hylkää muutokset?",
+    "@discardChangesTitle": {
+        "description": "Title for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "discardChangesDescription": "Sinulla on tallentamattomia muutoksia. Hylkää ne ja mene takaisin?",
+    "@discardChangesDescription": {
+        "description": "Description for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "snackbarOptionsMenuTitle": "Hallitse viestejä",
+    "@snackbarOptionsMenuTitle": {
+        "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+    },
+    "snackbarOptionsMenuClearAllButton": "Tyhjennä kaikki viestit",
+    "@snackbarOptionsMenuClearAllButton": {
+        "description": "Button title for clearing all snackbar messages"
+    },
+    "snackbarOptionsMenuViewLogsButton": "Katso lokitiedot",
+    "@snackbarOptionsMenuViewLogsButton": {
+        "description": "Button title for opening the logs screen from the snackbar options menu"
+    },
+    "systemAccentColor": "Käytä järjestelmän tehosteväriä",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "Mukautettu tehosteväri pois päältä, koska järjestelmän väri on käytössä",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "Käytä yksiväristä logoa",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "Tämä vaikuttaa vain ikoniin sovelluksen sisällä, ei sovelluksen käynnistysikoniin.",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+    },
+    "playbackActionPageMoveWithinQueue": "Siirrä jonon sisällä",
+    "@playbackActionPageMoveWithinQueue": {
+        "description": "Label for the playback action page that contains all actions related to moving tracks within the queue"
+    },
+    "playbackActionPageRegularTrackOptions": "Toista",
+    "@playbackActionPageRegularTrackOptions": {
+        "description": "Label for the playback action page that contains all actions of the normal track menu, like starting a new queue or duplicating the track within the existing queue"
+    },
+    "movePlayNext": "Toista seuraavaksi",
+    "@movePlayNext": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "moveAddToNextUp": "Siirrä seuraavaksi-jonoon",
+    "@moveAddToNextUp": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
+    },
+    "moveAddToQueue": "Siirrä loppuun",
+    "@moveAddToQueue": {
+        "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
+    },
+    "startRadio": "Aloita radio",
+    "@startRadio": {
+        "description": "Menu label for starting a radio from a playlist, album, etc."
+    },
+    "radio": "Radio",
+    "@radio": {
+        "description": "Title for the queue source when the user is playing a track added via radio"
+    },
+    "radioForItem": "{radioSource} - Radio",
+    "@radioForItem": {
+        "description": "Suffix added to a queue source when playing a radio track. Example: \"Never Gonna Give You Up - Radio\"",
+        "placeholders": {
+            "radioSource": {
+                "type": "String",
+                "example": "Never Gonna Give You Up"
+            }
+        }
+    },
+    "radioModeSettingsTitle": "Radiotila",
+    "@radioModeSettingsTitle": {
+        "description": "Title for the setting that controls the radio mode/algorithm."
+    },
+    "radioModeSettingsSubtitle": "Asettaa menetelmän, jota radio-ominaisuus käyttää lisättävien kappaleiden valitsemiseen.",
+    "@radioModeSettingsSubtitle": {
+        "description": "Subtitle for the setting that controls the radio mode/algorithm."
+    },
+    "radioModeMenuTitle": "Valitse radiotila",
+    "@radioModeMenuTitle": {
+        "description": "Title for menu that allows users to choose the radio mode."
+    },
+    "loopingOverriddenByRadioSubtitle": "Jonon looppaaminen kytkeytyy pois päältä, kun radiotilaa käytetään",
+    "@loopingOverriddenByRadioSubtitle": {
+        "description": "Subtitle displayed in the radio menu to show that queue looping is disabled while radio mode is enabled."
+    },
+    "radioFailedSubtitle": "Ei enempää radio-raitoja löydetty. Kokeile vaihtaa tilaa.",
+    "@radioFailedSubtitle": {
+        "description": "Subtitle displayed in the radio menu to show that no radio tracks could be generated."
+    },
+    "radioModeOptionName": "{option, select, reshuffle{Uudelleensekoitus} random{Satunnainen} similar{Samankaltaiset} continuous{Jatkuva} albumMix{Albumisekoitus} other{{option}}}",
+    "@radioModeOptionName": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Radio mode names in radio mode/algorithm dropdown"
+    },
+    "radioModeOptionTitle": "{option, select, reshuffle{Uudelleensekoitustila} random{Satunnaistila} similar{Samankaltaiset-tila} continuous{Jatkuva tila} albumMix{Albumisekoitus} other{{option}}} Enabled",
+    "@radioModeOptionTitle": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Title displayed in the queue, showing which radio mode/algorithm is currently being used."
+    },
+    "radioModeActiveTitle": "Radio aktiivinen",
+    "@radioModeActiveTitle": {
+        "description": "Title displayed in the queue to show that radio mode is enabled and active."
+    },
+    "radioModeDisabledTitle": "Radio pois päältä",
+    "@radioModeDisabledTitle": {
+        "description": "Title displayed in the queue to show that radio mode is disabled."
+    },
+    "radioModeInactiveTitle": "Radio tauotettu",
+    "@radioModeInactiveTitle": {
+        "description": "Title displayed in the queue to show that the radio is enabled but not active."
+    },
+    "radioModeDisableButtonTitle": "Kytke radio pois päältä",
+    "@radioModeDisableButtonTitle": {
+        "description": "Title for the option that disables radio mode."
+    },
+    "radioModeDisableButtonSubtitle": "Vaihtaa takaisin edelliseen looppaustilaan",
+    "@radioModeDisableButtonSubtitle": {
+        "description": "Subtitle for the option that disables radio mode."
+    },
+    "radioModeOptionConfirmation": "Vaihdettu tilaan {option, select, reshuffle{uudelleensekoitustila} random{satunnaistila} similar{samankaltaiset-tila} continuous{jatkuva tila} albumMix{albumisekoitus-tila} other{{option}}}",
+    "@radioModeOptionConfirmation": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Confirmation displayed when the radio mode is changed."
+    },
+    "radioModeEnabledSubtitle": "Napauta määrittääksesi",
+    "@radioModeEnabledSubtitle": {
+        "description": "Subtitle displayed in the queue to show when radio mode is enabled."
+    },
+    "radioModeDisabledSubtitle": "Napauta kytkeäksesi päälle",
+    "@radioModeDisabledSubtitle": {
+        "description": "Subtitle displayed in the queue to show that radio mode is disabled."
+    },
+    "radioModeDisabledBecauseNotAvailableOfflineSubtitle": "Valittu tila ei saatavilla kun offline-tilassa.",
+    "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
+        "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
+    },
+    "radioModeDescription": "{mode, select, reshuffle{Jonoa sekoitetaan jatkuvasti uudelleen} random{Kappaleita lisätään johon hännille satunnaisesti alkuperäisen valinnan mukaan} similar{Kappaleita lisätään jonon hännille alkuperäisen jonon mukaan} continuous{Kappaleita lisätään nykyisen kappaleen perusteella} albumMix{Lisätään jonon loppuun samankaltaisia albumeita} other{}}",
+    "@radioModeDescription": {
+        "placeholders": {
+            "mode": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
+    },
+    "radioModeUnavailableWhileOfflineDescription": "Ei saatavilla offline-tilassa",
+    "@radioModeUnavailableWhileOfflineDescription": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+    },
+    "radioModeUnavailableWhileOfflineSubtitle": "{modeName} Ei saatavilla offline-tilassa",
+    "@radioModeUnavailableWhileOfflineSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+    },
+    "radioModeUnavailableForSourceItemDescription": "Ei saatavilla tälle jonon lähteelle",
+    "@radioModeUnavailableForSourceItemDescription": {
+        "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+    },
+    "radioModeUnavailableForSourceItemSubtitle": "{modeName} ei saatavilla tälle jonon lähteelle",
+    "@radioModeUnavailableForSourceItemSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+    },
+    "radioModeUnavailableQueueEmptyDescription": "Ei saatavilla, koska jono on tyhjä",
+    "@radioModeUnavailableQueueEmptyDescription": {
+        "description": "Shown as the subtitle for radio modes when the queue is empty."
+    },
+    "radioModeUnavailableQueueEmptySubtitle": "{modeName} ei saatavilla, koska jono on tyhjä",
+    "@radioModeUnavailableQueueEmptySubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the queue is empty."
+    },
+    "radioModeRandomUnavailableNotDownloadedDescription": "Ei saatavilla, koska '{sourceName}' ei ole ladattu",
+    "@radioModeRandomUnavailableNotDownloadedDescription": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+        "placeholders": {
+            "sourceName": {
+                "type": "String"
+            }
+        }
+    },
+    "radioModeRandomUnavailableNotDownloadedSubtitle": "{modeName} ei saatavilla, koska '{sourceName}' ei ole ladattu",
+    "@radioModeRandomUnavailableNotDownloadedSubtitle": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            },
+            "sourceName": {
+                "type": "String"
+            }
+        }
+    },
+    "radioModeRandomUnavailableNotDownloadedGenericDescription": "Ei saatavilla, koska lähdettä ei ole ladattu",
+    "@radioModeRandomUnavailableNotDownloadedGenericDescription": {
+        "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+    },
+    "radioModeRandomUnavailableNotDownloadedGenericSubtitle": "{modeName} ei saatavilla, koska lähdettä ei ole ladattu",
+    "@radioModeRandomUnavailableNotDownloadedGenericSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+    },
+    "radioNoTracksFound": "Radiota ei voitu käynnistää, koska sopivia raitoja ei löytynyt.",
+    "@radioNoTracksFound": {
+        "description": "Shown when the user tries to start radio mode but no suitable tracks were found to start the radio with."
+    },
+    "loopingUnavailableWhileRadioActiveWarning": "Loop-tilan vaihtaminen radio-tilassa ei ole tuettu, koska jono jatkuu loputtomiin.",
+    "@loopingUnavailableWhileRadioActiveWarning": {
+        "description": "Warning message when trying to change the loop mode while radio is active."
+    }
 }

@@ -246,8 +246,6 @@
     "@light": {},
     "tabs": "Abas",
     "@tabs": {},
-    "setSleepTimer": "Pausar reprodução após",
-    "@setSleepTimer": {},
     "unknownArtist": "Artista desconhecido",
     "@unknownArtist": {},
     "showTextOnGridViewSubtitle": "Exibir ou não o texto (título, artista, etc) na grade da tela de música.",

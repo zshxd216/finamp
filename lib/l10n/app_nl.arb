@@ -304,8 +304,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "Nee",
     "@noButtonLabel": {},
-    "setSleepTimer": "Slaaptimer instellen",
-    "@setSleepTimer": {},
     "minutes": "Minuten",
     "@minutes": {},
     "invalidNumber": "Ongeldig getal",
@@ -1587,10 +1585,6 @@
     "showAlbumReleaseDateOnPlayerScreenSubtitle": "Toon de releasedatum van het album op het Spelerscherm, na de albumnaam.",
     "@showAlbumReleaseDateOnPlayerScreenSubtitle": {
         "description": "Subtitle for the setting that controls if the release date of an album is shown on the player screen"
-    },
-    "desktopShuffleWarning": "Shuffle is op dit moment niet beschikbaar op desktop.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "allowDeleteFromServerSubtitle": "Zet deze optie aan of uit om permanent een nummer uit de bestanden van de server te verwijderen wanneer mogelijk.",
     "@allowDeleteFromServerSubtitle": {

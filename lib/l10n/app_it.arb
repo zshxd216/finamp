@@ -179,8 +179,6 @@
     "@light": {},
     "noButtonLabel": "No",
     "@noButtonLabel": {},
-    "setSleepTimer": "Ferma riproduzione dopo",
-    "@setSleepTimer": {},
     "system": "Sistema",
     "@system": {},
     "tabs": "Schede",
@@ -464,7 +462,7 @@
     "@usernameValidationMissingUsername": {
         "description": "Error message that shows when the user submits a login without a username"
     },
-    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} brano} other{{trackCount} brani}}, {imageCount,plural,=1{{imageCount} immagine} other{{imageCount} immagini}}\n{syncCount,plural,=1{{syncCount} nodo si sta sincronizzando} other{{syncCount} nodi si stanno sincronizzando}}{repairing, plural, =0{} other{\nAl momento si sta riparando}}",
+    "downloadedCountUnified": "{trackCount,plural,=1{{trackCount} brano} other{{trackCount} brani}}, {imageCount,plural,=1{{imageCount} immagine} other{{imageCount} immagini}}\n{syncCount,plural,=1{Sto sincronizzando {syncCount} elemento} other{Sto sincronizzando {syncCount} elementi}}{repairing, plural, =0{} other{\nIn riparazione}}",
     "@downloadedCountUnified": {
         "description": "Display of downloaded track and image count on downloads screen.",
         "placeholders": {
@@ -1943,7 +1941,7 @@
     },
     "autoOfflineSettingTitle": "Modalità Offline Automatizzata",
     "@autoOfflineSettingTitle": {},
-    "startupErrorTitle": "Qualcosa non ha funzionato durante l'avvio dell'app!",
+    "startupErrorTitle": "Qualcosa non ha funzionato durante l'avvio dell'applicazione!",
     "@startupErrorTitle": {
         "description": "The title for the error screen that shows when startup fails."
     },
@@ -2042,10 +2040,6 @@
     "outputMenuOpenConnectionSettingsButtonTitle": "Connetti ad un dispositivo",
     "@outputMenuOpenConnectionSettingsButtonTitle": {
         "description": "Button title for connecting to a device from the output menu"
-    },
-    "desktopShuffleWarning": "La riproduzione casuale al momento non è disponibile sul desktop.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "marqueeOrTruncateButtonSubtitle": "Mostra … alla fine dei titoli lunghi invece di far scorrere il testo",
     "@marqueeOrTruncateButtonSubtitle": {},
@@ -2382,7 +2376,7 @@
     "@missingSchemaError": {
         "description": "Snackbar message when the user changes their home/public address but it doesn't start with http"
     },
-    "testConnectionButtonLabel": "Testa  le connessioni",
+    "testConnectionButtonLabel": "Testa le connessioni",
     "@testConnectionButtonLabel": {
         "description": "Button to test the public and local url inside the network settings tab"
     },
