@@ -173,6 +173,7 @@ class DefaultSettings {
   static const featureChipsConfiguration = FinampFeatureChipsConfiguration(
     enabled: true,
     features: [
+      FinampFeatureChipType.explicit,
       FinampFeatureChipType.playCount,
       FinampFeatureChipType.additionalPeople,
       FinampFeatureChipType.playbackMode,
@@ -244,6 +245,8 @@ class DefaultSettings {
   static const useMonochromeIcon = false;
   static const radioMode = RadioMode.similar;
   static const radioEnabled = false;
+  static const duckOnAudioInterruption = true;
+  static const forceAudioOffloadingOnAndroid = false;
 }
 
 @HiveType(typeId: 28)
@@ -383,6 +386,8 @@ class FinampSettings {
     this.systemAccentColor = DefaultSettings.accentColor,
     this.useSystemAccentColor = DefaultSettings.useSystemAccentColor,
     this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
+    this.duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption,
+    this.forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -825,6 +830,12 @@ class FinampSettings {
 
   @HiveField(141, defaultValue: DefaultSettings.radioMode)
   RadioMode radioMode = DefaultSettings.radioMode;
+
+  @HiveField(142, defaultValue: DefaultSettings.duckOnAudioInterruption)
+  bool duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption;
+
+  @HiveField(143, defaultValue: DefaultSettings.forceAudioOffloadingOnAndroid)
+  bool forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
@@ -1291,7 +1302,7 @@ class DownloadStub {
       isarId: getHash(id.raw, type),
       jsonItem: null,
       type: type,
-      name: name ?? "Unlocalized $id",
+      name: name ?? "[$id]",
       baseItemType: BaseItemDtoType.noItem,
     );
   }
@@ -1310,7 +1321,7 @@ class DownloadStub {
       isarId: getHash(id, DownloadItemType.finampCollection),
       jsonItem: jsonEncode(collection.toJson()),
       type: DownloadItemType.finampCollection,
-      name: name ?? "Unlocalized Finamp Collection $id",
+      name: name ?? "[$id]",
       baseItemType: BaseItemDtoType.noItem,
     );
   }
@@ -2809,7 +2820,9 @@ enum FinampFeatureChipType {
   @HiveField(7)
   normalizationGain,
   @HiveField(8)
-  sampleRate;
+  sampleRate,
+  @HiveField(9)
+  explicit;
 
   /// Human-readable version of the [FinampFeatureChipType]
   @override
@@ -2838,6 +2851,8 @@ enum FinampFeatureChipType {
         return "Normalization Gain";
       case FinampFeatureChipType.sampleRate:
         return "Sample Rate";
+      case FinampFeatureChipType.explicit:
+        return "Explicit";
     }
   }
 
@@ -2861,6 +2876,8 @@ enum FinampFeatureChipType {
         return AppLocalizations.of(context)!.normalizationGain;
       case FinampFeatureChipType.sampleRate:
         return AppLocalizations.of(context)!.sampleRate;
+      case FinampFeatureChipType.explicit:
+        return AppLocalizations.of(context)!.explicit;
     }
   }
 }
@@ -3688,11 +3705,19 @@ enum RadioMode {
   @HiveField(1)
   continuous,
   @HiveField(2)
-  reshuffle,
-  @HiveField(3)
-  random,
-  @HiveField(4)
   albumMix,
+  @HiveField(3)
+  reshuffle,
+  @HiveField(4)
+  random,
+}
+
+enum AlbumMixFallbackModes {
+  similarSingles,
+  artistAlbums,
+  artistSingles,
+  performingArtistAlbums,
+  libraryAlbumsOrSingles,
 }
 
 class RadioCacheState {
@@ -3704,7 +3729,8 @@ class RadioCacheState {
     this.generating = false,
     this.queueing = false,
     this.failed = false,
-  });
+    AlbumMixFallbackModes? albumMixFallbackMode,
+  }) : _albumMixFallbackMode = albumMixFallbackMode;
 
   List<BaseItemDto> tracks;
   final RadioMode radioMode;
@@ -3713,6 +3739,7 @@ class RadioCacheState {
   final bool generating;
   final bool queueing;
   final bool failed;
+  AlbumMixFallbackModes? _albumMixFallbackMode;
 
   RadioCacheState copyWith({
     List<BaseItemDto>? tracks,
@@ -3736,6 +3763,11 @@ class RadioCacheState {
   }
 
   bool get loading => generating || queueing;
+
+  AlbumMixFallbackModes? get albumMixFallbackMode => _albumMixFallbackMode;
+  void updateAlbumMixFallbackMode(AlbumMixFallbackModes? mode) {
+    _albumMixFallbackMode = mode;
+  }
 
   /// Ensures the radio settings used to obtain this result are still the same as the current settings
   bool isStillValid() {

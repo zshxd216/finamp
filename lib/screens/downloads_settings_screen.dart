@@ -1,17 +1,16 @@
 import 'dart:io';
 
 import 'package:finamp/components/AlbumScreen/download_button.dart';
+import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/screens/downloads_location_screen.dart';
+import 'package:finamp/services/downloads_service.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
-
-import '../components/global_snackbar.dart';
-import '../models/finamp_models.dart';
-import '../services/downloads_service.dart';
-import '../services/finamp_settings_helper.dart';
-import 'downloads_location_screen.dart';
 
 class DownloadsSettingsScreen extends StatefulWidget {
   const DownloadsSettingsScreen({super.key});
@@ -94,8 +93,7 @@ class _DownloadsSettingsScreenState extends State<DownloadsSettingsScreen> {
           const RedownloadTranscodesSwitch(),
           const ShowPlaylistTracksSwitch(),
           const DownloadWorkersSelector(),
-          // Do not limit enqueued downloads on IOS, it throttles them like crazy on its own.
-          if (!Platform.isIOS) const ConcurentDownloadsSelector(),
+          const ConcurentDownloadsSelector(),
           const DownloadSizeWarningCutoffTile(),
         ],
       ),

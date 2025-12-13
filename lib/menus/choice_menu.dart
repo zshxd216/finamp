@@ -1,14 +1,7 @@
-import 'dart:io';
-
-import 'package:finamp/components/themed_bottom_sheet.dart';
-import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/feedback_helper.dart';
-import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
-import 'package:get_it/get_it.dart';
 
 class ChoiceMenuListTile extends ConsumerWidget {
   const ChoiceMenuListTile({

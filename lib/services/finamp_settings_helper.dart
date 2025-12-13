@@ -137,6 +137,7 @@ class FinampSettingsHelper {
     finampSettingsTemp.allowSplitScreen = DefaultSettings.allowSplitScreen;
     finampSettingsTemp.showProgressOnNowPlayingBar = DefaultSettings.showProgressOnNowPlayingBar;
     finampSettingsTemp.autoSwitchItemCurationType = DefaultSettings.autoSwitchItemCurationType;
+    finampSettingsTemp.useMonochromeIcon = DefaultSettings.useMonochromeIcon;
 
     Hive.box<FinampSettings>("FinampSettings").put("FinampSettings", finampSettingsTemp);
   }
@@ -183,6 +184,8 @@ class FinampSettingsHelper {
     FinampSetters.setAutoReloadQueue(DefaultSettings.autoReloadQueue);
     FinampSetters.setClearQueueOnStopEvent(DefaultSettings.clearQueueOnStopEvent);
     FinampSetters.setAutoplayRestoredQueue(DefaultSettings.autoplayRestoredQueue);
+    FinampSetters.setDuckOnAudioInterruption(DefaultSettings.duckOnAudioInterruption);
+    FinampSetters.setForceAudioOffloadingOnAndroid(DefaultSettings.forceAudioOffloadingOnAndroid);
   }
 
   static void resetPlaybackReportingSettings() {

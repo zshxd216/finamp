@@ -2202,6 +2202,20 @@ class BaseItemDto with RunTimeTickDuration implements PlayableItem {
 
   DownloadItemType get downloadType => BaseItemDtoType.fromItem(this).downloadType!;
 
+  static const _explicitRatings = [
+    "XXX",
+    "16",
+    "18",
+    "21",
+    "FSK 16",
+    "FSK-16",
+    "FSK 18",
+    "FSK-18",
+    "E",
+    "Explicit",
+  ]; // the last two don't exist yet, but could easily be added server-side
+  bool get isExplicit => _explicitRatings.contains(officialRating) || _explicitRatings.contains(customRating);
+
   // BaseItemDtos with the same id should be considered equal so that Providers
   // taking the BaseItemDto as an argument will be shared across all instances
   @override

@@ -51,34 +51,19 @@ class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
     );
 
     // initial page for regular playback action row
-    var lastUsedPlaybackActionRowPage = ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPage);
+    // queue menu pages are saved as a separate setting from others.
+    var lastUsedPlaybackActionRowPage = widget.queueItem != null
+        ? ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPageForQueueMenu)
+        : ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPage);
     lastUsedPlaybackActionRowPage =
         nextUpEmpty && preferPreprendingToNextUp && lastUsedPlaybackActionRowPage == PlaybackActionRowPage.appendNext
         ? PlaybackActionRowPage.playNext
         : lastUsedPlaybackActionRowPage;
     final lastUsedPlaybackActionRowPageIndex = playbackActionPages.keys.toList().indexOf(lastUsedPlaybackActionRowPage);
-    // initial page for playback action row in queue menu
-    var lastUsedPlaybackActionRowPageForQueueMenu = ref.watch(
-      finampSettingsProvider.lastUsedPlaybackActionRowPageForQueueMenu,
-    );
-    lastUsedPlaybackActionRowPageForQueueMenu =
-        nextUpEmpty &&
-            preferPreprendingToNextUp &&
-            lastUsedPlaybackActionRowPageForQueueMenu == PlaybackActionRowPage.appendNext
-        ? PlaybackActionRowPage.playNext
-        : lastUsedPlaybackActionRowPageForQueueMenu;
-    final lastUsedPlaybackActionRowPageForQueueMenuIndex = playbackActionPages.keys.toList().indexOf(
-      lastUsedPlaybackActionRowPageForQueueMenu,
-    );
     final initialPageViewIndex = ref.watch(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
         ? lastUsedPlaybackActionRowPageIndex
         : 0;
-    final initialPageViewQueueIndex = ref.watch(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
-        ? lastUsedPlaybackActionRowPageForQueueMenuIndex
-        : 0;
-    controller = PageController(
-      initialPage: widget.queueItem != null ? initialPageViewQueueIndex : initialPageViewIndex,
-    );
+    controller = PageController(initialPage: initialPageViewIndex.clamp(0, playbackActionPages.length));
     final double playActionRowHeight = widget.compactLayout ? 76.0 : playActionRowHeightDefault;
     final rememberLastUsedPlaybackActionRowPage = ref.read(
       finampSettingsProvider.rememberLastUsedPlaybackActionRowPage,
@@ -97,7 +82,7 @@ class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
             scrollDirection: Axis.horizontal,
             children: playbackActionPages.values.toList(),
             onPageChanged: (index) {
-              if (!rememberLastUsedPlaybackActionRowPage) return;
+              if (!rememberLastUsedPlaybackActionRowPage || playbackActionPages.keys.length <= 1) return;
 
               final newPage = playbackActionPages.keys.toList()[index];
               if (widget.queueItem != null) {

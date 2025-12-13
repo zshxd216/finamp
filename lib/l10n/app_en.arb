@@ -215,7 +215,7 @@
   "@startMixNoTracksAlbum": {
     "description": "Snackbar message that shows when the user presses the instant mix button with no albums selected"
   },
-  "startMixNoTracksGenre": "Long-press an genre to add or remove it from the mix builder before starting a mix",
+  "startMixNoTracksGenre": "Long-press a genre to add or remove it from the mix builder before starting a mix",
   "@startMixNoTracksGenre": {
     "description": "Snackbar message that shows when the user presses the instant mix button with no genres selected"
   },
@@ -778,8 +778,6 @@
   "@yesButtonLabel": {},
   "noButtonLabel": "No",
   "@noButtonLabel": {},
-  "setSleepTimer": "Pause Playback After",
-  "@setSleepTimer": {},
   "hours": "Hours",
   "@hours": {},
   "seconds": "Seconds",
@@ -1002,7 +1000,7 @@
   },
   "bufferDuration": "Buffer Duration",
   "@bufferDuration": {},
-  "bufferDurationSubtitle": "The maximum duration that should be buffered, in seconds. Requires a restart.",
+  "bufferDurationSubtitle": "The duration that should be buffered, in seconds. Requires a restart.",
   "@bufferDurationSubtitle": {},
   "bufferDisableSizeConstraintsTitle": "Don't limit buffer size",
   "@bufferDisableSizeConstraintsTitle": {},
@@ -1010,7 +1008,7 @@
   "@bufferDisableSizeConstraintsSubtitle": {},
   "bufferSizeTitle": "Buffer Size",
   "@bufferSizeTitle": {},
-  "bufferSizeSubtitle": "The maximum size of the buffer in MB. Requires a restart",
+  "bufferSizeSubtitle": "The size of the buffer in MB. Requires a restart",
   "@bufferSizeSubtitle": {},
   "language": "Language",
   "@language": {},
@@ -2589,10 +2587,6 @@
     },
     "description": "Label for the type of device in the output menu"
   },
-  "desktopShuffleWarning": "Changing shuffle mode is not currently available on desktop.",
-  "@desktopShuffleWarning": {
-    "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
-  },
   "itemCount": "{childType, select, track{{amount, plural, =1{1 track} other{{amount} tracks}}} album{{amount, plural, =1{1 album} other{{amount} albums}}} other{{amount, plural, =1{1 item} other{{amount} items}}}}",
   "@itemCount": {
     "description": "Amount of various child item, like artist albums, performing artist tracks, or genre albums. Shown for example in the menu headers.",
@@ -2729,6 +2723,10 @@
   "radioModeInactiveTitle": "Radio Paused",
   "@radioModeInactiveTitle": {
     "description": "Title displayed in the queue to show that the radio is enabled but not active."
+  },
+  "radioModeEnableButtonTitle": "Enable Radio",
+  "@radioModeEnableButtonTitle": {
+    "description": "Title for the option that enables radio mode."
   },
   "radioModeDisableButtonTitle": "Disable Radio",
   "@radioModeDisableButtonTitle": {
@@ -3095,11 +3093,15 @@
   "@dragToReorder": {
     "description": "Label shown on drag handles of track list  tiles in the queue list"
   },
+  "addDownloadLocationsErrorTitle": "Could not write to download location",
+  "@addDownloadLocationsErrorTitle": {
+    "description": "Title of popup dialog when adding a download location fails"
+  },
   "addDownloadLocationsErrorPrompt": "Writing to selected directory failed.  You should modify permissions or choose another location.",
   "@addDownloadLocationsErrorPrompt": {
     "description": "Label shown on popup dialog when adding a download location when writing songs fails"
   },
-  "androidImageErrorPrompt": "WARNING: We are unable to write images to the android Music folder due to OS restrictions.  You should choose another location.",
+  "androidImageErrorPrompt": "We are unable to write images to the android Music folder due to OS restrictions.  You should choose another location.",
   "@androidImageErrorPrompt": {
     "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
   },
@@ -3174,5 +3176,25 @@
   "snackbarOptionsMenuViewLogsButton": "View Logs",
   "@snackbarOptionsMenuViewLogsButton": {
     "description": "Button title for opening the logs screen from the snackbar options menu"
+  },
+  "duckOnAudioInterruptionTitle": "Reduce Volume on Interruptions",
+  "@duckOnAudioInterruptionTitle": {
+    "description": "Title for the setting that controls ducking."
+  },
+  "duckOnAudioInterruptionSubtitle": "Lower the volume (duck) when another app briefly plays audio.",
+  "@duckOnAudioInterruptionSubtitle": {
+    "description": "Subtitle for the setting that controls ducking."
+  },
+  "forceAudioOffloadingOnAndroidTitle": "Force Audio Offloading",
+  "@forceAudioOffloadingOnAndroidTitle": {
+    "description": "Title for the setting that controls audio offloading on Android."
+  },
+  "forceAudioOffloadingOnAndroidSubtitle": "Offload audio processing to hardware, if supported by the device.",
+  "@forceAudioOffloadingOnAndroidSubtitle": {
+    "description": "Subtitle for the setting that controls audio offloading on Android."
+  },
+  "explicit": "Explicit",
+  "@explicit": {
+    "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
   }
 }

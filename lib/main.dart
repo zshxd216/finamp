@@ -35,6 +35,7 @@ import 'package:finamp/services/dbus_manager.dart';
 import 'package:finamp/services/discord_rpc.dart';
 import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/downloads_service_backend.dart';
+import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_logs_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
@@ -56,6 +57,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:flutter_user_certificates_android/flutter_user_certificates_android.dart';
+import 'package:gaimon/gaimon.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -372,8 +374,8 @@ Future<void> _setupPlaybackServices() async {
   if (Platform.isWindows) {
     AudioServiceSMTC.registerWith();
   }
-  final session = await AudioSession.instance;
-  await session.configure(const AudioSessionConfiguration.music());
+
+  await MusicPlayerBackgroundTask.configureAudioSession();
 
   GetIt.instance.registerSingleton<AndroidAutoHelper>(AndroidAutoHelper());
 
@@ -798,16 +800,36 @@ class ErrorScreen extends StatelessWidget {
                       WidgetSpan(
                         child: Padding(
                           padding: const EdgeInsets.only(top: 20),
-                          child: SimpleButton(
-                            text: 'Delete FinampSettings',
-                            icon: Icons.delete,
-                            onPressed: () async {
-                              final dir = (Platform.isAndroid || Platform.isIOS)
-                                  ? await getApplicationDocumentsDirectory()
-                                  : await getApplicationSupportDirectory();
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 8.0,
+                            children: [
+                              SimpleButton(
+                                text: 'Delete FinampSettings',
+                                icon: Icons.delete,
+                                onPressed: () async {
+                                  final dir = (Platform.isAndroid || Platform.isIOS)
+                                      ? await getApplicationDocumentsDirectory()
+                                      : await getApplicationSupportDirectory();
 
-                              await Hive.deleteBoxFromDisk("FinampSettings", path: dir.path);
-                            },
+                                  await Hive.deleteBoxFromDisk("FinampSettings", path: dir.path);
+                                  Gaimon.success();
+                                },
+                              ),
+                              SimpleButton(
+                                text: 'Delete Stored Queues',
+                                icon: Icons.delete,
+                                onPressed: () async {
+                                  final dir = (Platform.isAndroid || Platform.isIOS)
+                                      ? await getApplicationDocumentsDirectory()
+                                      : await getApplicationSupportDirectory();
+
+                                  await Hive.deleteBoxFromDisk("Queues", path: dir.path);
+                                  Gaimon.success();
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),

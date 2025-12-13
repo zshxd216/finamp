@@ -1,23 +1,23 @@
 import 'dart:async';
 
+import 'package:finamp/components/confirmation_prompt_dialog.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/screens/album_screen.dart';
 import 'package:finamp/screens/artist_screen.dart';
 import 'package:finamp/screens/downloads_screen.dart';
 import 'package:finamp/screens/genre_screen.dart';
 import 'package:finamp/screens/music_screen.dart';
+import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../models/jellyfin_models.dart';
-import '../../services/downloads_service.dart';
-import '../../services/jellyfin_api_helper.dart';
-import '../confirmation_prompt_dialog.dart';
 
 void navigateToSource(BuildContext context, QueueItemSource source) {
   switch (source.type) {
@@ -56,6 +56,38 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
       if (source.item != null) {
         showModalTrackMenu(context: context, item: source.item!);
       }
+    case QueueItemSourceType.radio:
+      final radioSource = GetIt.instance<QueueService>().getQueue().source;
+      if (radioSource.item == null) {
+        break;
+      }
+      switch (BaseItemDtoType.fromItem(radioSource.item!)) {
+        case BaseItemDtoType.track:
+          showModalTrackMenu(context: context, item: radioSource.item!);
+          break;
+        case BaseItemDtoType.album:
+        case BaseItemDtoType.playlist:
+          Navigator.of(context).pushNamed(AlbumScreen.routeName, arguments: radioSource.item);
+          break;
+        case BaseItemDtoType.artist:
+          Navigator.of(context).pushNamed(ArtistScreen.routeName, arguments: radioSource.item);
+          break;
+        case BaseItemDtoType.genre:
+          Navigator.of(context).pushNamed(GenreScreen.routeName, arguments: radioSource.item);
+          break;
+        case BaseItemDtoType.noItem:
+        case BaseItemDtoType.library:
+        case BaseItemDtoType.folder:
+        case BaseItemDtoType.musicVideo:
+        case BaseItemDtoType.audioBook:
+        case BaseItemDtoType.tvEpisode:
+        case BaseItemDtoType.video:
+        case BaseItemDtoType.movie:
+        case BaseItemDtoType.trailer:
+        case BaseItemDtoType.unknown:
+          break;
+      }
+      break;
     case QueueItemSourceType.downloads:
       Navigator.of(context).pushNamed(DownloadsScreen.routeName);
       break;
@@ -65,7 +97,7 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
     case QueueItemSourceType.unknown:
       break;
     case QueueItemSourceType.filteredList:
-    default:
+    case QueueItemSourceType.queue:
       FeedbackHelper.feedback(FeedbackType.warning);
       GlobalSnackbar.message((scaffold) => AppLocalizations.of(context)!.notImplementedYet);
   }

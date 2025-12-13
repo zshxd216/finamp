@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -12,6 +13,7 @@ import 'package:finamp/services/current_track_metadata_provider.dart';
 import 'package:finamp/services/favorite_provider.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:finamp/services/playback_history_service.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:finamp/services/radio_service_helper.dart' as RadioServiceHelper;
 import 'package:flutter/foundation.dart';
@@ -76,6 +78,7 @@ class PlayerVolumeController {
   double _internalVolume = FinampSettingsHelper.finampSettings.currentVolume;
   double _replayGainVolume = 1.0;
   double _fadeVolume = 1.0;
+  bool isDucked = false;
 
   Future<void> setInternalVolume(double volume) {
     if (volume == _internalVolume) return Future.value();
@@ -96,13 +99,26 @@ class PlayerVolumeController {
     return _updateVolume();
   }
 
+  void duck() {
+    if (isDucked) return;
+    isDucked = true;
+    _updateVolume();
+  }
+
+  void unduck() {
+    if (!isDucked) return;
+    isDucked = false;
+    _updateVolume();
+  }
+
   Future<void> _updateVolume() {
     var vol1 = _internalVolume.clamp(0.0, 1.0);
     var vol2 = _replayGainVolume.clamp(0.0, 1.0);
     var vol3 = _fadeVolume.clamp(0.0, 1.0);
-    var totalVol = vol1 * vol2 * vol3;
+    var duckingFactor = isDucked ? 0.3 : 1.0;
+    var totalVol = vol1 * vol2 * vol3 * duckingFactor;
     _volumeLogger.info(
-      "Setting volume to $totalVol - user: $_internalVolume gain: $_replayGainVolume fade: $_fadeVolume",
+      "Setting volume to $totalVol - user: $_internalVolume gain: $_replayGainVolume fade: $_fadeVolume, ducking: $isDucked",
     );
     return _player.setVolume(totalVol.clamp(0.0, 1.0));
   }
@@ -239,6 +255,24 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     }
   }
 
+  static Future<void> configureAudioSession() async {
+    final session = await AudioSession.instance;
+    await session.configure(
+      FinampSettingsHelper.finampSettings.duckOnAudioInterruption
+          ? const AudioSessionConfiguration.music()
+          : const AudioSessionConfiguration.music().copyWith(
+              // disable Android automatic ducking (https://developer.android.com/media/optimize/audio-focus#automatic_ducking)
+              // so that we can handle it manually, by setting the content type to "speech"
+              // if we instead set `willPauseOnDucked` to `true`, Android will send us pause events instead of duck events
+              // and then we don't know how to properly handle them (is this just a notification or a phone call?)
+              androidAudioAttributes: const AndroidAudioAttributes(
+                contentType: AndroidAudioContentType.speech,
+                usage: AndroidAudioUsage.media,
+              ),
+            ),
+    );
+  }
+
   MusicPlayerBackgroundTask() {
     _audioServiceBackgroundTaskLogger.info("Starting audio service");
 
@@ -262,18 +296,80 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
 
     _audioPipeline = AudioPipeline(androidAudioEffects: _androidAudioEffects, darwinAudioEffects: _iosAudioEffects);
 
+    Duration maxBufferDuration = Duration(
+      seconds: max(minBufferDuration.inSeconds, FinampSettingsHelper.finampSettings.bufferDuration.inSeconds),
+    );
+
+    AudioSession.instance.then((session) {
+      bool wasPlayingBeforeInterruption = false;
+      session.interruptionEventStream.listen((event) {
+        bool customInterruptionHandlingNeeded = !FinampSettingsHelper.finampSettings.duckOnAudioInterruption;
+        if (!customInterruptionHandlingNeeded) {
+          return;
+        }
+        if (event.begin) {
+          switch (event.type) {
+            case AudioInterruptionType.duck:
+              // if we are in here, then ducking should be disabled anyway, so this is a no-op
+              break;
+            case AudioInterruptionType.pause:
+            case AudioInterruptionType.unknown:
+              // Another app started playing audio and we should pause.
+              wasPlayingBeforeInterruption = _player.playing;
+              pause();
+              break;
+          }
+        } else {
+          switch (event.type) {
+            case AudioInterruptionType.duck:
+              // The interruption ended and we should unduck.
+              // keeping this in here won't hurt, and ensures we never become stuck in a ducked state
+              _volume.unduck();
+              break;
+            case AudioInterruptionType.pause:
+              // The interruption ended and we should resume.
+              if (wasPlayingBeforeInterruption) {
+                play();
+              }
+              break;
+            case AudioInterruptionType.unknown:
+              // The interruption ended but we should not resume.
+              break;
+          }
+        }
+      });
+      session.devicesChangedEventStream.listen((event) {
+        _outputLogger.info('Devices added:   ${event.devicesAdded}');
+        _outputLogger.info('Devices removed: ${event.devicesRemoved}');
+      });
+    });
+
     _player = AudioPlayer(
       maxSkipsOnError: 0,
+      handleInterruptions: false,
+      androidAudioOffloadPreferences: AndroidAudioOffloadPreferences(
+        audioOffloadMode: FinampSettingsHelper.finampSettings.forceAudioOffloadingOnAndroid
+            ? AndroidAudioOffloadMode.enabled
+            : AndroidAudioOffloadMode.disabled,
+        isGaplessSupportRequired: true,
+        isSpeedChangeSupportRequired: true,
+      ),
       audioLoadConfiguration: AudioLoadConfiguration(
         androidLoadControl: AndroidLoadControl(
           targetBufferBytes: FinampSettingsHelper.finampSettings.bufferDisableSizeConstraints
               ? null
               : 1024 * 1024 * FinampSettingsHelper.finampSettings.bufferSizeMegabytes,
           // minBufferDuration: FinampSettingsHelper.finampSettings.bufferDuration, //!!! there are issues with the bufferForPlaybackDuration setting, the min duration seemingly has to be smaller than that. so we're using the default
-          minBufferDuration: minBufferDuration,
-          maxBufferDuration: Duration(
-            seconds: max(minBufferDuration.inSeconds, FinampSettingsHelper.finampSettings.bufferDuration.inSeconds),
-          ), // allows the player to fetch a bit more data in exchange for reduced request frequency
+          // it seems like the player won't fetch more than [minBufferDuration], even if the buffer isn't filled yet
+          // so if we ignore size constraints, we just set the minimum to the specified buffer size, but allow fetching even more to reduce the request frequency
+          minBufferDuration: FinampSettingsHelper.finampSettings.bufferDisableSizeConstraints
+              ? maxBufferDuration
+              : minBufferDuration,
+          maxBufferDuration:
+              // allows the player to fetch a bit more data in exchange for reduced request frequency
+              FinampSettingsHelper.finampSettings.bufferDisableSizeConstraints
+              ? (maxBufferDuration + Duration(seconds: 90))
+              : maxBufferDuration,
           prioritizeTimeOverSizeThresholds: FinampSettingsHelper
               .finampSettings
               .bufferDisableSizeConstraints, // targetBufferBytes sets the absolute maximum, but if this false and maxBufferDuration is reached, buffering will end
@@ -375,8 +471,12 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     // trigger sleep timer early if we're almost at the end of the final track
     _player.positionStream.listen((position) {
       if (sleepTimer?.remainingTracks == 1 &&
-          ((mediaItem.value?.duration ?? Duration.zero) - position) <=
-              FinampSettingsHelper.finampSettings.audioFadeOutDuration) {
+          ((mediaItem.value?.duration ?? Duration.zero) - position).inMilliseconds / _player.speed <=
+              // even if fade out is disabled, we stop a bit early to avoid advancing to the next track
+              max(
+                Duration(milliseconds: 500).inMilliseconds,
+                FinampSettingsHelper.finampSettings.audioFadeOutDuration.inMilliseconds,
+              )) {
         sleepTimer?.onTrackCompleted();
       }
     });
@@ -475,6 +575,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
       return _player.play();
     }
   }
+
+  double get speed => _player.speed;
 
   @override
   Future<void> setSpeed(final double speed) async {
@@ -1051,6 +1153,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     pause();
     _timer.value?.cancel();
     _timer.value = null;
+    // stop playback reporting, since the playback is not expected to resume in the near future
+    GetIt.instance<PlaybackHistoryService>().reportPlaybackStopped();
   }
 
   /// Starts the new sleep timer
@@ -1185,6 +1289,9 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
     // Moved here because currentTrackMetadataProvider depends on queueService
     // If metadataProvider is sloooooow, this allows it to catch up
     GetIt.instance<ProviderContainer>().listen(currentTrackMetadataProvider, (previous, next) {
+      // update media notification to reflect favorite state
+      refreshPlaybackStateAndMediaNotification();
+
       if (FinampSettingsHelper.finampSettings.volumeNormalizationMode != VolumeNormalizationMode.albumBased &&
           FinampSettingsHelper.finampSettings.volumeNormalizationMode != VolumeNormalizationMode.hybrid) {
         return;
