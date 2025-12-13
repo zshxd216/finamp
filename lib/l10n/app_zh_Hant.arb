@@ -384,7 +384,7 @@
     "@removeFromPlaylistTitle": {},
     "removedFromPlaylist": "已從播放清單中移除。",
     "@removedFromPlaylist": {},
-    "bufferDurationSubtitle": "最大緩衝持續時間（秒）。變更後需重新啟動。",
+    "bufferDurationSubtitle": "預先緩衝的音軌時間長度（秒）。變更後需要重新啟動應用程式。",
     "@bufferDurationSubtitle": {},
     "bufferDuration": "緩衝時長",
     "@bufferDuration": {},
@@ -853,7 +853,7 @@
     "@bufferDisableSizeConstraintsSubtitle": {},
     "bufferSizeTitle": "緩衝區大小",
     "@bufferSizeTitle": {},
-    "bufferSizeSubtitle": "緩衝區最大值 (MB)，變更後請重新啟動系統",
+    "bufferSizeSubtitle": "緩衝區大小 (MB)。變更後需要重新啟動應用程式",
     "@bufferSizeSubtitle": {},
     "skipToPreviousTrackButtonTooltip": "從頭播放或切換至前一首",
     "@skipToPreviousTrackButtonTooltip": {
@@ -2784,7 +2784,7 @@
     "@addDownloadLocationsErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs fails"
     },
-    "androidImageErrorPrompt": "警告：由於作業系統的限制，無法將圖片寫入 Android 的「音樂」資料夾。請選擇其他儲存位置。",
+    "androidImageErrorPrompt": "由於作業系統的限制，無法將圖片寫入 Android 的「音樂」資料夾。請選擇其他儲存位置。",
     "@androidImageErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
     },
@@ -3127,5 +3127,17 @@
     "loopingUnavailableWhileRadioActiveWarning": "電台啟用時無法變更循環模式，因為佇列將無限延續。",
     "@loopingUnavailableWhileRadioActiveWarning": {
         "description": "Warning message when trying to change the loop mode while radio is active."
+    },
+    "radioModeEnableButtonTitle": "啟用收音機模式",
+    "@radioModeEnableButtonTitle": {
+        "description": "Title for the option that enables radio mode."
+    },
+    "addDownloadLocationsErrorTitle": "無法寫入下載資料夾",
+    "@addDownloadLocationsErrorTitle": {
+        "description": "Title of popup dialog when adding a download location fails"
+    },
+    "duckOnAudioInterruptionTitle": "音訊衝突時降低音樂音量",
+    "@duckOnAudioInterruptionTitle": {
+        "description": "Title for the setting that controls ducking."
     }
 }
