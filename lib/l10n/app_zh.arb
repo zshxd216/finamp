@@ -137,8 +137,6 @@
     "@noAlbum": {},
     "playlistCreated": "播放列表已创建。",
     "@playlistCreated": {},
-    "setSleepTimer": "播放完成后暂停",
-    "@setSleepTimer": {},
     "sleepTimerTooltip": "睡眠定时器",
     "@sleepTimerTooltip": {},
     "unknownArtist": "未知艺术家",
@@ -2025,10 +2023,6 @@
     "libraryDownloads": "媒体库下载",
     "@libraryDownloads": {
         "description": "Title for the library downloads section on the downloads screen."
-    },
-    "desktopShuffleWarning": "随机播放目前在桌面版不可用",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "lyricsScreenButtonTitle": "歌词",
     "@lyricsScreenButtonTitle": {

@@ -302,8 +302,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "否",
     "@noButtonLabel": {},
-    "setSleepTimer": "多久後暫停播放",
-    "@setSleepTimer": {},
     "minutes": "分鍾",
     "@minutes": {},
     "invalidNumber": "無效數字",
@@ -2031,10 +2029,6 @@
             }
         },
         "description": "Label for the type of device in the output menu"
-    },
-    "desktopShuffleWarning": "桌面版尚未支援隨機播放模式。",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "enablePlayonTitle": "啟用「遠端播放」支援",
     "@enablePlayonTitle": {

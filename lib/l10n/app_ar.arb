@@ -249,8 +249,6 @@
     "@addToPlaylistTitle": {},
     "createButtonLabel": "إنشاء",
     "@createButtonLabel": {},
-    "setSleepTimer": "حدد مؤقت النوم",
-    "@setSleepTimer": {},
     "sleepTimerTooltip": "مؤقت النوم",
     "@sleepTimerTooltip": {},
     "newPlaylist": "قائمة اغاني جديد",

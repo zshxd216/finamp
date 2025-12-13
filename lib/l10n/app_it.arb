@@ -179,8 +179,6 @@
     "@light": {},
     "noButtonLabel": "No",
     "@noButtonLabel": {},
-    "setSleepTimer": "Ferma riproduzione dopo",
-    "@setSleepTimer": {},
     "system": "Sistema",
     "@system": {},
     "tabs": "Schede",
@@ -2042,10 +2040,6 @@
     "outputMenuOpenConnectionSettingsButtonTitle": "Connetti ad un dispositivo",
     "@outputMenuOpenConnectionSettingsButtonTitle": {
         "description": "Button title for connecting to a device from the output menu"
-    },
-    "desktopShuffleWarning": "La riproduzione casuale al momento non è disponibile sul desktop.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "marqueeOrTruncateButtonSubtitle": "Mostra … alla fine dei titoli lunghi invece di far scorrere il testo",
     "@marqueeOrTruncateButtonSubtitle": {},

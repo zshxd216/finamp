@@ -648,8 +648,6 @@
     },
     "seconds": "Segons",
     "@seconds": {},
-    "setSleepTimer": "Aturar la reproducció després de",
-    "@setSleepTimer": {},
     "hours": "Hores",
     "@hours": {},
     "cancelSleepTimer": "Cancel·lo el temporitzador per dormir?",

@@ -161,8 +161,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "Нет",
     "@noButtonLabel": {},
-    "setSleepTimer": "Остановить Воспроизведение Через",
-    "@setSleepTimer": {},
     "sleepTimerTooltip": "Таймер сна",
     "@sleepTimerTooltip": {},
     "createButtonLabel": "Создать",
@@ -2060,10 +2058,6 @@
     "outputMenuTitle": "Изменить вывод",
     "@outputMenuTitle": {
         "description": "Title for the output menu that allows the user to change the audio output device and volume"
-    },
-    "desktopShuffleWarning": "Изменение режима перемешивания в настоящее время недоступно на компьютере.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "ping": "{status, select, true_true{Оба адреса доступны} true_false{Локальный адрес НЕ ДОСТУПЕН} false_true{Публичный адрес НЕ ДОСТУПЕН} false_false{Оба адреса НЕ ДОСТУПНЫ} other{Неизвестно}}",
     "@ping": {

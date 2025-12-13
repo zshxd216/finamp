@@ -292,8 +292,6 @@
     "@theme": {},
     "system": "Sistema",
     "@system": {},
-    "setSleepTimer": "Pausar reproducción después de",
-    "@setSleepTimer": {},
     "sleepTimerTooltip": "Temporizador de sueño",
     "@sleepTimerTooltip": {},
     "unknownArtist": "Artista desconocido",
@@ -2336,10 +2334,6 @@
             }
         },
         "description": "Label for the type of device in the output menu"
-    },
-    "desktopShuffleWarning": "Cambiar el modo de mezcla no está disponible actualmente en plataformas de escritorio.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "audioFadeInDurationSettingTitle": "Duración del fundido de entrada de audio",
     "@audioFadeInDurationSettingTitle": {

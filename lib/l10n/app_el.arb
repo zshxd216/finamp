@@ -288,8 +288,6 @@
     "@tabs": {},
     "cancelSleepTimer": "Ακύρωση χρονοδιακόπτη ύπνου;",
     "@cancelSleepTimer": {},
-    "setSleepTimer": "Παύση αναπαραγωγής μετά από",
-    "@setSleepTimer": {},
     "minutes": "Λεπτά",
     "@minutes": {},
     "sleepTimerTooltip": "Χρονοδιακόπτης Ύπνου",

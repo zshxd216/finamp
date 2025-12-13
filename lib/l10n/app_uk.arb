@@ -289,8 +289,6 @@
     "@light": {},
     "hideTrackArtistsIfSameAsAlbumArtists": "Приховувати виконавців треку, якщо вони збігаються з виконавцями альбому",
     "@hideTrackArtistsIfSameAsAlbumArtists": {},
-    "setSleepTimer": "Призупинити відтворення після",
-    "@setSleepTimer": {},
     "sleepTimerTooltip": "Таймер сну",
     "@sleepTimerTooltip": {},
     "invalidNumber": "Некоректне число",
@@ -1966,10 +1964,6 @@
     "libraryDownloads": "Завантаження бібліотеки",
     "@libraryDownloads": {
         "description": "Title for the library downloads section on the downloads screen."
-    },
-    "desktopShuffleWarning": "Зміна режиму випадкового відтворення наразі недоступна на комп’ютері.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "playbackReporting": "Звіт про відтворення",
     "@playbackReporting": {},

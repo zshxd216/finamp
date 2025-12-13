@@ -164,8 +164,6 @@
     "@addToPlaylistTitle": {},
     "createButtonLabel": "Skapa",
     "@createButtonLabel": {},
-    "setSleepTimer": "Pausa uppspelning efter",
-    "@setSleepTimer": {},
     "cancelSleepTimer": "Avbryt Sovtimer?",
     "@cancelSleepTimer": {},
     "dark": "Mörkt",
@@ -2048,10 +2046,6 @@
     "outputMenuButtonTitle": "Ljudkälla",
     "@outputMenuButtonTitle": {
         "description": "Button title for opening the output menu/panel"
-    },
-    "desktopShuffleWarning": "Byte av shufflingsläge är för närvarande inte tillgängligt på PC.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "showShuffleButtonOnMediaNotificationSubtitle": "Styr ifall medianotisen har en shufflingsknapp. Detta låter dig shuffla/avshuffla uppspelningen utan att öppna appen.",
     "@showShuffleButtonOnMediaNotificationSubtitle": {

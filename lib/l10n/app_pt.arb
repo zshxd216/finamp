@@ -294,8 +294,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "Não",
     "@noButtonLabel": {},
-    "setSleepTimer": "Pausar Reprodução Depois",
-    "@setSleepTimer": {},
     "invalidNumber": "Número Inválido",
     "@invalidNumber": {},
     "sleepTimerTooltip": "Temporizador de Sono",
@@ -2193,10 +2191,6 @@
             }
         },
         "description": "Label for the type of device in the output menu"
-    },
-    "desktopShuffleWarning": "Alterar o modo de embaralhar não está atualmente disponível em ambiente de trabalho.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "itemCountCalculating": "A calcular contagem de itens",
     "@itemCountCalculating": {

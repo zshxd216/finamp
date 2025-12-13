@@ -229,8 +229,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "否",
     "@noButtonLabel": {},
-    "setSleepTimer": "設定睡眠定時器",
-    "@setSleepTimer": {},
     "minutes": "分鐘",
     "@minutes": {},
     "invalidNumber": "無效的數字",

@@ -223,8 +223,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "아니오",
     "@noButtonLabel": {},
-    "setSleepTimer": "다음 재생 일시 정지",
-    "@setSleepTimer": {},
     "minutes": "분",
     "@minutes": {},
     "invalidNumber": "잘못된 숫자",

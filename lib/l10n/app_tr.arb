@@ -220,8 +220,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "Hayır",
     "@noButtonLabel": {},
-    "setSleepTimer": "Uyuma Zamanlayıcısını Ayarla",
-    "@setSleepTimer": {},
     "minutes": "Dakika",
     "@minutes": {},
     "invalidNumber": "Geçersiz Sayı",

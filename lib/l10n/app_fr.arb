@@ -308,8 +308,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "Non",
     "@noButtonLabel": {},
-    "setSleepTimer": "Mettre la lecture en pause après",
-    "@setSleepTimer": {},
     "minutes": "Minutes",
     "@minutes": {},
     "invalidNumber": "Nombre invalide",
@@ -2176,10 +2174,6 @@
     "artistScreen": "Écran d'artistes",
     "@artistScreen": {
         "description": "Name for the view/screen that shows artists"
-    },
-    "desktopShuffleWarning": "Le changement de mode aléatoire n'est actuellement pas disponible sur le bureau.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "autoReloadQueueSubtitle": "Recharge automatiquement la file d'attente lorsque la source change (par exemple, mode hors ligne activé ou changement d'adresse de serveur). Si cette option est désactivée, Finamp vous le signalera.",
     "@autoReloadQueueSubtitle": {

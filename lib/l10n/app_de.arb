@@ -259,8 +259,6 @@
     "@tabs": {},
     "cancelSleepTimer": "Schlaf-Timer abbrechen?",
     "@cancelSleepTimer": {},
-    "setSleepTimer": "Wiedergabe pausieren nach",
-    "@setSleepTimer": {},
     "minutes": "Minuten",
     "@minutes": {},
     "addToPlaylistTitle": "Zur Playlist hinzufügen",
@@ -2025,10 +2023,6 @@
     "outputMenuButtonTitle": "Ausgabe",
     "@outputMenuButtonTitle": {
         "description": "Button title for opening the output menu/panel"
-    },
-    "desktopShuffleWarning": "Das Ändern der Zufallswiedergabe ist auf dem Desktop zur Zeit nicht verfügbar.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "libraryDownloads": "Bibliothek Downloads",
     "@libraryDownloads": {

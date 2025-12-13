@@ -201,8 +201,6 @@
     "@cancelSleepTimer": {},
     "yesButtonLabel": "Kyllä",
     "@yesButtonLabel": {},
-    "setSleepTimer": "Pysäytä toisto jälkeen ajan",
-    "@setSleepTimer": {},
     "minutes": "Minuuttia",
     "@minutes": {},
     "sleepTimerTooltip": "Uniajastin",
@@ -1970,10 +1968,6 @@
     "libraryDownloads": "Kirjaston lataukset",
     "@libraryDownloads": {
         "description": "Title for the library downloads section on the downloads screen."
-    },
-    "desktopShuffleWarning": "Sekoitustilan vaihto ei tällä hetkellä saatavilla sovelluksen työpöytäversiossa.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "playbackReporting": "Toiston raportointi",
     "@playbackReporting": {},

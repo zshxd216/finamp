@@ -238,8 +238,6 @@
     "@dark": {},
     "tabs": "Karty",
     "@tabs": {},
-    "setSleepTimer": "Pozastavit přehrávání po",
-    "@setSleepTimer": {},
     "invalidNumber": "Neplatné číslo",
     "@invalidNumber": {},
     "createButtonLabel": "Vytvořit",
@@ -1973,10 +1971,6 @@
     "libraryDownloads": "Stahování z knihovny",
     "@libraryDownloads": {
         "description": "Title for the library downloads section on the downloads screen."
-    },
-    "desktopShuffleWarning": "Změna náhodného přehrávání není na počítačích v současné době k dispozici.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "playbackReporting": "Hlášení přehrávání",
     "@playbackReporting": {},
