@@ -159,7 +159,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       // after current track
       SleepTimer(tracksLength: 1) => SleepTimerMenu.afterCurrentTrackTypeMenuHeight,
       // after duration
-      SleepTimer(tracksLength: > 1) => SleepTimerMenu.durationTypeMenuHeight,
+      SleepTimer(secondsLength: > 0) => SleepTimerMenu.durationTypeMenuHeight,
       // after track count
       _ => SleepTimerMenu.tracksTypeMenuHeight,
     };

@@ -918,7 +918,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     // visualDensity: VisualDensity.compact,
                                     icon: Icon(TablerIcons.dots, size: 28, color: primaryTextColor, weight: 1.5),
                                     onPressed: () {
-                                      Feedback.forLongPress(context);
+                                      FeedbackHelper.feedback(FeedbackType.selection);
                                       showModalTrackMenu(
                                         context: context,
                                         item: currentTrackBaseItem,
