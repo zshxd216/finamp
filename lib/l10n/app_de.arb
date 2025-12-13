@@ -400,7 +400,7 @@
     "@shuffleAlbums": {},
     "couldNotLoad": "Laden {source, select, album{des Albums} playlist{der Wiedergabeliste} trackMix{des Titelmixes} artistMix{des Künstlermixes} albumMix{des Albummixes} favorites{der Favoriten} allTracks{aller Titel} filteredList{der Titel} genre{des Genre} artist{des Künstlers} nextUpAlbum{des Album in \\\"Als Nächstes\\\"} nextUpPlaylist{der Playlist in \\\"Als Nächstes\\\"} nextUpArtist{des Künstlers in \\\"Als Nächstes\\\"} nextUpGenre{des Genres in \\\"Als Nächstes\\\"} other{}} fehlgeschlagen",
     "@couldNotLoad": {},
-    "bufferDurationSubtitle": "Die maximale Pufferdauer in Sekunden. Neustart erforderlich.",
+    "bufferDurationSubtitle": "Die Pufferdauer in Sekunden. Neustart erforderlich.",
     "@bufferDurationSubtitle": {},
     "language": "Sprache",
     "@language": {},
@@ -1500,7 +1500,7 @@
     "@bufferDisableSizeConstraintsSubtitle": {},
     "bufferSizeTitle": "Puffergröße",
     "@bufferSizeTitle": {},
-    "bufferSizeSubtitle": "Die maximale Größe des Puffers in MB. Neustart erforderlich",
+    "bufferSizeSubtitle": "Die Größe des Puffers in MB. Neustart erforderlich",
     "@bufferSizeSubtitle": {},
     "playCountValue": "{playCount,plural,=1{{playCount} Wiedergabe} other{{playCount} Wiedergaben}}",
     "@playCountValue": {
@@ -2774,7 +2774,7 @@
     "@addDownloadLocationsErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs fails"
     },
-    "androidImageErrorPrompt": "WARNUNG: Aufgrund von Betriebssystemeinschränkungen können keine Bilder in den Android-Musikordner geschrieben werden. Bitte wähle einen anderen Speicherort.",
+    "androidImageErrorPrompt": "Aufgrund von Betriebssystemeinschränkungen können keine Bilder in den Android-Musikordner geschrieben werden. Bitte wähle einen anderen Speicherort.",
     "@androidImageErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
     },
@@ -3117,5 +3117,33 @@
     "loopingUnavailableWhileRadioActiveWarning": "Das Wechseln des Loop-Modus ist nicht verfügbar während ein Radio aktiv ist, da die Warteschlange kein Ende hat.",
     "@loopingUnavailableWhileRadioActiveWarning": {
         "description": "Warning message when trying to change the loop mode while radio is active."
+    },
+    "radioModeEnableButtonTitle": "Radio aktivieren",
+    "@radioModeEnableButtonTitle": {
+        "description": "Title for the option that enables radio mode."
+    },
+    "addDownloadLocationsErrorTitle": "Es konnte nicht in den Download-Speicherort geschrieben werden",
+    "@addDownloadLocationsErrorTitle": {
+        "description": "Title of popup dialog when adding a download location fails"
+    },
+    "duckOnAudioInterruptionTitle": "Reduziere Lautstärke bei Unterbrechungen",
+    "@duckOnAudioInterruptionTitle": {
+        "description": "Title for the setting that controls ducking."
+    },
+    "duckOnAudioInterruptionSubtitle": "Senke die Lautstärke (duck), wenn eine andere App temporär Audio abspielt.",
+    "@duckOnAudioInterruptionSubtitle": {
+        "description": "Subtitle for the setting that controls ducking."
+    },
+    "forceAudioOffloadingOnAndroidTitle": "Erzwinge Audio Offloading",
+    "@forceAudioOffloadingOnAndroidTitle": {
+        "description": "Title for the setting that controls audio offloading on Android."
+    },
+    "forceAudioOffloadingOnAndroidSubtitle": "Lagert die Audioverarbeitung an die Hardware aus, sofern dies vom Gerät unterstützt wird.",
+    "@forceAudioOffloadingOnAndroidSubtitle": {
+        "description": "Subtitle for the setting that controls audio offloading on Android."
+    },
+    "explicit": "Explicit",
+    "@explicit": {
+        "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
     }
 }
