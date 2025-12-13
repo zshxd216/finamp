@@ -171,12 +171,12 @@ class TrackListTile extends ConsumerWidget {
           );
 
           var items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
+          var sortBy = settings.tabSortBy[TabContentType.tracks];
+          if ([SortBy.playCount, SortBy.datePlayed].contains(sortBy)) {
+            sortBy = SortBy.sortName;
+          }
 
-          items = sortItems(
-            items,
-            settings.tabSortBy[TabContentType.tracks],
-            settings.tabSortOrder[TabContentType.tracks],
-          );
+          items = sortItems(items, sortBy, settings.tabSortOrder[TabContentType.tracks]);
 
           int startingIndex = isShownInSearchOrHistory
               ? items.indexWhere((element) => element.id == item.id)

@@ -102,12 +102,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
       final sortOrder =
           (widget.sortOrderOverride ?? settings.tabSortOrder[widget.tabContentType])?.toString() ??
           SortOrder.ascending.toString();
-      var sortBy =
-          widget.sortByOverride ??
-          (settings.isOffline &&
-                  [SortBy.playCount, SortBy.datePlayed].contains(settings.tabSortBy[widget.tabContentType])
-              ? SortBy.sortName
-              : settings.tabSortBy[widget.tabContentType]);
+      final sortBy = widget.sortByOverride ?? settings.tabSortBy[widget.tabContentType];
       final newItems = await _jellyfinApiHelper.getItems(
         // starting with Jellyfin 10.9, only automatically created playlists will have a specific library as parent. user-created playlists will not be returned anymore
         // this condition fixes this by not providing a parentId when fetching playlists
