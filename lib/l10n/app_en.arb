@@ -2185,6 +2185,22 @@
   "@showSeekControlsOnMediaNotificationSubtitle": {
     "description": "Subtitle for the setting that controls if the media notification has a seekable progress bar."
   },
+  "lyricsEmptyStateLoading": "Loading lyrics...",
+  "@lyricsEmptyStateLoading": {
+    "description": "Message shown while lyrics are being loaded"
+  },
+  "lyricsEmptyStateFailed": "Couldn't load lyrics",
+  "@lyricsEmptyStateFailed": {
+    "description": "Message shown when lyrics failed to load"
+  },
+  "lyricsEmptyStateNoLyrics": "No lyrics available",
+  "@lyricsEmptyStateNoLyrics": {
+    "description": "Message shown when no lyrics are available for the current track"
+  },
+  "lyricsMissingLyricLinePlaceholder": "missing lyric line",
+  "@lyricsMissingLyricLinePlaceholder": {
+    "description": "Placeholder text for missing lyric lines in synchronized lyrics"
+  },
   "alignmentOptionStart": "Start",
   "@alignmentOptionStart": {
     "description": "Alignment option for things like the lyrics view. Start means left-aligned in LTR languages and right-aligned in RTL languages."

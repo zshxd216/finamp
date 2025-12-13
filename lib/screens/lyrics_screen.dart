@@ -296,13 +296,22 @@ class _LyricsViewState extends ConsumerState<LyricsView> with WidgetsBindingObse
     }
 
     if ((metadata.isLoading && !metadata.hasValue) || metadata.isRefreshing) {
-      return _getEmptyState(message: "Loading lyrics...", icon: TablerIcons.microphone_2);
+      return _getEmptyState(
+        message: AppLocalizations.of(context)!.lyricsEmptyStateLoading,
+        icon: TablerIcons.microphone_2,
+      );
     } else if (!metadata.hasValue ||
         metadata.value == null ||
         metadata.value!.hasLyrics && metadata.value!.lyrics == null && !metadata.isLoading) {
-      return _getEmptyState(message: "Couldn't load lyrics!", icon: TablerIcons.microphone_2_off);
+      return _getEmptyState(
+        message: AppLocalizations.of(context)!.lyricsEmptyStateFailed,
+        icon: TablerIcons.microphone_2_off,
+      );
     } else if (!metadata.value!.hasLyrics) {
-      return _getEmptyState(message: "No lyrics available.", icon: TablerIcons.microphone_2_off);
+      return _getEmptyState(
+        message: AppLocalizations.of(context)!.lyricsEmptyStateNoLyrics,
+        icon: TablerIcons.microphone_2_off,
+      );
     } else {
       // We have lyrics that we can display
       final lyricLines = lyrics ?? [];
@@ -577,7 +586,10 @@ class _LyricLineTextState extends ConsumerState<_LyricLineText> {
 
     if (text == null || text.isEmpty) {
       setState(() {
-        textSpan = TextSpan(text: text ?? "<missing lyric line>", style: widget.currentLineStyle);
+        textSpan = TextSpan(
+          text: text ?? "<${AppLocalizations.of(context)!.lyricsMissingLyricLinePlaceholder}>",
+          style: widget.currentLineStyle,
+        );
       });
       return;
     }
@@ -641,12 +653,21 @@ class _LyricLineTextState extends ConsumerState<_LyricLineText> {
   void _updateTextWithoutCues() {
     setState(() {
       if (!widget._isSynced) {
-        textSpan = TextSpan(text: widget.line.text ?? "<missing lyric line>", style: widget.unSyncedStyle);
+        textSpan = TextSpan(
+          text: widget.line.text ?? "<${AppLocalizations.of(context)!.lyricsMissingLyricLinePlaceholder}>",
+          style: widget.unSyncedStyle,
+        );
       } else if (!isCurrentLine) {
-        textSpan = TextSpan(text: widget.line.text ?? "<missing lyric line>", style: widget.lowlightStyle);
+        textSpan = TextSpan(
+          text: widget.line.text ?? "<${AppLocalizations.of(context)!.lyricsMissingLyricLinePlaceholder}>",
+          style: widget.lowlightStyle,
+        );
       } else {
         assert(!widget._useCues);
-        textSpan = TextSpan(text: widget.line.text ?? "<missing lyric line>", style: widget.currentLineStyle);
+        textSpan = TextSpan(
+          text: widget.line.text ?? "<${AppLocalizations.of(context)!.lyricsMissingLyricLinePlaceholder}>",
+          style: widget.currentLineStyle,
+        );
       }
     });
   }
