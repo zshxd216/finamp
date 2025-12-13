@@ -3128,7 +3128,7 @@
     "@loopingUnavailableWhileRadioActiveWarning": {
         "description": "Warning message when trying to change the loop mode while radio is active."
     },
-    "radioModeEnableButtonTitle": "啟用收音機模式",
+    "radioModeEnableButtonTitle": "啟用電台",
     "@radioModeEnableButtonTitle": {
         "description": "Title for the option that enables radio mode."
     },
@@ -3139,5 +3139,21 @@
     "duckOnAudioInterruptionTitle": "音訊衝突時降低音樂音量",
     "@duckOnAudioInterruptionTitle": {
         "description": "Title for the setting that controls ducking."
+    },
+    "duckOnAudioInterruptionSubtitle": "偵測其他音訊時，暫時降低音樂音量。",
+    "@duckOnAudioInterruptionSubtitle": {
+        "description": "Subtitle for the setting that controls ducking."
+    },
+    "forceAudioOffloadingOnAndroidTitle": "強制使用硬體音訊處理",
+    "@forceAudioOffloadingOnAndroidTitle": {
+        "description": "Title for the setting that controls audio offloading on Android."
+    },
+    "forceAudioOffloadingOnAndroidSubtitle": "若裝置支援，將音訊處理交由硬體執行。",
+    "@forceAudioOffloadingOnAndroidSubtitle": {
+        "description": "Subtitle for the setting that controls audio offloading on Android."
+    },
+    "explicit": "含不雅內容標示",
+    "@explicit": {
+        "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
     }
 }
