@@ -9,15 +9,13 @@ import Flutter
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         // Exclude the documents and support folders from iCloud backup since we keep songs there.
-        try! setExcludeFromiCloudBackup(
-            try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true),
-            isExcluded: true
-        )
+        if let documentsDir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
+            try? setExcludeFromiCloudBackup(documentsDir, isExcluded: true)
+        }
         
-        try! setExcludeFromiCloudBackup(
-            try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true),
-            isExcluded: true
-        )
+        if let appSupportDir = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
+            try? setExcludeFromiCloudBackup(appSupportDir, isExcluded: true)
+        }
         
         // Retrieve the link from parameters
         if let url = AppLinks.shared.getLink(launchOptions: launchOptions) {
