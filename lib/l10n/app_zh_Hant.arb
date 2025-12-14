@@ -3128,7 +3128,7 @@
     "@loopingUnavailableWhileRadioActiveWarning": {
         "description": "Warning message when trying to change the loop mode while radio is active."
     },
-    "radioModeEnableButtonTitle": "啟用電台模式",
+    "radioModeEnableButtonTitle": "啟用電台",
     "@radioModeEnableButtonTitle": {
         "description": "Title for the option that enables radio mode."
     },
@@ -3155,5 +3155,21 @@
     "explicit": "不雅內容",
     "@explicit": {
         "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
+    },
+    "lyricsEmptyStateLoading": "載入歌詞中…",
+    "@lyricsEmptyStateLoading": {
+        "description": "Message shown while lyrics are being loaded"
+    },
+    "lyricsEmptyStateFailed": "無法載入歌詞",
+    "@lyricsEmptyStateFailed": {
+        "description": "Message shown when lyrics failed to load"
+    },
+    "lyricsEmptyStateNoLyrics": "暫無歌詞顯示",
+    "@lyricsEmptyStateNoLyrics": {
+        "description": "Message shown when no lyrics are available for the current track"
+    },
+    "lyricsMissingLyricLinePlaceholder": "部分歌詞缺失",
+    "@lyricsMissingLyricLinePlaceholder": {
+        "description": "Placeholder text for missing lyric lines in synchronized lyrics"
     }
 }

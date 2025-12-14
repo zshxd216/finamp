@@ -332,7 +332,7 @@
     "@addToMix": {},
     "removeFromMix": "Poista Sekoituksesta",
     "@removeFromMix": {},
-    "bufferDurationSubtitle": "Maksimiaika, joka soittimen pitäisi puskuroida, sekunteina. Vaatii uudelleenkäynnistyksen.",
+    "bufferDurationSubtitle": "Aika, joka soittimen pitäisi puskuroida, sekunteina. Vaatii uudelleenkäynnistyksen.",
     "@bufferDurationSubtitle": {},
     "swipeInsertQueueNext": "Toista pyyhkäisty kappale seuraavaksi",
     "@swipeInsertQueueNext": {},
@@ -1272,7 +1272,7 @@
     "@tracksFormerNextUp": {
         "description": "Title for the queue source for tracks that were once added to the queue via the \"Next Up\" feature, but have since been played"
     },
-    "bufferSizeSubtitle": "Puskurin maksimikoko megatavuissa (Mt). Vaatii uudelleenkäynnistyksen",
+    "bufferSizeSubtitle": "Puskurin koko megatavuissa (Mt). Vaatii uudelleenkäynnistyksen",
     "@bufferSizeSubtitle": {},
     "playbackHistory": "Toistohistoria",
     "@playbackHistory": {
@@ -2782,7 +2782,7 @@
     "@addDownloadLocationsErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs fails"
     },
-    "androidImageErrorPrompt": "VAROITUS: Emme pysty tallentamaan kuvia androidin musiikki-kansioon käyttöjärjestelmärajoitusten vuoksi. Valitse toinen sijainti.",
+    "androidImageErrorPrompt": "Emme pysty tallentamaan kuvia androidin musiikki-kansioon käyttöjärjestelmärajoitusten vuoksi. Valitse toinen sijainti.",
     "@androidImageErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
     },
@@ -3131,5 +3131,49 @@
     "loopingUnavailableWhileRadioActiveWarning": "Loop-tilan vaihtaminen radio-tilassa ei ole tuettu, koska jono jatkuu loputtomiin.",
     "@loopingUnavailableWhileRadioActiveWarning": {
         "description": "Warning message when trying to change the loop mode while radio is active."
+    },
+    "lyricsEmptyStateLoading": "Ladataan lyriikoita...",
+    "@lyricsEmptyStateLoading": {
+        "description": "Message shown while lyrics are being loaded"
+    },
+    "lyricsEmptyStateFailed": "Lyriikoita ei voitu ladata",
+    "@lyricsEmptyStateFailed": {
+        "description": "Message shown when lyrics failed to load"
+    },
+    "lyricsEmptyStateNoLyrics": "Ei lyriikoita saatavilla",
+    "@lyricsEmptyStateNoLyrics": {
+        "description": "Message shown when no lyrics are available for the current track"
+    },
+    "lyricsMissingLyricLinePlaceholder": "lyriikkarivi puuttuu",
+    "@lyricsMissingLyricLinePlaceholder": {
+        "description": "Placeholder text for missing lyric lines in synchronized lyrics"
+    },
+    "radioModeEnableButtonTitle": "Kytke radio päälle",
+    "@radioModeEnableButtonTitle": {
+        "description": "Title for the option that enables radio mode."
+    },
+    "addDownloadLocationsErrorTitle": "Ei voitu kirjoittaa lataussijaintiin",
+    "@addDownloadLocationsErrorTitle": {
+        "description": "Title of popup dialog when adding a download location fails"
+    },
+    "duckOnAudioInterruptionTitle": "Vähennä äänenvoimakkuutta keskeytysten aikana",
+    "@duckOnAudioInterruptionTitle": {
+        "description": "Title for the setting that controls ducking."
+    },
+    "duckOnAudioInterruptionSubtitle": "Vähennä äänenvoimakkuutta kun toinen sovellus hetkellisesti toistaa audiota.",
+    "@duckOnAudioInterruptionSubtitle": {
+        "description": "Subtitle for the setting that controls ducking."
+    },
+    "forceAudioOffloadingOnAndroidTitle": "Pakota äänen offloadaus",
+    "@forceAudioOffloadingOnAndroidTitle": {
+        "description": "Title for the setting that controls audio offloading on Android."
+    },
+    "forceAudioOffloadingOnAndroidSubtitle": "Pakota audion käsittely laitteistolle (sen äänipiirille CPU:n sijaan), mikäli laite tukee toimintoa.",
+    "@forceAudioOffloadingOnAndroidSubtitle": {
+        "description": "Subtitle for the setting that controls audio offloading on Android."
+    },
+    "explicit": "Säädytön sisältö",
+    "@explicit": {
+        "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
     }
 }
