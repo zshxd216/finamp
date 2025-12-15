@@ -438,6 +438,12 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             : fields[136] as Color?,
         useSystemAccentColor: fields[137] == null ? false : fields[137] as bool,
         useMonochromeIcon: fields[138] == null ? false : fields[138] as bool,
+        duckOnAudioInterruption: fields[142] == null
+            ? true
+            : fields[142] as bool,
+        forceAudioOffloadingOnAndroid: fields[143] == null
+            ? false
+            : fields[143] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -456,7 +462,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(135)
+      ..writeByte(137)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -726,7 +732,11 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(140)
       ..write(obj.radioEnabled)
       ..writeByte(141)
-      ..write(obj.radioMode);
+      ..write(obj.radioMode)
+      ..writeByte(142)
+      ..write(obj.duckOnAudioInterruption)
+      ..writeByte(143)
+      ..write(obj.forceAudioOffloadingOnAndroid);
   }
 
   @override
@@ -2491,6 +2501,8 @@ class FinampFeatureChipTypeAdapter extends TypeAdapter<FinampFeatureChipType> {
         return FinampFeatureChipType.normalizationGain;
       case 8:
         return FinampFeatureChipType.sampleRate;
+      case 9:
+        return FinampFeatureChipType.explicit;
       default:
         return FinampFeatureChipType.playCount;
     }
@@ -2517,6 +2529,8 @@ class FinampFeatureChipTypeAdapter extends TypeAdapter<FinampFeatureChipType> {
         writer.writeByte(7);
       case FinampFeatureChipType.sampleRate:
         writer.writeByte(8);
+      case FinampFeatureChipType.explicit:
+        writer.writeByte(9);
     }
   }
 
@@ -3052,11 +3066,11 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
       case 1:
         return RadioMode.continuous;
       case 2:
-        return RadioMode.reshuffle;
-      case 3:
-        return RadioMode.random;
-      case 4:
         return RadioMode.albumMix;
+      case 3:
+        return RadioMode.reshuffle;
+      case 4:
+        return RadioMode.random;
       default:
         return RadioMode.similar;
     }
@@ -3069,11 +3083,11 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
         writer.writeByte(0);
       case RadioMode.continuous:
         writer.writeByte(1);
-      case RadioMode.reshuffle:
-        writer.writeByte(2);
-      case RadioMode.random:
-        writer.writeByte(3);
       case RadioMode.albumMix:
+        writer.writeByte(2);
+      case RadioMode.reshuffle:
+        writer.writeByte(3);
+      case RadioMode.random:
         writer.writeByte(4);
     }
   }
@@ -8900,6 +8914,7 @@ const _$FinampFeatureChipTypeEnumMap = {
   FinampFeatureChipType.size: 'size',
   FinampFeatureChipType.normalizationGain: 'normalizationGain',
   FinampFeatureChipType.sampleRate: 'sampleRate',
+  FinampFeatureChipType.explicit: 'explicit',
 };
 
 FinampOutputRoute _$FinampOutputRouteFromJson(Map<String, dynamic> json) =>

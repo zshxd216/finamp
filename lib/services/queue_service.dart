@@ -84,9 +84,8 @@ class QueueService {
 
   // external queue state
 
-  // the audio source used by the player. The first X items of all internal queues are merged together into this source, so that all player features, like gapless playback, are supported
   late final NextUpShuffleOrder _shuffleOrder;
-  int _queueAudioSourceIndex = 0;
+  int _currentQueueIndex = 0;
   int? _activeInitialIndex;
 
   // Flags for saving and loading saved queues
@@ -120,12 +119,12 @@ class QueueService {
     _audioHandler.playbackState.listen((event) async {
       // int indexDifference = (event.currentIndex ?? 0) - _queueAudioSourceIndex;
 
-      final previousIndex = _queueAudioSourceIndex;
-      _queueAudioSourceIndex = event.queueIndex ?? 0;
+      final previousIndex = _currentQueueIndex;
+      _currentQueueIndex = event.queueIndex ?? 0;
 
       // Ignore playback events if queue is empty.
-      if (previousIndex != _queueAudioSourceIndex && _currentTrack != null) {
-        _queueServiceLogger.finer("Play queue index changed, new index: $_queueAudioSourceIndex");
+      if (previousIndex != _currentQueueIndex && _currentTrack != null) {
+        _queueServiceLogger.finer("Play queue index changed, new index: $_currentQueueIndex");
         _buildQueueFromNativePlayerQueue();
       } else {
         _saveUpdateImmediate = true;
@@ -183,8 +182,8 @@ class QueueService {
   void _buildQueueFromNativePlayerQueue({bool logUpdate = true, int? indexOverride}) {
     final playbackHistoryService = GetIt.instance<PlaybackHistoryService>();
 
-    _queueAudioSourceIndex = indexOverride ?? _audioHandler.queueIndex ?? _queueAudioSourceIndex;
-    if (_activeInitialIndex != null && _queueAudioSourceIndex != _activeInitialIndex) {
+    _currentQueueIndex = indexOverride ?? _audioHandler.queueIndex ?? _currentQueueIndex;
+    if (_activeInitialIndex != null && _currentQueueIndex != _activeInitialIndex) {
       // We have been during the middle of a queue replacement.  Ignore to avoid stripping next up entries.
       _queueServiceLogger.warning("Ignoring call to _buildQueueFromNativePlayerQueue while in queue replacement");
       return;
@@ -203,7 +202,7 @@ class QueueService {
 
     // split the queue by old type
     for (int i = 0; i < allTracks.length; i++) {
-      if (i < _queueAudioSourceIndex) {
+      if (i < _currentQueueIndex) {
         _queuePreviousTracks.add(allTracks[i]);
         if ([
           QueueItemSourceType.nextUp,
@@ -219,7 +218,7 @@ class QueueService {
           );
         }
         _queuePreviousTracks.last.type = QueueItemQueueType.previousTracks;
-      } else if (i == _queueAudioSourceIndex) {
+      } else if (i == _currentQueueIndex) {
         _currentTrack = allTracks[i];
         _currentTrack!.type = QueueItemQueueType.currentTrack;
       } else {
@@ -612,6 +611,7 @@ class QueueService {
     QueueItemSource? customTrackSource,
     FinampPlaybackOrder? order,
     int? startingIndex,
+    bool skipRadioCacheInvalidation = false,
   }) async {
     // _initialQueue = list; // save original PlaybackList for looping/restarting and meta info
 
@@ -621,6 +621,7 @@ class QueueService {
       customTrackSource: customTrackSource,
       order: order,
       initialIndex: startingIndex,
+      skipRadioCacheInvalidation: skipRadioCacheInvalidation,
     );
     _queueServiceLogger.info(
       "Started playing '${GlobalSnackbar.materialAppScaffoldKey.currentContext != null ? source.name.getLocalized(GlobalSnackbar.materialAppScaffoldKey.currentContext!) : source.name.type}' (${source.type}) in order $order from index $startingIndex",
@@ -642,6 +643,7 @@ class QueueService {
     FinampPlaybackOrder? order,
     bool beginPlaying = true,
     bool isRestoredQueue = false,
+    bool skipRadioCacheInvalidation = false,
   }) async {
     if (trackSources != null) {
       if (trackSources.length != itemList.length) {
@@ -672,7 +674,9 @@ class QueueService {
         return;
       }
 
-      invalidateRadioCache();
+      if (!skipRadioCacheInvalidation) {
+        invalidateRadioCache();
+      }
 
       order ??= FinampPlaybackOrder.linear;
 
@@ -829,6 +833,11 @@ class QueueService {
       _savedQueueState = SavedQueueState.saving;
     }
 
+    // avoid radio eagerly adding new tracks from cache (or requesting new tracks) right after the queue is cleared
+    final previousRadioState = FinampSettingsHelper.finampSettings.radioEnabled;
+    FinampSetters.setRadioEnabled(false);
+    invalidateRadioCache();
+
     await _audioHandler.clearFinampQueueItems();
 
     await _audioHandler.stopPlayback();
@@ -836,6 +845,8 @@ class QueueService {
     _buildQueueFromNativePlayerQueue();
     // await _audioHandler.initializeAudioSource(_queueAudioSource,
     //     preload: false);
+
+    FinampSetters.setRadioEnabled(previousRadioState);
 
     return;
   }
@@ -940,7 +951,7 @@ class QueueService {
         );
       }
 
-      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
+      int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex);
       int offset = min(_audioHandler.audioSources.length, 1);
       int offsetLog = offset;
 
@@ -1010,7 +1021,7 @@ class QueueService {
       int offset = _queueNextUp.length + min(_audioHandler.audioSources.length, 1);
       int offsetLog = offset;
 
-      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
+      int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex);
 
       for (final queueItem in queueItems) {
         _queueServiceLogger.fine(
@@ -1032,46 +1043,50 @@ class QueueService {
   }
 
   Future<void> removeAtOffset(int offset) async {
-    int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex + offset);
+    int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex + offset);
 
     await _audioHandler.removeFinampQueueItemAt(adjustedQueueIndex);
     _buildQueueFromNativePlayerQueue();
   }
 
-  /// This function removes all upcoming radio tracks. Prefer calling clearRadioTracks
-  /// in radio_service_helper, which wraps this with a radio state lock.
-  Future<void> clearRadioTracksLocked() async {
+  /// This function removes all upcoming radio tracks.
+  /// Callers should set up correct radio state synchronously before calling this,
+  /// so that we will be ready for the radio to restart as soon as this function releases its lock.
+  /// i.e., there's a chance for [maybeAddRadioTracks] to fire in the async gap after the lock releases before the caller regains execution, so the radio settings should be set up beforehand so that the state doesn't get invalidated immediately.
+  Future<void> clearRadioTracks() async {
     _queueServiceLogger.finer("Clearing radio tracks from queue.");
-    final radioIndices = _queue
-        .asMap()
-        .entries
-        .where((entry) {
-          return entry.value.source.type == QueueItemSourceType.radio;
-        })
-        .map((entry) => entry.key)
-        .toList();
-    if (radioIndices.isEmpty) {
-      return;
-    }
-    List<int> adjustedIndicesToRemove = [];
-    for (final index in radioIndices) {
-      int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex + _queueNextUp.length + index + 1);
-      adjustedIndicesToRemove.add(adjustedQueueIndex);
-    }
-    int currentRangeEnd = adjustedIndicesToRemove.last;
-    int currentRangeStart = currentRangeEnd;
-    // remove from the back to avoid index shifting
-    for (final adjustedIndex in adjustedIndicesToRemove.reversed.skip(1)) {
-      if (adjustedIndex == currentRangeStart - 1 && adjustedIndex != adjustedIndicesToRemove.first) {
-        currentRangeStart = adjustedIndex;
-      } else {
-        // remove in batches to improve performance
-        await _audioHandler.removeFinampQueueItemRange(adjustedIndex, currentRangeEnd + 1);
-        currentRangeStart = adjustedIndex;
-        currentRangeEnd = adjustedIndex;
+    await withRadioLock(() async {
+      final radioIndices = _queue
+          .asMap()
+          .entries
+          .where((entry) {
+            return entry.value.source.type == QueueItemSourceType.radio;
+          })
+          .map((entry) => entry.key)
+          .toList();
+      if (radioIndices.isEmpty) {
+        return;
       }
-    }
-    _buildQueueFromNativePlayerQueue();
+      List<int> adjustedIndicesToRemove = [];
+      for (final index in radioIndices) {
+        int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex + _queueNextUp.length + index + 1);
+        adjustedIndicesToRemove.add(adjustedQueueIndex);
+      }
+      int currentRangeEnd = adjustedIndicesToRemove.last;
+      int currentRangeStart = currentRangeEnd;
+      // remove from the back to avoid index shifting
+      for (final adjustedIndex in adjustedIndicesToRemove.reversed.skip(1)) {
+        if (adjustedIndex == currentRangeStart - 1 && adjustedIndex != adjustedIndicesToRemove.first) {
+          currentRangeStart = adjustedIndex;
+        } else {
+          // remove in batches to improve performance
+          await _audioHandler.removeFinampQueueItemRange(adjustedIndex, currentRangeEnd + 1);
+          currentRangeStart = adjustedIndex;
+          currentRangeEnd = adjustedIndex;
+        }
+      }
+      _buildQueueFromNativePlayerQueue();
+    });
   }
 
   Future<void> removeQueueItem(FinampQueueItem queueItem) async {
@@ -1085,18 +1100,31 @@ class QueueService {
   Future<void> reorderByOffset(int oldOffset, int newOffset) async {
     _queueServiceLogger.fine("Reordering queue item at offset $oldOffset to offset $newOffset");
 
-    int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
+    if (playbackOrder == FinampPlaybackOrder.shuffled) {
+      final newShuffleOrder = [..._shuffleOrder.indices];
+      final int itemToMove = newShuffleOrder.removeAt(_currentQueueIndex + oldOffset);
+      newShuffleOrder.insert(
+        oldOffset < newOffset ? _currentQueueIndex + newOffset - 1 : _currentQueueIndex + newOffset,
+        itemToMove,
+      );
+      try {
+        _shuffleOrder.overrideShuffle(newShuffleOrder);
+        await _audioHandler.shuffle();
+      } finally {
+        _shuffleOrder.overrideShuffle(null);
+      }
+    } else {
+      final oldIndex = _currentQueueIndex + oldOffset;
+      final newIndex = oldOffset < newOffset ? _currentQueueIndex + newOffset - 1 : _currentQueueIndex + newOffset;
 
-    //!!! the player will automatically change the shuffle indices of the ConcatenatingAudioSource if shuffle is enabled, so we need to use the regular track index here
-    final oldIndex = adjustedQueueIndex + oldOffset;
-    final newIndex = oldOffset < newOffset ? adjustedQueueIndex + newOffset - 1 : adjustedQueueIndex + newOffset;
+      await _audioHandler.moveFinampQueueItem(oldIndex, newIndex);
+    }
 
-    await _audioHandler.moveFinampQueueItem(oldIndex, newIndex);
     _buildQueueFromNativePlayerQueue();
   }
 
   Future<void> clearNextUp() async {
-    int adjustedQueueIndex = getActualIndexByLinearIndex(_queueAudioSourceIndex);
+    int adjustedQueueIndex = getActualIndexByLinearIndex(_currentQueueIndex);
 
     // remove all items from Next Up
     if (_queueNextUp.isNotEmpty) {
@@ -1360,8 +1388,10 @@ class QueueService {
 
     MediaItemId? itemId;
     final tabContentType = TabContentType.fromItemType(item.type ?? "Audio");
+    bool isAndroidAutoOrMediaBrowserRequest = false;
 
     if (parentType != null) {
+      isAndroidAutoOrMediaBrowserRequest = true;
       itemId = MediaItemId(
         contentType: tabContentType,
         parentType: parentType,
@@ -1386,6 +1416,32 @@ class QueueService {
       }
     }
 
+    Uri? artUri = isAndroidAutoOrMediaBrowserRequest
+        ? _providers.read(albumImageProvider(AlbumImageRequest(item: item, maxHeight: 200, maxWidth: 200))).uri
+        : null;
+
+    // use content provider for handling media art on Android
+    if (Platform.isAndroid && isAndroidAutoOrMediaBrowserRequest) {
+      final packageInfo = await PackageInfo.fromPlatform();
+      // replace with placeholder art
+      if (artUri == null) {
+        final applicationSupportDirectory = await getApplicationSupportDirectory();
+        artUri = Uri(
+          scheme: "content",
+          host: packageInfo.packageName,
+          path: path_helper.join(applicationSupportDirectory.absolute.path, Assets.images.albumWhite.path),
+        );
+      } else {
+        // store the origin in fragment since it should be unused
+        artUri = Uri(
+          scheme: "content",
+          host: packageInfo.packageName,
+          path: artUri.path,
+          fragment: ["http", "https"].contains(artUri.scheme) ? artUri.origin : null,
+        );
+      }
+    }
+
     return MediaItem(
       id: itemId?.toString() ?? uuid.v4(),
       playable:
@@ -1401,11 +1457,13 @@ class QueueService {
         "downloadedTrackPath": downloadedTrack?.file?.path,
         "isDownloaded": isDownloaded,
         "android.media.extra.DOWNLOAD_STATUS": isDownloaded ? 2 : 0,
+        "android.media.IS_EXPLICIT": item.isExplicit ? 1 : 0,
         "isOffline": FinampSettingsHelper.finampSettings.isOffline,
         "contextNormalizationGain": contextNormalizationGain,
       },
       // Jellyfin returns microseconds * 10 for some reason
       duration: item.runTimeTicksDuration(),
+      artUri: artUri,
     );
   }
 }

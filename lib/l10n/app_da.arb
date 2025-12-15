@@ -360,8 +360,6 @@
             }
         }
     },
-    "setSleepTimer": "Indtil sove timer",
-    "@setSleepTimer": {},
     "useCoverAsBackgroundSubtitle": "Vælg om der skal bruges sløret omslagskunst som vises som baggrund på afspiller skærmen.",
     "@useCoverAsBackgroundSubtitle": {},
     "system": "System",

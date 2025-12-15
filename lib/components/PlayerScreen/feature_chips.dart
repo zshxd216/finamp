@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -13,6 +14,7 @@ import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
 
@@ -110,8 +112,11 @@ class FeatureState {
     }
 
     for (var feature in configuration.features) {
+      if (feature == FinampFeatureChipType.explicit && (currentTrack?.baseItem.isExplicit ?? false)) {
+        features.add(FeatureProperties(text: "E", type: FinampFeatureChipType.explicit));
+      }
       // TODO this will likely be extremely outdated if offline, hide?
-      if (feature == FinampFeatureChipType.playCount && currentTrack?.baseItem?.userData?.playCount != null) {
+      if (feature == FinampFeatureChipType.playCount && currentTrack?.baseItem.userData?.playCount != null) {
         features.add(
           FeatureProperties(
             type: feature,
@@ -120,8 +125,8 @@ class FeatureState {
         );
       }
 
-      if (feature == FinampFeatureChipType.additionalPeople && (currentTrack?.baseItem?.people?.isNotEmpty ?? false)) {
-        currentTrack?.baseItem?.people?.forEach((person) {
+      if (feature == FinampFeatureChipType.additionalPeople && (currentTrack?.baseItem.people?.isNotEmpty ?? false)) {
+        currentTrack?.baseItem.people?.forEach((person) {
           features.add(FeatureProperties(type: feature, text: "${person.role}: ${person.name}"));
         });
       }
@@ -293,14 +298,22 @@ class _FeatureContent extends StatelessWidget {
       // ),
       constraints: const BoxConstraints(maxWidth: 220),
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-      child: Text(
-        feature.text,
-        style: Theme.of(
-          context,
-        ).textTheme.displaySmall!.copyWith(fontSize: 11, fontWeight: FontWeight.w300, overflow: TextOverflow.ellipsis),
-        softWrap: false,
-        overflow: TextOverflow.ellipsis,
-      ),
+      child: switch (feature.type) {
+        FinampFeatureChipType.explicit => Transform.translate(
+          offset: const Offset(0, -1.25),
+          child: Icon(TablerIcons.explicit, size: 11 + 3, semanticLabel: AppLocalizations.of(context)!.explicit),
+        ),
+        _ => Text(
+          feature.text,
+          style: Theme.of(context).textTheme.displaySmall!.copyWith(
+            fontSize: 11,
+            fontWeight: FontWeight.w300,
+            overflow: TextOverflow.ellipsis,
+          ),
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+        ),
+      },
     );
   }
 }

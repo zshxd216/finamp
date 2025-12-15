@@ -302,8 +302,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "否",
     "@noButtonLabel": {},
-    "setSleepTimer": "多久後暫停播放",
-    "@setSleepTimer": {},
     "minutes": "分鍾",
     "@minutes": {},
     "invalidNumber": "無效數字",
@@ -386,7 +384,7 @@
     "@removeFromPlaylistTitle": {},
     "removedFromPlaylist": "已從播放清單中移除。",
     "@removedFromPlaylist": {},
-    "bufferDurationSubtitle": "最大緩衝持續時間（秒）。變更後需重新啟動。",
+    "bufferDurationSubtitle": "預先緩衝的音軌時間長度（秒）。變更後需要重新啟動應用程式。",
     "@bufferDurationSubtitle": {},
     "bufferDuration": "緩衝時長",
     "@bufferDuration": {},
@@ -634,7 +632,7 @@
     "@activeDownloadsTitle": {},
     "noActiveDownloads": "目前沒有正在進行的下載。",
     "@noActiveDownloads": {},
-    "offlineTrackCount": "{count,plural,=1{{count} 首歌曲} other{{count} 首歌曲}}，{downloads} 次下載",
+    "offlineTrackCount": "{count,plural,=1{{count} 首歌曲} other{{count} 首歌曲}}，已下載 {downloads} 首",
     "@offlineTrackCount": {
         "placeholders": {
             "count": {
@@ -855,7 +853,7 @@
     "@bufferDisableSizeConstraintsSubtitle": {},
     "bufferSizeTitle": "緩衝區大小",
     "@bufferSizeTitle": {},
-    "bufferSizeSubtitle": "緩衝區最大值 (MB)，變更後請重新啟動系統",
+    "bufferSizeSubtitle": "緩衝區大小 (MB)。變更後需要重新啟動應用程式",
     "@bufferSizeSubtitle": {},
     "skipToPreviousTrackButtonTooltip": "從頭播放或切換至前一首",
     "@skipToPreviousTrackButtonTooltip": {
@@ -975,7 +973,7 @@
     "@savedQueue": {
         "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
     },
-    "playingFromType": "現正播放自{source, select, album{專輯} playlist{播放清單} trackMix{歌曲混播} artistMix{藝人混播} albumMix{專輯混播} genreMix{類型混播} favorites{收藏} allTracks{所有歌曲} filteredList{篩選} genre{類型} artist{藝人} track{歌曲} nextUpAlbum{即將播放中的專輯} nextUpPlaylist{即將播放中的播放清單} nextUpArtist{即將播放中的藝人} nextUpGenre{即將播放中的類型} remoteClient{其他用戶端} other{}}",
+    "playingFromType": "現正播放自{source, select, album{專輯} playlist{播放清單} trackMix{歌曲混播} artistMix{藝人混播} albumMix{專輯混播} genreMix{類型混播} favorites{收藏} allTracks{所有歌曲} filteredList{篩選} genre{類型} artist{藝人} track{歌曲} nextUpAlbum{即將播放中的專輯} nextUpPlaylist{即將播放中的播放清單} nextUpArtist{即將播放中的藝人} nextUpGenre{即將播放中的類型} remoteClient{其他用戶端} radio{電台} other{}}",
     "@playingFromType": {
         "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
         "placeholders": {
@@ -1223,7 +1221,7 @@
     "@itemDeletedSnackbar": {
         "description": "Used whenever item gets deleted from the device or server, message in snackbar"
     },
-    "volumeNormalizationModeSelectorDescription": "動態模式：\n當連續播放同一張專輯中的多首歌曲時，使用「專輯增益」進行音量調整（例如播放整張專輯，或播放清單中來自同一專輯的曲目）。否則，將使用「單曲增益」。\n\n依單曲調整：\n無論是否播放整張專輯，皆一律使用「單曲增益」進行音量標準化。\n\n依專輯調整：\n永遠優先使用「專輯增益」；若該歌曲無專輯資訊（例如單曲），則改用「單曲增益」。\n\n僅限專輯：\n僅在播放整張專輯時才會套用音量標準化（使用專輯增益）；播放單首歌曲時將不進行任何音量調整。",
+    "volumeNormalizationModeSelectorDescription": "動態模式：\n當連續播放來自同一張專輯的多首歌曲時（例如：播放整張專輯，或是在播放清單中連續播放同專輯歌曲時），將會使用「專輯增益」。在其他情況下，則會使用「單曲增益」。\n\n依單曲調整：\n無論是否播放整張專輯，皆一律使用「單曲增益」進行音量標準化。\n\n依專輯調整：\n永遠優先使用「專輯增益」；若該歌曲無專輯資訊（例如單曲），則改用「單曲增益」。\n\n僅限專輯：\n僅在播放整張專輯時才會套用音量標準化（使用專輯增益）；播放單首歌曲時將不進行任何音量調整。",
     "@volumeNormalizationModeSelectorDescription": {
         "description": "Description for the dropdown that selects the replay gain mode, shown in a dialog that opens when the user presses the info icon next to the dropdown"
     },
@@ -1347,7 +1345,7 @@
     "@showNullLibraryItemsTitle": {
         "description": "Title of setting that shows tracks/albums from an unknown library in all libraries when on, or in no libraries when off."
     },
-    "downloadsWorkersSettingLabel": "{count}個下載工作程序",
+    "downloadsWorkersSettingLabel": "{count}個下載任務",
     "@downloadsWorkersSettingLabel": {
         "description": "Label of values on download worker count slider",
         "placeholders": {
@@ -1380,11 +1378,11 @@
             }
         }
     },
-    "downloadsWorkersSettingSubtitle": "控制用於中繼資料同步與下載刪除的工作數量。數量越多，速度越快，但可能造成延遲。",
+    "downloadsWorkersSettingSubtitle": "此設定控制中繼資料同步與下載項目刪除的任務數量。提高此數量可加快處理速度，但也可能造成延遲。",
     "@downloadsWorkersSettingSubtitle": {
         "description": "Description of setting controlling download worker count."
     },
-    "downloadsWorkersSetting": "下載工作程序數量",
+    "downloadsWorkersSetting": "下載處理任務數量",
     "@downloadsWorkersSetting": {
         "description": "Title of setting controlling download worker count."
     },
@@ -1405,7 +1403,7 @@
     "@activeDownloadSize": {
         "description": "Message shown for download size while item is still being downloaded"
     },
-    "maxConcurrentDownloads": "最大同時下載數",
+    "maxConcurrentDownloads": "最大同時下載數量",
     "@maxConcurrentDownloads": {
         "description": "Title of setting controlling max concurrent downloads."
     },
@@ -1475,7 +1473,7 @@
     "@connectionInterruptedBackgroundAndroid": {
         "description": "Message shown when the connection is interrupted during a download while in the background on android. It advises checking OS settings, as they may cause background downloads to be blocked, or checking the  'Enter Low-Priority State on Pause' setting."
     },
-    "maxConcurrentDownloadsSubtitle": "同時下載較多項目可提升速度，但可能導致大型檔案下載失敗或系統延遲。",
+    "maxConcurrentDownloadsSubtitle": "提高同時下載數量，可以加快背景下載速度，但也可能造成大型檔案下載失敗，或在某些情況下造成嚴重延遲。",
     "@maxConcurrentDownloadsSubtitle": {
         "description": "Description of setting controlling max concurrent downloads."
     },
@@ -1496,7 +1494,7 @@
             }
         }
     },
-    "incidentalDownloadTooltip": "此項目是由 {parentName} 要求下載。",
+    "incidentalDownloadTooltip": "此項目由 {parentName} 下載。",
     "@incidentalDownloadTooltip": {
         "placeholders": {
             "parentName": {
@@ -1505,7 +1503,7 @@
         },
         "description": "Tooltip for downloadbutton on incidental downloads, which show a lock icon. It says one of the requiring downloads."
     },
-    "cacheLibraryImagesName": "'{libraryName}'的圖片暫存",
+    "cacheLibraryImagesName": "'{libraryName}' 的圖片暫存",
     "@cacheLibraryImagesName": {
         "placeholders": {
             "libraryName": {
@@ -1557,7 +1555,7 @@
     "@deleteDownloadsConfirmButtonText": {
         "description": "Shown in the confirmation dialog for deleting downloaded media from the local device."
     },
-    "dontTranscode": "下載原始格式{description, select, null{} other{：- {description}}}",
+    "dontTranscode": "下載原始格式{description, select, null{} other{：{description}}}",
     "@dontTranscode": {
         "placeholders": {
             "description": {
@@ -1601,7 +1599,7 @@
     "@hidePlayerBottomActions": {},
     "marqueeOrTruncateButtonSubtitle": "在較長的標題盡頭顯示 … 代替捲動文字",
     "@marqueeOrTruncateButtonSubtitle": {},
-    "showArtistChipImageSubtitle": "此設定會影響藝人照片縮圖的顯示，例如播放器介面。",
+    "showArtistChipImageSubtitle": "此設定會影響藝人照片的縮圖顯示，例如在播放介面上。",
     "@showArtistChipImageSubtitle": {},
     "fixedGridTileSizeEnum": "{size, select, small{小} medium{中} large{大} veryLarge{非常大} other{???}}",
     "@fixedGridTileSizeEnum": {
@@ -1893,7 +1891,7 @@
     "@allowDeleteFromServerTitle": {
         "description": "Title for the setting that controls if items can be deleted from the server"
     },
-    "specialDownloads": "其它",
+    "specialDownloads": "其他",
     "@specialDownloads": {
         "description": "Title for the special downloads section on the downloads screen."
     },
@@ -1961,7 +1959,7 @@
     "@appearsOnAlbums": {},
     "albumArtists": "專輯藝人",
     "@albumArtists": {},
-    "performingArtists": "演出者",
+    "performingArtists": "歌曲藝人",
     "@performingArtists": {},
     "playbackReporting": "播放分析",
     "@playbackReporting": {},
@@ -2032,10 +2030,6 @@
         },
         "description": "Label for the type of device in the output menu"
     },
-    "desktopShuffleWarning": "桌面版尚未支援隨機播放模式。",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
-    },
     "enablePlayonTitle": "啟用「遠端播放」支援",
     "@enablePlayonTitle": {
         "description": "Label for the setting to enable Jellyfin's 'Play On' feature (remote control)"
@@ -2054,7 +2048,7 @@
     "@startupErrorTitle": {
         "description": "The title for the error screen that shows when startup fails."
     },
-    "startupErrorWorkaround": "可透過清除 App 資料來重設，請注意：此操作不可還原，所有資料將被刪除。",
+    "startupErrorWorkaround": "可透過清除 App 資料來重置，請注意：此操作不可還原，所有資料將被刪除。",
     "@startupErrorWorkaround": {
         "description": "The subtitle for how to manually recover from a startup error"
     },
@@ -2064,7 +2058,7 @@
     "@duration": {},
     "autoSwitchItemCurationTypeTitle": "自動調整內容推薦方式",
     "@autoSwitchItemCurationTypeTitle": {},
-    "showArtistsTracksSection": "顯示歌曲區域",
+    "showArtistsTracksSection": "顯示歌曲區塊",
     "@showArtistsTracksSection": {},
     "showShuffleButtonOnMediaNotificationSubtitle": "控制媒體通知中是否顯示「隨機播放」按鈕，讓您無需開啟應用程式即可開啟或關閉隨機播放。",
     "@showShuffleButtonOnMediaNotificationSubtitle": {
@@ -2078,7 +2072,7 @@
     "@notAvailable": {},
     "autoSwitchItemCurationTypeSubtitle": "若無可用內容，將自動切換為其他類型以持續顯示推薦內容。",
     "@autoSwitchItemCurationTypeSubtitle": {},
-    "performingArtist": "演出者",
+    "performingArtist": "歌曲藝人",
     "@performingArtist": {},
     "formattedRelativeTime": "{type, select, just_now{剛剛} minutes{{value} 分鐘前} hours{{value} 小時前} yesterday{昨天} days{{value, plural, =1{1 天前} other{{value} 天前}}} other{{value}}}",
     "@formattedRelativeTime": {
@@ -2122,7 +2116,7 @@
     "@recentlyAddedAlbums": {
         "description": "Label for the genre section that shows albums that were recently added to the library, sorted by the date they were added."
     },
-    "latestAlbums": "最新專輯",
+    "latestAlbums": "最新上架的專輯",
     "@latestAlbums": {},
     "recentlyPlayedAlbums": "最近聽過的專輯",
     "@recentlyPlayedAlbums": {},
@@ -2174,7 +2168,7 @@
     "@testConnectionButtonLabel": {
         "description": "Button to test the public and local url inside the network settings tab"
     },
-    "genreFilterPlaylistScreensSubtitle": "啟用後，透過類型進入的播放清單將僅顯示符合目前所瀏覽類型的歌曲。(你仍可手動移除「類型篩選器」，以查看該播放清單中的所有歌曲。)",
+    "genreFilterPlaylistScreensSubtitle": "啟用後，於「類型介面」瀏覽時，透過「瀏覽播放清單」進入的「播放清單」將僅顯示符合目前所選音樂類型的歌曲。（您仍可手動移除「類型篩選」，以檢視該播放清單中的所有歌曲。）",
     "@genreFilterPlaylistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to PlaylistScreens when accessing the PlaylistScreens through a Genre."
     },
@@ -2244,7 +2238,7 @@
     "@recentlyAddedArtists": {
         "description": "Label for the genre section that shows artists that were recently added to the library, sorted by the date they were added."
     },
-    "genreItemSectionFilterChipOrderSubtitle": "控制項目區域中篩選器的顯示順序。",
+    "genreItemSectionFilterChipOrderSubtitle": "控制內容區塊中篩選器的顯示順序。",
     "@genreItemSectionFilterChipOrderSubtitle": {
         "description": "Description of the setting that controls the order of item sections filter chips."
     },
@@ -2256,13 +2250,13 @@
     },
     "randomTracks": "隨機推薦的歌曲",
     "@randomTracks": {},
-    "showArtistsTracksSectionSubtitle": "是否顯示最多五首歌曲的區域。啟用後，您可以在「經常播放」、「收藏」、「隨機」、「最新發行」、「最近新增」與「最近播放」之間選擇要顯示的內容。",
+    "showArtistsTracksSectionSubtitle": "顯示最多五首歌曲的區塊。啟用後，您可以選擇「經常播放」、「收藏」、「隨機」、「最新發行」、「最近新增」或「最近播放」。",
     "@showArtistsTracksSectionSubtitle": {},
-    "itemSectionsOrder": "項目區域顯示順序",
+    "itemSectionsOrder": "內容區塊顯示順序",
     "@itemSectionsOrder": {
         "description": "Label for the setting that controls the order of item sections on the screens."
     },
-    "genreFilterArtistScreensSubtitle": "啟用後，透過類型進入的藝人介面將僅顯示符合目前所瀏覽類型的歌曲與專輯。(你仍可手動移除「類型篩選器」，以查看該藝人的所有歌曲與專輯。)",
+    "genreFilterArtistScreensSubtitle": "啟用後，於「類型介面」瀏覽時，透過「藝人內容區塊」進入的「藝人介面」將僅顯示符合目前所選音樂類型的歌曲與專輯。（您仍可手動移除「類型篩選」，以檢視該藝人的所有歌曲與專輯。）",
     "@genreFilterArtistScreensSubtitle": {
         "description": "Description of the setting that controls if a genreFilter should get applied to ArtistScreens when accessing the ArtistScreens through a Genre."
     },
@@ -2288,7 +2282,7 @@
     "@applyFilterOnGenreChipTapSubtitle": {
         "description": "Subtitle for the setting that controls if taps on genres should apply a genre filter to the current screen or should redirect to the GenreScreen."
     },
-    "genreListsInheritSortingSubtitle": "啟用後，「查看全部」清單將繼承類型畫面的排序與篩選設定。若停用，則會改用對應音樂庫的排序與篩選方式。點選類型畫面上方的數量統計或「瀏覽播放清單」按鈕時，將一律使用音樂庫的排序來顯示完整清單。",
+    "genreListsInheritSortingSubtitle": "啟用後，「顯示全部」清單將沿用類型介面的內容區塊篩選設定；停用時則改採音樂庫中對應分頁的篩選與排序。點擊類型介面上方的數量統計或「瀏覽播放清單」按鈕時，將開啟完整清單，並套用音樂庫中對應分頁的篩選與排序設定。",
     "@genreListsInheritSortingSubtitle": {
         "description": "Description of the setting that controls if a See All Genre Lists should inherit the Genre Sorting and Filtering."
     },
@@ -2326,19 +2320,19 @@
     "@topAlbums": {},
     "latestArtists": "最新藝人",
     "@latestArtists": {},
-    "itemSectionsOrderSubtitle": "控制項目區域的顯示順序。",
+    "itemSectionsOrderSubtitle": "控制內容區塊的顯示順序。",
     "@itemSectionsOrderSubtitle": {
         "description": "Description of the setting that controls the order of item sections on the screens."
     },
-    "genreItemSectionFilterChipOrderTitle": "項目區域篩選器順序",
+    "genreItemSectionFilterChipOrderTitle": "內容區塊篩選器順序",
     "@genreItemSectionFilterChipOrderTitle": {
         "description": "Label for the setting that controls the order of item sections filter chips."
     },
-    "artistItemSectionFilterChipOrderTitle": "歌曲區域篩選器順序",
+    "artistItemSectionFilterChipOrderTitle": "歌曲區塊篩選器順序",
     "@artistItemSectionFilterChipOrderTitle": {
         "description": "Label for the setting that controls the order of the tracks sections filter chips."
     },
-    "artistItemSectionFilterChipOrderSubtitle": "控制歌曲區域中篩選器的顯示順序。",
+    "artistItemSectionFilterChipOrderSubtitle": "控制歌曲區塊中篩選器的顯示順序。",
     "@artistItemSectionFilterChipOrderSubtitle": {
         "description": "Description of the setting that controls the order of the tracks sections filter chips."
     },
@@ -2770,7 +2764,7 @@
     "@emptyAlbum": {
         "description": "Message shown as a placeholder when an album or playlist is empty."
     },
-    "preferNextUpPrependingTitle": "優先插入至即將播放",
+    "preferNextUpPrependingTitle": "優先使用接續播放",
     "@preferNextUpPrependingTitle": {
         "description": "Title for the setting to prefer prepending to Next Up over appending"
     },
@@ -2790,7 +2784,7 @@
     "@addDownloadLocationsErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs fails"
     },
-    "androidImageErrorPrompt": "警告：由於作業系統的限制，無法將圖片寫入 Android 的「音樂」資料夾。請選擇其他儲存位置。",
+    "androidImageErrorPrompt": "由於作業系統的限制，無法將圖片寫入 Android 的「音樂」資料夾。請選擇其他儲存位置。",
     "@androidImageErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
     },
@@ -2861,5 +2855,321 @@
     "discardChangesConfirmButton": "取消變更",
     "@discardChangesConfirmButton": {
         "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+    },
+    "accentColor": "自訂配色",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "選擇配色",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "預設",
+    "@defaultWord": {},
+    "useDefaultButton": "重置為預設配色",
+    "@useDefaultButton": {},
+    "colorCode": "色碼（Hex）",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "例如：#FFFFFF 或 #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "儲存",
+    "@save": {},
+    "invalidColorCode": "無效的色碼",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "downloadAllPlaylistsSettingWarning": "注意：將下載所有播放清單內的內容，包含所有音樂庫中的項目。",
+    "@downloadAllPlaylistsSettingWarning": {},
+    "snackbarOptionsMenuTitle": "管理訊息",
+    "@snackbarOptionsMenuTitle": {
+        "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+    },
+    "snackbarOptionsMenuClearAllButton": "清除所有訊息",
+    "@snackbarOptionsMenuClearAllButton": {
+        "description": "Button title for clearing all snackbar messages"
+    },
+    "snackbarOptionsMenuViewLogsButton": "檢視日誌",
+    "@snackbarOptionsMenuViewLogsButton": {
+        "description": "Button title for opening the logs screen from the snackbar options menu"
+    },
+    "systemAccentColor": "使用裝置配色",
+    "@systemAccentColor": {
+        "description": "Title of the System Accent Color setting."
+    },
+    "systemAccentColorHasPriorityInfo": "目前正套用裝置配色，因此自訂配色選項已停用",
+    "@systemAccentColorHasPriorityInfo": {
+        "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+    },
+    "useMonochromeIcon": "使用單色Logo",
+    "@useMonochromeIcon": {
+        "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+    },
+    "useMonochromeIconSubtitle": "僅影響 App 內圖示，不會影響裝置的應用程式圖示。",
+    "@useMonochromeIconSubtitle": {
+        "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+    },
+    "playbackActionPageMoveWithinQueue": "調整佇列",
+    "@playbackActionPageMoveWithinQueue": {
+        "description": "Label for the playback action page that contains all actions related to moving tracks within the queue"
+    },
+    "playbackActionPageRegularTrackOptions": "播放",
+    "@playbackActionPageRegularTrackOptions": {
+        "description": "Label for the playback action page that contains all actions of the normal track menu, like starting a new queue or duplicating the track within the existing queue"
+    },
+    "movePlayNext": "移至下一首",
+    "@movePlayNext": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+    },
+    "moveAddToNextUp": "移至即將播放",
+    "@moveAddToNextUp": {
+        "description": "Used for moving a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
+    },
+    "moveAddToQueue": "移至佇列末端",
+    "@moveAddToQueue": {
+        "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
+    },
+    "startRadio": "啟動電台",
+    "@startRadio": {
+        "description": "Menu label for starting a radio from a playlist, album, etc."
+    },
+    "radio": "電台",
+    "@radio": {
+        "description": "Title for the queue source when the user is playing a track added via radio"
+    },
+    "radioForItem": "{radioSource} - 電台",
+    "@radioForItem": {
+        "description": "Suffix added to a queue source when playing a radio track. Example: \"Never Gonna Give You Up - Radio\"",
+        "placeholders": {
+            "radioSource": {
+                "type": "String",
+                "example": "Never Gonna Give You Up"
+            }
+        }
+    },
+    "radioModeSettingsTitle": "電台模式",
+    "@radioModeSettingsTitle": {
+        "description": "Title for the setting that controls the radio mode/algorithm."
+    },
+    "radioModeSettingsSubtitle": "設定電台選擇歌曲的方式。",
+    "@radioModeSettingsSubtitle": {
+        "description": "Subtitle for the setting that controls the radio mode/algorithm."
+    },
+    "radioModeMenuTitle": "選擇電台模式",
+    "@radioModeMenuTitle": {
+        "description": "Title for menu that allows users to choose the radio mode."
+    },
+    "loopingOverriddenByRadioSubtitle": "啟用電台期間，佇列循環功能將停用",
+    "@loopingOverriddenByRadioSubtitle": {
+        "description": "Subtitle displayed in the radio menu to show that queue looping is disabled while radio mode is enabled."
+    },
+    "radioFailedSubtitle": "未找到更多電台歌曲，請嘗試更換電台模式。",
+    "@radioFailedSubtitle": {
+        "description": "Subtitle displayed in the radio menu to show that no radio tracks could be generated."
+    },
+    "radioModeOptionName": "{option, select, reshuffle{隨機重排} random{隨機歌曲} similar{相似歌曲} continuous{連續播放} albumMix{專輯混播} other{{option}}}",
+    "@radioModeOptionName": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Radio mode names in radio mode/algorithm dropdown"
+    },
+    "radioModeOptionTitle": "{option, select, reshuffle{隨機重排模式} random{隨機歌曲模式} similar{相似歌曲模式} continuous{連續播放模式} albumMix{專輯混播模式} other{{option}}}",
+    "@radioModeOptionTitle": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Title displayed in the queue, showing which radio mode/algorithm is currently being used."
+    },
+    "radioModeActiveTitle": "電台已啟用",
+    "@radioModeActiveTitle": {
+        "description": "Title displayed in the queue to show that radio mode is enabled and active."
+    },
+    "radioModeDisabledTitle": "電台已停用",
+    "@radioModeDisabledTitle": {
+        "description": "Title displayed in the queue to show that radio mode is disabled."
+    },
+    "radioModeInactiveTitle": "電台已暫停",
+    "@radioModeInactiveTitle": {
+        "description": "Title displayed in the queue to show that the radio is enabled but not active."
+    },
+    "radioModeDisableButtonTitle": "停用電台",
+    "@radioModeDisableButtonTitle": {
+        "description": "Title for the option that disables radio mode."
+    },
+    "radioModeDisableButtonSubtitle": "恢復到先前的循環模式",
+    "@radioModeDisableButtonSubtitle": {
+        "description": "Subtitle for the option that disables radio mode."
+    },
+    "radioModeOptionConfirmation": "已切換為{option, select, reshuffle{隨機重排} random{隨機歌曲} similar{相似歌曲} continuous{連續播放} albumMix{專輯混播} other{{option}}}",
+    "@radioModeOptionConfirmation": {
+        "placeholders": {
+            "option": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Confirmation displayed when the radio mode is changed."
+    },
+    "radioModeEnabledSubtitle": "點擊以設定",
+    "@radioModeEnabledSubtitle": {
+        "description": "Subtitle displayed in the queue to show when radio mode is enabled."
+    },
+    "radioModeDisabledSubtitle": "點擊以啟用",
+    "@radioModeDisabledSubtitle": {
+        "description": "Subtitle displayed in the queue to show that radio mode is disabled."
+    },
+    "radioModeDisabledBecauseNotAvailableOfflineSubtitle": "目前模式無法離線使用。",
+    "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
+        "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
+    },
+    "radioModeDescription": "{mode, select,reshuffle{持續隨機重排播放佇列}random{從初始選擇隨機排序歌曲}similar{根據原播放佇列加入相似歌曲}continuous{根據目前歌曲加入相似歌曲}albumMix{加入相關專輯的歌曲}other{}}",
+    "@radioModeDescription": {
+        "placeholders": {
+            "mode": {
+                "type": "String",
+                "description": "Corresponds to RadioMode.name"
+            }
+        },
+        "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
+    },
+    "radioModeUnavailableWhileOfflineDescription": "離線時無法使用",
+    "@radioModeUnavailableWhileOfflineDescription": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+    },
+    "radioModeUnavailableWhileOfflineSubtitle": "離線時無法使用 {modeName}",
+    "@radioModeUnavailableWhileOfflineSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+    },
+    "radioModeUnavailableForSourceItemDescription": "此佇列來源不支援使用",
+    "@radioModeUnavailableForSourceItemDescription": {
+        "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+    },
+    "radioModeUnavailableForSourceItemSubtitle": "此佇列來源不支援使用 {modeName}",
+    "@radioModeUnavailableForSourceItemSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+    },
+    "radioModeUnavailableQueueEmptyDescription": "因佇列為空，無法使用",
+    "@radioModeUnavailableQueueEmptyDescription": {
+        "description": "Shown as the subtitle for radio modes when the queue is empty."
+    },
+    "radioModeUnavailableQueueEmptySubtitle": "因佇列為空，無法使用 {modeName}",
+    "@radioModeUnavailableQueueEmptySubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the subtitle for radio modes when the queue is empty."
+    },
+    "radioModeRandomUnavailableNotDownloadedDescription": "因'{sourceName}'未下載，無法使用",
+    "@radioModeRandomUnavailableNotDownloadedDescription": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+        "placeholders": {
+            "sourceName": {
+                "type": "String"
+            }
+        }
+    },
+    "radioModeRandomUnavailableNotDownloadedSubtitle": "因'{sourceName}'未下載，無法使用 {modeName}",
+    "@radioModeRandomUnavailableNotDownloadedSubtitle": {
+        "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            },
+            "sourceName": {
+                "type": "String"
+            }
+        }
+    },
+    "radioModeRandomUnavailableNotDownloadedGenericDescription": "因來源未下載，無法使用",
+    "@radioModeRandomUnavailableNotDownloadedGenericDescription": {
+        "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+    },
+    "radioModeRandomUnavailableNotDownloadedGenericSubtitle": "因來源未下載，無法使用 {modeName}",
+    "@radioModeRandomUnavailableNotDownloadedGenericSubtitle": {
+        "placeholders": {
+            "modeName": {
+                "type": "String",
+                "description": "The pre-translated radio mode name"
+            }
+        },
+        "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+    },
+    "radioNoTracksFound": "無法啟動電台，因為找不到適合的歌曲。",
+    "@radioNoTracksFound": {
+        "description": "Shown when the user tries to start radio mode but no suitable tracks were found to start the radio with."
+    },
+    "loopingUnavailableWhileRadioActiveWarning": "電台啟用時無法變更循環模式，因為佇列將無限延續。",
+    "@loopingUnavailableWhileRadioActiveWarning": {
+        "description": "Warning message when trying to change the loop mode while radio is active."
+    },
+    "radioModeEnableButtonTitle": "啟用電台",
+    "@radioModeEnableButtonTitle": {
+        "description": "Title for the option that enables radio mode."
+    },
+    "addDownloadLocationsErrorTitle": "無法寫入下載資料夾",
+    "@addDownloadLocationsErrorTitle": {
+        "description": "Title of popup dialog when adding a download location fails"
+    },
+    "duckOnAudioInterruptionTitle": "音訊衝突時降低音樂音量",
+    "@duckOnAudioInterruptionTitle": {
+        "description": "Title for the setting that controls ducking."
+    },
+    "duckOnAudioInterruptionSubtitle": "其他應用程式播放音訊時，暫時降低音樂音量。",
+    "@duckOnAudioInterruptionSubtitle": {
+        "description": "Subtitle for the setting that controls ducking."
+    },
+    "forceAudioOffloadingOnAndroidTitle": "強制使用硬體音訊處理",
+    "@forceAudioOffloadingOnAndroidTitle": {
+        "description": "Title for the setting that controls audio offloading on Android."
+    },
+    "forceAudioOffloadingOnAndroidSubtitle": "若裝置支援，將音訊處理交由硬體執行。",
+    "@forceAudioOffloadingOnAndroidSubtitle": {
+        "description": "Subtitle for the setting that controls audio offloading on Android."
+    },
+    "explicit": "不雅內容",
+    "@explicit": {
+        "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
+    },
+    "lyricsEmptyStateLoading": "載入歌詞中…",
+    "@lyricsEmptyStateLoading": {
+        "description": "Message shown while lyrics are being loaded"
+    },
+    "lyricsEmptyStateFailed": "無法載入歌詞",
+    "@lyricsEmptyStateFailed": {
+        "description": "Message shown when lyrics failed to load"
+    },
+    "lyricsEmptyStateNoLyrics": "暫無歌詞顯示",
+    "@lyricsEmptyStateNoLyrics": {
+        "description": "Message shown when no lyrics are available for the current track"
+    },
+    "lyricsMissingLyricLinePlaceholder": "部分歌詞缺失",
+    "@lyricsMissingLyricLinePlaceholder": {
+        "description": "Placeholder text for missing lyric lines in synchronized lyrics"
     }
 }

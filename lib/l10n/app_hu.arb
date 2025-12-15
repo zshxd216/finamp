@@ -315,8 +315,6 @@
     "@removeFromMix": {},
     "replaceQueue": "Sor kicserélése",
     "@replaceQueue": {},
-    "setSleepTimer": "Lejátszás megállítása",
-    "@setSleepTimer": {},
     "startingInstantMix": "Instant mix indítása.",
     "@startingInstantMix": {},
     "tabs": "Lapok",
@@ -652,10 +650,6 @@
             }
         },
         "description": "Label for the type of device in the output menu"
-    },
-    "desktopShuffleWarning": "A keverési mód módosítása jelenleg nem érhető el számítógépen.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "itemCount": "{childType, select, track{{amount, plural, =1{1 dal} other{{amount} dal}}} album{{amount, plural, =1{1 album} other{{amount} album}}} other{{amount, plural, =1{1 elem} other{{amount} elem}}}}",
     "@itemCount": {

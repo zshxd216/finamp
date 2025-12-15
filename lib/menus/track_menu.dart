@@ -1,5 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:finamp/components/PlayerScreen/queue_list.dart';
 import 'package:finamp/components/PlayerScreen/sleep_timer_cancel_dialog.dart';
 import 'package:finamp/components/themed_bottom_sheet.dart';
@@ -10,6 +16,7 @@ import 'package:finamp/menus/components/menuEntries/clear_queue_menu_entry.dart'
 import 'package:finamp/menus/components/menuEntries/create_playlist_from_current_queue.dart';
 import 'package:finamp/menus/components/menuEntries/delete_from_server_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/instant_mix_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/remove_from_current_playlist_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/restore_queue_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/start_radio_menu_entry.dart';
@@ -36,8 +43,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'components/menuEntries/menu_entry.dart';
 
 const Duration trackMenuDefaultAnimationDuration = Duration(milliseconds: 500);
 const Curve trackMenuDefaultInCurve = Curves.easeOutCubic;
@@ -143,6 +148,21 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
 
     initialSheetExtent = widget.showPlaybackControls ? 0.6 : 0.45;
     oldExtent = initialSheetExtent;
+
+    // set correct initial height for sleep timer menu based on previous mode
+    var oldTimer = FinampSettingsHelper.finampSettings.sleepTimer;
+    var newSleepTimer = SleepTimer(
+      oldTimer?.secondsLength ?? DefaultSettings.sleepTimerDurationSeconds,
+      oldTimer?.tracksLength ?? 0,
+    );
+    sleepTimerMenuHeight = switch (newSleepTimer) {
+      // after current track
+      SleepTimer(tracksLength: 1) => SleepTimerMenu.afterCurrentTrackTypeMenuHeight,
+      // after duration
+      SleepTimer(secondsLength: > 0) => SleepTimerMenu.durationTypeMenuHeight,
+      // after track count
+      _ => SleepTimerMenu.tracksTypeMenuHeight,
+    };
   }
 
   bool isBaseItemInQueueItem(BaseItemDto baseItem, FinampQueueItem? queueItem) {

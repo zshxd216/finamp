@@ -15,6 +15,7 @@ import 'package:finamp/services/current_album_image_provider.dart';
 import 'package:finamp/services/datetime_helper.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/item_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
@@ -170,12 +171,12 @@ class TrackListTile extends ConsumerWidget {
           );
 
           var items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
+          var sortBy = settings.tabSortBy[TabContentType.tracks];
+          if ([SortBy.playCount, SortBy.datePlayed].contains(sortBy)) {
+            sortBy = SortBy.sortName;
+          }
 
-          items = sortItems(
-            items,
-            settings.tabSortBy[TabContentType.tracks],
-            settings.tabSortOrder[TabContentType.tracks],
-          );
+          items = sortItems(items, sortBy, settings.tabSortOrder[TabContentType.tracks]);
 
           int startingIndex = isShownInSearchOrHistory
               ? items.indexWhere((element) => element.id == item.id)
@@ -215,12 +216,8 @@ class TrackListTile extends ConsumerWidget {
             await audioServiceHelper.startInstantMixForItem(item);
           } else {
             await queueService.startPlayback(
-              items: [item],
-              source: QueueItemSource(
-                name: QueueItemSourceName(type: QueueItemSourceNameType.preTranslated, pretranslatedName: item.name),
-                type: QueueItemSourceType.track,
-                id: item.id,
-              ),
+              items: await loadChildTracks(item: item, genreFilter: genreFilter),
+              source: QueueItemSource.fromBaseItem(item),
             );
           }
         }
@@ -881,7 +878,21 @@ class TrackListItemTile extends ConsumerWidget {
                       alignment: PlaceholderAlignment.baseline,
                       baseline: TextBaseline.alphabetic,
                     ),
-                  if (baseItem.hasLyrics ?? false) const WidgetSpan(child: SizedBox(width: 5)),
+                  if (baseItem.isExplicit)
+                    WidgetSpan(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 2.0),
+                        child: Transform.translate(
+                          offset: isOnDesktop ? Offset(-1.5, 3.3) : Offset(-1.5, 1.7),
+                          child: Icon(
+                            TablerIcons.explicit,
+                            size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 3,
+                          ),
+                        ),
+                      ),
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                    ),
                   if (addSpaceAfterSpecialIcons) const WidgetSpan(child: SizedBox(width: 5)),
                   if (showPlayCount)
                     TextSpan(

@@ -7,12 +7,14 @@ import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dar
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
 import 'package:finamp/components/print_duration.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/current_track_metadata_provider.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:finamp/services/theme_provider.dart';
+import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,15 +51,16 @@ class NowPlayingBar extends StatelessWidget {
     ],
   );
 
+  Color getProgressForegroundColor(WidgetRef ref) {
+    return ColorScheme.of(ref.context).primary;
+  }
+
   Color getProgressBackgroundColor(WidgetRef ref) {
-    return ref.watch(finampSettingsProvider.showProgressOnNowPlayingBar)
-        ? Color.alphaBlend(
-            Theme.brightnessOf(ref.context) == Brightness.dark
-                ? IconTheme.of(ref.context).color!.withOpacity(0.35)
-                : IconTheme.of(ref.context).color!.withOpacity(0.5),
-            Theme.brightnessOf(ref.context) == Brightness.dark ? Colors.black : Colors.white,
-          )
-        : IconTheme.of(ref.context).color!.withOpacity(0.85);
+    return Color.alphaBlend(
+      getProgressForegroundColor(ref).withOpacity(0.75),
+      // this is an approximation, the actual background has the blurred cover image
+      ref.watch(brightnessProvider) == Brightness.dark ? Colors.black : Colors.white,
+    );
   }
 
   Widget buildLoadingQueueBar(WidgetRef ref, Function()? retryCallback) {
@@ -165,7 +168,13 @@ class NowPlayingBar extends StatelessWidget {
         : null;
     var context = ref.context;
 
-    final progressBackgroundColor = getProgressBackgroundColor(ref);
+    final elapsedPartBackgroundColor = getProgressForegroundColor(ref);
+    final remainingPartBackgroundColor = getProgressBackgroundColor(ref);
+    final averageBackgroundColor = Color.alphaBlend(
+      elapsedPartBackgroundColor.withOpacity(0.5),
+      remainingPartBackgroundColor,
+    );
+    Color primaryTextColor = AtContrast.getContrastiveTintedTextColor(onBackground: averageBackgroundColor);
 
     return SafeArea(
       child: Padding(
@@ -240,7 +249,7 @@ class NowPlayingBar extends StatelessWidget {
                             child: Container(
                               clipBehavior: Clip.antiAlias,
                               decoration: ShapeDecoration(
-                                color: progressBackgroundColor,
+                                color: remainingPartBackgroundColor,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                               ),
                               child: Row(
@@ -252,9 +261,7 @@ class NowPlayingBar extends StatelessWidget {
                                     alignment: Alignment.center,
                                     children: [
                                       if (ref.watch(finampSettingsProvider.showProgressOnNowPlayingBar))
-                                        Positioned.fill(
-                                          child: ColoredBox(color: IconTheme.of(context).color!.withOpacity(0.75)),
-                                        ),
+                                        Positioned.fill(child: ColoredBox(color: remainingPartBackgroundColor)),
                                       AlbumImage(
                                         placeholderBuilder: (_) => const SizedBox.shrink(),
                                         imageListenable: currentAlbumImageProvider,
@@ -310,7 +317,7 @@ class NowPlayingBar extends StatelessWidget {
                                                           ),
                                                     child: DecoratedBox(
                                                       decoration: ShapeDecoration(
-                                                        color: IconTheme.of(context).color!.withOpacity(0.75),
+                                                        color: elapsedPartBackgroundColor,
                                                         shape: const RoundedRectangleBorder(
                                                           borderRadius: BorderRadius.only(
                                                             topRight: Radius.circular(12),
@@ -347,7 +354,7 @@ class NowPlayingBar extends StatelessWidget {
                                                         style: TextStyle(
                                                           fontSize: 16,
                                                           height: 26 / 20,
-                                                          color: Colors.white,
+                                                          color: primaryTextColor,
                                                           fontWeight: Theme.brightnessOf(context) == Brightness.light
                                                               ? FontWeight.w500
                                                               : FontWeight.w600,
@@ -362,7 +369,7 @@ class NowPlayingBar extends StatelessWidget {
                                                           child: Text(
                                                             processArtist(currentTrack.item.artist, context),
                                                             style: TextStyle(
-                                                              color: Colors.white.withOpacity(0.85),
+                                                              color: primaryTextColor,
                                                               fontSize: 13,
                                                               fontWeight: FontWeight.w300,
                                                               overflow: TextOverflow.ellipsis,
@@ -404,14 +411,14 @@ class NowPlayingBar extends StatelessWidget {
                                                                       style: TextStyle(
                                                                         fontSize: 14,
                                                                         fontWeight: FontWeight.w400,
-                                                                        color: Colors.white.withOpacity(0.8),
+                                                                        color: primaryTextColor.withOpacity(0.8),
                                                                       ),
                                                                     ),
                                                                     const SizedBox(width: 2),
                                                                     Text(
                                                                       '/',
                                                                       style: TextStyle(
-                                                                        color: Colors.white.withOpacity(0.8),
+                                                                        color: primaryTextColor.withOpacity(0.8),
                                                                         fontSize: 14,
                                                                         fontWeight: FontWeight.w400,
                                                                       ),
@@ -425,7 +432,7 @@ class NowPlayingBar extends StatelessWidget {
                                                                           ? "${mediaState.mediaItem?.duration?.inHours.toString()}:${((mediaState.mediaItem?.duration?.inMinutes ?? 0) % 60).toString().padLeft(2, '0')}:${((mediaState.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}"
                                                                           : "${mediaState.mediaItem?.duration?.inMinutes.toString()}:${((mediaState.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}",
                                                                       style: TextStyle(
-                                                                        color: Colors.white.withOpacity(0.8),
+                                                                        color: primaryTextColor.withOpacity(0.8),
                                                                         fontSize: 14,
                                                                         fontWeight: FontWeight.w400,
                                                                       ),
@@ -452,7 +459,7 @@ class NowPlayingBar extends StatelessWidget {
                                                   child: AddToPlaylistButton(
                                                     item: currentTrackBaseItem,
                                                     queueItem: currentTrack,
-                                                    color: Colors.white,
+                                                    color: primaryTextColor,
                                                     size: 28,
                                                     visualDensity: const VisualDensity(horizontal: -4),
                                                   ),

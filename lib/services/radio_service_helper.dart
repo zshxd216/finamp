@@ -152,36 +152,66 @@ Future<void> maybeAddRadioTracks() async {
 }
 
 Future<void> startRadioPlayback(BaseItemDto source) async {
-  const radioTracksNeededForInitialQueue = 30;
+  final currentRadioMode = FinampSettingsHelper.finampSettings.radioMode;
+  final int radioTracksNeededForInitialQueue = switch (currentRadioMode) {
+    // continuous mode requires successive requests, so reduce the amount of tracks so the queue starts faster
+    // additional tracks will be loaded after the queue has started
+    RadioMode.continuous => 3,
+    // if we find true albums right away, this threshold should be easily surpassed
+    // if not, searching for fallbacks could take a few requests, so accept fewer tracks to start the queue, then delegate further loading
+    RadioMode.albumMix => 7,
+    _ => 30,
+  };
 
-  final List<BaseItemDto> tracks = [];
+  invalidateRadioCache(); // we're starting a new queue, any older state is invalid now
+  var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
+  _radioCacheStateStream.add(localResult);
+
+  List<BaseItemDto> generatedTracks = [];
   try {
-    tracks.addAll(await generateRadioTracks(radioTracksNeededForInitialQueue, overrideSeedItem: source));
+    generatedTracks = await generateRadioTracks(
+      radioTracksNeededForInitialQueue,
+      overrideSeedItem: source,
+      forNewQueue: true,
+    );
   } catch (e) {
     _radioLogger.warning("Couldn't generate radio tracks: $e");
   }
-  if (tracks.isEmpty) {
+
+  final tracksToAddCount = min(switch (localResult.radioMode) {
+    RadioMode.albumMix => generatedTracks.length, // album mix returns full albums, and those should stay together
+    RadioMode.reshuffle => generatedTracks.length, // we append the full shuffled source at once
+    _ => radioTracksNeededForInitialQueue,
+  }, generatedTracks.length);
+  final tracksToAdd = generatedTracks.take(tracksToAddCount);
+  final tracksToCache = generatedTracks.skip(tracksToAddCount);
+
+  if (tracksToAdd.isEmpty) {
     _radioLogger.warning("No tracks generated for radio playback from source '${source.name}'. Aborting.");
     GlobalSnackbar.message((context) => AppLocalizations.of(context)!.radioNoTracksFound);
     return;
   }
 
+  FinampSetters.setRadioMode(currentRadioMode);
   toggleRadio(true);
-  invalidateRadioCache();
-  final localResult = _radioCacheStateStream.value!.copyWith(
+  invalidateRadioCache(); // we're still starting a new queue, and acquire a new lock here
+  localResult = _radioCacheStateStream.value!.copyWith(
+    generating: false,
     queueing: true,
-    seedItem: _radioCacheStateStream.value!.radioMode == RadioMode.continuous ? tracks.lastOrNull ?? source : source,
+    seedItem: currentRadioMode == RadioMode.continuous ? tracksToAdd.lastOrNull ?? source : source,
+    tracks: tracksToCache.toList(),
   );
   _radioCacheStateStream.add(localResult);
 
   await GetIt.instance<QueueService>().startPlayback(
-    items: tracks,
+    items: tracksToAdd.toList(),
     source: QueueItemSource.fromBaseItem(source),
     customTrackSource: QueueItemSource(
       type: QueueItemSourceType.radio,
       name: QueueItemSourceName(type: QueueItemSourceNameType.radio, localizationParameter: source.name ?? ""),
       id: source.id,
     ),
+    skipRadioCacheInvalidation: true,
   );
 
   if (identical(localResult, _radioCacheStateStream.value)) {
@@ -214,31 +244,22 @@ bool toggleRadio([bool? enable]) {
   // since for the radio we override the player loop mode
   queueService.loopMode = queueService.loopMode;
   if (!radioNowEnabled) {
-    unawaited(clearRadioTracks());
+    unawaited(queueService.clearRadioTracks());
   }
   GetIt.instance<MusicPlayerBackgroundTask>().refreshPlaybackStateAndMediaNotification();
   return radioNowEnabled;
 }
 
-// Callers should set up correct radio state synchronously before calling this,
-// so that we will be ready for the radio to restart as soon as this function releases its lock.
-Future<void> clearRadioTracks() async {
-  final queueService = GetIt.instance<QueueService>();
+/// Callers should set up correct radio state synchronously before calling this,
+/// so that we will be ready for the radio to restart as soon as this function releases its lock.
+Future<void> withRadioLock(Future<void> Function() action) async {
   invalidateRadioCache();
-  final localResult = _radioCacheStateStream.value!.copyWith(queueing: true);
+  var localResult = _radioCacheStateStream.value!.copyWith(queueing: true);
   _radioCacheStateStream.add(localResult);
-  await queueService.clearRadioTracksLocked();
+  await action();
   if (identical(localResult, _radioCacheStateStream.value)) {
     _radioCacheStateStream.add(localResult.copyWith(queueing: false));
   }
-}
-
-enum AlbumMixFallbackModes {
-  similarSingles,
-  artistAlbums,
-  artistSingles,
-  performingArtistAlbums,
-  libraryAlbumsOrSingles,
 }
 
 // Generates tracks for the radio. Provide item to generate the initial radio tracks.
@@ -246,6 +267,7 @@ Future<List<BaseItemDto>> generateRadioTracks(
   int minNumTracks, {
   BaseItemDto? overrideSeedItem,
   List<BaseItemDto> cachedTracks = const [],
+  bool forNewQueue = false,
 }) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final downloadsService = GetIt.instance<DownloadsService>();
@@ -278,15 +300,29 @@ Future<List<BaseItemDto>> generateRadioTracks(
         "Reshuffle radio mode selected but the provided item '${overrideSeedItem?.name}' not downloaded or the queue is empty. Availability status: $reshuffleModeAvailabilityStatus. Returning empty track list.",
       );
     }
+    final queueWithoutRadioTracks = currentQueue.fullQueue
+        .whereNot((e) => e.source.type == QueueItemSourceType.radio)
+        .toList();
     // Items originally in the currently playing source (or manually added)
-    final originalQueue = overrideSeedItem != null
-        ? (await loadChildTracksFromBaseItem(baseItem: overrideSeedItem)).map((item) => item).toList()
-        : currentQueue.fullQueue
-              .whereNot((e) => e.source.type == QueueItemSourceType.radio)
-              .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
-              .map((e) => e.baseItem)
-              .nonNulls
-              .toList();
+    final originalQueue =
+        (actualSeed != null
+                ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
+                : <BaseItemDto>[])
+            // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
+            .followedBy(
+              (forNewQueue ? <FinampQueueItem>[] : queueWithoutRadioTracks)
+                  .where(
+                    (e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true,
+                  )
+                  .map((e) => e.baseItem)
+                  .nonNulls,
+            )
+            .toList();
+    if (originalQueue.isEmpty) {
+      throw Exception(
+        "Reshuffle radio mode selected but no valid tracks found in the current queue or from the provided seed item '${actualSeed?.name}'.",
+      );
+    }
     return originalQueue.shuffled();
   }
 
@@ -301,15 +337,24 @@ Future<List<BaseItemDto>> generateRadioTracks(
         "Random radio mode selected but the provided item '${overrideSeedItem?.name}' is not downloaded or the queue is empty. Availability status: $randomModeAvailabilityStatus. Returning empty track list.",
       );
     }
+    final queueWithoutRadioTracks = currentQueue.fullQueue
+        .whereNot((e) => e.source.type == QueueItemSourceType.radio)
+        .toList();
     // Items originally in the currently playing source (or manually added)
-    final originalQueue = overrideSeedItem != null
-        ? (await loadChildTracksFromBaseItem(baseItem: overrideSeedItem)).map((item) => item).toList()
-        : currentQueue.fullQueue
-              .whereNot((e) => e.source.type == QueueItemSourceType.radio)
-              .where((e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true)
-              .map((e) => e.baseItem)
-              .nonNulls
-              .toList();
+    final originalQueue =
+        (actualSeed != null
+                ? (await loadChildTracksFromBaseItem(baseItem: actualSeed)).map((item) => item).toList()
+                : <BaseItemDto>[])
+            // if the queue is purely made up of radio modes (i.e. after using the "Start Radio" option in the menu), we don't filter out radio tracks
+            .followedBy(
+              (forNewQueue ? <FinampQueueItem>[] : queueWithoutRadioTracks)
+                  .where(
+                    (e) => !FinampSettingsHelper.finampSettings.isOffline || e.item.extras?["isDownloaded"] == true,
+                  )
+                  .map((e) => e.baseItem)
+                  .nonNulls,
+            )
+            .toList();
     return List.generate(max(25, minNumTracks), (index) {
       // Pick a random item to add, duplicates possible!
       int nextIndex = _radioRandom.nextInt(originalQueue.length);
@@ -324,16 +369,18 @@ Future<List<BaseItemDto>> generateRadioTracks(
       throw Exception("No seed item available for radio generation. Aborting.");
     }
     // extra tracks to randomly choose from to introduce non-determinism
-    final randomnessExtraTracks = 8 + (minNumTracks * 1.5).ceil();
+    final randomnessExtraTracks = 8 + (minNumTracks * 0.5).ceil();
     return await _getSimilarTracks(
       referenceItem: actualSeed,
       minNumTracks: minNumTracks,
       additionalExistingTracks: cachedTracks,
       randomnessExtraTracks: randomnessExtraTracks,
-      maxAttempts: 15,
+      maxAttempts: 10,
       // filter out ALL duplicates, otherwise things will start repeating too often
       // since the base item never changes
       repetitionThresholdTracks: currentQueue.trackCount,
+      // don't use old queue to filter out tracks if we're starting a new queue
+      ignoreDuplicatesFromQueue: forNewQueue,
     );
   }
 
@@ -359,6 +406,8 @@ Future<List<BaseItemDto>> generateRadioTracks(
         randomnessExtraTracks: randomnessExtraTracks,
         // filter out recent tracks within 90 minutes
         repetitionThresholdTracks: currentQueue.getTrackCountWithinDuration(Duration(minutes: 90)),
+        // don't use old queue to filter out tracks if we're starting a new queue
+        ignoreDuplicatesFromQueue: forNewQueue,
       );
       if (continuousTracksSample.isEmpty) {
         _radioLogger.warning("Failed to find similar track to ${continuousTracks.last.name}. Aborting.");
@@ -373,200 +422,209 @@ Future<List<BaseItemDto>> generateRadioTracks(
   }
 
   Future<List<BaseItemDto>> albumMixMode() async {
-    if (actualSeed == null) {
-      throw Exception("No seed item available for radio generation. Aborting.");
-    }
-    final seedId = getAlbumMixRadioModeSeedId(actualSeed);
-    if (seedId == null) {
-      throw Exception(
-        "Album mix radio mode selected but the provided item '${actualSeed.name}' is not suitable for album mix radio. Returning empty track list.",
-      );
-    }
-    // extra albums in case duplicates are removed
-    const filterExtraAlbums = 10;
-    // extra albums to randomly choose from to introduce non-determinism
-    final randomnessExtraAlbums = 5;
-
-    // filter out any albums where tracks with that album as the (radio) source are already in the queue
-    final existingAlbumIds = currentQueue.fullQueue
-        .where((queueItem) => queueItem.baseItem.albumId != null)
-        .map((queueItem) => queueItem.baseItem.albumId)
-        .toSet();
-    List<BaseItemDto> filteredSimilarAlbums = [];
-
     int attempt = 0;
-    bool similarAlbumsAvailable = true;
-    AlbumMixFallbackModes? fallbackMode = FinampSettingsHelper.finampSettings.isOffline
-        ? AlbumMixFallbackModes.artistAlbums
-        : null;
-    while (filteredSimilarAlbums.isEmpty) {
-      // if there are similar albums and we just haven't found any full albums, switch to similar singles
-      if (attempt >= 5 || (fallbackMode != null && similarAlbumsAvailable)) {
-        if (fallbackMode == null) {
-          fallbackMode = AlbumMixFallbackModes.artistAlbums;
-          attempt = 0;
-        } else if (fallbackMode == AlbumMixFallbackModes.artistAlbums) {
-          // prefer similar singles over artist singles
-          fallbackMode = AlbumMixFallbackModes.similarSingles;
-          attempt = 0;
-        } else {
-          // prevent infinite loops
-          break;
-        }
+
+    RadioCacheState? localRadioState = _radioCacheStateStream.valueOrNull;
+    AlbumMixFallbackModes? fallbackMode;
+    if (overrideSeedItem == null) {
+      assert(actualSeed == localRadioState?.seedItem, "Inconsistent seed item state in album mix radio generation.");
+      fallbackMode = localRadioState?.albumMixFallbackMode;
+    }
+    if (fallbackMode == null && FinampSettingsHelper.finampSettings.isOffline) {
+      fallbackMode = AlbumMixFallbackModes.artistAlbums;
+    }
+
+    try {
+      if (actualSeed == null) {
+        throw Exception("No seed item available for radio generation. Aborting.");
       }
-      final additionalAlbums = 2 * attempt + pow(attempt, 2.75).toInt(); // ~ 0, 3, 10, 27, 50, 100
-      attempt++;
-      if (attempt > 1) {
-        _radioLogger.warning("No similar albums found. Retrying with $additionalAlbums extra albums.");
-      }
-
-      List<BaseItemDto> similarAlbums;
-
-      switch (fallbackMode) {
-        case AlbumMixFallbackModes.artistAlbums:
-        case AlbumMixFallbackModes.artistSingles:
-        case AlbumMixFallbackModes.performingArtistAlbums:
-          BaseItemDto? artist;
-          List<BaseItemId> artistIds = [];
-          if (fallbackMode != AlbumMixFallbackModes.performingArtistAlbums) {
-            artistIds.addAll(actualSeed.albumArtists?.map((e) => e.id).whereType<BaseItemId>() ?? []);
-          }
-          artistIds.addAll(actualSeed.artistItems?.map((e) => e.id).whereType<BaseItemId>() ?? []);
-          while (artist == null && artistIds.isNotEmpty) {
-            final artistId = artistIds.removeAt(0);
-            artist = await providers.read(artistItemProvider(artistId).future);
-          }
-          if (artist == null) {
-            fallbackMode = AlbumMixFallbackModes.libraryAlbumsOrSingles;
-            continue;
-          }
-          if (fallbackMode == AlbumMixFallbackModes.performingArtistAlbums) {
-            similarAlbums = await providers.read(
-              getPerformingArtistAlbumsProvider(
-                artist: artist,
-                libraryFilter: currentQueue.sourceLibrary,
-                sortBy: SortBy.random,
-              ).future,
-            );
-          } else {
-            similarAlbums = await providers.read(
-              getArtistAlbumsProvider(
-                artist: artist,
-                libraryFilter: currentQueue.sourceLibrary,
-                sortBy: SortBy.random,
-              ).future,
-            );
-          }
-
-          break;
-        case AlbumMixFallbackModes.libraryAlbumsOrSingles:
-          // just fetch a random album from the library
-          if (FinampSettingsHelper.finampSettings.isOffline) {
-            similarAlbums = (await downloadsService.getAllCollections(
-              baseTypeFilter: BaseItemDtoType.album,
-              fullyDownloaded: false,
-              viewFilter: finampUserHelper.currentUser?.currentViewId,
-              nullableViewFilters: FinampSettingsHelper.finampSettings.showDownloadsWithUnknownLibrary,
-            )).map((e) => e.baseItem).nonNulls.toList();
-          } else {
-            similarAlbums =
-                (await jellyfinApiHelper.getItems(
-                  parentItem: currentQueue.sourceLibrary,
-                  recursive: true,
-                  includeItemTypes: [BaseItemDtoType.album.name].join(","),
-                  sortBy: SortBy.random.jellyfinName(TabContentType.albums),
-                )) ??
-                [];
-          }
-          break;
-        case AlbumMixFallbackModes.similarSingles:
-        case null:
-          if (FinampSettingsHelper.finampSettings.isOffline) {
-            fallbackMode = AlbumMixFallbackModes.artistAlbums;
-            continue;
-          }
-          similarAlbums =
-              await jellyfinApiHelper.getSimilarAlbums(
-                seedId,
-                limit: 1 + filterExtraAlbums + randomnessExtraAlbums + additionalAlbums,
-              ) ??
-              [];
-          break;
-      }
-
-      if (similarAlbums.isEmpty && fallbackMode == null) {
-        // Jellyfin can't guarantee that there are similar albums, since the suggestions are based on genre tags
-        // If a genre only contains that one album, no similar albums will be returned
-        _radioLogger.warning(
-          "No similar albums found for album mix radio from item '${actualSeed.name}'. Fetching based on album artist.",
+      final seedId = getAlbumMixRadioModeSeedId(actualSeed);
+      if (seedId == null) {
+        throw Exception(
+          "Album mix radio mode selected but the provided item '${actualSeed.name}' is not suitable for album mix radio. Returning empty track list.",
         );
-        similarAlbumsAvailable = false;
-        fallbackMode = AlbumMixFallbackModes.artistAlbums;
-        continue;
       }
+      // extra albums in case duplicates are removed
+      const filterExtraAlbums = 10;
+      // extra albums to randomly choose from to introduce non-determinism
+      final randomnessExtraAlbums = 5;
 
-      filteredSimilarAlbums = similarAlbums
-          .where((album) => !existingAlbumIds.contains(album.id))
-          // don't include singles unless we're falling back to them
-          .where(
-            (album) =>
-                ([
-                  AlbumMixFallbackModes.similarSingles,
-                  AlbumMixFallbackModes.artistSingles,
-                  AlbumMixFallbackModes.libraryAlbumsOrSingles,
-                ].contains(fallbackMode) ||
-                (album.songCount ?? album.childCount ?? 0) > 1),
-          )
-          .toList();
+      // filter out any albums where tracks with that album as the (radio) source are already in the queue
+      final existingAlbumIds = currentQueue.fullQueue
+          .where((queueItem) => queueItem.baseItem.albumId != null)
+          .map((queueItem) => queueItem.baseItem.albumId)
+          .toSet();
+      List<BaseItemDto> filteredSimilarAlbums = [];
 
-      if (filteredSimilarAlbums.isEmpty) {
+      while (filteredSimilarAlbums.isEmpty) {
+        final additionalAlbums = 2 * attempt + pow(attempt, 2.75).toInt(); // ~ 0, 3, 10, 27, 50, 100
+        attempt++;
+        if (attempt > 1) {
+          _radioLogger.warning("No similar albums found. Retrying with $additionalAlbums extra albums.");
+        }
+
+        List<BaseItemDto> similarAlbums;
+
         switch (fallbackMode) {
           case AlbumMixFallbackModes.artistAlbums:
-            _radioLogger.warning(
-              "No suitable similar full albums found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching singles.",
-            );
-            fallbackMode = AlbumMixFallbackModes.artistSingles;
-            break;
           case AlbumMixFallbackModes.artistSingles:
-            _radioLogger.warning(
-              "No suitable similar singles found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching appears on albums.",
-            );
-            fallbackMode = AlbumMixFallbackModes.performingArtistAlbums;
-            break;
           case AlbumMixFallbackModes.performingArtistAlbums:
-            _radioLogger.warning(
-              "No suitable similar appears on albums found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching from library.",
-            );
-            fallbackMode = AlbumMixFallbackModes.libraryAlbumsOrSingles;
+            BaseItemDto? artist;
+            List<BaseItemId> artistIds = [];
+            if (fallbackMode != AlbumMixFallbackModes.performingArtistAlbums) {
+              artistIds.addAll(actualSeed.albumArtists?.map((e) => e.id).whereType<BaseItemId>() ?? []);
+            }
+            artistIds.addAll(actualSeed.artistItems?.map((e) => e.id).whereType<BaseItemId>() ?? []);
+            while (artist == null && artistIds.isNotEmpty) {
+              final artistId = artistIds.removeAt(0);
+              artist = await providers.read(artistItemProvider(artistId).future);
+            }
+            if (artist == null) {
+              fallbackMode = AlbumMixFallbackModes.libraryAlbumsOrSingles;
+              continue;
+            }
+            if (fallbackMode == AlbumMixFallbackModes.performingArtistAlbums) {
+              similarAlbums = await providers.read(
+                getPerformingArtistAlbumsProvider(
+                  artist: artist,
+                  libraryFilter: currentQueue.sourceLibrary,
+                  sortBy: SortBy.random,
+                ).future,
+              );
+            } else {
+              similarAlbums = await providers.read(
+                getArtistAlbumsProvider(
+                  artist: artist,
+                  libraryFilter: currentQueue.sourceLibrary,
+                  sortBy: SortBy.random,
+                ).future,
+              );
+            }
+
+            break;
+          case AlbumMixFallbackModes.libraryAlbumsOrSingles:
+            // just fetch a random album from the library
+            if (FinampSettingsHelper.finampSettings.isOffline) {
+              similarAlbums = (await downloadsService.getAllCollections(
+                baseTypeFilter: BaseItemDtoType.album,
+                fullyDownloaded: false,
+                viewFilter: finampUserHelper.currentUser?.currentViewId,
+                nullableViewFilters: FinampSettingsHelper.finampSettings.showDownloadsWithUnknownLibrary,
+              )).map((e) => e.baseItem).nonNulls.toList();
+            } else {
+              similarAlbums =
+                  (await jellyfinApiHelper.getItems(
+                    parentItem: currentQueue.sourceLibrary,
+                    recursive: true,
+                    includeItemTypes: [BaseItemDtoType.album.name].join(","),
+                    sortBy: SortBy.random.jellyfinName(TabContentType.albums),
+                  )) ??
+                  [];
+            }
             break;
           case AlbumMixFallbackModes.similarSingles:
-          case AlbumMixFallbackModes.libraryAlbumsOrSingles:
           case null:
+            if (FinampSettingsHelper.finampSettings.isOffline) {
+              fallbackMode = AlbumMixFallbackModes.artistAlbums;
+              continue;
+            }
+            similarAlbums =
+                await jellyfinApiHelper.getSimilarAlbums(
+                  seedId,
+                  limit: 1 + filterExtraAlbums + randomnessExtraAlbums + additionalAlbums,
+                ) ??
+                [];
             break;
         }
-      }
-    }
 
-    // pick a random album from the remaining ones
-    if (filteredSimilarAlbums.isNotEmpty) {
-      BaseItemDto selectedAlbum;
-      if (fallbackMode == AlbumMixFallbackModes.libraryAlbumsOrSingles) {
-        // since we can't filter by track count when fetching from the server, we instead sort by track count > 1 to pick a full album if available, but fall back to singles
-        filteredSimilarAlbums.sortBy<num>((album) => (album.songCount ?? album.childCount ?? 0) > 1 ? 0 : 1);
-        selectedAlbum = filteredSimilarAlbums.first;
-        filteredSimilarAlbums.removeAt(0);
-      } else {
-        final randomIndex = _radioRandom.nextInt(min(filteredSimilarAlbums.length, randomnessExtraAlbums));
-        selectedAlbum = filteredSimilarAlbums[randomIndex];
-        filteredSimilarAlbums.removeAt(randomIndex);
+        if (similarAlbums.isEmpty && fallbackMode == null) {
+          // Jellyfin can't guarantee that there are similar albums, since the suggestions are based on genre tags
+          // If a genre only contains that one album, no similar albums will be returned
+          _radioLogger.warning(
+            "No new similar albums found for album mix radio from item '${actualSeed.name}'. Fetching based on album artist.",
+          );
+          fallbackMode = AlbumMixFallbackModes.artistAlbums;
+          continue;
+        }
+
+        filteredSimilarAlbums = similarAlbums
+            .where((album) => !existingAlbumIds.contains(album.id))
+            // don't include singles unless we're falling back to them
+            .where(
+              (album) =>
+                  ([
+                    AlbumMixFallbackModes.similarSingles,
+                    AlbumMixFallbackModes.artistSingles,
+                    AlbumMixFallbackModes.libraryAlbumsOrSingles,
+                  ].contains(fallbackMode) ||
+                  (album.songCount ?? album.childCount ?? 0) > 1),
+            )
+            .toList();
+
+        if (filteredSimilarAlbums.isEmpty) {
+          switch (fallbackMode) {
+            case AlbumMixFallbackModes.artistAlbums:
+              _radioLogger.warning(
+                "No suitable similar full albums found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching singles.",
+              );
+              fallbackMode = AlbumMixFallbackModes.artistSingles;
+              continue;
+            case AlbumMixFallbackModes.artistSingles:
+              _radioLogger.warning(
+                "No suitable similar singles found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching appears on albums.",
+              );
+              fallbackMode = AlbumMixFallbackModes.performingArtistAlbums;
+              continue;
+            case AlbumMixFallbackModes.performingArtistAlbums:
+              _radioLogger.warning(
+                "No suitable similar appears on albums found for album mix radio from artist '${actualSeed.albumArtists?.first.name ?? actualSeed.artistItems?.first.name}'. Fetching from library.",
+              );
+              fallbackMode = AlbumMixFallbackModes.libraryAlbumsOrSingles;
+              continue;
+            case AlbumMixFallbackModes.similarSingles:
+            case AlbumMixFallbackModes.libraryAlbumsOrSingles:
+              break;
+            case null:
+              if (attempt >= 5) {
+                _radioLogger.warning(
+                  "No new suitable similar albums found for album mix radio for item '${actualSeed.name}' after $attempt attempts. Switching to fallbacks",
+                );
+                fallbackMode = AlbumMixFallbackModes.artistAlbums;
+              }
+              break;
+          }
+        }
       }
-      _radioLogger.finer("Selected album '${selectedAlbum.name}' for album mix radio.");
-      // load tracks from the selected album
-      final albumTracks = await loadChildTracksFromBaseItem(baseItem: selectedAlbum);
-      // we add all tracks at once to preserve the album as a unit
-      return albumTracks;
-    } else {
-      throw Exception("No suitable similar albums found for album mix radio. Returning empty track list.");
+
+      // pick a random album from the remaining ones
+      if (filteredSimilarAlbums.isNotEmpty) {
+        BaseItemDto selectedAlbum;
+        if (fallbackMode == AlbumMixFallbackModes.libraryAlbumsOrSingles) {
+          // since we can't filter by track count when fetching from the server, we instead sort by track count > 1 to pick a full album if available, but fall back to singles
+          filteredSimilarAlbums.sortBy<num>((album) => (album.songCount ?? album.childCount ?? 0) > 1 ? 0 : 1);
+          selectedAlbum = filteredSimilarAlbums.first;
+          filteredSimilarAlbums.removeAt(0);
+        } else {
+          final randomIndex = _radioRandom.nextInt(min(filteredSimilarAlbums.length, randomnessExtraAlbums));
+          selectedAlbum = filteredSimilarAlbums[randomIndex];
+          filteredSimilarAlbums.removeAt(randomIndex);
+        }
+        _radioLogger.finer("Selected album '${selectedAlbum.name}' for album mix radio.");
+        // load tracks from the selected album
+        final albumTracks = await loadChildTracksFromBaseItem(baseItem: selectedAlbum);
+        // we add all tracks at once to preserve the album as a unit
+        return albumTracks;
+      } else {
+        throw Exception("No suitable similar albums found for album mix radio. Returning empty track list.");
+      }
+    } catch (e) {
+      rethrow;
+    } finally {
+      // if it's a regular radio track generation, update the fallback mode for the current cache state
+      // if the cache gets replaced/invalidated before we get here, we only end up modifying the old cache state which isn't used anymore
+      if (localRadioState != null && overrideSeedItem == null) {
+        localRadioState.updateAlbumMixFallbackMode(fallbackMode);
+      }
     }
   }
 
@@ -594,6 +652,7 @@ Future<List<BaseItemDto>> _getSimilarTracks({
   required int randomnessExtraTracks,
   required int repetitionThresholdTracks,
   required int maxAttempts,
+  bool ignoreDuplicatesFromQueue = false,
 }) async {
   const skippedTracks = 1; // extra track to exclude the current track
   const filterExtraTracks = 10; // extra tracks in case duplicates are removed
@@ -603,16 +662,16 @@ Future<List<BaseItemDto>> _getSimilarTracks({
   final queueService = GetIt.instance<QueueService>();
   int attempt = 0;
   while (attempt < maxAttempts) {
-    final attemptExtraTracks = attempt * 10;
+    final attemptExtraTracks = 2 * attempt + pow(attempt, 2.75).toInt(); // ~ 0, 3, 10, 27, 50, 100, ...
     if (attempt > 0) {
       _radioLogger.warning("No similar tracks found. Retrying with $attemptExtraTracks extra tracks.");
     }
     attempt++;
 
-    final items = await jellyfinApiHelper.getInstantMix(
-      referenceItem,
-      limit: minNumTracks + skippedTracks + filterExtraTracks + randomnessExtraTracks + attemptExtraTracks,
-    );
+    final trackLimit = minNumTracks + skippedTracks + filterExtraTracks + randomnessExtraTracks + attemptExtraTracks;
+    _radioLogger.finer("Fetching (up to) $trackLimit similar tracks for reference item '${referenceItem.name}'.");
+
+    final items = await jellyfinApiHelper.getInstantMix(referenceItem, limit: trackLimit);
     List<BaseItemDto> filteredSample = [];
     if (items != null) {
       filteredSample.addAll(items);
@@ -624,15 +683,18 @@ Future<List<BaseItemDto>> _getSimilarTracks({
       filteredSample.removeRange(0, min(skippedTracks, filteredSample.length));
       final originalTrackCount = filteredSample.length;
       // filter out duplicate tracks, including upcoming ones
-      final recentlyPlayedIds = queueService
-          .getQueue()
-          .fullQueue
-          .reversed
-          .take(repetitionThresholdTracks)
-          .map((item) => item.baseItem)
-          .followedBy(additionalExistingTracks)
-          .map((item) => item.id)
-          .toSet();
+      final recentlyPlayedIds =
+          (ignoreDuplicatesFromQueue
+                  ? <BaseItemDto>[]
+                  : queueService
+                        .getQueue()
+                        .fullQueue
+                        .reversed
+                        .take(repetitionThresholdTracks)
+                        .map((item) => item.baseItem))
+              .followedBy(additionalExistingTracks)
+              .map((item) => item.id)
+              .toSet();
       filteredSample.removeWhere((item) => recentlyPlayedIds.contains(item.id));
       final filteredOutTrackCount = originalTrackCount - filteredSample.length;
       // we requested more tracks in case of duplicates, but if those are not needed we want to stay as similar as possible, since we already have some overhead for randomness
@@ -768,7 +830,7 @@ final getActiveRadioSeedProvider = ProviderFamily<BaseItemDto?, RadioMode>((Ref 
       return currentQueue?.fullQueue.lastOrNull?.baseItem;
     case RadioMode.reshuffle:
     case RadioMode.random:
-      return null;
+      return currentQueue?.source.type == QueueItemSourceType.radio ? currentQueue?.source.item : null;
     case RadioMode.similar:
     case RadioMode.albumMix:
       return currentQueue?.source.item;
