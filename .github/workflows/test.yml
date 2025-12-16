@@ -24,11 +24,17 @@ jobs:
           sudo apt-get install -y build-essential cmake ninja-build libgtk-3-dev
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
+        id: flutter-version
+        with:
+          architecture: 'x64'
+          channel: 'stable'
+          dry-run: true
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           # Prebuilt ARM linux builds are not provided, so build flutter from source
           channel: master
-          # TODO make this select the stable version
-          flutter-version: 3.38.5
+          flutter-version: "${{ steps.flutter-version.outputs.VERSION }}"
       - run: flutter doctor
       - run: flutter pub get
 
@@ -36,7 +42,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: isar
-          repository: https://github.com/Komodo5197/isar-community.git
+          repository: Komodo5197/isar-community
           ref: f070a067378c215b9212a2a22ea593293671c9c9
       - name: Build isar core and inject into cached isar_flutter_libs
         run: |
