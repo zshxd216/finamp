@@ -25,7 +25,10 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          # Prebuilt ARM linux builds are not provided, so build flutter from source
+          channel: master
+          # TODO make this select the stable version
+          flutter-version: 3.38.5
       - run: flutter doctor
       - run: flutter pub get
 
