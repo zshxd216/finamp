@@ -99,6 +99,7 @@ dependencies:
   isar_flutter_libs:
     git: 
       url: https://github.com/MrLittleWhite/isar_flutter_libs.git
+      ref: 59103190aa2ac03041d61ad6d127b540be079ec8
 
   path: ^1.9.0
   intl: # pinned by flutter version
@@ -170,9 +171,12 @@ dev_dependencies:
 dependency_overrides:
   # force isar_generator community fork to accept baseline isar.
   # generated files are identical, so there should be no incompatibilities
+  # fork also allows custom build of linux arm binaries
   isar:
-    hosted: https://pub.dev
-    version: ^3.1.0
+    git:
+      url: https://github.com/Komodo5197/isar-community.git
+      ref: a602cd8999048faba043f7e1ce7ba92f4d812762
+      path: packages/isar
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
