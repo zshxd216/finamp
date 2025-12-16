@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -18,6 +19,7 @@ class CarPlayHelper {
   final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   
   bool _isConnected = false;
+  StreamSubscription? _currentTrackSubscription;
   
   bool get isConnected => _isConnected;
   
@@ -25,7 +27,9 @@ class CarPlayHelper {
     if (!Platform.isIOS) return;
     
     _methodChannel.setMethodCallHandler(_handleMethodCall);
-    _queueService.addListener(_onQueueChanged);
+    _currentTrackSubscription = _queueService.getCurrentTrackStream().listen((_) {
+      _onQueueChanged();
+    });
     
     _carPlayHelperLogger.info("CarPlay helper initialized");
   }
@@ -73,6 +77,11 @@ class CarPlayHelper {
     }
   }
   
+  // Public method for external calls
+  Future<void> updateNowPlaying() async {
+    await _updateNowPlaying();
+  }
+  
   Future<void> updateBrowseContent() async {
     if (!_isConnected) return;
     
@@ -94,6 +103,6 @@ class CarPlayHelper {
   }
   
   void dispose() {
-    _queueService.removeListener(_onQueueChanged);
+    _currentTrackSubscription?.cancel();
   }
 }
