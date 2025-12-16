@@ -49,9 +49,18 @@ import CarPlay
                 result(FlutterMethodNotImplemented)
             }
         }
-    } // <- This closing brace was missing
+    }
 
     func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
         GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     }
+}
+
+private func setExcludeFromiCloudBackup(_ dir: URL, isExcluded: Bool) throws {
+    // Awkwardly make a mutable copy of the dir
+    var mutableDir = dir
+    
+    var values = URLResourceValues()
+    values.isExcludedFromBackup = isExcluded
+    try mutableDir.setResourceValues(values)
 }
