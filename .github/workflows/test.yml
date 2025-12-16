@@ -43,7 +43,7 @@ jobs:
         with:
           path: isar
           repository: Komodo5197/isar-community
-          ref: f070a067378c215b9212a2a22ea593293671c9c9
+          ref: a602cd8999048faba043f7e1ce7ba92f4d812762
       - name: Build isar core and inject into cached isar_flutter_libs
         run: |
           sh tool/build_linux.sh aarch64
