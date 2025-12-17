@@ -33,7 +33,7 @@ jobs:
   
   upload-linux:
     name: Build and Upload Linux Assets
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Clone repository
       uses: actions/checkout@v4
@@ -77,6 +77,7 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         asset_paths: '["./finamp-${{ github.ref_name }}-linux-release.tar.gz", "./finamp-${{ github.ref_name }}-linux-release.tar.gz.sha256sum"]'
+
   upload-windows:
     name: Build and Upload Windows Assets
     runs-on: windows-latest
@@ -120,9 +121,10 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         asset_paths: '["./Finamp-${{ github.ref_name }}-beta-Windows.msix", "./Finamp-${{ github.ref_name }}-beta-Windows.zip"]'
+
   upload-linux-arm:
     name: Build and Upload Linux ARM Assets
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-22.04-arm
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
