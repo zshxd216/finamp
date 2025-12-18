@@ -109,6 +109,7 @@
               jdk17
               androidComposition.platform-tools
               cmake
+              dbus
             ] ++ (if withFenix then [
               rustupStub
               (with pkgs.fenix; combine [
