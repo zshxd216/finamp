@@ -3197,7 +3197,7 @@
   "@duckOnAudioInterruptionTitle": {
     "description": "Title for the setting that controls ducking."
   },
-  "duckOnAudioInterruptionSubtitle": "Lower the volume (duck) when another app briefly plays audio.",
+  "duckOnAudioInterruptionSubtitle": "Lower the volume (duck) when another app briefly plays audio. Requires a restart.",
   "@duckOnAudioInterruptionSubtitle": {
     "description": "Subtitle for the setting that controls ducking."
   },
