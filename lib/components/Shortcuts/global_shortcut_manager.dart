@@ -20,6 +20,7 @@ class GlobalShortcutManager extends StatelessWidget {
         const SingleActivator(LogicalKeyboardKey.arrowUp, control: true): const VolumeUpIntent(), // Vol +5%
         const SingleActivator(LogicalKeyboardKey.arrowDown, control: true): const VolumeDownIntent(), // Vol -5%
         const SingleActivator(LogicalKeyboardKey.keyL, control: true): const ToggleLoopModeIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyS, control: true): const TogglePlaybackOrderIntent(),
       },
       child: Actions(
         actions: {

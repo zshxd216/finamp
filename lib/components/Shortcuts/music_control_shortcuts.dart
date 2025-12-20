@@ -40,6 +40,10 @@ class ToggleLoopModeIntent extends Intent {
   const ToggleLoopModeIntent();
 }
 
+class TogglePlaybackOrderIntent extends Intent {
+  const TogglePlaybackOrderIntent();
+}
+
 Map<Type, Action<Intent>> getMusicControlActions() {
   final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
   final queueService = GetIt.instance<QueueService>();
@@ -105,6 +109,22 @@ Map<Type, Action<Intent>> getMusicControlActions() {
               return AppLocalizations.of(context)!.loopModeOneButtonLabel;
             case FinampLoopMode.none:
               return AppLocalizations.of(context)!.loopModeNoneButtonLabel;
+          }
+        });
+
+        return null;
+      },
+    ),
+    TogglePlaybackOrderIntent: _NonConsumingCallbackAction<TogglePlaybackOrderIntent>(
+      onInvoke: (_) {
+        queueService.togglePlaybackOrder();
+
+        GlobalSnackbar.message((context) {
+          switch (queueService.playbackOrder) {
+            case FinampPlaybackOrder.linear:
+              return AppLocalizations.of(context)!.playbackOrderLinearButtonLabel;
+            case FinampPlaybackOrder.shuffled:
+              return AppLocalizations.of(context)!.playbackOrderShuffledButtonLabel;
           }
         });
 
