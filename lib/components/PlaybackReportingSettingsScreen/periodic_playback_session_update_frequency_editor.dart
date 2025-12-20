@@ -40,7 +40,9 @@ class _PeriodicPlaybackSessionUpdateFrequencyEditorState extends State<PeriodicP
                     pageBuilder: (context, anim1, anim2) {
                       return AlertDialog(
                         title: Text(AppLocalizations.of(context)!.periodicPlaybackSessionUpdateFrequency),
-                        content: Text(AppLocalizations.of(context)!.periodicPlaybackSessionUpdateFrequencyDetails),
+                        content: SingleChildScrollView(
+                          child: Text(AppLocalizations.of(context)!.periodicPlaybackSessionUpdateFrequencyDetails),
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () {

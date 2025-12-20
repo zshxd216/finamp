@@ -49,7 +49,9 @@ class VolumeNormalizationModeSelector extends ConsumerWidget {
                     pageBuilder: (context, anim1, anim2) {
                       return AlertDialog(
                         title: Text(AppLocalizations.of(context)!.volumeNormalizationModeSelectorTitle),
-                        content: Text(AppLocalizations.of(context)!.volumeNormalizationModeSelectorDescription),
+                        content: SingleChildScrollView(
+                          child: Text(AppLocalizations.of(context)!.volumeNormalizationModeSelectorDescription),
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () {

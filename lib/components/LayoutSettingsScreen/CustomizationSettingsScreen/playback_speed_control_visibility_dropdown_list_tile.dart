@@ -33,11 +33,13 @@ class PlaybackSpeedControlVisibilityDropdownListTile extends ConsumerWidget {
                     pageBuilder: (context, anim1, anim2) {
                       return AlertDialog(
                         title: Text(AppLocalizations.of(context)!.playbackSpeedControlSetting),
-                        content: Text(
-                          AppLocalizations.of(context)!.playbackSpeedControlSettingDescription(
-                            MetadataProvider.speedControlLongTrackDuration.inMinutes,
-                            MetadataProvider.speedControlLongAlbumDuration.inHours,
-                            MetadataProvider.speedControlGenres.join(", "),
+                        content: SingleChildScrollView(
+                          child: Text(
+                            AppLocalizations.of(context)!.playbackSpeedControlSettingDescription(
+                              MetadataProvider.speedControlLongTrackDuration.inMinutes,
+                              MetadataProvider.speedControlLongAlbumDuration.inHours,
+                              MetadataProvider.speedControlGenres.join(", "),
+                            ),
                           ),
                         ),
                         actions: [
