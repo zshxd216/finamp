@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
@@ -35,8 +36,13 @@ class VolumeDownIntent extends Intent {
   const VolumeDownIntent();
 }
 
+class ToggleLoopModeIntent extends Intent {
+  const ToggleLoopModeIntent();
+}
+
 Map<Type, Action<Intent>> getMusicControlActions() {
   final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
+  final queueService = GetIt.instance<QueueService>();
 
   return {
     TogglePlaybackIntent: _NonConsumingCallbackAction<TogglePlaybackIntent>(
@@ -84,6 +90,24 @@ Map<Type, Action<Intent>> getMusicControlActions() {
       onInvoke: (_) {
         final newVolume = (audioHandler.volume - 0.05).clamp(0.0, 1.0);
         audioHandler.setVolume(newVolume);
+        return null;
+      },
+    ),
+    ToggleLoopModeIntent: _NonConsumingCallbackAction<ToggleLoopModeIntent>(
+      onInvoke: (_) {
+        queueService.toggleLoopMode();
+
+        GlobalSnackbar.message((context) {
+          switch (queueService.loopMode) {
+            case FinampLoopMode.all:
+              return AppLocalizations.of(context)!.loopModeAllButtonLabel;
+            case FinampLoopMode.one:
+              return AppLocalizations.of(context)!.loopModeOneButtonLabel;
+            case FinampLoopMode.none:
+              return AppLocalizations.of(context)!.loopModeNoneButtonLabel;
+          }
+        });
+
         return null;
       },
     ),
