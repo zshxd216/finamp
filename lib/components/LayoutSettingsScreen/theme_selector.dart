@@ -1,3 +1,4 @@
+import 'package:finamp/components/SettingsScreen/finamp_settings_dropdown.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:finamp/l10n/app_localizations.dart';
@@ -26,12 +27,12 @@ class ThemeSelector extends ConsumerWidget {
     final themeMode = ref.watch(finampSettingsProvider.themeMode);
     return ListTile(
       title: Text(AppLocalizations.of(context)!.theme),
-      trailing: DropdownButton<ThemeMode>(
-        value: themeMode,
-        items: ThemeMode.values
-            .map((e) => DropdownMenuItem<ThemeMode>(value: e, child: Text(e.toLocalisedString(context))))
+      subtitle: FinampSettingsDropdown<ThemeMode>(
+        dropdownItems: ThemeMode.values
+            .map((e) => DropdownMenuEntry<ThemeMode>(value: e, label: e.toLocalisedString(context)))
             .toList(),
-        onChanged: (value) {
+        selectedValue: themeMode,
+        onSelected: (value) {
           if (value != null) {
             FinampSetters.setThemeMode(value);
           }

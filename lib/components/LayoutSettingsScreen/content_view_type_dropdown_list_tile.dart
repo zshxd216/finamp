@@ -1,3 +1,4 @@
+import 'package:finamp/components/SettingsScreen/finamp_settings_dropdown.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,17 +13,23 @@ class ContentViewTypeDropdownListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       title: Text(AppLocalizations.of(context)!.viewType),
-      subtitle: Text(AppLocalizations.of(context)!.viewTypeSubtitle),
-      trailing: DropdownButton<ContentViewType>(
-        value: ref.watch(finampSettingsProvider.contentViewType),
-        items: ContentViewType.values
-            .map((e) => DropdownMenuItem<ContentViewType>(value: e, child: Text(e.toLocalisedString(context))))
-            .toList(),
-        onChanged: (value) {
-          if (value != null) {
-            FinampSetters.setContentViewType(value);
-          }
-        },
+      subtitle: Column(
+        spacing: 4.0,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(AppLocalizations.of(context)!.viewTypeSubtitle),
+          FinampSettingsDropdown<ContentViewType>(
+            dropdownItems: ContentViewType.values
+                .map((e) => DropdownMenuEntry<ContentViewType>(value: e, label: e.toLocalisedString(context)))
+                .toList(),
+            selectedValue: ref.watch(finampSettingsProvider.contentViewType),
+            onSelected: (value) {
+              if (value != null) {
+                FinampSetters.setContentViewType(value);
+              }
+            },
+          ),
+        ],
       ),
     );
   }
