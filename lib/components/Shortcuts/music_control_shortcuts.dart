@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:finamp/components/global_snackbar.dart';
+import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
@@ -46,12 +48,14 @@ Map<Type, Action<Intent>> getMusicControlActions() {
     SkipToNextIntent: _CustomCallbackAction<SkipToNextIntent>(
       onInvoke: (_) {
         audioHandler.skipToNext();
+        GlobalSnackbar.message((context) => AppLocalizations.of(context)!.skipToNextTrackButtonTooltip);
         return null;
       },
     ),
     SkipToPreviousIntent: _CustomCallbackAction<SkipToPreviousIntent>(
       onInvoke: (_) {
         audioHandler.skipToPrevious();
+        GlobalSnackbar.message((context) => AppLocalizations.of(context)!.skipToPreviousTrackButtonTooltip);
         return null;
       },
     ),
