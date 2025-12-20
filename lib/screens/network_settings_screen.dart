@@ -33,6 +33,7 @@ class _NetworkSettingsScreenState extends State<NetworkSettingsScreen> {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: [
           AutoOfflineSelector(),
           Divider(),

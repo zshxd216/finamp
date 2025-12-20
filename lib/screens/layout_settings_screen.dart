@@ -39,6 +39,7 @@ class _LayoutSettingsScreenState extends ConsumerState<LayoutSettingsScreen> {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: [
           ListTile(
             leading: const Icon(TablerIcons.sparkles),

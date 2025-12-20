@@ -23,6 +23,7 @@ class _LyricsSettingsScreenState extends State<LyricsSettingsScreen> {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: const [
           ShowLyricsTimestampsToggle(),
           ShowLyricsScreenAlbumPreludeToggle(),

@@ -30,6 +30,7 @@ class _TranscodingSettingsScreenState extends State<TranscodingSettingsScreen> {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: [
           const TranscodeSwitch(),
           const StreamingTranscodingFormatDropdownListTile(),
