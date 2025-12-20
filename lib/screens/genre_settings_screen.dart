@@ -57,6 +57,7 @@ class _GenreSettingsScreenState extends ConsumerState<GenreSettingsScreen> {
                   });
                 },
               ),
+              Divider(),
             ],
           ),
           SizedBox(height: 12),
@@ -111,6 +112,7 @@ class _GenreSettingsScreenState extends ConsumerState<GenreSettingsScreen> {
                   });
                 },
               ),
+              Divider(),
             ],
           ),
           SizedBox(height: 12),

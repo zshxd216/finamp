@@ -70,6 +70,7 @@ class _ArtistSettingsScreenState extends ConsumerState<ArtistSettingsScreen> {
                   });
                 },
               ),
+              Divider(),
             ],
           ),
           SizedBox(height: 8),
@@ -113,6 +114,7 @@ class _ArtistSettingsScreenState extends ConsumerState<ArtistSettingsScreen> {
                     });
                   },
                 ),
+                Divider(),
               ],
             ),
           ),

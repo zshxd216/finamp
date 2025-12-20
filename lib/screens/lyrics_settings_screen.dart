@@ -2,6 +2,7 @@ import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/components/SettingsScreen/finamp_settings_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 
 import '../models/finamp_models.dart';
 import '../services/finamp_settings_helper.dart';
@@ -64,7 +65,25 @@ class LyricsAlignmentSelector extends ConsumerWidget {
           Text(AppLocalizations.of(context)!.lyricsAlignmentSubtitle),
           FinampSettingsDropdown<LyricsAlignment>(
             dropdownItems: LyricsAlignment.values
-                .map((e) => DropdownMenuEntry<LyricsAlignment>(value: e, label: e.toLocalisedString(context)))
+                .map(
+                  (e) => DropdownMenuEntry<LyricsAlignment>(
+                    value: e,
+                    label: e.toLocalisedString(context),
+                    leadingIcon: switch (e) {
+                      LyricsAlignment.start => Icon(
+                        Directionality.of(context) == TextDirection.rtl
+                            ? TablerIcons.align_right
+                            : TablerIcons.align_left,
+                      ),
+                      LyricsAlignment.center => const Icon(TablerIcons.align_center),
+                      LyricsAlignment.end => Icon(
+                        Directionality.of(context) == TextDirection.rtl
+                            ? TablerIcons.align_left
+                            : TablerIcons.align_right,
+                      ),
+                    },
+                  ),
+                )
                 .toList(),
             selectedValue: ref.watch(finampSettingsProvider.lyricsAlignment),
             onSelected: FinampSetters.setLyricsAlignment.ifNonNull,
