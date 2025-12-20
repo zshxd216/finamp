@@ -338,6 +338,15 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
           }
         }
       });
+      session.becomingNoisyEventStream.listen((_) {
+        // The user unplugged/disconnected the headphones/speaker/car, so we should pause ~~or lower~~ the volume.
+        if (FinampSettingsHelper.finampSettings.duckOnAudioInterruption) {
+          // if this is enabled, we let the [AudioPlayer] handle this automatically, via [handleInterruptions]
+        } else {
+          // if ducking is disabled, the audio player doesn't handle interruptions on its own, so we need to make sure to pause
+          pause();
+        }
+      });
       session.devicesChangedEventStream.listen((event) {
         _outputLogger.info('Devices added:   ${event.devicesAdded}');
         _outputLogger.info('Devices removed: ${event.devicesRemoved}');
