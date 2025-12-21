@@ -102,9 +102,12 @@ jobs:
     #TODO would be nice to have an old-school installer here that can take the .exe + libraries and install them to the device + create a shortcut
     # TODO pack in redistributables?
     - run: cp -r build/windows/x64/runner/Release/ ./Finamp-${{ github.ref_name }}-beta-Windows
+    # zip folder
+    - run: powershell -Command "Compress-Archive -Path './Finamp-${{ github.ref_name }}-beta-Windows' -DestinationPath './Finamp-${{ github.ref_name }}-beta-Windows.zip'"
     - run: dart run msix:create --install-certificate false
     # copy msix file with correct naming
     - run: cp build/windows/x64/runner/Release/finamp.msix ./Finamp-${{ github.ref_name }}-beta-Windows.msix
+    # upload original, unzipped directory. GitHub will zip it anyway
     - uses: actions/upload-artifact@v4
       with:
         name: Finamp-${{ github.ref_name }}-beta-Windows
@@ -119,4 +122,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        asset_paths: '["./Finamp-${{ github.ref_name }}-beta-Windows.msix", "./Finamp-${{ github.ref_name }}-beta-Windows"]'
+        # upload zip archive here, uploading the raw directory fails
+        asset_paths: '["./Finamp-${{ github.ref_name }}-beta-Windows.msix", "./Finamp-${{ github.ref_name }}-beta-Windows.zip"]'
