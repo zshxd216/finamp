@@ -49,33 +49,33 @@ Map<Type, Action<Intent>> getMusicControlActions() {
   final queueService = GetIt.instance<QueueService>();
 
   return {
-    TogglePlaybackIntent: _NonConsumingCallbackAction<TogglePlaybackIntent>(
+    TogglePlaybackIntent: _MusicControlTextFieldSafeAction<TogglePlaybackIntent>(
       onInvoke: (_) {
         unawaited(audioHandler.togglePlayback());
         return null;
       },
     ),
-    SkipToNextIntent: _CustomCallbackAction<SkipToNextIntent>(
+    SkipToNextIntent: _MusicControlAction<SkipToNextIntent>(
       onInvoke: (_) {
         audioHandler.skipToNext();
         GlobalSnackbar.message((context) => AppLocalizations.of(context)!.skipToNextTrackButtonTooltip);
         return null;
       },
     ),
-    SkipToPreviousIntent: _CustomCallbackAction<SkipToPreviousIntent>(
+    SkipToPreviousIntent: _MusicControlAction<SkipToPreviousIntent>(
       onInvoke: (_) {
         audioHandler.skipToPrevious();
         GlobalSnackbar.message((context) => AppLocalizations.of(context)!.skipToPreviousTrackButtonTooltip);
         return null;
       },
     ),
-    SeekForwardIntent: _NonConsumingCallbackAction<SeekForwardIntent>(
+    SeekForwardIntent: _MusicControlTextFieldSafeAction<SeekForwardIntent>(
       onInvoke: (_) {
         audioHandler.seek(audioHandler.playbackPosition + const Duration(seconds: 30));
         return null;
       },
     ),
-    SeekBackwardIntent: _NonConsumingCallbackAction<SeekBackwardIntent>(
+    SeekBackwardIntent: _MusicControlTextFieldSafeAction<SeekBackwardIntent>(
       onInvoke: (_) {
         final current = audioHandler.playbackPosition;
         final target = current < const Duration(seconds: 5) ? Duration.zero : current - const Duration(seconds: 5);
@@ -83,21 +83,21 @@ Map<Type, Action<Intent>> getMusicControlActions() {
         return null;
       },
     ),
-    VolumeUpIntent: _NonConsumingCallbackAction<VolumeUpIntent>(
+    VolumeUpIntent: _MusicControlTextFieldSafeAction<VolumeUpIntent>(
       onInvoke: (_) {
         final newVolume = (audioHandler.volume + 0.05).clamp(0.0, 1.0);
         audioHandler.setVolume(newVolume);
         return null;
       },
     ),
-    VolumeDownIntent: _NonConsumingCallbackAction<VolumeDownIntent>(
+    VolumeDownIntent: _MusicControlTextFieldSafeAction<VolumeDownIntent>(
       onInvoke: (_) {
         final newVolume = (audioHandler.volume - 0.05).clamp(0.0, 1.0);
         audioHandler.setVolume(newVolume);
         return null;
       },
     ),
-    ToggleLoopModeIntent: _NonConsumingCallbackAction<ToggleLoopModeIntent>(
+    ToggleLoopModeIntent: _MusicControlTextFieldSafeAction<ToggleLoopModeIntent>(
       onInvoke: (_) {
         queueService.toggleLoopMode();
 
@@ -115,7 +115,7 @@ Map<Type, Action<Intent>> getMusicControlActions() {
         return null;
       },
     ),
-    TogglePlaybackOrderIntent: _NonConsumingCallbackAction<TogglePlaybackOrderIntent>(
+    TogglePlaybackOrderIntent: _MusicControlTextFieldSafeAction<TogglePlaybackOrderIntent>(
       onInvoke: (_) {
         queueService.togglePlaybackOrder();
 
@@ -134,8 +134,8 @@ Map<Type, Action<Intent>> getMusicControlActions() {
   };
 }
 
-class _CustomCallbackAction<T extends Intent> extends CallbackAction<T> {
-  _CustomCallbackAction({required super.onInvoke});
+class _MusicControlAction<T extends Intent> extends CallbackAction<T> {
+  _MusicControlAction({required super.onInvoke});
 
   @override
   Object? invoke(T intent) {
@@ -144,8 +144,8 @@ class _CustomCallbackAction<T extends Intent> extends CallbackAction<T> {
   }
 }
 
-class _NonConsumingCallbackAction<T extends Intent> extends _CustomCallbackAction<T> {
-  _NonConsumingCallbackAction({required super.onInvoke});
+class _MusicControlTextFieldSafeAction<T extends Intent> extends _MusicControlAction<T> {
+  _MusicControlTextFieldSafeAction({required super.onInvoke});
 
   @override
   bool consumesKey(T intent) {
