@@ -42,6 +42,8 @@
     <release version="0.9.22-beta" date="2025-12-22">
       <url type="details">https://github.com/jmshrv/finamp/releases/tag/0.9.22-beta</url>
       <description>
+        <p>
+          New Features
         </p>
         <ul>
           <li>Improved layout in settings, especially for non-English languages</li>
