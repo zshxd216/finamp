@@ -1,4 +1,6 @@
+import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/screens/player_screen.dart';
+import 'package:finamp/utils/platform_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'feature_chips.dart';
@@ -16,7 +18,12 @@ class ControlArea extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (controller.shouldShow(PlayerHideable.features)) const FeatureChips(),
-        if (controller.shouldShow(PlayerHideable.progressSlider)) const ProgressSlider(),
+        if (controller.shouldShow(PlayerHideable.progressSlider))
+          Tooltip(
+            message: AppLocalizations.of(context)!.seekControlHint(ShortcutKeyDisplay.primaryModifier),
+            triggerMode: TooltipTriggerMode.tap,
+            child: const ProgressSlider(),
+          ),
         PlayerButtons(controller),
       ],
     );

@@ -5,6 +5,7 @@ import 'package:finamp/components/PlayerScreen/player_buttons_playback_order.dar
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
 import 'package:finamp/screens/player_screen.dart';
 import 'package:finamp/services/feedback_helper.dart';
+import 'package:finamp/utils/platform_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
@@ -34,6 +35,7 @@ class PlayerButtons extends StatelessWidget {
         final mediaState = snapshot.data!;
         final playbackState = mediaState.playbackState;
         final fadeState = mediaState.fadeState;
+        final modKeyDisplay = ShortcutKeyDisplay.primaryModifier;
 
         return Row(
           mainAxisSize: MainAxisSize.max,
@@ -49,6 +51,7 @@ class PlayerButtons extends StatelessWidget {
               container: true,
               excludeSemantics: true,
               child: IconButton(
+                tooltip: "$modKeyDisplay+P",
                 icon: const Icon(TablerIcons.player_skip_back),
                 onPressed: () async {
                   FeedbackHelper.feedback(FeedbackType.light);
@@ -96,6 +99,7 @@ class PlayerButtons extends StatelessWidget {
               container: true,
               excludeSemantics: true,
               child: IconButton(
+                tooltip: "$modKeyDisplay+N",
                 icon: const Icon(TablerIcons.player_skip_forward),
                 onPressed: () async {
                   FeedbackHelper.feedback(FeedbackType.light);
