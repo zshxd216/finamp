@@ -8,11 +8,18 @@ import 'metadata_provider.dart';
 
 /// Provider to handle pre-fetching metadata for upcoming tracks
 final currentTrackMetadataProvider = AutoDisposeProvider<AsyncValue<MetadataProvider?>>((ref) {
-  final List<FinampQueueItem> precacheItems = GetIt.instance<QueueService>().peekQueue(next: 3, previous: 1);
+  final List<FinampQueueItem> precacheItems = GetIt.instance<QueueService>().peekQueue(
+    next: 3,
+    previous: 1,
+    current: true,
+  );
   for (final itemToPrecache in precacheItems) {
     BaseItemDto? base = itemToPrecache.baseItem;
     if (base != null) {
       ref.listen(metadataProvider(base), (_, __) {});
+      ref.read(
+        metadataProvider(base),
+      ); // forces it even in background https://github.com/rrousselGit/riverpod/issues/2671
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
-import 'package:finamp/services/locale_helper.dart';
+import 'package:finamp/utils/locale_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -32,7 +32,7 @@ class ReleaseDateHelper {
 class DateTimeHelper {
   static String format(DateTime dateTime) {
     final now = DateTime.now();
-    final locale = LocaleHelper.localeString;
+    final locale = getLocaleString();
 
     final isSameDay = dateTime.year == now.year && dateTime.month == now.month && dateTime.day == now.day;
 
@@ -99,7 +99,7 @@ class DateTimeHelper {
     }
 
     final isSameYear = dateTime.year == now.year;
-    final locale = LocaleHelper.localeString;
+    final locale = getLocaleString();
     final format = isSameYear ? DateFormat.MMMMd(locale) : DateFormat.yMMMd(locale);
 
     return format.format(dateTime);

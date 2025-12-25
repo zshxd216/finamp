@@ -24,6 +24,10 @@ class SleepTimerMenu extends StatefulWidget {
   final void Function()? onStartTimer;
   final void Function(double)? onSizeChange;
 
+  static const double durationTypeMenuHeight = 265;
+  static const double tracksTypeMenuHeight = 220;
+  static const double afterCurrentTrackTypeMenuHeight = 140;
+
   @override
   State<SleepTimerMenu> createState() => _SleepTimerMenuState();
 }
@@ -37,10 +41,6 @@ class _SleepTimerMenuState extends State<SleepTimerMenu> {
   late bool finishTrack;
 
   _MenuPage selectedMode = _MenuPage.minutes;
-
-  static const double durationTypeMenuHeight = 265;
-  static const double tracksTypeMenuHeight = 220;
-  static const double afterCurrentTrackTypeMenuHeight = 140;
 
   @override
   void initState() {
@@ -80,7 +80,11 @@ class _SleepTimerMenuState extends State<SleepTimerMenu> {
       AppLocalizations.of(context)!.tracks,
       AppLocalizations.of(context)!.sleepTimerAfterCurrentTrack,
     ];
-    final List<double> menuHeights = [durationTypeMenuHeight, tracksTypeMenuHeight, afterCurrentTrackTypeMenuHeight];
+    final List<double> menuHeights = [
+      SleepTimerMenu.durationTypeMenuHeight,
+      SleepTimerMenu.tracksTypeMenuHeight,
+      SleepTimerMenu.afterCurrentTrackTypeMenuHeight,
+    ];
 
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: widget.iconColor.withOpacity(0.1)),
@@ -480,7 +484,7 @@ class _SleepTimerMenuState extends State<SleepTimerMenu> {
                           durationUntilFinalTrack = newSleepTimer.totalDuration < currentTrackRemainingDuration
                               ? Duration.zero
                               : currentTrackRemainingDuration +
-                                    queueInfo.getDurationUntil(finalTrackIndex - queueInfo.currentTrackIndex + 1);
+                                    queueInfo.getDurationUntil(finalTrackIndex - queueInfo.currentTrackIndex);
                           durationUntilEndOfFinalTrack = newSleepTimer.totalDuration < currentTrackRemainingDuration
                               ? currentTrackRemainingDuration
                               : durationUntilFinalTrack + durationOfFinalTrack;
@@ -505,6 +509,7 @@ class _SleepTimerMenuState extends State<SleepTimerMenu> {
                       case _MenuPage.currentTrack:
                         remaining = currentTrackRemainingDuration + queueInfo.getDurationUntil(1);
                     }
+                    remaining = remaining * (1 / GetIt.instance<MusicPlayerBackgroundTask>().speed);
                     final remainText = printDuration(remaining, leadingZeroes: false);
                     final remainingLabelFullHours = (remaining.inHours);
                     final remainingLabelFullMinutes = (remaining.inMinutes) % 60;

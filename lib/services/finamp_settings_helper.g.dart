@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: deprecated_member_use_from_same_package
+// ignore_for_file: deprecated_member_use_from_same_package, strict_raw_type
 
 // dart format off
 
@@ -1086,6 +1086,168 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setPreferAddingToFavoritesOverPlaylists(
+    bool newPreferAddingToFavoritesOverPlaylists,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.preferAddingToFavoritesOverPlaylists =
+        newPreferAddingToFavoritesOverPlaylists;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setPreviousTracksExpaned(bool newPreviousTracksExpaned) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.previousTracksExpaned = newPreviousTracksExpaned;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setAutoplayRestoredQueue(bool newAutoplayRestoredQueue) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.autoplayRestoredQueue = newAutoplayRestoredQueue;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setPreferNextUpPrepending(bool newPreferNextUpPrepending) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.preferNextUpPrepending = newPreferNextUpPrepending;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setRememberLastUsedPlaybackActionRowPage(
+    bool newRememberLastUsedPlaybackActionRowPage,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.rememberLastUsedPlaybackActionRowPage =
+        newRememberLastUsedPlaybackActionRowPage;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setLastUsedPlaybackActionRowPage(
+    PlaybackActionRowPage newLastUsedPlaybackActionRowPage,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.lastUsedPlaybackActionRowPage =
+        newLastUsedPlaybackActionRowPage;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setAccentColor(Color? newAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.accentColor = newAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setThemeMode(ThemeMode newThemeMode) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.themeMode = newThemeMode;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setLocale(Locale? newLocale) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.locale = newLocale;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setHasCompletedThemeModeLocaleMigration(
+    bool newHasCompletedThemeModeLocaleMigration,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.hasCompletedThemeModeLocaleMigration =
+        newHasCompletedThemeModeLocaleMigration;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setSystemAccentColor(Color? newSystemAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.systemAccentColor = newSystemAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setUseSystemAccentColor(bool newUseSystemAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.useSystemAccentColor = newUseSystemAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setUseMonochromeIcon(bool newUseMonochromeIcon) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.useMonochromeIcon = newUseMonochromeIcon;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setLastUsedPlaybackActionRowPageForQueueMenu(
+    PlaybackActionRowPage newLastUsedPlaybackActionRowPageForQueueMenu,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.lastUsedPlaybackActionRowPageForQueueMenu =
+        newLastUsedPlaybackActionRowPageForQueueMenu;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setRadioEnabled(bool newRadioEnabled) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.radioEnabled = newRadioEnabled;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setRadioMode(RadioMode newRadioMode) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.radioMode = newRadioMode;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setDuckOnAudioInterruption(bool newDuckOnAudioInterruption) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.duckOnAudioInterruption = newDuckOnAudioInterruption;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setForceAudioOffloadingOnAndroid(
+    bool newForceAudioOffloadingOnAndroid,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.forceAudioOffloadingOnAndroid =
+        newForceAudioOffloadingOnAndroid;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1468,6 +1630,55 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select((value) => value.requireValue.rpcIcon);
   ProviderListenable<bool> get autoExpandPlayerScreen => finampSettingsProvider
       .select((value) => value.requireValue.autoExpandPlayerScreen);
+  ProviderListenable<bool> get preferAddingToFavoritesOverPlaylists =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.preferAddingToFavoritesOverPlaylists,
+      );
+  ProviderListenable<bool> get previousTracksExpaned => finampSettingsProvider
+      .select((value) => value.requireValue.previousTracksExpaned);
+  ProviderListenable<bool> get autoplayRestoredQueue => finampSettingsProvider
+      .select((value) => value.requireValue.autoplayRestoredQueue);
+  ProviderListenable<bool> get preferNextUpPrepending => finampSettingsProvider
+      .select((value) => value.requireValue.preferNextUpPrepending);
+  ProviderListenable<bool> get rememberLastUsedPlaybackActionRowPage =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.rememberLastUsedPlaybackActionRowPage,
+      );
+  ProviderListenable<PlaybackActionRowPage> get lastUsedPlaybackActionRowPage =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.lastUsedPlaybackActionRowPage,
+      );
+  ProviderListenable<Color?> get accentColor =>
+      finampSettingsProvider.select((value) => value.requireValue.accentColor);
+  ProviderListenable<ThemeMode> get themeMode =>
+      finampSettingsProvider.select((value) => value.requireValue.themeMode);
+  ProviderListenable<Locale?> get locale =>
+      finampSettingsProvider.select((value) => value.requireValue.locale);
+  ProviderListenable<bool> get hasCompletedThemeModeLocaleMigration =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.hasCompletedThemeModeLocaleMigration,
+      );
+  ProviderListenable<Color?> get systemAccentColor => finampSettingsProvider
+      .select((value) => value.requireValue.systemAccentColor);
+  ProviderListenable<bool> get useSystemAccentColor => finampSettingsProvider
+      .select((value) => value.requireValue.useSystemAccentColor);
+  ProviderListenable<bool> get useMonochromeIcon => finampSettingsProvider
+      .select((value) => value.requireValue.useMonochromeIcon);
+  ProviderListenable<PlaybackActionRowPage>
+  get lastUsedPlaybackActionRowPageForQueueMenu =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.lastUsedPlaybackActionRowPageForQueueMenu,
+      );
+  ProviderListenable<bool> get radioEnabled =>
+      finampSettingsProvider.select((value) => value.requireValue.radioEnabled);
+  ProviderListenable<RadioMode> get radioMode =>
+      finampSettingsProvider.select((value) => value.requireValue.radioMode);
+  ProviderListenable<bool> get duckOnAudioInterruption => finampSettingsProvider
+      .select((value) => value.requireValue.duckOnAudioInterruption);
+  ProviderListenable<bool> get forceAudioOffloadingOnAndroid =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.forceAudioOffloadingOnAndroid,
+      );
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(
         (value) => value.requireValue.downloadTranscodingProfile,

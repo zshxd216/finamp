@@ -26,6 +26,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(DeviceProfileAdapter());
     registerAdapter(DirectPlayProfileAdapter());
     registerAdapter(DiscordRpcIconAdapter());
+    registerAdapter(DlnaProfileTypeAdapter());
     registerAdapter(DownloadLocationAdapter());
     registerAdapter(DownloadLocationTypeAdapter());
     registerAdapter(DownloadedImageAdapter());
@@ -65,8 +66,13 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(NameIdPairAdapter());
     registerAdapter(NameLongIdPairAdapter());
     registerAdapter(OfflineListenAdapter());
+    registerAdapter(PlaybackActionRowPageAdapter());
+    registerAdapter(PlaybackInfoRequestAdapter());
     registerAdapter(PlaybackSpeedVisibilityAdapter());
     registerAdapter(PlayerStateInfoAdapter());
+    registerAdapter(PlaylistInfoAdapter());
+    registerAdapter(PlaylistUserAdapter());
+    registerAdapter(PlaylistUsersAdapter());
     registerAdapter(ProfileConditionAdapter());
     registerAdapter(QueueItemAdapter());
     registerAdapter(QueueItemQueueTypeAdapter());
@@ -74,6 +80,8 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(QueueItemSourceNameAdapter());
     registerAdapter(QueueItemSourceNameTypeAdapter());
     registerAdapter(QueueItemSourceTypeAdapter());
+    registerAdapter(RadioModeAdapter());
+    registerAdapter(RawThemeResultAdapter());
     registerAdapter(ReleaseDateFormatAdapter());
     registerAdapter(ResponseProfileAdapter());
     registerAdapter(SavedQueueStateAdapter());
@@ -118,6 +126,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(DeviceProfileAdapter());
     registerAdapter(DirectPlayProfileAdapter());
     registerAdapter(DiscordRpcIconAdapter());
+    registerAdapter(DlnaProfileTypeAdapter());
     registerAdapter(DownloadLocationAdapter());
     registerAdapter(DownloadLocationTypeAdapter());
     registerAdapter(DownloadedImageAdapter());
@@ -157,8 +166,13 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(NameIdPairAdapter());
     registerAdapter(NameLongIdPairAdapter());
     registerAdapter(OfflineListenAdapter());
+    registerAdapter(PlaybackActionRowPageAdapter());
+    registerAdapter(PlaybackInfoRequestAdapter());
     registerAdapter(PlaybackSpeedVisibilityAdapter());
     registerAdapter(PlayerStateInfoAdapter());
+    registerAdapter(PlaylistInfoAdapter());
+    registerAdapter(PlaylistUserAdapter());
+    registerAdapter(PlaylistUsersAdapter());
     registerAdapter(ProfileConditionAdapter());
     registerAdapter(QueueItemAdapter());
     registerAdapter(QueueItemQueueTypeAdapter());
@@ -166,6 +180,8 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(QueueItemSourceNameAdapter());
     registerAdapter(QueueItemSourceNameTypeAdapter());
     registerAdapter(QueueItemSourceTypeAdapter());
+    registerAdapter(RadioModeAdapter());
+    registerAdapter(RawThemeResultAdapter());
     registerAdapter(ReleaseDateFormatAdapter());
     registerAdapter(ResponseProfileAdapter());
     registerAdapter(SavedQueueStateAdapter());

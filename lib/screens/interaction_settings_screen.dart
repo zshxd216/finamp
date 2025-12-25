@@ -30,6 +30,7 @@ class _InteractionSettingsScreenState extends State<InteractionSettingsScreen> {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: const [
           ItemSwipeLeftToRightActionDropdownListTile(),
           ItemSwipeRightToLeftActionDropdownListTile(),
@@ -41,6 +42,9 @@ class _InteractionSettingsScreenState extends State<InteractionSettingsScreen> {
           ShowDeleteFromServerOptionToggle(),
           KeepScreenOnDropdownListTile(),
           KeepScreenOnWhilePluggedInSelector(),
+          PreferAddingToFavoritesOverPlaylistsToggle(),
+          PreferNextUpPrependingToggle(),
+          RememberLastUsedPlaybackActionRowPageToggle(),
         ],
       ),
     );
@@ -85,6 +89,48 @@ class ShowDeleteFromServerOptionToggle extends ConsumerWidget {
       subtitle: Text(AppLocalizations.of(context)!.allowDeleteFromServerSubtitle),
       value: ref.watch(finampSettingsProvider.allowDeleteFromServer),
       onChanged: FinampSetters.setAllowDeleteFromServer,
+    );
+  }
+}
+
+class PreferAddingToFavoritesOverPlaylistsToggle extends ConsumerWidget {
+  const PreferAddingToFavoritesOverPlaylistsToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.preferAddingToFavoritesOverPlaylistsTitle),
+      subtitle: Text(AppLocalizations.of(context)!.preferAddingToFavoritesOverPlaylistsSubtitle),
+      value: ref.watch(finampSettingsProvider.preferAddingToFavoritesOverPlaylists),
+      onChanged: (value) => FinampSetters.setPreferAddingToFavoritesOverPlaylists(value),
+    );
+  }
+}
+
+class PreferNextUpPrependingToggle extends ConsumerWidget {
+  const PreferNextUpPrependingToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.preferNextUpPrependingTitle),
+      subtitle: Text(AppLocalizations.of(context)!.preferNextUpPrependingSubtitle),
+      value: ref.watch(finampSettingsProvider.preferNextUpPrepending),
+      onChanged: (value) => FinampSetters.setPreferNextUpPrepending(value),
+    );
+  }
+}
+
+class RememberLastUsedPlaybackActionRowPageToggle extends ConsumerWidget {
+  const RememberLastUsedPlaybackActionRowPageToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.rememberLastUsedPlaybackActionRowPageTitle),
+      subtitle: Text(AppLocalizations.of(context)!.rememberLastUsedPlaybackActionRowPageSubtitle),
+      value: ref.watch(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage),
+      onChanged: (value) => FinampSetters.setRememberLastUsedPlaybackActionRowPage(value),
     );
   }
 }

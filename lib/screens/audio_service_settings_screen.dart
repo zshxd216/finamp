@@ -1,14 +1,17 @@
 import 'dart:io';
 
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../components/AudioServiceSettingsScreen/buffer_duration_list_tile.dart';
-import '../components/AudioServiceSettingsScreen/loadQueueOnStartup_selector.dart';
-import '../components/AudioServiceSettingsScreen/stop_foreground_selector.dart';
-import '../components/AudioServiceSettingsScreen/track_shuffle_item_count_editor.dart';
+import 'package:finamp/components/AudioServiceSettingsScreen/buffer_duration_list_tile.dart';
+import 'package:finamp/components/AudioServiceSettingsScreen/loadQueueOnStartup_selector.dart';
+import 'package:finamp/components/AudioServiceSettingsScreen/stop_foreground_selector.dart';
+import 'package:finamp/components/AudioServiceSettingsScreen/track_shuffle_item_count_editor.dart';
+import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/music_player_background_task.dart';
 
 class AudioServiceSettingsScreen extends StatefulWidget {
   const AudioServiceSettingsScreen({super.key});
@@ -32,8 +35,11 @@ class _AudioServiceSettingsScreenState extends State<AudioServiceSettingsScreen>
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: [
           if (Platform.isAndroid) const StopForegroundSelector(),
+          if (Platform.isAndroid) const EnableDuckingOnInterruptionsToggle(),
+          if (Platform.isAndroid) const ForceAudioOffloadingOnAndroidToggle(),
           const TrackShuffleItemCountEditor(),
           const AudioFadeInDurationListTile(),
           const AudioFadeOutDurationListTile(),
@@ -41,6 +47,7 @@ class _AudioServiceSettingsScreenState extends State<AudioServiceSettingsScreen>
           const BufferDurationListTile(),
           const BufferDisableSizeConstraintsSelector(),
           const LoadQueueOnStartupSelector(),
+          const AutoplayRestoredQueueToggle(),
           const AutoReloadQueueToggle(),
           const ClearQueueOnStopToggle(),
         ],
@@ -90,7 +97,7 @@ class _BufferSizeListTileState extends ConsumerState<BufferSizeListTile> {
       title: Text(AppLocalizations.of(context)!.bufferSizeTitle),
       subtitle: Text(AppLocalizations.of(context)!.bufferSizeSubtitle),
       trailing: SizedBox(
-        width: 50 * MediaQuery.of(context).textScaleFactor,
+        width: 50 * MediaQuery.textScaleFactorOf(context),
         child: TextField(
           controller: _controller,
           textAlign: TextAlign.center,
@@ -138,7 +145,7 @@ class _AudioFadeInDurationListTileState extends ConsumerState<AudioFadeInDuratio
       title: Text(AppLocalizations.of(context)!.audioFadeInDurationSettingTitle),
       subtitle: Text(AppLocalizations.of(context)!.audioFadeInDurationSettingSubtitle),
       trailing: SizedBox(
-        width: 50 * MediaQuery.of(context).textScaleFactor,
+        width: 50 * MediaQuery.textScaleFactorOf(context),
         child: TextField(
           controller: _controller,
           textAlign: TextAlign.center,
@@ -181,7 +188,7 @@ class _AudioFadeOutDurationListTileState extends ConsumerState<AudioFadeOutDurat
       title: Text(AppLocalizations.of(context)!.audioFadeOutDurationSettingTitle),
       subtitle: Text(AppLocalizations.of(context)!.audioFadeOutDurationSettingSubtitle),
       trailing: SizedBox(
-        width: 50 * MediaQuery.of(context).textScaleFactor,
+        width: 50 * MediaQuery.textScaleFactorOf(context),
         child: TextField(
           controller: _controller,
           textAlign: TextAlign.center,
@@ -213,6 +220,20 @@ class AutoReloadQueueToggle extends ConsumerWidget {
   }
 }
 
+class AutoplayRestoredQueueToggle extends ConsumerWidget {
+  const AutoplayRestoredQueueToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.autoplayRestoredQueueTitle),
+      subtitle: Text(AppLocalizations.of(context)!.autoplayRestoredQueueSubtitle),
+      value: ref.watch(finampSettingsProvider.autoplayRestoredQueue),
+      onChanged: FinampSetters.setAutoplayRestoredQueue,
+    );
+  }
+}
+
 class ClearQueueOnStopToggle extends ConsumerWidget {
   const ClearQueueOnStopToggle({super.key});
 
@@ -223,6 +244,39 @@ class ClearQueueOnStopToggle extends ConsumerWidget {
       subtitle: Text(AppLocalizations.of(context)!.clearQueueOnStopEventSubtitle),
       value: ref.watch(finampSettingsProvider.clearQueueOnStopEvent),
       onChanged: FinampSetters.setClearQueueOnStopEvent,
+    );
+  }
+}
+
+class EnableDuckingOnInterruptionsToggle extends ConsumerWidget {
+  const EnableDuckingOnInterruptionsToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.duckOnAudioInterruptionTitle),
+      subtitle: Text(AppLocalizations.of(context)!.duckOnAudioInterruptionSubtitle),
+      value: ref.watch(finampSettingsProvider.duckOnAudioInterruption),
+      onChanged: (newValue) async {
+        FinampSetters.setDuckOnAudioInterruption(newValue);
+        await MusicPlayerBackgroundTask.configureAudioSession();
+      },
+    );
+  }
+}
+
+class ForceAudioOffloadingOnAndroidToggle extends ConsumerWidget {
+  const ForceAudioOffloadingOnAndroidToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SwitchListTile.adaptive(
+      title: Text(AppLocalizations.of(context)!.forceAudioOffloadingOnAndroidTitle),
+      subtitle: Text(AppLocalizations.of(context)!.forceAudioOffloadingOnAndroidSubtitle),
+      value: ref.watch(finampSettingsProvider.forceAudioOffloadingOnAndroid),
+      onChanged: (newValue) async {
+        FinampSetters.setForceAudioOffloadingOnAndroid(newValue);
+      },
     );
   }
 }

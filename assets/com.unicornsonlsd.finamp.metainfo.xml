@@ -34,11 +34,92 @@
     </screenshot>
     <screenshot type="default">
       <image type="source">https://raw.githubusercontent.com/jmshrv/finamp/e9a274e599abca628aec014a07f7f4fa6b47bbf8/images/screenshots/linux/album_playing_view_mobile.png</image>
-      <caption>List of albums on mobile</caption>
+      <caption>Album view on mobile</caption>
     </screenshot>
   </screenshots>
   <launchable type="desktop-id">com.unicornsonlsd.finamp.desktop</launchable>
   <releases>
+    <release version="0.9.22-beta" date="2025-12-22">
+      <url type="details">https://github.com/jmshrv/finamp/releases/tag/0.9.22-beta</url>
+      <description>
+        <p>
+          New Features
+        </p>
+        <ul>
+          <li>Improved layout in settings, especially for non-English languages</li>
+        </ul>
+        <p>
+          Bug Fixes
+        </p>
+        <ul>
+          <li>Fixed playback not stopping on interruptions of disconnects</li>
+          <li>Hide more network errors</li>
+          <li>Use device name when reporting playback activity to the server on Android, instead of device model</li>
+          <li>Use correct color theme for server sharing and authorize Quick Connect menus</li>
+        </ul>
+        <p>
+          <em>Thank you for using Finamp!</em>
+        </p>
+      </description>
+    </release>
+    <release version="0.9.21-beta" date="2025-12-15">
+      <url type="details">https://github.com/jmshrv/finamp/releases/tag/0.9.21-beta</url>
+      <description>
+        <p>
+          New Features
+        </p>
+        <ul>
+          <li>Radio (endless playback)</li>
+          <li>Dynamic System Color Scheme</li>
+          <li>Reorder when shuffled, fix loop, shuffle, and Next Up on Desktop</li>
+          <li>Move tracks within the queue without duplicating</li>
+          <li>Dismiss all error messages at once by long-pressing</li>
+          <li>"Start Instant Mix" for all media types</li>
+        </ul>
+        <p>
+          Bug Fixes
+        </p>
+        <ul>
+          <li>Fixed "mdbx" startup errors</li>
+          <li>Improved startup performance</li>
+          <li>Fixed "Authorize Quick Connect" not working</li>
+          <li>Previously played tracks can now be removed from the queue again</li>
+          <li>Fixed issues with looping and shuffle on Desktop</li>
+          <li>Fixed "Saved Queue" being shown for restored tracks</li>
+          <li>Fixed issues when playing many tracks in offline mode</li>
+          <li>Fixed missing covers in Android Auto</li>
+        </ul>
+        <p>
+          <em>Thank you for using Finamp!</em>
+        </p>
+      </description>
+    </release>
+    <release version="0.9.20-beta" date="2025-10-18">
+      <url type="details">https://github.com/jmshrv/finamp/releases/tag/0.9.20-beta</url>
+      <description>
+        <p>
+          New Features
+        </p>
+        <ul>
+          <li>Edit playlists, including reordering tracks</li>
+          <li>Redesigned playback options</li>
+          <li>Custom accent colors</li>
+        </ul>
+        <p>
+          Bug Fixes
+        </p>
+        <ul>
+          <li>Fixed automatic offline mode not resuming in some scenarios</li>
+          <li>Fixed playing wrong track when sorting randomly while offline</li>
+          <li>Fixed gray overlay when reordering tracks</li>
+          <li>Fixed lyrics not updating during a downloads repair</li>
+          <li>Fixed various startup errors</li>
+        </ul>
+        <p>
+          <em>Thank you for using Finamp!</em>
+        </p>
+      </description>
+    </release>
     <release version="0.9.19-beta" date="2025-07-28">
       <url type="details">https://github.com/jmshrv/finamp/releases/tag/0.9.19-beta</url>
       <description>

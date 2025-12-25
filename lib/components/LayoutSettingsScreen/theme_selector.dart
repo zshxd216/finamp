@@ -1,8 +1,9 @@
+import 'package:finamp/components/SettingsScreen/finamp_settings_dropdown.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:finamp/l10n/app_localizations.dart';
-import 'package:hive_ce/hive.dart';
-
-import '../../services/theme_mode_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 
 extension LocalisedName on ThemeMode {
   String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
@@ -19,29 +20,35 @@ extension LocalisedName on ThemeMode {
   }
 }
 
-class ThemeSelector extends StatelessWidget {
+class ThemeSelector extends ConsumerWidget {
   const ThemeSelector({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<Box<ThemeMode>>(
-      valueListenable: ThemeModeHelper.themeModeListener,
-      builder: (_, box, __) {
-        return ListTile(
-          title: Text(AppLocalizations.of(context)!.theme),
-          trailing: DropdownButton<ThemeMode>(
-            value: box.get("ThemeMode"),
-            items: ThemeMode.values
-                .map((e) => DropdownMenuItem<ThemeMode>(value: e, child: Text(e.toLocalisedString(context))))
-                .toList(),
-            onChanged: (value) {
-              if (value != null) {
-                ThemeModeHelper.setThemeMode(value);
-              }
-            },
-          ),
-        );
-      },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(finampSettingsProvider.themeMode);
+    return ListTile(
+      title: Text(AppLocalizations.of(context)!.theme),
+      subtitle: FinampSettingsDropdown<ThemeMode>(
+        dropdownItems: ThemeMode.values
+            .map(
+              (e) => DropdownMenuEntry<ThemeMode>(
+                value: e,
+                label: e.toLocalisedString(context),
+                leadingIcon: switch (e) {
+                  ThemeMode.system => const Icon(TablerIcons.brightness_auto),
+                  ThemeMode.light => const Icon(TablerIcons.brightness_2),
+                  ThemeMode.dark => const Icon(TablerIcons.moon_stars),
+                },
+              ),
+            )
+            .toList(),
+        selectedValue: themeMode,
+        onSelected: (value) {
+          if (value != null) {
+            FinampSetters.setThemeMode(value);
+          }
+        },
+      ),
     );
   }
 }

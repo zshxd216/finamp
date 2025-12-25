@@ -1,10 +1,18 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:chopper/chopper.dart';
+import 'package:finamp/components/themed_bottom_sheet.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/components/menuEntries/dismiss_all_snackbars_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/view_logs_menu_entry.dart';
+import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:http/http.dart' hide Response;
 import 'package:logging/logging.dart';
 
 @Deprecated("Use GlobalSnackbar.error(dynamic error) instead")
@@ -19,6 +27,9 @@ class GlobalSnackbar {
   static final List<Function> _queue = [];
 
   static Timer? _timer;
+
+  // Tracks currently displayed network error keys for dedup while any matching snackbar is visible.
+  static final Set<String> _activeErrorKeys = <String>{};
 
   /// It is possible for some GlobalSnackbar methods to be called before app
   /// startup completes.  If this happens, we delay executing the function
@@ -40,6 +51,17 @@ class GlobalSnackbar {
         }
       });
     }
+  }
+
+  static void dismissAllSnackbars() {
+    FeedbackHelper.feedback(FeedbackType.selection);
+    if (materialAppScaffoldKey.currentState != null) {
+      materialAppScaffoldKey.currentState!.clearSnackBars();
+    }
+    _activeErrorKeys.clear();
+    _queue.clear();
+    _timer?.cancel();
+    _timer = null;
   }
 
   /// Show a snackbar to the user using the local context
@@ -70,10 +92,11 @@ class GlobalSnackbar {
     _logger.info("Displaying message: $text");
     materialAppScaffoldKey.currentState!.showSnackBar(
       SnackBar(
-        content: Text(text),
+        content: GestureDetector(onLongPress: showSnackbarOptionsMenu, child: Text(text)),
         actionOverflowThreshold: 0.5,
         duration: (isConfirmation && action == null) ? const Duration(milliseconds: 1500) : const Duration(seconds: 4),
         action: action?.call(context),
+        persist: false,
       ),
     );
   }
@@ -81,6 +104,26 @@ class GlobalSnackbar {
   /// Show an unlocalized error message to the user
   static void error(dynamic event) => _enqueue(() => _error(event));
   static void _error(dynamic event) {
+    // Suppress common transient network error "Failed host lookup"
+    bool suppressError = false;
+    if (event is SocketException || event is ClientException) {
+      suppressError =
+          event.toString().contains("Failed host lookup") || event.toString().contains("HTTP connection timed out");
+    } else if (event is TimeoutException) {
+      suppressError = true;
+    } else if (event is Response && event.error is SocketException) {
+      suppressError = event.error.toString().contains("Failed host lookup");
+    } else {
+      suppressError =
+          event.toString().contains("Failed host lookup") ||
+          event.toString().contains("Could not fetch the response for GET");
+    }
+
+    if (suppressError) {
+      _logger.fine("Suppressed error: $event", event);
+      return;
+    }
+
     _logger.warning("Displaying error: $event", event);
     BuildContext context = materialAppNavigatorKey.currentContext!;
     String errorText;
@@ -93,14 +136,40 @@ class GlobalSnackbar {
     } else {
       errorText = event.toString();
     }
+    // Only dedup NETWORK errors. Dedup is based on error "type", not URL/content.
+    bool isNetworkError =
+        event is SocketException ||
+        event is ClientException ||
+        (event is Response && (event.error is SocketException || event.error is ClientException));
+
+    String? dedupKey;
+    if (isNetworkError) {
+      if (event is Response) {
+        // Use status code + underlying error type (avoid including URL or body)
+        final underlying = event.error;
+        dedupKey = "network:${event.statusCode}:${underlying.runtimeType}";
+      } else {
+        dedupKey = "network:${event.runtimeType}";
+      }
+
+      if (_activeErrorKeys.contains(dedupKey)) {
+        _logger.fine("Duplicate network error suppressed: $dedupKey");
+        return;
+      }
+      _activeErrorKeys.add(dedupKey); // add to active keys
+    }
+
     // give immediate feedback that something went wrong
     FeedbackHelper.feedback(FeedbackType.warning);
-    materialAppScaffoldKey.currentState!.showSnackBar(
+    final controller = materialAppScaffoldKey.currentState!.showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context)!.anErrorHasOccured),
+        content: GestureDetector(
+          onLongPress: showSnackbarOptionsMenu,
+          child: Text(AppLocalizations.of(context)!.anErrorHasOccured),
+        ),
         action: SnackBarAction(
           label: MaterialLocalizations.of(context).moreButtonTooltip,
-          onPressed: () => showDialog(
+          onPressed: () => showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(
               title: Text(AppLocalizations.of(context)!.error),
@@ -115,6 +184,81 @@ class GlobalSnackbar {
           ),
         ),
         duration: const Duration(seconds: 4),
+        persist: false,
+      ),
+    );
+
+    // When this snackbar fully closes (timeout or swipe), clear the key if it matches, allowing future identical errors.
+    if (dedupKey != null) {
+      controller.closed.then((reason) {
+        if (_activeErrorKeys.remove(dedupKey)) {
+          _logger.fine("Removed active error key after dismissal: $dedupKey (reason: $reason)");
+        }
+      });
+    }
+  }
+
+  static const snackbarOptionsRoute = "/snackbar-options";
+  static Future<void> showSnackbarOptionsMenu() async {
+    if (materialAppNavigatorKey.currentContext == null) return;
+    FeedbackHelper.feedback(FeedbackType.selection);
+
+    // Normal menu entries, excluding headers
+    List<HideableMenuEntry> getMenuEntries(BuildContext context) {
+      return [DismissAllSnackbarsMenuEntry(), ViewLogsMenuEntry()];
+    }
+
+    (double, List<Widget>) getMenuProperties(BuildContext context) {
+      final menuEntries = getMenuEntries(context);
+      final stackHeight = ThemedBottomSheet.calculateStackHeight(
+        context: context,
+        menuEntries: menuEntries,
+        extraHeight: -infoHeaderFullExtent,
+      );
+
+      List<Widget> menu = [
+        SliverStickyHeader(
+          header: SnackbarOptionsMenuHeader(),
+          sliver: MenuMask(
+            height: SnackbarOptionsMenuHeader.defaultHeight,
+            child: SliverPadding(
+              padding: const EdgeInsets.only(left: 8.0),
+              sliver: SliverList(delegate: SliverChildListDelegate(menuEntries)),
+            ),
+          ),
+        ),
+      ];
+
+      return (stackHeight, menu);
+    }
+
+    await showThemedBottomSheet(
+      context: materialAppNavigatorKey.currentContext!,
+      routeName: snackbarOptionsRoute,
+      minDraggableHeight: 0.15,
+      buildSlivers: getMenuProperties,
+    );
+  }
+}
+
+class SnackbarOptionsMenuHeader extends StatelessWidget {
+  const SnackbarOptionsMenuHeader({super.key});
+
+  static const defaultHeight = MenuMaskHeight(36.0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6.0, bottom: 16.0),
+      child: Center(
+        child: Text(
+          AppLocalizations.of(context)!.snackbarOptionsMenuTitle,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyLarge!.color!,
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
       ),
     );
   }

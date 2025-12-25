@@ -148,7 +148,7 @@ class AndroidAutoHelper {
     // if parent id is defined, use that to get items.
     // otherwise, use the current view as fallback to ensure we get the correct items.
     final parentItem = itemId.parentType == MediaItemParentType.collection
-        ? BaseItemDto(id: itemId.itemId!, type: itemId.contentType.itemType.idString)
+        ? BaseItemDto(id: itemId.itemId!, type: itemId.contentType.itemType.jellyfinName)
         : (itemId.contentType == TabContentType.playlists ? null : _finampUserHelper.currentUser?.currentView);
 
     final items = await _jellyfinApiHelper.getItems(
@@ -157,7 +157,7 @@ class AndroidAutoHelper {
           ? "ParentIndexNumber,IndexNumber,${sortBy.jellyfinName(itemId.contentType)}"
           : sortBy.jellyfinName(itemId.contentType),
       sortOrder: includeItemTypes == BaseItemDtoType.track ? null : sortOrder.toString(),
-      includeItemTypes: includeItemTypes.idString,
+      includeItemTypes: includeItemTypes.jellyfinName,
       limit: onlineModeLimit,
     );
     return items ?? [];
@@ -324,7 +324,7 @@ class AndroidAutoHelper {
         } else {
           searchResult = await jellyfinApiHelper.getItems(
             parentItem: null, // always use global playlists
-            includeItemTypes: TabContentType.playlists.itemType.idString,
+            includeItemTypes: TabContentType.playlists.itemType.jellyfinName,
             searchTerm: searchTerm,
             startIndex: 0,
             limit: 1,
@@ -341,7 +341,7 @@ class AndroidAutoHelper {
           } else {
             items = await _jellyfinApiHelper.getItems(
               parentItem: playlist,
-              includeItemTypes: TabContentType.tracks.itemType.idString,
+              includeItemTypes: TabContentType.tracks.itemType.jellyfinName,
               sortBy: "ParentIndexNumber,IndexNumber,SortName",
               sortOrder: "Ascending",
               limit: 200,
@@ -428,7 +428,7 @@ class AndroidAutoHelper {
         } else {
           items = await _jellyfinApiHelper.getItems(
             parentItem: album,
-            includeItemTypes: TabContentType.tracks.itemType.idString,
+            includeItemTypes: TabContentType.tracks.itemType.jellyfinName,
             sortBy: "ParentIndexNumber,IndexNumber,SortName",
             sortOrder: "Ascending",
             limit: 200,
@@ -501,6 +501,7 @@ class AndroidAutoHelper {
               name: const QueueItemSourceName(type: QueueItemSourceNameType.mix),
               type: QueueItemSourceType.allTracks,
               id: selectedResult.id,
+              item: selectedResult,
             ),
           );
         } else {
@@ -592,6 +593,7 @@ class AndroidAutoHelper {
             name: const QueueItemSourceName(type: QueueItemSourceNameType.mix),
             type: QueueItemSourceType.allTracks,
             id: itemId.itemId!,
+            item: items[indexOfSelected],
           ),
         );
       } else {
@@ -1072,7 +1074,7 @@ class AndroidAutoHelper {
       } else {
         searchResult = await jellyfinApiHelper.getItems(
           parentItem: itemTypes.contains(BaseItemDtoType.playlist) ? null : finampUserHelper.currentUser?.currentView,
-          includeItemTypes: itemTypes.map((type) => type.idString).join(","),
+          includeItemTypes: itemTypes.map((type) => type.jellyfinName).join(","),
           searchTerm: searchTerm,
           startIndex: 0,
           limit: limit, // get more than the first result so we can filter using additional metadata
@@ -1087,7 +1089,7 @@ class AndroidAutoHelper {
   // clicking artists starts an instant mix, so they are technically playable
   // genres has subcategories, so it should be browsable but not playable
   bool _isPlayable({BaseItemDto? item, TabContentType? contentType}) {
-    final tabContentType = TabContentType.fromItemType(item?.type ?? contentType?.itemType.idString ?? "Audio");
+    final tabContentType = TabContentType.fromItemType(item?.type ?? contentType?.itemType.jellyfinName ?? "Audio");
     return tabContentType == TabContentType.albums ||
         tabContentType == TabContentType.playlists ||
         tabContentType == TabContentType.artists ||

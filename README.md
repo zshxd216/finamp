@@ -1,39 +1,66 @@
 ![Banner](./GitHub_Banner.png)
 
-## Help Make Jellyfin Mixes Smarter - Introducing [AudioMuse](https://github.com/NeptuneHub/AudioMuse-AI)
+## Hacktoberfest
 
-We, especially @NeptuneHub, are currently trying to make Jellyfin understand your music library better by analyzing how your tracks actually sound!  
-You might already be familiar with this from Plex's "Sonic Analysis" feature.
+Ever thought about contributing to Finamp or Open Source in general?
+Now is the time! It's Hacktober afterall!
 
-We already got a good proof-of-concept, but we need **your help** to refine the algorithms!  
-All you need to do is try it out and give us feedback about what you like and don't like, specifically for *your* music library!  
+There are a lot of things **you** can help with with regard to Finamp:
 
-**To help testing**, just do the following:
+- Design Improvements
+  - Help us redesign some missing screens! We have some mockups to get you started, just ask around here on GitHub or on our [Discord Server](https://discord.gg/xh9SZ73jWk)!
+  - Fix visual bugs or improve the UI
+- Bug Hunting
+  - [Fixing bugs](https://github.com/jmshrv/finamp/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug)
+  - Adding reproduction steps for existing bugs
+  - Finding bugs
+- Translations
+  - You can look at our [Weblate Project](https://hosted.weblate.org/engage/finamp/) to add missing translations
+  - You can also add descriptions (i.e., where that string appears in the app) to some older translations strings in [this file](https://github.com/jmshrv/finamp/blob/redesign/lib/l10n/app_en.arb)
+- Improving Documentation
+  - User Documentation (Was there anything you struggled with at first when using Finamp? How did you solve it?)
+  - Developer Documentation (Was there anything you struggled with when contribution code to Finamp? Add your solution to [CONTRIBUTING.md](https://github.com/jmshrv/finamp/blob/redesign/CONTRIBUTING.md))
+- Improving the codebase
+  - Optimizations (eg. Finamp currently consumes a lot of battery)
+  - Documentation
+  - Clean up
+- Support
+  - Help other people on our [Discord Server](https://discord.gg/xh9SZ73jWk)
+  - Give feedback on [Pull Requests](https://github.com/jmshrv/finamp/pulls)
+- Spread the word and get your friends to contribute :D
 
-1. Install AudioMuse as a separate service next to Jellyfin, using Docker or Kubernetes: <https://neptunehub.github.io/AudioMuse-AI/>
-2. Once the containers are ready, go to `http://<server ip>:8000` to open the AudioMuse dashboard
-3. Now, scroll down to click the "Start Analysis" button. AudioMuse will now analyze your entire library, that might take a few hours or even days. Please leave this running.
-  
-We've prepared a GitHub Issues form here: <https://github.com/NeptuneHub/AudioMuse-AI/issues/new?template=support-in-test.yml>  
-This will guide you through which parameters to apply, and how to evaluate the results.
+If you like Finamp but don't want to contribute for any reason, you can also contribute [to Jellyfin directly](https://github.com/jellyfin/jellyfin) or to upstream libraries which Finamp uses ([`just_audio`](https://github.com/ryanheise/just_audio), [`background_downloader`](https://github.com/781flyingdutchman/background_downloader/), etc.).  
+That way you can help Finamp indirectly and Open Source as a whole!
+Finamp can't exists without maintained and stable libraries :)
 
-- You need to use the "Advanced" tab at the top right in the AudioMuse dashboard to change all required parameters
-- Please double-check your parameters before starting to make sure the results are valid
-- The basic process is as follows:
-  1. Take the first (or next) test from "2. Test Parameters" and configure them in AudioMuse
-  2. Scroll down and click the "Start Clustering" button, then wait for the task to finish (will take a few minutes to hours)
-  3. Fill out the corresponding line in "2.1 Performance Properties"
-  4. Go through the generated playlists (bottom of the AudioMuse dashboard) and get a good overview. Try to judge if the tracks in the playlists fit together well or not. You can also listen to the playlists, they are automatically created in Jellyfin. Just copy the playlists name and search for it.
-  5. Evaluate the playlists/parameters via "3. Playlist Evaluation"
-  6. Add any additional feedback via "4. Additional Feedback"
-  7. Repeat for all tests (or more!)
-- You can create/submit the issue after your first test, and then later edit the issue for each new test
+### What to do?
 
-**It would be amazing if you could help out with this! Thank you!**
+There's still a lot left over from our latest "Finamplify" Hackathon!
+Take a look at the [Finamplify Project Board](https://github.com/users/jmshrv/projects/5) or even the full [Redesign Project Board](https://github.com/users/jmshrv/projects/2) (the latter is slightly outdated).  
+You can find an overview of (hopefully) easy to tackle issues [here on GitHub](https://github.com/jmshrv/finamp/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22easy%20fix%22%20no%3Aassignee). For some of those prior programming experience is definitely helpful.
+
+Specifically, here a short list of long awaited features:
+
+- Car Play
+- Metadata editing
+- Multi user/server support
+- Various improvements for Finamp Desktop (Fixing shuffle, improved UI, better system integration)
+- Automatic (Widget) Tests
+
+### How to get started
+
+>[!Important]
+> **Make sure to check out the `redesign` branch (`git checkout redesign`)! This is where all development happens at the moment!**
+
+Start by reading the ["Setting up a Development Environment" section](https://github.com/jmshrv/finamp/blob/redesign/CONTRIBUTING.md#setting-up-a-development-environment) in our contribution guidelines.  
+Then, once flutter is working, you can simply do `flutter run`!
+Any changes you do to the code can be applied via hot-reload by pressing `r` in the terminal. There are also first-party Flute integrations for many editors and IDEs.
+
+If you have any questions, just reach out to us on GitHub or [Discord](https://discord.gg/xh9SZ73jWk)!
 
 ---
 
-#### Redesign Beta
+## Redesign Beta
 
 We're currently in the process of redesigning Finamp to transform it into a modern, beautiful, and feature-rich music player made specifically for Jellyfin.  
 You can join the beta on [Google Play](https://play.google.com/store/apps/details?id=com.unicornsonlsd.finamp) and [Apple TestFlight](https://testflight.apple.com/join/UqHTQTSs), or download the latest beta APK from the [releases page](https://github.com/jmshrv/finamp/releases).  
@@ -53,6 +80,7 @@ Some of its features include:
 - Gapless playback
 - Android Auto support (coming soon™)
 - Full support for Jellyfin's "Playback Reporting" feature and plugin, letting you keep track of your listening activity
+- Integration with [AudioMuse](https://github.com/NeptuneHub/AudioMuse-AI) for sonic analysis and improved mixes
 
 ***You need your own Jellyfin server to use Finamp. If you don't have one yet, take a look at [Jellyfin's website](https://jellyfin.org/) to learn more about it and how to set it up.***
 
@@ -89,24 +117,30 @@ We post release notes and announcements there too, and you'll likely get a reply
 #### Before Installing
 
 ##### Is Finamp free?
+
 Absolutely! It costs nothing to use. We do appreciate voluntary contributions of any kind though, be that bug reports, code, designs, or ideas for new features. You can also donate to some of the developers to show your appreciation <3
 
 ##### How can I install Finamp?
+
 On Android, Finamp can be installed from the Google Play Store, F-Droid store, or directly by installing the APK file from GitHub.  
 On iOS, you can install Finamp through Apple's App Store. Just click on the buttons above.
 
 ##### Does Finamp support my media formats?
+
 Finamp should support all formats supported by Jellyfin. Some more advanced formats could cause issues for regular playback, but transcoding should fix these issues.
 
 ##### Does Finamp support Android Auto / Apple CarPlay?
+
 Theoretically, but not yet. There is [an issue for this](https://github.com/jmshrv/finamp/issues/24) that contains a proof of concept for Android Auto in there, but it hasn't been tested yet. Maybe you could help out!
 
 ##### Is Finamp legal?
+
 Yes. Finamp is a *tool* that lets you interface with a Jellyfin server. Finamp does not come with any music, and will not connect to streaming services other than Jellyfin. You will need to bring your own media and add it to Jellyfin, for example by purchasing music online. This often also directly supports your favorite artists!
 
 #### After Installing
 
 ##### I'm having trouble with Finamp, where can I find help?
+
 If you're experiencing software bugs or other issues with Finamp, be sure to take a look at [Finamp's issue tracker](https://github.com/jmshrv/finamp/issues), especially the pinned issues at the top of the page. If you can't find anything related to your specific problem, please create a new issue (you will need a GitHub account).
 
 ## Contributing
@@ -140,8 +174,37 @@ This app is still a work in progress, and has some bugs/issues that haven't been
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src=https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png> | <img src=https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png>
-| <img src=https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png> | <img src=https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png> |
+|<img src=<https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png>> | <img src=<https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png>>
+| <img src=<https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png>> | <img src=<https://raw.githubusercontent.com/jmshrv/finamp/master/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png>> |
 
+Name source: <https://www.reddit.com/r/jellyfin/comments/hjxshn/jellyamp_crossplatform_desktop_music_player/fwqs5i0/>
 
-Name source: https://www.reddit.com/r/jellyfin/comments/hjxshn/jellyamp_crossplatform_desktop_music_player/fwqs5i0/
+---
+
+## Info For Advanced Users
+
+### Dynamic Theming On Linux
+
+On Linux, Finamp registers itself with the DBus system, which means you can send messages locally to Finamp!
+This system allows you keep Finamp's color theme up to date with your dynamic color theme without restarting the app.
+There are two color related "endpoints" you can call:
+
+1. Reload the system accent color from GTK ([Settings > Layout & Theme > "Use System Accent"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *enabled*)
+```sh
+gdbus call \
+    --session \
+    --dest 'com.unicornsonlsd.FinampSettings' \
+    --object-path '/com/unicornsonlsd/Finamp' \
+    --method 'com.unicornsonlsd.Finamp.updateAccentColor'
+```
+
+2. Overwrite the accent color ([Settings > Layout & Theme > "Use System Accent"](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/settings/layout) needs to be *disabled*)  
+  Only works when Finamp is running.
+```sh
+gdbus call \
+    --session \
+    --dest 'com.unicornsonlsd.FinampSettings' \
+    --object-path '/com/unicornsonlsd/Finamp' \
+    --method 'com.unicornsonlsd.Finamp.setAccentColor' \
+    '#ff0000' # you can also send "default" to clear the accent color
+```

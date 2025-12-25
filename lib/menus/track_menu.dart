@@ -1,5 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:finamp/components/PlayerScreen/queue_list.dart';
 import 'package:finamp/components/PlayerScreen/sleep_timer_cancel_dialog.dart';
 import 'package:finamp/components/themed_bottom_sheet.dart';
@@ -10,12 +16,16 @@ import 'package:finamp/menus/components/menuEntries/clear_queue_menu_entry.dart'
 import 'package:finamp/menus/components/menuEntries/create_playlist_from_current_queue.dart';
 import 'package:finamp/menus/components/menuEntries/delete_from_server_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/instant_mix_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/remove_from_current_playlist_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/restore_queue_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/start_radio_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.dart';
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action.dart';
+import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
 import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
+import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/menus/components/speed_menu.dart';
 import 'package:finamp/menus/sleep_timer_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -26,14 +36,13 @@ import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/metadata_provider.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'components/menuEntries/menu_entry.dart';
 
 const Duration trackMenuDefaultAnimationDuration = Duration(milliseconds: 500);
 const Curve trackMenuDefaultInCurve = Curves.easeOutCubic;
@@ -49,11 +58,9 @@ Future<void> showModalTrackMenu({
   bool confirmPlaylistRemoval = true,
   bool showQueueActions = false,
   FinampStorableQueueInfo? queueInfo,
+  FinampQueueItem? queueItem,
 }) async {
   final isOffline = FinampSettingsHelper.finampSettings.isOffline;
-  final canGoToAlbum = item.parentId != null;
-  final canGoToArtist = (item.artistItems?.isNotEmpty ?? false);
-  final canGoToGenre = (item.genreItems?.isNotEmpty ?? false);
 
   await showThemedBottomSheet(
     context: context,
@@ -67,15 +74,13 @@ Future<void> showModalTrackMenu({
         isOffline: isOffline,
         showPlaybackControls: showPlaybackControls,
         isInPlaylist: isInPlaylist,
-        canGoToAlbum: canGoToAlbum,
-        canGoToArtist: canGoToArtist,
-        canGoToGenre: canGoToGenre,
         onRemoveFromList: onRemoveFromList,
         confirmPlaylistRemoval: confirmPlaylistRemoval,
         showQueueActions: showQueueActions,
         childBuilder: childBuilder,
         dragController: dragController,
         queueInfo: queueInfo,
+        queueItem: queueItem,
       );
     },
   );
@@ -92,9 +97,6 @@ class TrackMenu extends ConsumerStatefulWidget {
     required this.isOffline,
     required this.showPlaybackControls,
     required this.isInPlaylist,
-    required this.canGoToAlbum,
-    required this.canGoToArtist,
-    required this.canGoToGenre,
     required this.onRemoveFromList,
     required this.confirmPlaylistRemoval,
     required this.showQueueActions,
@@ -102,6 +104,7 @@ class TrackMenu extends ConsumerStatefulWidget {
     required this.childBuilder,
     required this.dragController,
     this.queueInfo,
+    this.queueItem,
   });
 
   final BaseItemDto item;
@@ -109,15 +112,13 @@ class TrackMenu extends ConsumerStatefulWidget {
   final bool isOffline;
   final bool showPlaybackControls;
   final bool isInPlaylist;
-  final bool canGoToAlbum;
-  final bool canGoToArtist;
-  final bool canGoToGenre;
   final VoidCallback? onRemoveFromList;
   final bool confirmPlaylistRemoval;
   final bool showQueueActions;
   final ScrollBuilder childBuilder;
   final DraggableScrollableController dragController;
   final FinampStorableQueueInfo? queueInfo;
+  final FinampQueueItem? queueItem;
 
   @override
   ConsumerState<TrackMenu> createState() => _TrackMenuState();
@@ -147,6 +148,21 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
 
     initialSheetExtent = widget.showPlaybackControls ? 0.6 : 0.45;
     oldExtent = initialSheetExtent;
+
+    // set correct initial height for sleep timer menu based on previous mode
+    var oldTimer = FinampSettingsHelper.finampSettings.sleepTimer;
+    var newSleepTimer = SleepTimer(
+      oldTimer?.secondsLength ?? DefaultSettings.sleepTimerDurationSeconds,
+      oldTimer?.tracksLength ?? 0,
+    );
+    sleepTimerMenuHeight = switch (newSleepTimer) {
+      // after current track
+      SleepTimer(tracksLength: 1) => SleepTimerMenu.afterCurrentTrackTypeMenuHeight,
+      // after duration
+      SleepTimer(secondsLength: > 0) => SleepTimerMenu.durationTypeMenuHeight,
+      // after track count
+      _ => SleepTimerMenu.tracksTypeMenuHeight,
+    };
   }
 
   bool isBaseItemInQueueItem(BaseItemDto baseItem, FinampQueueItem? queueItem) {
@@ -192,7 +208,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
   void scrollToExtent(DraggableScrollableController scrollController, double? percentage) {
     var currentSize = scrollController.size;
     if ((percentage != null && currentSize < percentage) || scrollController.size == inputStep) {
-      if (MediaQuery.of(context).disableAnimations) {
+      if (MediaQuery.disableAnimationsOf(context)) {
         scrollController.jumpTo(percentage ?? oldExtent);
       } else {
         scrollController.animateTo(
@@ -211,9 +227,9 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
     final stackHeight = ThemedBottomSheet.calculateStackHeight(
       context: context,
       menuEntries: menuEntries,
-      // Include 60 height of shorter track playback row
-      extraHeight: widget.showPlaybackControls ? 160 : 60,
-      includePlaybackrow: false,
+      extraHeight: widget.showPlaybackControls ? 100 : 00,
+      includePlaybackRow: true,
+      includePlaybackRowPageIndicator: widget.queueItem != null,
     );
 
     return Consumer(
@@ -234,7 +250,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
 
     return [
       if (widget.queueInfo != null) RestoreQueueMenuEntry(queueInfo: widget.queueInfo!),
-      AddToPlaylistMenuEntry(baseItem: widget.item, queueItem: queueItem),
+      AddToPlaylistMenuEntry(item: widget.item, queueItem: queueItem),
       RemoveFromCurrentPlaylistMenuEntry(
         baseItem: widget.item,
         parentItem: widget.parentItem,
@@ -242,6 +258,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
         onRemove: widget.onRemoveFromList,
       ),
       InstantMixMenuEntry(baseItem: widget.item),
+      StartRadioMenuEntry(baseItem: widget.item),
       AdaptiveDownloadLockDeleteMenuEntry(baseItem: widget.item),
       ToggleFavoriteMenuEntry(baseItem: widget.item),
       if (widget.showQueueActions) CreatePlaylistFromCurrentQueueMenuEntry(),
@@ -264,6 +281,12 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       default:
         menuHeight = closedHeight;
     }
+
+    final radioMode = ref.watch(finampSettingsProvider.radioMode);
+    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
+    final currentRadioAvailabilityStatus = ref.watch(currentRadioAvailabilityStatusProvider);
+    final radioFailed = ref.watch(radioStateProvider.select((state) => state?.failed ?? false));
+
     return [
       if (widget.showPlaybackControls) ...[
         StreamBuilder<PlaybackBehaviorInfo>(
@@ -302,7 +325,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
               PlaybackAction(
                 icon: playbackOrderIcons[playbackBehavior.order]!,
                 onPressed: () async {
-                  _queueService.togglePlaybackOrder();
+                  await _queueService.togglePlaybackOrder();
                 },
                 label: playbackOrderTooltips[playbackBehavior.order]!,
                 iconColor: playbackBehavior.order == FinampPlaybackOrder.shuffled
@@ -331,7 +354,10 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                         icon: TablerIcons.bell_z_filled,
                         onPressed: () async {
                           if (hasTimeLeft) {
-                            await showDialog(context: context, builder: (context) => const SleepTimerCancelDialog());
+                            await showDialog<SleepTimerCancelDialog>(
+                              context: context,
+                              builder: (context) => const SleepTimerCancelDialog(),
+                            );
                           } else {
                             toggleSleepTimerMenu();
                           }
@@ -348,14 +374,35 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                 },
               ),
               PlaybackAction(
-                icon: loopModeIcons[playbackBehavior.loop]!,
+                icon: radioEnabled
+                    ? (currentRadioAvailabilityStatus.isAvailable && !radioFailed)
+                          ? TablerIcons.radio
+                          : TablerIcons.radio_off
+                    : loopModeIcons[playbackBehavior.loop]!,
                 onPressed: () async {
+                  if (radioEnabled) {
+                    await showRadioMenu(
+                      context,
+                      subtitle: radioFailed ? AppLocalizations.of(context)!.radioFailedSubtitle : null,
+                    );
+                    return;
+                  }
                   _queueService.toggleLoopMode();
                 },
-                label: loopModeTooltips[playbackBehavior.loop]!,
-                iconColor: playbackBehavior.loop == FinampLoopMode.none
-                    ? Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white
-                    : iconColor,
+                onLongPress: () => showRadioMenu(
+                  context,
+                  subtitle: radioFailed
+                      ? AppLocalizations.of(context)!.radioFailedSubtitle
+                      : AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
+                ),
+                label: radioEnabled
+                    ? (currentRadioAvailabilityStatus.isAvailable
+                          ? AppLocalizations.of(context)!.radioModeOptionTitle(radioMode.name)
+                          : AppLocalizations.of(context)!.radioModeInactiveTitle)
+                    : loopModeTooltips[playbackBehavior.loop]!,
+                iconColor: currentRadioAvailabilityStatus.isAvailable || playbackBehavior.loop != FinampLoopMode.none
+                    ? iconColor
+                    : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
               ),
             ];
 
@@ -408,7 +455,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
                       );
                     },
                     transitionBuilder: (child, animation) {
-                      if (MediaQuery.of(context).disableAnimations) {
+                      if (MediaQuery.disableAnimationsOf(context)) {
                         return child;
                       }
                       // Determine if this is the incoming or outgoing child
@@ -458,7 +505,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
           child: Padding(
             padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
             child: Divider(
-              color: Theme.of(context).brightness == Brightness.light
+              color: Theme.brightnessOf(context) == Brightness.light
                   ? Color.alphaBlend(Theme.of(context).primaryColor.withOpacity(0.6), Colors.black26)
                   : Color.alphaBlend(Theme.of(context).primaryColor.withOpacity(0.8), Colors.white),
               indent: 24.0,
@@ -472,16 +519,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
         child: SliverToBoxAdapter(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              PlayPlaybackAction(baseItem: widget.item),
-              if (_queueService.getQueue().nextUp.isNotEmpty) PlayNextPlaybackAction(baseItem: widget.item),
-              AddToNextUpPlaybackAction(baseItem: widget.item),
-              AddToQueuePlaybackAction(baseItem: widget.item),
-            ],
-          ),
+          child: PlaybackActionRow(item: widget.item, queueItem: widget.queueItem),
         ),
       ),
       MenuMask(

@@ -5,16 +5,16 @@ import 'package:finamp/menus/components/menuEntries/adaptive_download_lock_delet
 import 'package:finamp/menus/components/menuEntries/add_to_playlist_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/delete_from_server_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/instant_mix_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/mix_builder_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/restore_queue_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/start_radio_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.dart';
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
-import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:flutter/material.dart';
-
-import 'components/menuEntries/menu_entry.dart';
 
 const Duration albumMenuDefaultAnimationDuration = Duration(milliseconds: 750);
 const Curve albumMenuDefaultInCurve = Curves.easeOutCubic;
@@ -23,37 +23,42 @@ const albumMenuRouteName = "/album-menu";
 
 Future<void> showModalAlbumMenu({
   required BuildContext context,
-  required BaseItemDto baseItem,
+  required PlayableItem item,
   FinampStorableQueueInfo? queueInfo,
 }) async {
+  final BaseItemDto baseItem = switch (item) {
+    AlbumDisc() => item.parent,
+    BaseItemDto() => item,
+  };
+
   // Normal menu entries, excluding headers
   List<HideableMenuEntry> getMenuEntries(BuildContext context) {
     return [
       if (queueInfo != null) RestoreQueueMenuEntry(queueInfo: queueInfo),
-      AddToPlaylistMenuEntry(baseItem: baseItem),
-      InstantMixMenuEntry(baseItem: baseItem),
-      AdaptiveDownloadLockDeleteMenuEntry(baseItem: baseItem),
-      ToggleFavoriteMenuEntry(baseItem: baseItem),
-      DeleteFromServerMenuEntry(baseItem: baseItem),
+      AddToPlaylistMenuEntry(item: item),
+      if (item is BaseItemDto) ...[
+        // instant mixes from arbitrary collection of tracks is not supported
+        InstantMixMenuEntry(baseItem: item),
+        MixBuilderMenuEntry(baseItem: item),
+        // radio requires a [BaseItemDto] as the source
+        StartRadioMenuEntry(baseItem: baseItem),
+        // download system is not that flexible
+        AdaptiveDownloadLockDeleteMenuEntry(baseItem: item),
+        // backend is not flexible too
+        ToggleFavoriteMenuEntry(baseItem: item),
+        DeleteFromServerMenuEntry(baseItem: item),
+      ],
     ];
   }
 
   (double, List<Widget>) getMenuProperties(BuildContext context) {
     final menuEntries = getMenuEntries(context);
     final stackHeight = ThemedBottomSheet.calculateStackHeight(context: context, menuEntries: menuEntries);
-
-    final pageViewController = PageController();
-
     List<Widget> menu = [
-      SliverPersistentHeader(delegate: MenuItemInfoSliverHeader(item: baseItem), pinned: true),
+      SliverPersistentHeader(delegate: MenuItemInfoSliverHeader(item: item), pinned: true),
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
-        child: SliverToBoxAdapter(
-          child: PlaybackActionRow(
-            controller: pageViewController,
-            playbackActionPages: getPlaybackActionPages(context: context, baseItem: baseItem),
-          ),
-        ),
+        child: SliverToBoxAdapter(child: PlaybackActionRow(item: item)),
       ),
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,

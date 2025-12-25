@@ -87,12 +87,14 @@ class _ViewSelectorState extends State<ViewSelector> {
             }
 
             return ListView.builder(
+              padding: const EdgeInsets.only(bottom: 200.0),
               itemCount: _views.length,
               itemBuilder: (context, index) {
                 final isSelected = _views.values.elementAt(index);
                 final view = _views.keys.elementAt(index);
 
                 return CheckboxListTile(
+                  key: ValueKey(view.id),
                   value: isSelected,
                   enabled: view.collectionType == "music",
                   title: Text(_views.keys.elementAt(index).name ?? AppLocalizations.of(context)!.unknownName),

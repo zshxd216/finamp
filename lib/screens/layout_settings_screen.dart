@@ -1,3 +1,6 @@
+import 'package:finamp/components/LayoutSettingsScreen/automatic_accent_color_selector.dart';
+import 'package:finamp/components/LayoutSettingsScreen/use_monochrome_icon.dart';
+import 'package:finamp/components/SettingsScreen/finamp_settings_dropdown.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/screens/album_settings_screen.dart';
 import 'package:finamp/screens/artist_settings_screen.dart';
@@ -9,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 
+import '../components/LayoutSettingsScreen/accent_color_selector.dart';
 import '../components/LayoutSettingsScreen/content_grid_view_cross_axis_count_list_tile.dart';
 import '../components/LayoutSettingsScreen/content_view_type_dropdown_list_tile.dart';
 import '../components/LayoutSettingsScreen/show_artist_chip_image_toggle.dart';
@@ -36,6 +40,7 @@ class _LayoutSettingsScreenState extends ConsumerState<LayoutSettingsScreen> {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: [
           ListTile(
             leading: const Icon(TablerIcons.sparkles),
@@ -74,6 +79,10 @@ class _LayoutSettingsScreenState extends ConsumerState<LayoutSettingsScreen> {
           ),
           const Divider(),
           const ThemeSelector(),
+          const UseMonochromeIcon(),
+          const AccentColorSelector(),
+          const AutomaticAccentColorSelector(),
+          const Divider(),
           const ContentViewTypeDropdownListTile(),
           const FixedSizeGridSwitch(),
           if (!ref.watch(finampSettingsProvider.useFixedSizeGridTiles))
@@ -126,17 +135,17 @@ class FixedGridTileSizeDropdownListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       title: Text(AppLocalizations.of(context)!.fixedGridSizeTitle),
-      trailing: DropdownButton<FixedGridTileSize>(
-        value: FixedGridTileSize.fromInt(FinampSettingsHelper.finampSettings.fixedGridTileSize),
-        items: FixedGridTileSize.values
+      subtitle: FinampSettingsDropdown<FixedGridTileSize>(
+        dropdownItems: FixedGridTileSize.values
             .map(
-              (e) => DropdownMenuItem<FixedGridTileSize>(
+              (e) => DropdownMenuEntry<FixedGridTileSize>(
                 value: e,
-                child: Text(AppLocalizations.of(context)!.fixedGridTileSizeEnum(e.name)),
+                label: AppLocalizations.of(context)!.fixedGridTileSizeEnum(e.name),
               ),
             )
             .toList(),
-        onChanged: (value) => FinampSetters.setFixedGridTileSize.ifNonNull(value?.toInt),
+        selectedValue: FixedGridTileSize.fromInt(FinampSettingsHelper.finampSettings.fixedGridTileSize),
+        onSelected: (value) => FinampSetters.setFixedGridTileSize.ifNonNull(value?.toInt),
       ),
     );
   }

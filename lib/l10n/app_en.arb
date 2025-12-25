@@ -215,7 +215,7 @@
   "@startMixNoTracksAlbum": {
     "description": "Snackbar message that shows when the user presses the instant mix button with no albums selected"
   },
-  "startMixNoTracksGenre": "Long-press an genre to add or remove it from the mix builder before starting a mix",
+  "startMixNoTracksGenre": "Long-press a genre to add or remove it from the mix builder before starting a mix",
   "@startMixNoTracksGenre": {
     "description": "Snackbar message that shows when the user presses the instant mix button with no genres selected"
   },
@@ -227,6 +227,8 @@
   "@favorite": {},
   "favorites": "Favorites",
   "@favorites": {},
+  "shuffleSome": "Shuffle some",
+  "@shuffleSome": {},
   "shuffleAll": "Shuffle all",
   "@shuffleAll": {},
   "downloads": "Downloads",
@@ -432,17 +434,29 @@
       }
     }
   },
-  "playbackActionPagePlay": "Play",
-  "@playbackActionPagePlay": {
-    "description": "Label for the playback action page that contains all actions related to playing in order"
+  "playbackActionPageMoveWithinQueue": "Move Within Queue",
+  "@playbackActionPageMoveWithinQueue": {
+    "description": "Label for the playback action page that contains all actions related to moving tracks within the queue"
   },
-  "playbackActionPageShuffle": "Shuffle",
-  "@playbackActionPageShuffle": {
-    "description": "Label for the playback action page that contains all actions related to playing shuffled"
+  "playbackActionPageRegularTrackOptions": "Play",
+  "@playbackActionPageRegularTrackOptions": {
+    "description": "Label for the playback action page that contains all actions of the normal track menu, like starting a new queue or duplicating the track within the existing queue"
   },
-  "playbackActionPageShuffleAlbums": "Shuffle Albums",
-  "@playbackActionPageShuffleAlbums": {
-    "description": "Label for the playback action page that contains all actions related to playing shuffled albums"
+  "playbackActionPageNewQueue": "New Queue",
+  "@playbackActionPageNewQueue": {
+    "description": "Label for the playback action page that contains all actions related to starting a new queue"
+  },
+  "playbackActionPageNext": "Play Next",
+  "@playbackActionPageNext": {
+    "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+  },
+  "playbackActionPageNextUp": "Append Next",
+  "@playbackActionPageNextUp": {
+    "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+  },
+  "playbackActionPageAppendToQueue": "Play Last",
+  "@playbackActionPageAppendToQueue": {
+    "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
   },
   "trackCount": "{count,plural,=1{{count} Track} other{{count} Tracks}}",
   "@trackCount": {
@@ -483,6 +497,14 @@
   "@required": {},
   "updateButtonLabel": "Update",
   "@updateButtonLabel": {},
+  "updatePlaylistButtonLabel": "Update Playlist",
+  "@updatePlaylistButtonLabel": {
+    "description": "Label for the button that updates the playlist on the edit playlist screen"
+  },
+  "savingChanges": "Saving changes…",
+  "@savingChanges": {
+    "description": "Text shown while the changes to a playlist are being saved"
+  },
   "playlistUpdated": "Playlist updated.",
   "@playlistUpdated": {},
   "downloadsDeleted": "Downloads deleted.",
@@ -702,6 +724,48 @@
   "@light": {},
   "dark": "Dark",
   "@dark": {},
+  "accentColor": "Accent Color",
+  "@accentColor": {
+    "description": "Title of the accent color setting"
+  },
+  "accentColorTitle": "Pick an Accent Color",
+  "@accentColorTitle": {
+    "description": "Title for the accent color picker sheet"
+  },
+  "systemAccentColor": "Use System Accent",
+  "@systemAccentColor": {
+    "description": "Title of the System Accent Color setting."
+  },
+  "systemAccentColorHasPriorityInfo": "Custom Accent Color disabled because System Accent is currently in use",
+  "@systemAccentColorHasPriorityInfo": {
+    "description": "Text under the AccentColorTitle which is only visible when the system color is enabled since the system color will be prioritized over custom accent color"
+  },
+  "useMonochromeIcon": "Use Monochrome Logo",
+  "@useMonochromeIcon": {
+    "description": "Toggles the Finamp icon between classic and it being monochromic. This does not change the outside-app-icon"
+  },
+  "useMonochromeIconSubtitle": "This only affect the icon within the app, not the launcher icon.",
+  "@useMonochromeIconSubtitle": {
+    "description": "Subtitle for the toggle that switches the Finamp icon between classic and it being monochromic."
+  },
+  "defaultWord": "Default",
+  "@defaultWord": {},
+  "useDefaultButton": "Reset to Default Accent Color",
+  "@useDefaultButton": {},
+  "colorCode": "Color Code (Hex)",
+  "@colorCode": {
+    "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+  },
+  "colorCodeHint": "e.g. #FFFFFF or #coffee",
+  "@colorCodeHint": {
+    "description": "Hint text for the color code input field. Don't translate 'coffee', unless the translation is also a valid hex color code."
+  },
+  "save": "Save",
+  "@save": {},
+  "invalidColorCode": "Invalid color code",
+  "@invalidColorCode": {
+    "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+  },
   "tabs": "Tabs",
   "@tabs": {},
   "playerScreen": "Player Screen",
@@ -714,8 +778,6 @@
   "@yesButtonLabel": {},
   "noButtonLabel": "No",
   "@noButtonLabel": {},
-  "setSleepTimer": "Pause Playback After",
-  "@setSleepTimer": {},
   "hours": "Hours",
   "@hours": {},
   "seconds": "Seconds",
@@ -924,6 +986,10 @@
   "@removeFromMix": {},
   "addToMix": "Add To Mix",
   "@addToMix": {},
+  "startRadio": "Start Radio",
+  "@startRadio": {
+    "description": "Menu label for starting a radio from a playlist, album, etc."
+  },
   "redownloadedItems": "{count,plural, =0{No redownloads needed.} =1{Redownloaded {count} item} other{Redownloaded {count} items}}",
   "@redownloadedItems": {
     "placeholders": {
@@ -934,7 +1000,7 @@
   },
   "bufferDuration": "Buffer Duration",
   "@bufferDuration": {},
-  "bufferDurationSubtitle": "The maximum duration that should be buffered, in seconds. Requires a restart.",
+  "bufferDurationSubtitle": "The duration that should be buffered, in seconds. Requires a restart.",
   "@bufferDurationSubtitle": {},
   "bufferDisableSizeConstraintsTitle": "Don't limit buffer size",
   "@bufferDisableSizeConstraintsTitle": {},
@@ -942,7 +1008,7 @@
   "@bufferDisableSizeConstraintsSubtitle": {},
   "bufferSizeTitle": "Buffer Size",
   "@bufferSizeTitle": {},
-  "bufferSizeSubtitle": "The maximum size of the buffer in MB. Requires a restart",
+  "bufferSizeSubtitle": "The size of the buffer in MB. Requires a restart",
   "@bufferSizeSubtitle": {},
   "language": "Language",
   "@language": {},
@@ -994,13 +1060,37 @@
   "@shuffleNext": {
     "description": "Used for shuffling a list (album, playlist, etc.) to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
   },
+  "shuffleSomeNext": "Shuffle some next",
+  "@shuffleSomeNext": {
+    "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+  },
   "shuffleToNextUp": "Shuffle to Next Up",
   "@shuffleToNextUp": {
     "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
   },
-  "shuffleToQueue": "Shuffle to queue",
+  "shuffleSomeToNextUp": "Shuffle some to Next Up",
+  "@shuffleSomeToNextUp": {
+    "description": "Used for shuffling some tracks to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
+  },
+  "shuffleToQueue": "Shuffle to Queue",
   "@shuffleToQueue": {
     "description": "Used for shuffling a list (album, playlist, etc.) to the end of the regular queue, to play after all prior tracks from the queue have played"
+  },
+  "shuffleSomeToQueue": "Shuffle some to Queue",
+  "@shuffleSomeToQueue": {
+    "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
+  },
+  "movePlayNext": "Play next",
+  "@movePlayNext": {
+    "description": "Used for moving a track to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
+  },
+  "moveAddToNextUp": "Move to Next Up",
+  "@moveAddToNextUp": {
+    "description": "Used for moving a track to the \"Next Up\" queue at the end, to play after all prior tracks from Next Up have played"
+  },
+  "moveAddToQueue": "Move to end",
+  "@moveAddToQueue": {
+    "description": "Used for moving a track to the end of the queue, to play after all prior tracks from the queue have played"
   },
   "confirmPlayNext": "{type, select, track{Track} album{Album} artist{Artist} playlist{Playlist} genre{Genre} other{Item}} will play next",
   "@confirmPlayNext": {
@@ -1011,7 +1101,7 @@
       }
     }
   },
-  "confirmAddToNextUp": "Added {type, select, track{Track} album{album} artist{artist} playlist{playlist} genre{genre} other{item}} to Next Up",
+  "confirmAddToNextUp": "Added {type, select, track{Track} album{album} artist{artist} playlist{playlist} genre{genre} disc{disc} other{item}} to Next Up",
   "@confirmAddToNextUp": {
     "description": "A confirmation message that is shown after successfully adding a track to the end of the \"Next Up\" queue",
     "placeholders": {
@@ -1020,7 +1110,7 @@
       }
     }
   },
-  "confirmAddToQueue": "Added {type, select, track{track} album{album} artist{artist} playlist{playlist} genre{genre} other{item}} to queue",
+  "confirmAddToQueue": "Added {type, select, track{track} album{album} artist{artist} playlist{playlist} genre{genre} disc{disc} other{item}} to queue",
   "@confirmAddToQueue": {
     "description": "A confirmation message that is shown after successfully adding a track to the end of the regular queue",
     "placeholders": {
@@ -1071,11 +1161,25 @@
   "@tracksFormerNextUp": {
     "description": "Title for the queue source for tracks that were once added to the queue via the \"Next Up\" feature, but have since been played"
   },
+  "radio": "Radio",
+  "@radio": {
+    "description": "Title for the queue source when the user is playing a track added via radio"
+  },
+  "radioForItem": "{radioSource} - Radio",
+  "@radioForItem": {
+    "description": "Suffix added to a queue source when playing a radio track. Example: \"Never Gonna Give You Up - Radio\"",
+    "placeholders": {
+      "radioSource": {
+        "type": "String",
+        "example": "Never Gonna Give You Up"
+      }
+    }
+  },
   "savedQueue": "Saved Queue",
   "@savedQueue": {
     "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
   },
-  "playingFromType": "Playing From {source, select, album{Album} playlist{Playlist} trackMix{Track Mix} artistMix{Artist Mix} albumMix{Album Mix} genreMix{Genre Mix} favorites{Favorites} allTracks{All Tracks} filteredList{Tracks} genre{Genre} artist{Artist} track{Track} nextUpAlbum{Album in Next Up} nextUpPlaylist{Playlist in Next Up} nextUpArtist{Artist in Next Up} nextUpGenre{Genre in Next Up} remoteClient{a Remote Client} other{}}",
+  "playingFromType": "Playing From {source, select, album{Album} playlist{Playlist} trackMix{Track Mix} artistMix{Artist Mix} albumMix{Album Mix} genreMix{Genre Mix} favorites{Favorites} allTracks{All Tracks} filteredList{Tracks} genre{Genre} artist{Artist} track{Track} nextUpAlbum{Album in Next Up} nextUpPlaylist{Playlist in Next Up} nextUpArtist{Artist in Next Up} nextUpGenre{Genre in Next Up} remoteClient{a Remote Client} radio{Radio} other{}}",
   "@playingFromType": {
     "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
     "placeholders": {
@@ -1399,19 +1503,35 @@
   },
   "shuffleAlbums": "Shuffle Albums",
   "@shuffleAlbums": {
-    "description": "Label for action that shuffles all albums of an artist or genre"
+    "description": "Label for action that shuffles all albums of an artist"
+  },
+  "shuffleSomeAlbums": "Shuffle some Albums",
+  "@shuffleSomeAlbums": {
+    "description": "Label for action that shuffles some albums of a genre"
   },
   "shuffleAlbumsNext": "Shuffle Albums Next",
   "@shuffleAlbumsNext": {
-    "description": "Label for action that shuffles all albums of an artist or genre and adds them at the start of Next Up"
+    "description": "Label for action that shuffles all albums of an artist and adds them at the start of Next Up"
   },
-  "shuffleAlbumsToNextUp": "Shuffle Albums To Next Up",
+  "shuffleSomeAlbumsNext": "Shuffle some Albums Next",
+  "@shuffleSomeAlbumsNext": {
+    "description": "Label for action that shuffles some albums of a genre and adds them at the start of Next Up"
+  },
+  "shuffleAlbumsToNextUp": "Shuffle Albums to Next Up",
   "@shuffleAlbumsToNextUp": {
-    "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of Next Up"
+    "description": "Label for action that shuffles all albums of an artist and adds them at the end of Next Up"
   },
-  "shuffleAlbumsToQueue": "Shuffle Albums To Queue",
+  "shuffleSomeAlbumsToNextUp": "Shuffle some Albums to Next Up",
+  "@shuffleSomeAlbumsToNextUp": {
+    "description": "Label for action that shuffles all albums of a genre and adds them at the end of Next Up"
+  },
+  "shuffleAlbumsToQueue": "Shuffle Albums to Queue",
   "@shuffleAlbumsToQueue": {
-    "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of the regular queue"
+    "description": "Label for action that shuffles all albums of an artist and adds them at the end of the regular queue"
+  },
+  "shuffleSomeAlbumsToQueue": "Shuffle some Albums to Queue",
+  "@shuffleSomeAlbumsToQueue": {
+    "description": "Label for action that shuffles all albums of a genre and adds them at the end of the regular queue"
   },
   "playCountValue": "{playCount,plural,=1{{playCount} play} other{{playCount} plays}}",
   "@playCountValue": {
@@ -1498,9 +1618,13 @@
   "@volumeNormalizationIOSBaseGainEditorTitle": {
     "description": "Title for the input that sets the replay gain base gain on iOS and other non-Android platforms"
   },
-  "volumeNormalizationIOSBaseGainEditorSubtitle": "Currently, Volume Normalization on iOS requires changing the playback volume to emulate the gain change. Since we can''t increase the volume above 100%, we need to decrease the volume by default so that we can boost the volume of quiet tracks. The value is in decibels (dB), where -10 dB is ~30% volume, -4.5 dB is ~60% volume and -2 dB is ~80% volume.",
+  "volumeNormalizationIOSBaseGainEditorSubtitle": "Choose a volume gain offset (in dB)",
   "@volumeNormalizationIOSBaseGainEditorSubtitle": {
     "description": "Subtitle for the input that sets the replay gain base gain on iOS and other non-Android platforms"
+  },
+  "volumeNormalizationIOSBaseGainEditorDescription": "Currently, Volume Normalization on platforms other than Android requires changing the playback volume to emulate the gain change. Since we can't increase the volume above 100%, we need to decrease the volume by default so that we can boost the volume of quiet tracks.\n\nThe value is in decibels (dB), where -10 dB is ~30% volume, -4.5 dB is ~60% volume and -2 dB is ~80% volume.\nPositive values mean that no volume reduction is applied up until the threshold (i.e. -6.4 dB gain (and more positive) for a +6.4 dB offset), but prevents quieter tracks from being boosted.\n\nYou should set this to the inverse of the highest (most positive) gain in your library, i.e., set it to +3 dB if the highest gain in your library is -3 dB (and all other tracks have gains like -5 dB, -8 dB, -10 dB, etc.).",
+  "@volumeNormalizationIOSBaseGainEditorDescription": {
+    "description": "Description for the input that sets the replay gain base gain on iOS and other non-Android platforms"
   },
   "numberAsDecibel": "{value} dB",
   "@numberAsDecibel": {
@@ -1999,6 +2123,8 @@
   "@downloadFavoritesSetting": {},
   "downloadAllPlaylistsSetting": "Download all playlists",
   "@downloadAllPlaylistsSetting": {},
+  "downloadAllPlaylistsSettingWarning": "Note: This will download all items in all playlists, no matter which library they're from.",
+  "@downloadAllPlaylistsSettingWarning": {},
   "fiveLatestAlbumsSetting": "Download 5 latest albums",
   "@fiveLatestAlbumsSetting": {},
   "fiveLatestAlbumsSettingSubtitle": "Downloads will be removed as they age out.  Lock the download to prevent an album from being removed.",
@@ -2062,6 +2188,22 @@
   "showSeekControlsOnMediaNotificationSubtitle": "Controls if the media notification has a seekable progress bar. This lets you change the playback position without opening the app.",
   "@showSeekControlsOnMediaNotificationSubtitle": {
     "description": "Subtitle for the setting that controls if the media notification has a seekable progress bar."
+  },
+  "lyricsEmptyStateLoading": "Loading lyrics...",
+  "@lyricsEmptyStateLoading": {
+    "description": "Message shown while lyrics are being loaded"
+  },
+  "lyricsEmptyStateFailed": "Couldn't load lyrics",
+  "@lyricsEmptyStateFailed": {
+    "description": "Message shown when lyrics failed to load"
+  },
+  "lyricsEmptyStateNoLyrics": "No lyrics available",
+  "@lyricsEmptyStateNoLyrics": {
+    "description": "Message shown when no lyrics are available for the current track"
+  },
+  "lyricsMissingLyricLinePlaceholder": "missing lyric line",
+  "@lyricsMissingLyricLinePlaceholder": {
+    "description": "Placeholder text for missing lyric lines in synchronized lyrics"
   },
   "alignmentOptionStart": "Start",
   "@alignmentOptionStart": {
@@ -2243,6 +2385,10 @@
   "@emptyTopTracksList": {
     "description": "Message shown as a placeholder when the top tracks list for an artist is empty"
   },
+  "emptyAlbum": "No tracks.",
+  "@emptyAlbum": {
+    "description": "Message shown as a placeholder when an album or playlist is empty."
+  },
   "emptyFilteredListTitle": "No items found",
   "@emptyFilteredListTitle": {
     "description": "Message shown when a list of items is filtered and no items match the filter"
@@ -2406,9 +2552,27 @@
   "@autoOfflineOptionUnreachable": {
     "description": "This is shown when the autoOffline feature is set to Unreachable, this means offline mode will be automatically enabled when - after a network change - the server cant be pinged"
   },
-  "autoOfflineSettingDescription": "Automatically enable Offline Mode.\nDisabled: Wont Automatically turn on Offline Mode. May save battery.\nLocal Network: Turn Offline Mode on when not being connected to wifi or ethernet.\nDisconnected: Turn Offline Mode on when not being connected to anything.\nUnreachable: Turn Offline Mode on when the server cant be pinged after changing networks.\nYou can always manually turn on offline mode which pauses automation until you turn offline mode off again",
+  "autoOfflineSettingSubtitle": "Automatically enable Offline Mode based on network connectivity or server reachability.",
+  "@autoOfflineSettingSubtitle": {
+    "description": "Subtitle for the automated offline mode setting."
+  },
+  "autoOfflineSettingDescription": "{disabledModeName}:\nWont Automatically turn on Offline Mode. May save battery.\n\n{localNetworkModeName}:\nTurn Offline Mode on when not being connected to WiFi or ethernet.\n\n{disconnectedModeName}:\nTurn Offline Mode on when not being connected to anything.\n\n{unreachableModeName}:\nTurn Offline Mode on when the server cant be pinged after changing networks.\n\nYou can always manually toggle offline mode which pauses the automation until you reenable it.",
   "@autoOfflineSettingDescription": {
-    "description": "Setting description. Make sure the Mode names match the translations."
+    "description": "Setting description. Make sure the Mode names match the translations.",
+    "placeholders": {
+      "disabledModeName": {
+        "type": "String"
+      },
+      "localNetworkModeName": {
+        "type": "String"
+      },
+      "disconnectedModeName": {
+        "type": "String"
+      },
+      "unreachableModeName": {
+        "type": "String"
+      }
+    }
   },
   "autoOfflineSettingTitle": "Automated Offline Mode",
   "@autoOfflineSettingTitle": {},
@@ -2461,10 +2625,6 @@
     },
     "description": "Label for the type of device in the output menu"
   },
-  "desktopShuffleWarning": "Changing shuffle mode is not currently available on desktop.",
-  "@desktopShuffleWarning": {
-    "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
-  },
   "itemCount": "{childType, select, track{{amount, plural, =1{1 track} other{{amount} tracks}}} album{{amount, plural, =1{1 album} other{{amount} albums}}} other{{amount, plural, =1{1 item} other{{amount} items}}}}",
   "@itemCount": {
     "description": "Amount of various child item, like artist albums, performing artist tracks, or genre albums. Shown for example in the menu headers.",
@@ -2499,11 +2659,17 @@
     "description": "Shows the active address inside the network settings screen so the user can see if this feature works"
   },
   "preferLocalNetworkTargetAddressLocalSettingTitle": "Local Network Address",
+  "@preferLocalNetworkTargetAddressLocalSettingTitle": {},
   "preferLocalNetworkTargetAddressLocalSettingDescription": "Target address of the Jellyfin server inside your local network",
+  "@preferLocalNetworkTargetAddressLocalSettingDescription": {},
   "preferLocalNetworkEnableSwitchTitle": "Prefer Local Network",
+  "@preferLocalNetworkEnableSwitchTitle": {},
   "preferLocalNetworkEnableSwitchDescription": "Whether or not to use a different address when you are in the local network of your jellyfin server",
+  "@preferLocalNetworkEnableSwitchDescription": {},
   "preferLocalNetworkPublicAddressSettingTitle": "Public Address",
+  "@preferLocalNetworkPublicAddressSettingTitle": {},
   "preferLocalNetworkPublicAddressSettingDescription": "The primary address used to connect to your Jellyfin server",
+  "@preferLocalNetworkPublicAddressSettingDescription": {},
   "preferLocalNetworkInfoBox": "This Feature requires Location permissions (and location needs to be enabled) to read the network name.",
   "@preferLocalNetworkInfoBox": {
     "description": "This is only shown on ios and android since desktop doesnt require location permissions"
@@ -2543,6 +2709,188 @@
   "clearQueueOnStopEventSubtitle": "Clear the queue and close the player if a 'stop' command is received from the OS. In-app stop actions will always close the player and clear the queue.",
   "@clearQueueOnStopEventSubtitle": {
     "description": "Subtitle for the setting that controls if OS stop commands clear the queue."
+  },
+  "radioModeSettingsTitle": "Radio Mode",
+  "@radioModeSettingsTitle": {
+    "description": "Title for the setting that controls the radio mode/algorithm."
+  },
+  "radioModeSettingsSubtitle": "Sets the method that the radio feature uses to pick songs to add.",
+  "@radioModeSettingsSubtitle": {
+    "description": "Subtitle for the setting that controls the radio mode/algorithm."
+  },
+  "radioModeMenuTitle": "Choose Radio Mode",
+  "@radioModeMenuTitle": {
+    "description": "Title for menu that allows users to choose the radio mode."
+  },
+  "loopingOverriddenByRadioSubtitle": "Queue looping is disabled while radio is enabled",
+  "@loopingOverriddenByRadioSubtitle": {
+    "description": "Subtitle displayed in the radio menu to show that queue looping is disabled while radio mode is enabled."
+  },
+  "radioFailedSubtitle": "No more radio tracks found. Try changing the mode.",
+  "@radioFailedSubtitle": {
+    "description": "Subtitle displayed in the radio menu to show that no radio tracks could be generated."
+  },
+  "radioModeOptionName": "{option, select, reshuffle{Reshuffle} random{Random} similar{Similar} continuous{Continuous} albumMix{Album Mix} other{{option}}}",
+  "@radioModeOptionName": {
+    "placeholders": {
+      "option": {
+        "type": "String",
+        "description": "Corresponds to RadioMode.name"
+      }
+    },
+    "description": "Radio mode names in radio mode/algorithm dropdown"
+  },
+  "radioModeOptionTitle": "{option, select, reshuffle{Reshuffle Mode} random{Random Mode} similar{Similar Mode} continuous{Continuous Mode} albumMix{Album Mix} other{{option}}} Enabled",
+  "@radioModeOptionTitle": {
+    "placeholders": {
+      "option": {
+        "type": "String",
+        "description": "Corresponds to RadioMode.name"
+      }
+    },
+    "description": "Title displayed in the queue, showing which radio mode/algorithm is currently being used."
+  },
+  "radioModeActiveTitle": "Radio Active",
+  "@radioModeActiveTitle": {
+    "description": "Title displayed in the queue to show that radio mode is enabled and active."
+  },
+  "radioModeDisabledTitle": "Radio Disabled",
+  "@radioModeDisabledTitle": {
+    "description": "Title displayed in the queue to show that radio mode is disabled."
+  },
+  "radioModeInactiveTitle": "Radio Paused",
+  "@radioModeInactiveTitle": {
+    "description": "Title displayed in the queue to show that the radio is enabled but not active."
+  },
+  "radioModeEnableButtonTitle": "Enable Radio",
+  "@radioModeEnableButtonTitle": {
+    "description": "Title for the option that enables radio mode."
+  },
+  "radioModeDisableButtonTitle": "Disable Radio",
+  "@radioModeDisableButtonTitle": {
+    "description": "Title for the option that disables radio mode."
+  },
+  "radioModeDisableButtonSubtitle": "Switches back to the previous loop mode",
+  "@radioModeDisableButtonSubtitle": {
+    "description": "Subtitle for the option that disables radio mode."
+  },
+  "radioModeOptionConfirmation": "Switched to {option, select, reshuffle{reshuffle mode} random{random mode} similar{similar mode} continuous{continuous mode} albumMix{album mix} other{{option}}}",
+  "@radioModeOptionConfirmation": {
+    "placeholders": {
+      "option": {
+        "type": "String",
+        "description": "Corresponds to RadioMode.name"
+      }
+    },
+    "description": "Confirmation displayed when the radio mode is changed."
+  },
+  "radioModeEnabledSubtitle": "Tap to configure",
+  "@radioModeEnabledSubtitle": {
+    "description": "Subtitle displayed in the queue to show when radio mode is enabled."
+  },
+  "radioModeDisabledSubtitle": "Tap to enable",
+  "@radioModeDisabledSubtitle": {
+    "description": "Subtitle displayed in the queue to show that radio mode is disabled."
+  },
+  "radioModeDisabledBecauseNotAvailableOfflineSubtitle": "Current mode not available offline.",
+  "@radioModeDisabledBecauseNotAvailableOfflineSubtitle": {
+    "description": "Subtitle displayed in the queue to show that radio mode is disabled because the current mode is not available offline."
+  },
+  "radioModeDescription": "{mode, select, reshuffle{Continuously reshuffle queue} random{Append tracks randomly from the initial selection} similar{Append based on the original queue} continuous{Append based on the current track} albumMix{Append similar albums} other{}}",
+  "@radioModeDescription": {
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "description": "Corresponds to RadioMode.name"
+      }
+    },
+    "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
+  },
+  "radioModeUnavailableWhileOfflineDescription": "Unavailable while offline",
+  "@radioModeUnavailableWhileOfflineDescription": {
+    "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+  },
+  "radioModeUnavailableWhileOfflineSubtitle": "{modeName} unavailable while offline",
+  "@radioModeUnavailableWhileOfflineSubtitle": {
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      }
+    },
+    "description": "Shown as the subtitle for radio modes when the user is offline and the radio mode requires the user to be online to function."
+  },
+  "radioModeUnavailableForSourceItemDescription": "Unavailable for this queue source",
+  "@radioModeUnavailableForSourceItemDescription": {
+    "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+  },
+  "radioModeUnavailableForSourceItemSubtitle": "{modeName} unavailable for this queue source",
+  "@radioModeUnavailableForSourceItemSubtitle": {
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      }
+    },
+    "description": "Shown as the subtitle for radio modes when the queue source item type is not supported."
+  },
+  "radioModeUnavailableQueueEmptyDescription": "Unavailable because the queue is empty",
+  "@radioModeUnavailableQueueEmptyDescription": {
+    "description": "Shown as the subtitle for radio modes when the queue is empty."
+  },
+  "radioModeUnavailableQueueEmptySubtitle": "{modeName} unavailable because the queue is empty",
+  "@radioModeUnavailableQueueEmptySubtitle": {
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      }
+    },
+    "description": "Shown as the subtitle for radio modes when the queue is empty."
+  },
+  "radioModeRandomUnavailableNotDownloadedDescription": "Unavailable because '{sourceName}' isn't downloaded",
+  "@radioModeRandomUnavailableNotDownloadedDescription": {
+    "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+    "placeholders": {
+      "sourceName": {
+        "type": "String"
+      }
+    }
+  },
+  "radioModeRandomUnavailableNotDownloadedSubtitle": "{modeName} unavailable because '{sourceName}' isn't downloaded",
+  "@radioModeRandomUnavailableNotDownloadedSubtitle": {
+    "description": "Shown as the subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded.",
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      },
+      "sourceName": {
+        "type": "String"
+      }
+    }
+  },
+  "radioModeRandomUnavailableNotDownloadedGenericDescription": "Unavailable because source is not downloaded",
+  "@radioModeRandomUnavailableNotDownloadedGenericDescription": {
+    "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+  },
+  "radioModeRandomUnavailableNotDownloadedGenericSubtitle": "{modeName} unavailable because source is not downloaded",
+  "@radioModeRandomUnavailableNotDownloadedGenericSubtitle": {
+    "placeholders": {
+      "modeName": {
+        "type": "String",
+        "description": "The pre-translated radio mode name"
+      }
+    },
+    "description": "Shown as the generic subtitle for radio modes when the user is offline and the random radio mode can't be used since the queue source hasn't been downloaded, when the queue source has no name."
+  },
+  "radioNoTracksFound": "Couldn't start radio because no suitable tracks were found.",
+  "@radioNoTracksFound": {
+    "description": "Shown when the user tries to start radio mode but no suitable tracks were found to start the radio with."
+  },
+  "loopingUnavailableWhileRadioActiveWarning": "Changing the loop mode is not available while radio is active, as the queue will continue endlessly.",
+  "@loopingUnavailableWhileRadioActiveWarning": {
+    "description": "Warning message when trying to change the loop mode while radio is active."
   },
   "autoReloadPrompt": "Reload queue to apply new {type, select, network{network settings} transcoding{transcoding settings} other{settings}}",
   "@autoReloadPrompt": {
@@ -2737,5 +3085,154 @@
   "discordRPCIconWhiteTransparent": "White Finamp - Transparent",
   "@discordRPCIconWhiteTransparent": {
     "description": "A REALLY short description of the icon in use. Its format is 'ICON, BACKGROUND'. This one is the full white Finamp logo with a Transparent Background"
+  },
+  "preferAddingToFavoritesOverPlaylistsTitle": "Add to Favorites When Tapping Heart Icon",
+  "@preferAddingToFavoritesOverPlaylistsTitle": {
+    "description": "Title for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
+  },
+  "preferAddingToFavoritesOverPlaylistsSubtitle": "When enabled, a short tap will add to favorites, and a long press will open the 'Add to Playlist' menu. Default is the inverse.",
+  "@preferAddingToFavoritesOverPlaylistsSubtitle": {
+    "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
+  },
+  "preferNextUpPrependingTitle": "Prefer Prepending to Next Up",
+  "@preferNextUpPrependingTitle": {
+    "description": "Title for the setting to prefer prepending to Next Up over appending"
+  },
+  "preferNextUpPrependingSubtitle": "When enabled, the \"Play Next\" buttons will be shown when Next Up is empty. Otherwise, \"Add to Next Up\" will be the default.",
+  "@preferNextUpPrependingSubtitle": {
+    "description": "Subtitle for the setting that swaps the default behavior of short- vs. long-press on the heart/favorite icon"
+  },
+  "rememberLastUsedPlaybackActionRowPageTitle": "Remember Last Playback Mode",
+  "@rememberLastUsedPlaybackActionRowPageTitle": {
+    "description": "Title for the setting to remember the last used playback mode."
+  },
+  "rememberLastUsedPlaybackActionRowPageSubtitle": "When enabled, your last used playback mode (e.g., Next Up) will be remembered.",
+  "@rememberLastUsedPlaybackActionRowPageSubtitle": {
+    "description": "Subtitle for the setting to remember the last used playback mode."
+  },
+  "discOfAlbum": "[Disc {number}] {albumName}",
+  "@discOfAlbum": {
+    "description": "Used when a single disc of album is opened, then album name is replaced with this string",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      },
+      "albumName": {
+        "type": "String"
+      }
+    }
+  },
+  "moreActionsOnAlbumDisc": "More actions on album disc",
+  "@moreActionsOnAlbumDisc": {
+    "description": "Label for the disc header menu button."
+  },
+  "dragToReorder": "Drag to Reorder",
+  "@dragToReorder": {
+    "description": "Label shown on drag handles of track list  tiles in the queue list"
+  },
+  "addDownloadLocationsErrorTitle": "Could not write to download location",
+  "@addDownloadLocationsErrorTitle": {
+    "description": "Title of popup dialog when adding a download location fails"
+  },
+  "addDownloadLocationsErrorPrompt": "Writing to selected directory failed.  You should modify permissions or choose another location.",
+  "@addDownloadLocationsErrorPrompt": {
+    "description": "Label shown on popup dialog when adding a download location when writing songs fails"
+  },
+  "androidImageErrorPrompt": "We are unable to write images to the android Music folder due to OS restrictions.  You should choose another location.",
+  "@androidImageErrorPrompt": {
+    "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
+  },
+  "addDownloadLocationsErrorButton": "Add anyway",
+  "@addDownloadLocationsErrorButton": {
+    "description": "Label shown on button for adding a download location we suspect to be buggy"
+  },
+  "syncFailedWarningShort": "Warning: Failed to synchronize some downloads with server.",
+  "@syncFailedWarningShort": {
+    "description": "Simple warning message for when download sync fails due to items being deleted from the server."
+  },
+  "syncFailedWarningLong": "Some downloads failed to synchronize with the server.  The matching server item was likely deleted.  The failed download should be deleted to clean up the outdated files.",
+  "@syncFailedWarningLong": {
+    "description": "Expanded warning message for when download sync fails due to items being deleted from the server."
+  },
+  "openDownloads": "Open Downloads",
+  "@openDownloads": {
+    "description": "Label on a button to open the downloads screen after a sync fails."
+  },
+  "syncingFailed": "Sync failed.  This download has likely been removed from the server, and should be deleted.",
+  "@syncingFailed": {
+    "description": "Message shown for downloads with the sync failed status, which is generally caused by the server-side item being removed."
+  },
+  "autoplayRestoredQueueTitle": "Automatically Play Restored Queues",
+  "@autoplayRestoredQueueTitle": {
+    "description": "Title for the setting that controls if restored queues automatically play."
+  },
+  "autoplayRestoredQueueSubtitle": "Queues restored automatically on startup or via the queue restore screen will begin playing automatically.  Queues which fail to restore all tracks will never autoplay, regardless of this setting.",
+  "@autoplayRestoredQueueSubtitle": {
+    "description": "Subtitle for the setting that controls if restored queues automatically play."
+  },
+  "missingBlurhashWarning": "Warning: The Jellyfin server appears to be misconfigured and is not calculating blurhashes.  This prevents Finamp from de-duplicating image downloads.  Please correct the server and run a downloads repair.",
+  "@missingBlurhashWarning": {
+    "description": "A warning message displayed on the downloads screen if the jellyfin server is missing blurhashes."
+  },
+  "noPermissionToEditMetadata": "You need to be an administrator to edit metadata images.",
+  "@noPermissionToEditMetadata": {
+    "description": "Error message shown when the user tries to edit metadata but doesn't have permission to do so, i.e. because they are not an admin"
+  },
+  "removedTracks": "Removed Tracks",
+  "@removedTracks": {
+    "description": "Section header for the list of removed tracks on the playlist edit screen"
+  },
+  "removedTracksEmptyListPlaceholder": "Removed tracks will appear here",
+  "@removedTracksEmptyListPlaceholder": {
+    "description": "Placeholder text shown when there are no removed tracks"
+  },
+  "restoreTrack": "Restore Track",
+  "@restoreTrack": {
+    "description": "Button title for restoring a track that was marked to be removed"
+  },
+  "discardChangesTitle": "Discard Changes?",
+  "@discardChangesTitle": {
+    "description": "Title for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+  },
+  "discardChangesDescription": "You have unsaved changes. Discard them and go back?",
+  "@discardChangesDescription": {
+    "description": "Description for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+  },
+  "discardChangesConfirmButton": "Discard Changes",
+  "@discardChangesConfirmButton": {
+    "description": "Positive action button for the dialog shown when the user tries to leave the playlist edit screen with unsaved changes"
+  },
+  "snackbarOptionsMenuTitle": "Manage Messages",
+  "@snackbarOptionsMenuTitle": {
+    "description": "Title for the snackbar options menu that allows the user to manage snackbar messages"
+  },
+  "snackbarOptionsMenuClearAllButton": "Clear All Messages",
+  "@snackbarOptionsMenuClearAllButton": {
+    "description": "Button title for clearing all snackbar messages"
+  },
+  "snackbarOptionsMenuViewLogsButton": "View Logs",
+  "@snackbarOptionsMenuViewLogsButton": {
+    "description": "Button title for opening the logs screen from the snackbar options menu"
+  },
+  "duckOnAudioInterruptionTitle": "Reduce Volume on Interruptions",
+  "@duckOnAudioInterruptionTitle": {
+    "description": "Title for the setting that controls ducking."
+  },
+  "duckOnAudioInterruptionSubtitle": "Lower the volume (duck) when another app briefly plays audio. Requires a restart.",
+  "@duckOnAudioInterruptionSubtitle": {
+    "description": "Subtitle for the setting that controls ducking."
+  },
+  "forceAudioOffloadingOnAndroidTitle": "Force Audio Offloading",
+  "@forceAudioOffloadingOnAndroidTitle": {
+    "description": "Title for the setting that controls audio offloading on Android."
+  },
+  "forceAudioOffloadingOnAndroidSubtitle": "Offload audio processing to hardware, if supported by the device.",
+  "@forceAudioOffloadingOnAndroidSubtitle": {
+    "description": "Subtitle for the setting that controls audio offloading on Android."
+  },
+  "explicit": "Explicit",
+  "@explicit": {
+    "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
   }
 }

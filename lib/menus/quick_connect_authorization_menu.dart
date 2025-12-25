@@ -41,7 +41,7 @@ Future<void> showQuickConnectAuthorizationMenu({required BuildContext context}) 
         ),
         SliverPadding(padding: EdgeInsets.only(bottom: 40.0)),
       ];
-      var stackHeight = MediaQuery.sizeOf(context).height * 0.65;
+      var stackHeight = MediaQuery.heightOf(context) * 0.65;
       return (stackHeight, menu);
     },
   );
@@ -241,7 +241,9 @@ class _QuickConnectInputFieldState extends State<QuickConnectInputField> {
     return Column(
       children: [
         GestureDetector(
-          onTap: () => _focusNode.requestFocus(),
+          onTap: () {
+            _focusNode.requestFocus();
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
@@ -284,6 +286,7 @@ class _QuickConnectInputFieldState extends State<QuickConnectInputField> {
         // Hidden text field for actual input handling
         Visibility(
           visible: false,
+          maintainFocusability: true,
           maintainState: true,
           maintainInteractivity: true,
           maintainSize: true,
@@ -303,9 +306,9 @@ class _QuickConnectInputFieldState extends State<QuickConnectInputField> {
               scrollPadding: EdgeInsets.zero,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
               onSubmitted: (_) => widget.onSubmitted(),
-              onTapOutside: (_) => setState(() {
-                _focusNode.unfocus();
-              }),
+              // onTapOutside: (_) => setState(() {
+              //   _focusNode.unfocus();
+              // }),
             ),
           ),
         ),

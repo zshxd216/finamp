@@ -9,14 +9,12 @@ import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/services/http_aggregate_logging_interceptor.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_user_certificates_android/flutter_user_certificates_android.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/io_client.dart' as http;
 import 'package:isar/isar.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
-
 import '../models/finamp_models.dart';
 import '../models/jellyfin_models.dart';
 import 'downloads_service.dart';
@@ -107,7 +105,7 @@ class JellyfinApiHelper {
     if (output is T) {
       return output;
     }
-    _jellyfinApiHelperLogger.severe("Error in background isolate:", output);
+    _jellyfinApiHelperLogger.severe("Error in background isolate: $output", output);
     throw output as Object;
   }
 
@@ -119,6 +117,7 @@ class JellyfinApiHelper {
     String? sortOrder,
     String? searchTerm,
     List<BaseItemId>? itemIds,
+    List<BaseItemId>? albumIds,
     String? filters,
     String? fields,
     bool? recursive,
@@ -154,6 +153,7 @@ class JellyfinApiHelper {
       sortOrder: sortOrder,
       searchTerm: searchTerm,
       itemIds: itemIds,
+      albumIds: albumIds,
       filters: filters,
       fields: fields,
       recursive: recursive,
@@ -174,6 +174,7 @@ class JellyfinApiHelper {
     String? sortOrder,
     String? searchTerm,
     List<BaseItemId>? itemIds,
+    List<BaseItemId>? albumIds,
     String? filters,
     String? fields,
     bool? recursive,
@@ -191,6 +192,7 @@ class JellyfinApiHelper {
       sortOrder: sortOrder,
       searchTerm: searchTerm,
       itemIds: itemIds,
+      albumIds: albumIds,
       filters: filters,
       fields: fields,
       recursive: recursive,
@@ -211,6 +213,7 @@ class JellyfinApiHelper {
     String? sortOrder,
     String? searchTerm,
     List<BaseItemId>? itemIds,
+    List<BaseItemId>? albumIds,
     String? filters,
     String? fields,
     bool? recursive,
@@ -307,6 +310,7 @@ class JellyfinApiHelper {
             sortOrder: sortOrder,
             searchTerm: searchTerm,
             filters: filters,
+            albumIds: albumIds?.join(","),
             genreIds: genreFilter?.id.raw,
             startIndex: startIndex,
             limit: limit,
@@ -326,6 +330,7 @@ class JellyfinApiHelper {
             sortOrder: sortOrder,
             searchTerm: searchTerm,
             filters: filters,
+            albumIds: albumIds?.join(","),
             genreIds: genreFilter?.id.raw,
             startIndex: startIndex,
             limit: limit,
@@ -349,6 +354,7 @@ class JellyfinApiHelper {
         response = await api.getItems(
           parentId: libraryFilter?.id,
           userId: currentUserId,
+          albumIds: albumIds?.join(","),
           genreIds: parentItem?.id.raw,
           includeItemTypes: includeItemTypes,
           recursive: recursive,
@@ -373,6 +379,7 @@ class JellyfinApiHelper {
           sortOrder: sortOrder,
           searchTerm: searchTerm,
           filters: filters,
+          albumIds: albumIds?.join(","),
           genreIds: genreFilter?.id.raw,
           startIndex: startIndex,
           limit: limit,
@@ -603,6 +610,12 @@ class JellyfinApiHelper {
         null; // Clear the temporary base URL after authentication, since this has priority over the regular URL
   }
 
+  /// Gets the current user.
+  Future<UserDto> getUser() async {
+    var response = await jellyfinApi.getUser();
+    return UserDto.fromJson(response as Map<String, dynamic>);
+  }
+
   /// Gets all the user's views.
   Future<List<BaseItemDto>> getViews() async {
     var response = await jellyfinApi.getViews(_finampUserHelper.currentUser!.id);
@@ -612,23 +625,42 @@ class JellyfinApiHelper {
 
   /// Gets the playback info for an item, such as format and bitrate. Usually, I'd require a BaseItemDto as an argument
   /// but since this will be run inside of [MusicPlayerBackgroundTask], I've just set the raw id as an argument.
-  Future<List<MediaSourceInfo>?> getPlaybackInfo(BaseItemId itemId) async {
+  Future<PlaybackInfoResponse> getPlaybackInfo(BaseItemId itemId) async {
     assert(_verifyCallable());
     var response = await jellyfinApi.getPlaybackInfo(id: itemId, userId: _finampUserHelper.currentUser!.id);
 
-    // getPlaybackInfo returns a PlaybackInfoResponse. We only need the List<MediaSourceInfo> in it so we convert it here and
-    // return that List<MediaSourceInfo>.
-    final PlaybackInfoResponse decodedResponse = PlaybackInfoResponse.fromJson(response as Map<String, dynamic>);
-    return decodedResponse.mediaSources;
+    return PlaybackInfoResponse.fromJson(response as Map<String, dynamic>);
+  }
+
+  /// Sends a request for playback info to the server, letting it know which codecs the client will support (to enable automatic transcoding).
+  Future<PlaybackInfoResponse> submitPlaybackInfo({
+    required BaseItemId itemId,
+    required PlaybackInfoRequest playbackInfoRequest,
+  }) async {
+    assert(_verifyCallable());
+    var response = await jellyfinApi.submitPlaybackInfo(id: itemId, playbackInfoRequest: playbackInfoRequest);
+    return PlaybackInfoResponse.fromJson(response as Map<String, dynamic>);
   }
 
   /// Starts an instant mix using the data from the item provided.
-  Future<List<BaseItemDto>?> getInstantMix(BaseItemDto? parentItem) async {
+  Future<List<BaseItemDto>?> getInstantMix(BaseItemDto parentItem, {int? limit}) async {
     assert(_verifyCallable());
     var response = await jellyfinApi.getInstantMix(
-      id: parentItem!.id,
+      id: parentItem.id,
       userId: _finampUserHelper.currentUser!.id,
-      limit: FinampSettingsHelper.finampSettings.trackShuffleItemCount,
+      limit: limit ?? FinampSettingsHelper.finampSettings.trackShuffleItemCount,
+    );
+
+    return (QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items);
+  }
+
+  /// Get's similar albums based off a source album.
+  Future<List<BaseItemDto>?> getSimilarAlbums(BaseItemId parentId, {int? limit}) async {
+    assert(_verifyCallable());
+    var response = await jellyfinApi.getSimilarAlbums(
+      id: parentId,
+      userId: _finampUserHelper.currentUser!.id,
+      limit: limit ?? FinampSettingsHelper.finampSettings.trackShuffleItemCount,
     );
 
     return (QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items);
@@ -686,6 +718,29 @@ class JellyfinApiHelper {
     return (BaseItemDto.fromJson(response as Map<String, dynamic>));
   }
 
+  /// Gets the user's permission for a specific playlist.
+  Future<PlaylistUser> getPlaylistUser(BaseItemId playlistId) async {
+    assert(_verifyCallable());
+    final response = await jellyfinApi.getPlaylistUser(
+      userId: _finampUserHelper.currentUser!.id,
+      playlistId: playlistId,
+    );
+
+    return (PlaylistUser.fromJson(response as Map<String, dynamic>));
+  }
+
+  /// Gets all playlist users and their permissions for a specific playlist.
+  /// !!! Can only be called by an admin user
+  Future<PlaylistUsers> getPlaylistUsers(BaseItemId playlistId) async {
+    assert(_verifyCallable());
+    final response = await jellyfinApi.getPlaylistUsers(
+      userId: _finampUserHelper.currentUser!.id,
+      playlistId: playlistId,
+    );
+
+    return (PlaylistUsers.fromJson(response as Map<String, dynamic>));
+  }
+
   Future<Map<BaseItemId, BaseItemDto>>? _getItemByIdBatchedFuture;
   final Set<BaseItemId> _getItemByIdBatchedRequests = {};
 
@@ -706,10 +761,10 @@ class JellyfinApiHelper {
   }
 
   /// Gets a Playlist
-  Future<dynamic> getPlaylist(BaseItemId playlistId) async {
+  Future<PlaylistInfo> getPlaylist(BaseItemId playlistId) async {
     assert(_verifyCallable());
     final response = await jellyfinApi.getPlaylist(playlistId: playlistId);
-    return response;
+    return PlaylistInfo.fromJson(response as Map<String, dynamic>);
   }
 
   /// Creates a new playlist.
@@ -1023,18 +1078,20 @@ class JellyfinApiHelper {
 
     List<String> builtPath = List<String>.from(parsedBaseUrl.pathSegments);
     builtPath.addAll(["Items", item.imageId!, "Images", "Primary"]);
+    final Map<String, dynamic> queryParams = {
+      if (format != null) "format": format,
+      if (quality != null) "quality": quality.toString(),
+      if (maxWidth != null) "MaxWidth": maxWidth.toString(),
+      if (maxHeight != null) "MaxHeight": maxHeight.toString(),
+    };
     return Uri(
       host: parsedBaseUrl.host,
       port: parsedBaseUrl.port,
       scheme: parsedBaseUrl.scheme,
       userInfo: parsedBaseUrl.userInfo,
       pathSegments: builtPath,
-      queryParameters: {
-        if (format != null) "format": format,
-        if (quality != null) "quality": quality.toString(),
-        if (maxWidth != null) "MaxWidth": maxWidth.toString(),
-        if (maxHeight != null) "MaxHeight": maxHeight.toString(),
-      },
+      // don't pass an empty map, otherwise .toString() will append just the `?` at the end, which is unusual
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
   }
 
@@ -1102,44 +1159,37 @@ class JellyfinApiHelper {
     return uri;
   }
 
-  late final ProviderFamily<bool, BaseItemDto> canDeleteFromServerProvider = ProviderFamily((ref, BaseItemDto item) {
-    bool offline = ref.watch(finampSettingsProvider.isOffline);
-    if (offline) {
-      return false;
-    }
-    var itemType = BaseItemDtoType.fromItem(item);
-    var isPlaylist = itemType == BaseItemDtoType.playlist;
-    bool deleteEnabled = ref.watch(finampSettingsProvider.allowDeleteFromServer);
-
-    // always check if a playlist is deletable
-    if (!deleteEnabled && !isPlaylist) {
-      return false;
-    }
-
-    // do not bother checking server for item types known to not be deletable
-    if (![BaseItemDtoType.album, BaseItemDtoType.playlist, BaseItemDtoType.track].contains(itemType)) {
-      return false;
-    }
-    bool? serverReturn = ref.watch(_canDeleteFromServerAsyncProvider(item.id)).value;
-    if (serverReturn == null) {
-      // fallback to allowing deletion even if the response is invalid, since the user might still be able to delete
-      // worst case would be getting an error message when trying to delete
-      return item.canDelete ?? true;
+  /// Sets a new primary image for an item.
+  /// !!! since images are considered metadata, this can only be done by administrators.
+  Future<void> setItemPrimaryImage({required BaseItemId itemId, required File imageFile}) async {
+    assert(_verifyCallable());
+    final bytes = await imageFile.readAsBytes();
+    final base64Image = base64Encode(bytes);
+    // Infer mime type from extension (fallback jpeg)
+    final lower = imageFile.path.toLowerCase();
+    ContentType contentType;
+    if (lower.endsWith('.png')) {
+      contentType = ContentType('image', 'png');
+    } else if (lower.endsWith('.webp')) {
+      contentType = ContentType('image', 'webp');
+    } else if (lower.endsWith('.gif')) {
+      contentType = ContentType('image', 'gif');
+    } else if (lower.endsWith('.bmp')) {
+      contentType = ContentType('image', 'bmp');
+    } else if (lower.endsWith('.heic') || lower.endsWith('.heif')) {
+      contentType = ContentType('image', 'heic');
     } else {
-      return serverReturn;
+      contentType = ContentType('image', 'jpeg');
     }
-  });
-
-  late final AutoDisposeFutureProviderFamily<bool?, BaseItemId> _canDeleteFromServerAsyncProvider =
-      AutoDisposeFutureProviderFamily((ref, BaseItemId id) {
-        return getItemById(id)
-            .then((response) {
-              return response.canDelete;
-            })
-            .catchError((_) {
-              return false;
-            });
-      });
+    final response = await jellyfinApi.setItemPrimaryImage(
+      itemId: itemId,
+      base64Image: base64Image,
+      contentType: contentType.mimeType,
+    );
+    if (!response.isSuccessful) {
+      throw response as Object;
+    }
+  }
 
   /// Verify that we are in an appropriate location to make API calls.
   /// This should only be called inside assert() to prevent running in release mode.
@@ -1160,6 +1210,7 @@ class JellyfinApiHelper {
     if (stack.contains('ProviderElementBase.buildState') ||
         stack.contains('initState ') ||
         stack.contains('didUpdateWidget') ||
+        stack.contains('new QueueService') ||
         stack.contains('PagingController.notifyPageRequestListeners')) {
       return true;
     }

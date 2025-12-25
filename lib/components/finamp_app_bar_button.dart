@@ -21,23 +21,19 @@ class FinampAppBarButton extends StatelessWidget {
           return TablerIcons.chevron_right;
         case AxisDirection.up:
           return TablerIcons.chevron_up;
-        default:
-          return TablerIcons.chevron_down;
       }
     }
 
-    return Padding(
+    return IconButton(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-      child: IconButton(
-        onPressed: onPressed,
-        tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-        icon: Icon(getIcon(), color: Theme.of(context).iconTheme.color ?? Colors.white, weight: 2.0),
-        // Needed because otherwise the splash goes over the container
+      onPressed: onPressed,
+      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      icon: Icon(getIcon(), color: Theme.of(context).iconTheme.color ?? Colors.white, weight: 2.0),
+      // Needed because otherwise the splash goes over the container
 
-        // It may be like a pixel over now but I've spent way too long on this
-        // button by now.
-        splashRadius: Material.defaultSplashRadius - 8,
-      ),
+      // It may be like a pixel over now but I've spent way too long on this
+      // button by now.
+      splashRadius: Material.defaultSplashRadius - 8,
     );
   }
 }

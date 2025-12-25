@@ -79,6 +79,9 @@ class DownloadsService {
   /// Causes the downloads queue to stop processing new items
   bool get allowDownloads => allowSyncs && !syncBuffer.isRunning;
 
+  /// Marks whether we have encountered an image with a missing blurhash
+  bool serverMissingBlurhash = false;
+
   //
   // Providers
   //
@@ -120,39 +123,41 @@ class DownloadsService {
 
   /// Provider for user-downloaded items of a specific category.
   /// Used to show and group downloaded items on the downloads screen.
-  late final userDownloadedItemsProvider = FutureProvider.family
-      .autoDispose<List<DownloadStub>, DownloadsScreenCategory>((ref, category) async {
-        // Refresh lists when addDownload or removeDownload is called.
-        ref.watch(_anchorProvider);
-        final allItems = await _isar.downloadItems
-            .filter()
-            .requiredBy((q) => q.isarIdEqualTo(_anchor.isarId))
-            .sortByName()
-            .findAll();
+  late final userDownloadedItemsProvider = Provider.family.autoDispose<List<DownloadStub>, DownloadsScreenCategory>((
+    ref,
+    category,
+  ) {
+    // Refresh lists when addDownload or removeDownload is called.
+    ref.watch(_anchorProvider);
+    final allItems = _isar.downloadItems
+        .filter()
+        .requiredBy((q) => q.isarIdEqualTo(_anchor.isarId))
+        .sortByName()
+        .findAllSync();
 
-        return allItems
-            .where(
-              (item) => switch (category) {
-                DownloadsScreenCategory.special =>
-                  item.type == category.type &&
-                      item.finampCollection?.type != FinampCollectionType.collectionWithLibraryFilter,
+    return allItems
+        .where(
+          (item) => switch (category) {
+            DownloadsScreenCategory.special =>
+              item.type == category.type &&
+                  item.finampCollection?.type != FinampCollectionType.collectionWithLibraryFilter,
 
-                DownloadsScreenCategory.artists =>
-                  (item.type == category.type && item.baseItemType == category.baseItemType) ||
-                      (item.finampCollection?.type == FinampCollectionType.collectionWithLibraryFilter &&
-                          BaseItemDtoType.fromItem(item.finampCollection!.item!) == BaseItemDtoType.artist),
+            DownloadsScreenCategory.artists =>
+              (item.type == category.type && item.baseItemType == category.baseItemType) ||
+                  (item.finampCollection?.type == FinampCollectionType.collectionWithLibraryFilter &&
+                      BaseItemDtoType.fromItem(item.finampCollection!.item!) == BaseItemDtoType.artist),
 
-                DownloadsScreenCategory.genres =>
-                  (item.type == category.type && item.baseItemType == category.baseItemType) ||
-                      (item.finampCollection?.type == FinampCollectionType.collectionWithLibraryFilter &&
-                          BaseItemDtoType.fromItem(item.finampCollection!.item!) == BaseItemDtoType.genre),
-                _ =>
-                  item.type == category.type &&
-                      (category.baseItemType == null || item.baseItemType == category.baseItemType),
-              },
-            )
-            .toList();
-      });
+            DownloadsScreenCategory.genres =>
+              (item.type == category.type && item.baseItemType == category.baseItemType) ||
+                  (item.finampCollection?.type == FinampCollectionType.collectionWithLibraryFilter &&
+                      BaseItemDtoType.fromItem(item.finampCollection!.item!) == BaseItemDtoType.genre),
+            _ =>
+              item.type == category.type &&
+                  (category.baseItemType == null || item.baseItemType == category.baseItemType),
+          },
+        )
+        .toList();
+  });
 
   /// Constructs the service.  startQueues should also be called to complete initialization.
   DownloadsService() {
@@ -772,15 +777,11 @@ class DownloadsService {
     final JellyfinApiHelper jellyfinApiData = GetIt.instance<JellyfinApiHelper>();
     for (var item in allItems) {
       if (item.baseItem?.mediaStreams?.any((stream) => stream.type == "Lyric") ?? false) {
-        // check if lyrics are already downloaded
-        if (_isar.downloadedLyrics.where().isarIdEqualTo(item.isarId).countSync() > 0) {
-          continue;
-        }
         idsWithLyrics[item.isarId] = null;
         LyricDto? lyrics;
         try {
           lyrics = await jellyfinApiData.getLyrics(itemId: BaseItemId(item.id));
-          _downloadsLogger.finer("Fetched lyrics for ${item.name}");
+          _downloadsLogger.finest("Fetched lyrics for ${item.name}");
           idsWithLyrics[item.isarId] = lyrics;
         } catch (e) {
           _downloadsLogger.warning("Failed to fetch lyrics for ${item.name}.");
@@ -788,11 +789,16 @@ class DownloadsService {
       }
     }
     _isar.writeTxnSync(() {
-      for (var id in idsWithLyrics.keys) {
+      for (var id in idsWithLyrics.keys.where((id) {
+        final oldLyricsVersion = _isar.downloadedLyrics.getSync(id)?.lyricDto?.metadata?.version;
+        // if the versions don't match (or it isn't set), apply the new lyrics to be safe
+        return idsWithLyrics[id]?.metadata?.version == null || oldLyricsVersion != idsWithLyrics[id]?.metadata?.version;
+      })) {
         var canonItem = _isar.downloadItems.getSync(id);
         if (canonItem != null && idsWithLyrics[id] != null) {
           final lyricsItem = DownloadedLyrics.fromItem(isarId: canonItem.isarId, item: idsWithLyrics[id]!);
           _isar.downloadedLyrics.putSync(lyricsItem, saveLinks: false);
+          _downloadsLogger.finer("Updated lyrics for '${canonItem.name}'");
         }
       }
     });
@@ -1593,6 +1599,9 @@ class DownloadsService {
     String? imageId = blurHash ?? item!.blurHash ?? item!.imageId;
     if (imageId == null) {
       return null;
+    }
+    if (item != null && item.blurHash == null) {
+      serverMissingBlurhash = true;
     }
     return _getDownloadByID(imageId, DownloadItemType.image);
   }

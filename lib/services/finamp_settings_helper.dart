@@ -1,8 +1,6 @@
 import 'package:finamp/components/confirmation_prompt_dialog.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
-import 'package:finamp/services/locale_helper.dart';
-import 'package:finamp/services/theme_mode_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -124,7 +122,10 @@ class FinampSettingsHelper {
   static void resetLayoutSettings() {
     FinampSettings finampSettingsTemp = finampSettings;
 
-    ThemeModeHelper.setThemeMode(DefaultSettings.theme);
+    FinampSetters.setThemeMode(DefaultSettings.themeMode);
+    FinampSetters.setAccentColor(DefaultSettings.accentColor);
+    FinampSetters.setSystemAccentColor(DefaultSettings.accentColor);
+    FinampSetters.setUseSystemAccentColor(DefaultSettings.useSystemAccentColor);
     FinampSetters.setContentViewType(DefaultSettings.contentViewType);
     finampSettingsTemp.useFixedSizeGridTiles = DefaultSettings.useFixedSizeGridTiles;
     FinampSetters.setContentGridViewCrossAxisCountPortrait(DefaultSettings.contentGridViewCrossAxisCountPortrait);
@@ -136,6 +137,7 @@ class FinampSettingsHelper {
     finampSettingsTemp.allowSplitScreen = DefaultSettings.allowSplitScreen;
     finampSettingsTemp.showProgressOnNowPlayingBar = DefaultSettings.showProgressOnNowPlayingBar;
     finampSettingsTemp.autoSwitchItemCurationType = DefaultSettings.autoSwitchItemCurationType;
+    finampSettingsTemp.useMonochromeIcon = DefaultSettings.useMonochromeIcon;
 
     Hive.box<FinampSettings>("FinampSettings").put("FinampSettings", finampSettingsTemp);
   }
@@ -181,6 +183,9 @@ class FinampSettingsHelper {
     FinampSetters.setAutoloadLastQueueOnStartup(DefaultSettings.autoLoadLastQueueOnStartup);
     FinampSetters.setAutoReloadQueue(DefaultSettings.autoReloadQueue);
     FinampSetters.setClearQueueOnStopEvent(DefaultSettings.clearQueueOnStopEvent);
+    FinampSetters.setAutoplayRestoredQueue(DefaultSettings.autoplayRestoredQueue);
+    FinampSetters.setDuckOnAudioInterruption(DefaultSettings.duckOnAudioInterruption);
+    FinampSetters.setForceAudioOffloadingOnAndroid(DefaultSettings.forceAudioOffloadingOnAndroid);
   }
 
   static void resetPlaybackReportingSettings() {
@@ -220,6 +225,9 @@ class FinampSettingsHelper {
     FinampSetters.setShowFastScroller(DefaultSettings.showFastScroller);
     FinampSetters.setKeepScreenOnOption(DefaultSettings.keepScreenOnOption);
     FinampSetters.setKeepScreenOnWhilePluggedIn(DefaultSettings.keepScreenOnWhilePluggedIn);
+    FinampSetters.setPreferAddingToFavoritesOverPlaylists(DefaultSettings.preferAddingToFavoritesOverPlaylists);
+    FinampSetters.setPreferNextUpPrepending(DefaultSettings.preferNextUpPrepending);
+    FinampSetters.setRememberLastUsedPlaybackActionRowPage(DefaultSettings.rememberLastUsedPlaybackActionRowPage);
 
     Hive.box<FinampSettings>("FinampSettings").put("FinampSettings", finampSettingsTemp);
   }
@@ -239,6 +247,10 @@ class FinampSettingsHelper {
     FinampSetters.setEnableVibration(DefaultSettings.enableVibration);
   }
 
+  static void resetLocale() {
+    FinampSetters.setLocale(DefaultSettings.locale);
+  }
+
   static void resetAllSettings() {
     resetTranscodingSettings();
     resetDownloadSettings();
@@ -255,13 +267,12 @@ class FinampSettingsHelper {
     resetGenreSettings();
     resetTabsSettings();
     resetNetworkSettings();
-
-    LocaleHelper.setLocale(null); // Reset to System Language
+    resetLocale();
   }
 
   static IconButton makeSettingsResetButtonWithDialog(
     BuildContext context,
-    Function() resetFunction, {
+    void Function() resetFunction, {
     bool isGlobal = false,
   }) {
     // TODO: Replace the following Strings with localization
@@ -276,9 +287,7 @@ class FinampSettingsHelper {
             confirmButtonText: isGlobal
                 ? AppLocalizations.of(context)!.resetSettingsPromptGlobalConfirm
                 : AppLocalizations.of(context)!.reset,
-            abortButtonText: AppLocalizations.of(context)!.genericCancel,
             onConfirmed: resetFunction,
-            onAborted: () {},
           ),
         );
       },

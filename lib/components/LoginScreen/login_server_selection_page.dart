@@ -1,9 +1,9 @@
 import 'package:finamp/components/Buttons/simple_button.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:finamp/l10n/app_localizations.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
@@ -75,10 +75,7 @@ class _LoginServerSelectionPageState extends State<LoginServerSelectionPage> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 32.0, bottom: 20.0),
-                child: Hero(
-                  tag: "finamp_logo",
-                  child: SvgPicture.asset('images/finamp_cropped.svg', width: 75, height: 75),
-                ),
+                child: Hero(tag: "finamp_logo", child: FinampIcon(75, 75)),
               ),
               Text(
                 AppLocalizations.of(context)!.loginFlowServerSelectionHeading,
@@ -154,6 +151,7 @@ class _LoginServerSelectionPageState extends State<LoginServerSelectionPage> {
                       final serverUrl = entry.key;
                       final serverInfo = entry.value;
                       return Padding(
+                        key: ValueKey(serverUrl),
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: JellyfinServerSelectionWidget(
                           baseUrl: null,

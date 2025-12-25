@@ -1,24 +1,23 @@
 import 'dart:io';
 
+import 'package:finamp/components/AlbumScreen/downloaded_indicator.dart';
+import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/favorite_button.dart';
 import 'package:finamp/components/print_duration.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/current_album_image_provider.dart';
 import 'package:finamp/services/datetime_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/generate_subtitle.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:finamp/services/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../models/finamp_models.dart';
-import '../../models/jellyfin_models.dart';
-import '../../services/generate_subtitle.dart';
-import '../../services/jellyfin_api_helper.dart';
-import '../AlbumScreen/downloaded_indicator.dart';
-import '../album_image.dart';
 
 /// ListTile content for CollectionItem. You probably shouldn't use this widget
 /// directly, use CollectionItem instead.
@@ -103,7 +102,7 @@ class ItemCollectionListTile extends ConsumerWidget {
 
     TabContentType? associatedTabContentType;
     try {
-      associatedTabContentType = TabContentType.fromItemType(itemType.idString ?? "");
+      associatedTabContentType = TabContentType.fromItemType(itemType.jellyfinName ?? "");
     } on FormatException {
       associatedTabContentType = null;
     }
@@ -161,7 +160,8 @@ class ItemCollectionListTile extends ConsumerWidget {
         (subtitle != null ||
         (itemType == BaseItemDtoType.album && albumShowsYearAndDurationInstead) ||
         (additionalInfo != null) ||
-        downloadedIndicator.isVisible(ref));
+        downloadedIndicator.isVisible(ref) ||
+        item.isExplicit);
     final subtitleText = Text.rich(
       TextSpan(
         children: [
@@ -173,10 +173,20 @@ class ItemCollectionListTile extends ConsumerWidget {
             alignment: PlaceholderAlignment.baseline,
             baseline: TextBaseline.alphabetic,
           ),
+          if (item.isExplicit)
+            WidgetSpan(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 2.0),
+                child: Transform.translate(
+                  offset: isOnDesktop ? Offset(-1.5, 3.3) : Offset(-1.5, 1.7),
+                  child: Icon(TablerIcons.explicit, size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 3),
+                ),
+              ),
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+            ),
           if (downloadedIndicator.isVisible(ref))
             WidgetSpan(child: SizedBox(width: (additionalInfo != null) ? 5.0 : 2.0)),
-          if (downloadedIndicator.isVisible(ref) && additionalInfoIcon != null)
-            WidgetSpan(child: SizedBox(width: 2.25)),
           if (additionalInfo != null) ...[
             if (additionalInfoIcon != null) additionalInfoIcon,
             additionalInfo,
@@ -206,7 +216,6 @@ class ItemCollectionListTile extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 6.0, right: 6.0),
           child: ListTile(
             textColor: Theme.of(context).textTheme.bodyLarge?.color,
-            tileColor: Theme.of(context).colorScheme.surfaceContainer,
             contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: !showSubtitle ? 8.0 : 0.0),
             onTap: onTap,
             leading: AlbumImage(item: item),

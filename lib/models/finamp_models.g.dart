@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: deprecated_member_use_from_same_package
+// ignore_for_file: deprecated_member_use_from_same_package, strict_raw_type
 
 // dart format off
 
@@ -106,7 +106,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             ? true
             : fields[29] as bool,
         volumeNormalizationIOSBaseGain: fields[30] == null
-            ? -2.0
+            ? 6.0
             : (fields[30] as num).toDouble(),
         volumeNormalizationMode: fields[33] == null
             ? VolumeNormalizationMode.hybrid
@@ -123,7 +123,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         contentGridViewCrossAxisCountLandscape: fields[12] == null
             ? 3
             : (fields[12] as num).toInt(),
-        showTextOnGridView: fields[13] == null ? true : fields[13] as bool,
+        showTextOnGridView: fields[13] == null ? false : fields[13] as bool,
         downloadLocationsMap: fields[15] == null
             ? {}
             : (fields[15] as Map).cast<String, DownloadLocation>(),
@@ -184,9 +184,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             ? true
             : fields[37] as bool,
         maxConcurrentDownloads: fields[38] == null
-            ? 10
+            ? 5
             : (fields[38] as num).toInt(),
-        downloadWorkers: fields[39] == null ? 5 : (fields[39] as num).toInt(),
+        downloadWorkers: fields[39] == null ? 1 : (fields[39] as num).toInt(),
         resyncOnStartup: fields[40] == null ? true : fields[40] as bool,
         preferQuickSyncs: fields[41] == null ? true : fields[41] as bool,
         hasCompletedIsarUserMigration: fields[42] == null
@@ -240,7 +240,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             ? true
             : fields[64] as bool,
         startInstantMixForIndividualTracks: fields[65] == null
-            ? true
+            ? false
             : fields[65] as bool,
         showLyricsTimestamps: fields[66] == null ? true : fields[66] as bool,
         lyricsAlignment: fields[67] == null
@@ -400,6 +400,50 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         rpcIcon: fields[124] == null
             ? DiscordRpcIcon.transparent
             : fields[124] as DiscordRpcIcon,
+        preferAddingToFavoritesOverPlaylists: fields[126] == null
+            ? false
+            : fields[126] as bool,
+        previousTracksExpaned: fields[127] == null
+            ? false
+            : fields[127] as bool,
+        autoplayRestoredQueue: fields[128] == null
+            ? false
+            : fields[128] as bool,
+        preferNextUpPrepending: fields[129] == null
+            ? true
+            : fields[129] as bool,
+        rememberLastUsedPlaybackActionRowPage: fields[130] == null
+            ? true
+            : fields[130] as bool,
+        lastUsedPlaybackActionRowPage: fields[131] == null
+            ? PlaybackActionRowPage.newQueue
+            : fields[131] as PlaybackActionRowPage,
+        lastUsedPlaybackActionRowPageForQueueMenu: fields[139] == null
+            ? PlaybackActionRowPage.moveWithinQueue
+            : fields[139] as PlaybackActionRowPage,
+        accentColor: fields[132] == null
+            ? DefaultSettings.accentColor
+            : fields[132] as Color?,
+        themeMode: fields[133] == null
+            ? ThemeMode.system
+            : fields[133] as ThemeMode,
+        locale: fields[134] == null
+            ? DefaultSettings.locale
+            : fields[134] as Locale?,
+        hasCompletedThemeModeLocaleMigration: fields[135] == null
+            ? false
+            : fields[135] as bool,
+        systemAccentColor: fields[136] == null
+            ? DefaultSettings.accentColor
+            : fields[136] as Color?,
+        useSystemAccentColor: fields[137] == null ? false : fields[137] as bool,
+        useMonochromeIcon: fields[138] == null ? false : fields[138] as bool,
+        duckOnAudioInterruption: fields[142] == null
+            ? true
+            : fields[142] as bool,
+        forceAudioOffloadingOnAndroid: fields[143] == null
+            ? false
+            : fields[143] as bool,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -408,13 +452,17 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..sleepTimer = fields[116] as SleepTimer?
       ..autoExpandPlayerScreen = fields[125] == null
           ? false
-          : fields[125] as bool;
+          : fields[125] as bool
+      ..radioEnabled = fields[140] == null ? false : fields[140] as bool
+      ..radioMode = fields[141] == null
+          ? RadioMode.similar
+          : fields[141] as RadioMode;
   }
 
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(119)
+      ..writeByte(137)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -652,7 +700,43 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(124)
       ..write(obj.rpcIcon)
       ..writeByte(125)
-      ..write(obj.autoExpandPlayerScreen);
+      ..write(obj.autoExpandPlayerScreen)
+      ..writeByte(126)
+      ..write(obj.preferAddingToFavoritesOverPlaylists)
+      ..writeByte(127)
+      ..write(obj.previousTracksExpaned)
+      ..writeByte(128)
+      ..write(obj.autoplayRestoredQueue)
+      ..writeByte(129)
+      ..write(obj.preferNextUpPrepending)
+      ..writeByte(130)
+      ..write(obj.rememberLastUsedPlaybackActionRowPage)
+      ..writeByte(131)
+      ..write(obj.lastUsedPlaybackActionRowPage)
+      ..writeByte(132)
+      ..write(obj.accentColor)
+      ..writeByte(133)
+      ..write(obj.themeMode)
+      ..writeByte(134)
+      ..write(obj.locale)
+      ..writeByte(135)
+      ..write(obj.hasCompletedThemeModeLocaleMigration)
+      ..writeByte(136)
+      ..write(obj.systemAccentColor)
+      ..writeByte(137)
+      ..write(obj.useSystemAccentColor)
+      ..writeByte(138)
+      ..write(obj.useMonochromeIcon)
+      ..writeByte(139)
+      ..write(obj.lastUsedPlaybackActionRowPageForQueueMenu)
+      ..writeByte(140)
+      ..write(obj.radioEnabled)
+      ..writeByte(141)
+      ..write(obj.radioMode)
+      ..writeByte(142)
+      ..write(obj.duckOnAudioInterruption)
+      ..writeByte(143)
+      ..write(obj.forceAudioOffloadingOnAndroid);
   }
 
   @override
@@ -930,7 +1014,6 @@ class QueueItemSourceAdapter extends TypeAdapter<QueueItemSource> {
       type: fields[0] as QueueItemSourceType,
       name: fields[1] as QueueItemSourceName,
       id: fields[2] as BaseItemId,
-      item: fields[3] as BaseItemDto?,
       contextNormalizationGain: (fields[4] as num?)?.toDouble(),
     );
   }
@@ -938,15 +1021,13 @@ class QueueItemSourceAdapter extends TypeAdapter<QueueItemSource> {
   @override
   void write(BinaryWriter writer, QueueItemSource obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.type)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
       ..write(obj.id)
-      ..writeByte(3)
-      ..write(obj.item)
       ..writeByte(4)
       ..write(obj.contextNormalizationGain);
   }
@@ -1061,13 +1142,14 @@ class FinampQueueOrderAdapter extends TypeAdapter<FinampQueueOrder> {
       originalSource: fields[1] as QueueItemSource,
       linearOrder: (fields[2] as List).cast<int>(),
       shuffledOrder: (fields[3] as List).cast<int>(),
+      sourceLibrary: fields[5] as BaseItemDto?,
     )..id = fields[4] as String;
   }
 
   @override
   void write(BinaryWriter writer, FinampQueueOrder obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.items)
       ..writeByte(1)
@@ -1077,7 +1159,9 @@ class FinampQueueOrderAdapter extends TypeAdapter<FinampQueueOrder> {
       ..writeByte(3)
       ..write(obj.shuffledOrder)
       ..writeByte(4)
-      ..write(obj.id);
+      ..write(obj.id)
+      ..writeByte(5)
+      ..write(obj.sourceLibrary);
   }
 
   @override
@@ -1109,13 +1193,14 @@ class FinampQueueInfoAdapter extends TypeAdapter<FinampQueueInfo> {
       queue: (fields[3] as List).cast<FinampQueueItem>(),
       source: fields[4] as QueueItemSource,
       saveState: fields[5] as SavedQueueState,
+      sourceLibrary: fields[7] as BaseItemDto?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FinampQueueInfo obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.previousTracks)
       ..writeByte(1)
@@ -1129,7 +1214,9 @@ class FinampQueueInfoAdapter extends TypeAdapter<FinampQueueInfo> {
       ..writeByte(5)
       ..write(obj.saveState)
       ..writeByte(6)
-      ..write(obj.id);
+      ..write(obj.id)
+      ..writeByte(7)
+      ..write(obj.sourceLibrary);
   }
 
   @override
@@ -1179,62 +1266,6 @@ class FinampHistoryItemAdapter extends TypeAdapter<FinampHistoryItem> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FinampHistoryItemAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class FinampStorableQueueInfoAdapter
-    extends TypeAdapter<FinampStorableQueueInfo> {
-  @override
-  final typeId = 61;
-
-  @override
-  FinampStorableQueueInfo read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return FinampStorableQueueInfo(
-      previousTracks: (fields[0] as List).cast<BaseItemId>(),
-      currentTrack: fields[1] as BaseItemId?,
-      currentTrackSeek: (fields[2] as num?)?.toInt(),
-      nextUp: (fields[3] as List).cast<BaseItemId>(),
-      queue: (fields[4] as List).cast<BaseItemId>(),
-      creation: (fields[5] as num).toInt(),
-      source: fields[6] as QueueItemSource?,
-      order: fields[7] as FinampPlaybackOrder?,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, FinampStorableQueueInfo obj) {
-    writer
-      ..writeByte(8)
-      ..writeByte(0)
-      ..write(obj.previousTracks)
-      ..writeByte(1)
-      ..write(obj.currentTrack)
-      ..writeByte(2)
-      ..write(obj.currentTrackSeek)
-      ..writeByte(3)
-      ..write(obj.nextUp)
-      ..writeByte(4)
-      ..write(obj.queue)
-      ..writeByte(5)
-      ..write(obj.creation)
-      ..writeByte(6)
-      ..write(obj.source)
-      ..writeByte(7)
-      ..write(obj.order);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FinampStorableQueueInfoAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -1430,6 +1461,105 @@ class SleepTimerAdapter extends TypeAdapter<SleepTimer> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SleepTimerAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class RawThemeResultAdapter extends TypeAdapter<RawThemeResult> {
+  @override
+  final typeId = 108;
+
+  @override
+  RawThemeResult read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return RawThemeResult(
+      (fields[0] as num).toInt(),
+      (fields[1] as num).toInt(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, RawThemeResult obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj._highlightInt)
+      ..writeByte(1)
+      ..write(obj._backgroundInt);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RawThemeResultAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FinampStorableQueueInfoAdapter
+    extends TypeAdapter<FinampStorableQueueInfo> {
+  @override
+  final typeId = 110;
+
+  @override
+  FinampStorableQueueInfo read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return FinampStorableQueueInfo(
+      currentTrackSeek: (fields[2] as num?)?.toInt(),
+      creation: (fields[5] as num).toInt(),
+      sourceList: (fields[6] as List).cast<QueueItemSource>(),
+      packedPreviousTracks: fields[0] as Uint8List,
+      packedCurrentTrack: fields[1] as Uint8List,
+      packedNextUp: fields[3] as Uint8List,
+      packedQueue: fields[4] as Uint8List,
+      sourceIndex: (fields[7] as num).toInt(),
+      trackSourceIndexes: fields[8] as Uint8List,
+      packedShuffleOrder: fields[9] as Uint8List?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, FinampStorableQueueInfo obj) {
+    writer
+      ..writeByte(10)
+      ..writeByte(0)
+      ..write(obj.packedPreviousTracks)
+      ..writeByte(1)
+      ..write(obj.packedCurrentTrack)
+      ..writeByte(2)
+      ..write(obj.currentTrackSeek)
+      ..writeByte(3)
+      ..write(obj.packedNextUp)
+      ..writeByte(4)
+      ..write(obj.packedQueue)
+      ..writeByte(5)
+      ..write(obj.creation)
+      ..writeByte(6)
+      ..write(obj.sourceList)
+      ..writeByte(7)
+      ..write(obj.sourceIndex)
+      ..writeByte(8)
+      ..write(obj.trackSourceIndexes)
+      ..writeByte(9)
+      ..write(obj.packedShuffleOrder);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FinampStorableQueueInfoAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -1649,6 +1779,8 @@ class QueueItemSourceTypeAdapter extends TypeAdapter<QueueItemSourceType> {
         return QueueItemSourceType.track;
       case 21:
         return QueueItemSourceType.remoteClient;
+      case 22:
+        return QueueItemSourceType.radio;
       default:
         return QueueItemSourceType.album;
     }
@@ -1701,6 +1833,8 @@ class QueueItemSourceTypeAdapter extends TypeAdapter<QueueItemSourceType> {
         writer.writeByte(20);
       case QueueItemSourceType.remoteClient:
         writer.writeByte(21);
+      case QueueItemSourceType.radio:
+        writer.writeByte(22);
     }
   }
 
@@ -1788,6 +1922,8 @@ class QueueItemSourceNameTypeAdapter
         return QueueItemSourceNameType.queue;
       case 9:
         return QueueItemSourceNameType.remoteClient;
+      case 10:
+        return QueueItemSourceNameType.radio;
       default:
         return QueueItemSourceNameType.preTranslated;
     }
@@ -1816,6 +1952,8 @@ class QueueItemSourceNameTypeAdapter
         writer.writeByte(8);
       case QueueItemSourceNameType.remoteClient:
         writer.writeByte(9);
+      case QueueItemSourceNameType.radio:
+        writer.writeByte(10);
     }
   }
 
@@ -2363,6 +2501,8 @@ class FinampFeatureChipTypeAdapter extends TypeAdapter<FinampFeatureChipType> {
         return FinampFeatureChipType.normalizationGain;
       case 8:
         return FinampFeatureChipType.sampleRate;
+      case 9:
+        return FinampFeatureChipType.explicit;
       default:
         return FinampFeatureChipType.playCount;
     }
@@ -2389,6 +2529,8 @@ class FinampFeatureChipTypeAdapter extends TypeAdapter<FinampFeatureChipType> {
         writer.writeByte(7);
       case FinampFeatureChipType.sampleRate:
         writer.writeByte(8);
+      case FinampFeatureChipType.explicit:
+        writer.writeByte(9);
     }
   }
 
@@ -2855,6 +2997,108 @@ class DiscordRpcIconAdapter extends TypeAdapter<DiscordRpcIcon> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DiscordRpcIconAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class PlaybackActionRowPageAdapter extends TypeAdapter<PlaybackActionRowPage> {
+  @override
+  final typeId = 107;
+
+  @override
+  PlaybackActionRowPage read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return PlaybackActionRowPage.newQueue;
+      case 1:
+        return PlaybackActionRowPage.playNext;
+      case 2:
+        return PlaybackActionRowPage.appendNext;
+      case 3:
+        return PlaybackActionRowPage.playLast;
+      case 4:
+        return PlaybackActionRowPage.moveWithinQueue;
+      case 5:
+        return PlaybackActionRowPage.regularTrackOptions;
+      default:
+        return PlaybackActionRowPage.newQueue;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, PlaybackActionRowPage obj) {
+    switch (obj) {
+      case PlaybackActionRowPage.newQueue:
+        writer.writeByte(0);
+      case PlaybackActionRowPage.playNext:
+        writer.writeByte(1);
+      case PlaybackActionRowPage.appendNext:
+        writer.writeByte(2);
+      case PlaybackActionRowPage.playLast:
+        writer.writeByte(3);
+      case PlaybackActionRowPage.moveWithinQueue:
+        writer.writeByte(4);
+      case PlaybackActionRowPage.regularTrackOptions:
+        writer.writeByte(5);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlaybackActionRowPageAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class RadioModeAdapter extends TypeAdapter<RadioMode> {
+  @override
+  final typeId = 109;
+
+  @override
+  RadioMode read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return RadioMode.similar;
+      case 1:
+        return RadioMode.continuous;
+      case 2:
+        return RadioMode.albumMix;
+      case 3:
+        return RadioMode.reshuffle;
+      case 4:
+        return RadioMode.random;
+      default:
+        return RadioMode.similar;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, RadioMode obj) {
+    switch (obj) {
+      case RadioMode.similar:
+        writer.writeByte(0);
+      case RadioMode.continuous:
+        writer.writeByte(1);
+      case RadioMode.albumMix:
+        writer.writeByte(2);
+      case RadioMode.reshuffle:
+        writer.writeByte(3);
+      case RadioMode.random:
+        writer.writeByte(4);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RadioModeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -8676,6 +8920,7 @@ const _$FinampFeatureChipTypeEnumMap = {
   FinampFeatureChipType.size: 'size',
   FinampFeatureChipType.normalizationGain: 'normalizationGain',
   FinampFeatureChipType.sampleRate: 'sampleRate',
+  FinampFeatureChipType.explicit: 'explicit',
 };
 
 FinampOutputRoute _$FinampOutputRouteFromJson(Map<String, dynamic> json) =>

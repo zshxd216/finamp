@@ -159,6 +159,37 @@ final class _$JellyfinApi extends JellyfinApi {
   }
 
   @override
+  Future<Response<dynamic>> setItemPrimaryImage({
+    String contentType = "image/jpeg",
+    required BaseItemId itemId,
+    required String base64Image,
+  }) {
+    final Uri $url = Uri.parse('/Items/${itemId}/Images/Primary');
+    final Map<String, String> $headers = {'Content-Type': contentType};
+    final $body = base64Image;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+      headers: $headers,
+    );
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
+  Future<dynamic> getUser() async {
+    final Uri $url = Uri.parse('/Users/Me');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
   Future<dynamic> getViews(String id) async {
     final Uri $url = Uri.parse('/Users/${id}/Views');
     final Request $request = Request('GET', $url, client.baseUrl);
@@ -298,11 +329,70 @@ final class _$JellyfinApi extends JellyfinApi {
   }
 
   @override
+  Future<dynamic> getSimilarAlbums({
+    required BaseItemId id,
+    String? userId,
+    List<String>? excludeArtistIds,
+    int? limit,
+    List<String>? fields,
+  }) async {
+    final Uri $url = Uri.parse('/Albums/${id}/Similar');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'userId': userId,
+      'excludeArtistIds': excludeArtistIds,
+      'limit': limit,
+      'fields': fields,
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
   Future<dynamic> getItemById({
     required String userId,
     required BaseItemId itemId,
   }) async {
     final Uri $url = Uri.parse('/Users/${userId}/Items/${itemId}');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
+  Future<dynamic> getPlaylistUser({
+    required String userId,
+    required BaseItemId playlistId,
+  }) async {
+    final Uri $url = Uri.parse('/Playlists/${playlistId}/Users/${userId}');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
+  Future<dynamic> getPlaylistUsers({
+    required String userId,
+    required BaseItemId playlistId,
+  }) async {
+    final Uri $url = Uri.parse('/Playlists/${playlistId}/Users');
     final Request $request = Request('GET', $url, client.baseUrl);
     final Response $response = await client.send<dynamic, dynamic>(
       $request,
@@ -325,6 +415,22 @@ final class _$JellyfinApi extends JellyfinApi {
       client.baseUrl,
       parameters: $params,
     );
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
+  Future<dynamic> submitPlaybackInfo({
+    required BaseItemId id,
+    required PlaybackInfoRequest playbackInfoRequest,
+  }) async {
+    final Uri $url = Uri.parse('/Items/${id}/PlaybackInfo');
+    final $body = playbackInfoRequest;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
     final Response $response = await client.send<dynamic, dynamic>(
       $request,
       requestConverter: JsonConverter.requestFactory,

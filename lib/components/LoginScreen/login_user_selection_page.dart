@@ -1,4 +1,5 @@
 import 'package:finamp/components/Buttons/simple_button.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/feedback_helper.dart';
@@ -73,10 +74,7 @@ class _LoginUserSelectionPageState extends State<LoginUserSelectionPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 32.0, bottom: 20.0),
-                child: SvgPicture.asset('images/finamp_cropped.svg', width: 75, height: 75),
-              ),
+              Padding(padding: const EdgeInsets.only(top: 32.0, bottom: 20.0), child: FinampIcon(75, 75)),
               Text(
                 AppLocalizations.of(context)!.loginFlowAccountSelectionHeading,
                 style: Theme.of(context).textTheme.headlineMedium,
@@ -269,7 +267,7 @@ class JellyfinUserWidget extends StatelessWidget {
         } else {
           return Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+              color: Theme.brightnessOf(context) == Brightness.dark ? Colors.white : Colors.black,
             ),
             child: Image.asset('images/finamp.png', width: avatarSize, height: avatarSize),
           );
@@ -281,7 +279,7 @@ class JellyfinUserWidget extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(
               color: Theme.of(context).textTheme.bodyMedium!.color!,
-              width: Theme.of(context).brightness == Brightness.dark ? 1 : 2,
+              width: Theme.brightnessOf(context) == Brightness.dark ? 1 : 2,
             ),
             borderRadius: BorderRadius.circular(16),
           ),

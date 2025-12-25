@@ -4,11 +4,11 @@ import 'package:finamp/menus/server_sharing_menu.dart';
 import 'package:finamp/screens/accessibility_settings_screen.dart';
 import 'package:finamp/screens/interaction_settings_screen.dart';
 import 'package:finamp/screens/network_settings_screen.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:locale_names/locale_names.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -16,7 +16,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../components/SettingsScreen/logout_list_tile.dart';
 import '../services/finamp_settings_helper.dart';
-import '../services/locale_helper.dart';
 import 'audio_service_settings_screen.dart';
 import 'downloads_settings_screen.dart';
 import 'language_selection_screen.dart';
@@ -67,10 +66,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   context: context,
                   applicationName: packageInfo.appName,
                   applicationVersion: packageInfo.version,
-                  applicationIcon: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SvgPicture.asset('images/finamp_cropped.svg', width: 56, height: 56),
-                  ),
+                  applicationIcon: Padding(padding: const EdgeInsets.only(top: 8.0), child: FinampIcon(56, 56)),
                   applicationLegalese: applicationLegalese,
                   children: [
                     const SizedBox(height: 20),
@@ -131,6 +127,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: [
           ListTile(
             leading: const Icon(Icons.compress),
@@ -189,7 +186,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(AppLocalizations.of(context)!.language),
-            subtitle: Text(LocaleHelper.locale?.nativeDisplayLanguage ?? AppLocalizations.of(context)!.system),
+            subtitle: Text(
+              ref.watch(finampSettingsProvider.locale)?.nativeDisplayLanguage ?? AppLocalizations.of(context)!.system,
+            ),
             onTap: () => Navigator.of(context).pushNamed(LanguageSelectionScreen.routeName),
           ),
           Divider(),

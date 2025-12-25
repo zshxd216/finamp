@@ -24,25 +24,29 @@ class PaddedCustomScrollview extends CustomScrollView {
     super.clipBehavior,
     super.hitTestBehavior,
     this.bottomPadding = 32.0,
+    this.applyHeaderPadding = false,
   });
 
   /// Additional bottom padding to add in addition to system element padding
   final double bottomPadding;
 
+  /// Whether header padding should be added.  This is false by default to allow for SliverAppBars.
+  final bool applyHeaderPadding;
+
   @override
   List<Widget> buildSlivers(BuildContext context) {
     final MediaQueryData? mediaQuery = MediaQuery.maybeOf(context);
     if (mediaQuery == null) {
-      return slivers;
+      return [...slivers, SliverPadding(padding: EdgeInsets.only(bottom: bottomPadding))];
     }
 
-    // Strip vertical MediaQuery padding because it is being added by this widget
+    // Strip bottom MediaQuery padding because it is being added by this widget.
     final MediaQueryData strippedMediaQuery = mediaQuery.copyWith(
-      padding: mediaQuery.padding.copyWith(top: 0.0, bottom: 0.0),
+      padding: mediaQuery.padding.copyWith(bottom: 0.0, top: applyHeaderPadding ? 0.0 : null),
     );
 
     return [
-      SliverPadding(padding: EdgeInsets.only(top: mediaQuery.padding.top)),
+      if (applyHeaderPadding) SliverPadding(padding: EdgeInsets.only(top: mediaQuery.padding.top)),
       ...slivers.map((x) => MediaQuery(data: strippedMediaQuery, child: x)),
       SliverPadding(padding: EdgeInsets.only(bottom: mediaQuery.padding.bottom + bottomPadding)),
     ];

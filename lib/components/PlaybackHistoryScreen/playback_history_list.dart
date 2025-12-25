@@ -31,11 +31,12 @@ class PlaybackHistoryList extends StatelessWidget {
                   final actualIndex = group.value.length - index - 1;
 
                   final historyItem = TrackListTile(
+                    key: ValueKey(group.value[actualIndex].item.id),
                     index: actualIndex,
                     item: group.value[actualIndex].item.baseItem!,
                     isShownInSearchOrHistory: true,
                     highlightCurrentTrack: groupIndex == 0 && index == 0, // only highlight first track
-                    playbackProgress: group.value[actualIndex].playPercentage
+                    playbackProgress: group.value[actualIndex].playPercentage,
                   );
 
                   return index == 0

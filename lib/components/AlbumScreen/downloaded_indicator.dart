@@ -15,14 +15,19 @@ class DownloadedIndicator extends ConsumerWidget {
 
   bool isVisible(WidgetRef ref) {
     final downloadsService = GetIt.instance<DownloadsService>();
-    final status = ref.watch(downloadsService.stateProvider(item));
-    return switch (status) {
-      AsyncData(:final value) => switch (value) {
-        null || DownloadItemState.notDownloaded => false,
-        _ => true,
-      },
-      _ => false,
-    };
+    return ref.watch(
+      downloadsService
+          .stateProvider(item)
+          .select(
+            (status) => switch (status) {
+              AsyncData(:final value) => switch (value) {
+                null || DownloadItemState.notDownloaded => false,
+                _ => true,
+              },
+              _ => false,
+            },
+          ),
+    );
   }
 
   @override
@@ -47,7 +52,7 @@ class DownloadedIndicator extends ConsumerWidget {
           return Icon(TablerIcons.download_off, color: Colors.red, size: size);
         case DownloadItemState.complete:
         case DownloadItemState.needsRedownloadComplete:
-          return Icon(TablerIcons.device_sd_card, color: Theme.of(context).textTheme.bodyMedium!.color, size: size);
+          return Icon(TablerIcons.device_sd_card, size: size);
       }
     } else if (status.hasError) {
       GlobalSnackbar.error(status.error);

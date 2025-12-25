@@ -107,7 +107,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
         // starting with Jellyfin 10.9, only automatically created playlists will have a specific library as parent. user-created playlists will not be returned anymore
         // this condition fixes this by not providing a parentId when fetching playlists
         parentItem: widget.tabContentType.itemType == BaseItemDtoType.playlist ? null : widget.view,
-        includeItemTypes: widget.tabContentType.itemType.idString,
+        includeItemTypes: widget.tabContentType.itemType.jellyfinName,
 
         // If we're on the tracks tab, sort by "Album,SortName". This is what the
         // Jellyfin web client does. If this isn't the case, sort by "SortName".
@@ -148,8 +148,9 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
         } else {
           _pagingController.appendPage(newItems, pageKey + newItems.length);
         }
-        if (letterToSearch != null) {
-          scrollToLetter(letterToSearch);
+        var localLetterToSearch = letterToSearch;
+        if (localLetterToSearch != null) {
+          scrollToLetter(localLetterToSearch);
         }
       }
     } catch (e) {
@@ -222,8 +223,9 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     if (localRefreshCount == refreshCount && mounted) {
       _pagingController.appendLastPage(items);
       fullyLoadedRefresh = localRefreshCount;
-      if (letterToSearch != null) {
-        scrollToLetter(letterToSearch);
+      var localLetterToSearch = letterToSearch;
+      if (localLetterToSearch != null) {
+        scrollToLetter(localLetterToSearch);
       }
     }
   }
@@ -235,7 +237,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     });
     controller = AutoScrollController(
       suggestedRowHeight: 72,
-      viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+      viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.paddingOf(context).bottom),
       axis: Axis.vertical,
     );
     _musicScreenRefreshStreamSubscription = musicScreenRefreshStream.stream.listen((_) {
@@ -261,12 +263,11 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
 
   // Scrolls the list to the first occurrence of the letter in the list
   // If clicked in the # element, it goes to the first or last one item, depending on sort order
-  void scrollToLetter(String? clickedLetter) async {
-    String? letter = clickedLetter ?? letterToSearch;
-    if (letter == null || letter.isEmpty) return;
+  void scrollToLetter(String letter) async {
+    if (letter.isEmpty) return;
 
     letterToSearch = letter;
-    var codePointToScrollTo = letterToSearch!.toLowerCase().codeUnitAt(0);
+    var codePointToScrollTo = letter.toLowerCase().codeUnitAt(0);
 
     // Max code point is lower case z to increase the chance of seeing a character
     // past the target but below the ignore point
@@ -277,9 +278,21 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     }
 
     //TODO use binary search to improve performance for already loaded pages
+    var itemList = _pagingController.itemList!;
+    SortBy? tabSortBy = FinampSettingsHelper.finampSettings.tabSortBy[widget.tabContentType];
     bool reversed = FinampSettingsHelper.finampSettings.tabSortOrder[widget.tabContentType] == SortOrder.descending;
-    for (var i = 0; i < _pagingController.itemList!.length; i++) {
-      int itemCodePoint = _pagingController.itemList![i].nameForSorting!.toLowerCase().codeUnitAt(0);
+    for (var i = 0; i < itemList.length; i++) {
+      String sortName;
+      switch (tabSortBy) {
+        case SortBy.albumArtist:
+          sortName = itemList[i].albumArtist ?? "";
+          break;
+        default:
+          sortName = itemList[i].nameForSorting ?? "";
+          break;
+      }
+      if (sortName.isEmpty) continue; // assume empty names are at the start
+      int itemCodePoint = sortName.toLowerCase().codeUnitAt(0);
       if (itemCodePoint <= maxCodePoint) {
         final comparisonResult = itemCodePoint - codePointToScrollTo;
         if (comparisonResult == 0) {
@@ -297,7 +310,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
           // scroll to the previous item instead
           timer?.cancel();
           await controller.scrollToIndex(
-            (i - 1).clamp(0, (_pagingController.itemList?.length ?? 1) - 1),
+            (i - 1).clamp(0, itemList.length - 1),
             // duration: scrollDuration,
             duration: _getAnimationDurationForOffsetToIndex(i),
             preferPosition: AutoScrollPosition.middle,
@@ -320,7 +333,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
 
       _pagingController.notifyPageRequestListeners(_pagingController.nextPageKey!);
     }
-    if (MediaQuery.of(context).disableAnimations) {
+    if (MediaQuery.disableAnimationsOf(context)) {
       controller.jumpTo(controller.position.maxScrollExtent);
     } else {
       await controller.animateTo(
@@ -437,34 +450,43 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                 // built-in icon padding
                 return Padding(
                   padding: EdgeInsets.only(right: max(0, MediaQuery.paddingOf(context).right - 20)),
-                  child: AutoScrollTag(
-                    key: ValueKey(index),
-                    controller: controller,
-                    index: index,
-                    child: widget.tabContentType == TabContentType.tracks
-                        ? TrackListTile(
-                            key: ValueKey(item.id),
-                            item: item,
-                            isTrack: true,
-                            index: index,
-                            isShownInSearchOrHistory: widget.searchTerm != null,
-                            // when the tabBar was filtered and we only have the tracks tab,
-                            // we can allow Dismiss gestures in the track list
-                            allowDismiss: widget.tabBarFiltered,
-                            genreFilter: widget.genreFilter,
-                            isOnGenreScreen: (widget.genreFilter != null) ? true : false,
-                            parentItem: widget.genreFilter,
-                            forceAlbumArtists: (sortBy == SortBy.albumArtist),
-                            adaptiveAdditionalInfoSortBy: sortBy,
-                          )
-                        : ItemCollectionWrapper(
-                            key: ValueKey(item.id),
-                            item: item,
-                            isPlaylist: widget.tabContentType == TabContentType.playlists,
-                            genreFilter: widget.genreFilter,
-                            adaptiveAdditionalInfoSortBy: sortBy,
-                            showFavoriteIconOnlyWhenFilterDisabled: true,
-                          ),
+                  child: CachedBuilder(
+                    key: ValueKey(item.id),
+                    cacheKey: (item.id, index),
+                    builder: (context) {
+                      return AutoScrollTag(
+                        key: ValueKey(index),
+                        controller: controller,
+                        index: index,
+                        child: widget.tabContentType == TabContentType.tracks
+                            ? TrackListTile(
+                                item: item,
+                                isTrack: true,
+                                index: index,
+                                isShownInSearchOrHistory: widget.searchTerm != null,
+                                // when the tabBar was filtered and we only have the tracks tab,
+                                // we can allow Dismiss gestures in the track list
+                                allowDismiss: widget.tabBarFiltered,
+                                genreFilter: widget.genreFilter,
+                                isOnGenreScreen: (widget.genreFilter != null) ? true : false,
+                                parentItem: widget.genreFilter,
+                                forceAlbumArtists: (sortBy == SortBy.albumArtist),
+                                adaptiveAdditionalInfoSortBy: sortBy,
+                                // since we can't re-create the current random sorting, we simply pass the pre-sorted tracks along
+                                // only done in offline mode since online mode doesn't support playing the tab contents in order anyway
+                                children: FinampSettingsHelper.finampSettings.isOffline && sortBy == SortBy.random
+                                    ? _pagingController.itemList
+                                    : null,
+                              )
+                            : ItemCollectionWrapper(
+                                item: item,
+                                isPlaylist: widget.tabContentType == TabContentType.playlists,
+                                genreFilter: widget.genreFilter,
+                                adaptiveAdditionalInfoSortBy: sortBy,
+                                showFavoriteIconOnlyWhenFilterDisabled: true,
+                              ),
+                      );
+                    },
                   ),
                 );
               },
@@ -481,17 +503,22 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
             physics: _DeferredLoadingAlwaysScrollableScrollPhysics(tabState: this),
             builderDelegate: PagedChildBuilderDelegate<BaseItemDto>(
               itemBuilder: (context, item, index) {
-                return AutoScrollTag(
-                  key: ValueKey(index),
-                  controller: controller,
-                  index: index,
-                  child: ItemCollectionWrapper(
-                    key: ValueKey(item.id),
-                    item: item,
-                    isPlaylist: widget.tabContentType == TabContentType.playlists,
-                    isGrid: true,
-                    genreFilter: widget.genreFilter,
-                  ),
+                return CachedBuilder(
+                  key: ValueKey(item.id),
+                  cacheKey: (item.id, index),
+                  builder: (context) {
+                    return AutoScrollTag(
+                      key: ValueKey(index),
+                      controller: controller,
+                      index: index,
+                      child: ItemCollectionWrapper(
+                        item: item,
+                        isPlaylist: widget.tabContentType == TabContentType.playlists,
+                        isGrid: true,
+                        genreFilter: widget.genreFilter,
+                      ),
+                    );
+                  },
                 );
               },
               firstPageProgressIndicatorBuilder: (_) => const FirstPageProgressIndicator(),
@@ -503,19 +530,21 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                     gridTileSize: FinampSettingsHelper.finampSettings.fixedGridTileSize.toDouble(),
                   )
                 : SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: MediaQuery.of(context).size.width > MediaQuery.of(context).size.height
+                    crossAxisCount: MediaQuery.orientationOf(context) == Orientation.landscape
                         ? FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountLandscape
                         : FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountPortrait,
                   ),
           );
 
+    var showFastScroller = ref.watch(finampSettingsProvider.showFastScroller);
+    var tabSortBy = ref.watch(finampSettingsProvider.tabSortBy(widget.tabContentType));
     return RefreshIndicator(
       onRefresh: () async => _refresh(),
       child:
-          ref.watch(finampSettingsProvider.showFastScroller) &&
+          showFastScroller &&
               (widget.sortByOverride == SortBy.sortName ||
-                  (widget.sortByOverride == null &&
-                      ref.watch(finampSettingsProvider.tabSortBy(widget.tabContentType)) == SortBy.sortName))
+                  widget.sortByOverride == SortBy.albumArtist ||
+                  widget.sortByOverride == null && (tabSortBy == SortBy.sortName || tabSortBy == SortBy.albumArtist))
           ? AlphabetList(
               callback: scrollToLetter,
               scrollController: controller,
@@ -671,6 +700,60 @@ List<BaseItemDto> sortItems(List<BaseItemDto> itemsToSort, SortBy? sortBy, SortO
   return sortOrder == SortOrder.descending ? itemsToSort.reversed.toList() : itemsToSort;
 }
 
+// This function helps to sort artist tracks in order they appear in the album list
+// There are scenarios where cached provider-data might return a shuffled resultset, I guess,
+// so this function should definitely sort all artist tracks always the same
+List<BaseItemDto> sortArtistTracks(List<BaseItemDto> items) {
+  int _compareNullable<T extends Comparable>(T? a, T? b, {bool nullsFirst = false}) {
+    if (a == null && b == null) return 0;
+    if (a == null) return nullsFirst ? -1 : 1;
+    if (b == null) return nullsFirst ? 1 : -1;
+    return a.compareTo(b);
+  }
+
+  int _compareAlbum(String? a, String? b) {
+    if (a == null && b == null) return 0;
+    if (a == null) return 1;
+    if (b == null) return -1;
+
+    final numRegex = RegExp(r'^(\d+)');
+    final matchA = numRegex.firstMatch(a);
+    final matchB = numRegex.firstMatch(b);
+
+    if (matchA != null && matchB != null) {
+      final numA = int.tryParse(matchA.group(1)!);
+      final numB = int.tryParse(matchB.group(1)!);
+      if (numA != null && numB != null) {
+        final cmp = numA.compareTo(numB);
+        if (cmp != 0) return cmp;
+      }
+    }
+    // fallback to normal string comparison
+    return a.compareTo(b);
+  }
+
+  items.sort((a, b) {
+    // 1. PremiereDate
+    final dateA = a.premiereDate == null ? null : DateTime.tryParse(a.premiereDate!.trim());
+    final dateB = b.premiereDate == null ? null : DateTime.tryParse(b.premiereDate!.trim());
+    final dateCompare = _compareNullable<DateTime>(dateA, dateB, nullsFirst: true);
+    if (dateCompare != 0) return dateCompare;
+    // 2. Album (numbers first)
+    final albumCompare = _compareAlbum(a.album, b.album);
+    if (albumCompare != 0) return albumCompare;
+    // 3. ParentIndexNumber
+    final parentIndexCompare = _compareNullable<int>(a.parentIndexNumber, b.parentIndexNumber);
+    if (parentIndexCompare != 0) return parentIndexCompare;
+    // 4. IndexNumber
+    final indexCompare = _compareNullable<int>(a.indexNumber, b.indexNumber);
+    if (indexCompare != 0) return indexCompare;
+    // 5. SortName
+    return _compareNullable<String>(a.sortName, b.sortName);
+  });
+
+  return items;
+}
+
 List<BaseItemDto> filterItemsByGenreName(List<BaseItemDto> items, BaseItemDto genreFilter) {
   if (genreFilter.name == null) return [];
 
@@ -680,4 +763,32 @@ List<BaseItemDto> filterItemsByGenreName(List<BaseItemDto> items, BaseItemDto ge
 
     return assignedGenres.any((genre) => genre.name == genreFilter.name);
   }).toList();
+}
+
+class CachedBuilder<T> extends StatefulWidget {
+  const CachedBuilder({required this.builder, required this.cacheKey, super.key});
+
+  final Widget Function(BuildContext context) builder;
+  final T cacheKey;
+
+  @override
+  State<CachedBuilder<T>> createState() => _CachedBuilderState<T>();
+}
+
+class _CachedBuilderState<T> extends State<CachedBuilder<T>> {
+  Widget? child;
+
+  @override
+  void didUpdateWidget(covariant CachedBuilder<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.cacheKey != oldWidget.cacheKey) {
+      child = null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    child ??= widget.builder(context);
+    return child!;
+  }
 }

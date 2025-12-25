@@ -3,13 +3,22 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:balanced_text/balanced_text.dart';
-import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
-import 'package:finamp/menus/output_menu.dart';
+import 'package:finamp/components/PlayerScreen/control_area.dart';
+import 'package:finamp/components/PlayerScreen/player_screen_album_image.dart';
 import 'package:finamp/components/PlayerScreen/player_screen_appbar_title.dart';
+import 'package:finamp/components/PlayerScreen/player_split_screen_scaffold.dart';
+import 'package:finamp/components/PlayerScreen/queue_button.dart';
+import 'package:finamp/components/PlayerScreen/queue_list.dart';
+import 'package:finamp/components/PlayerScreen/track_name_content.dart';
+import 'package:finamp/components/finamp_app_bar_button.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/menus/output_menu.dart';
+import 'package:finamp/menus/playlist_actions_menu.dart';
+import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/screens/blurred_player_screen_background.dart';
 import 'package:finamp/screens/lyrics_screen.dart';
 import 'package:finamp/services/current_track_metadata_provider.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
@@ -23,24 +32,14 @@ import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
-import '../menus/playlist_actions_menu.dart';
-import '../components/PlayerScreen/control_area.dart';
-import '../components/PlayerScreen/player_screen_album_image.dart';
-import '../components/PlayerScreen/player_split_screen_scaffold.dart';
-import '../components/PlayerScreen/queue_button.dart';
-import '../components/PlayerScreen/queue_list.dart';
-import '../components/PlayerScreen/track_name_content.dart';
-import '../components/finamp_app_bar_button.dart';
-import 'blurred_player_screen_background.dart';
 import 'package:finamp/services/animated_music_service.dart';
+import 'package:finamp/services/downloads_service.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:finamp/services/downloads_service.dart';
 
 const double _defaultToolbarHeight = 53.0;
 const int _defaultMaxToolbarLines = 2;
 
-// Provider to track if animated video background is playing
 final _videoBackgroundProvider = StateProvider<bool>((ref) => false);
 
 class PlayerScreen extends ConsumerWidget {
@@ -49,7 +48,7 @@ class PlayerScreen extends ConsumerWidget {
   static const routeName = "/nowplaying";
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final queueService = GetIt.instance<QueueService>();
 
     // close the player screen if the queue is empty
@@ -91,17 +90,17 @@ class PlayerScreen extends ConsumerWidget {
     );
   }
 
-  Widget buildLoadingScreen(BuildContext context, Function()? retryCallback) {
-    double imageSize = min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height) / 2;
+  Widget buildLoadingScreen(BuildContext context, void Function()? retryCallback) {
+    double imageSize = min(MediaQuery.widthOf(context), MediaQuery.heightOf(context)) / 2;
 
     return SimpleGestureDetector(
       onTap: retryCallback,
       child: Scaffold(
         backgroundColor: Color.alphaBlend(
-          Theme.of(context).brightness == Brightness.dark
+          Theme.brightnessOf(context) == Brightness.dark
               ? IconTheme.of(context).color!.withOpacity(0.35)
               : IconTheme.of(context).color!.withOpacity(0.5),
-          Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
+          Theme.brightnessOf(context) == Brightness.dark ? Colors.black : Colors.white,
         ),
         // Required for sleep timer input
         resizeToAvoidBottomInset: false,
@@ -203,7 +202,7 @@ class _PlayerScreenContent extends ConsumerWidget {
               // this is needed to ensure the player screen stays in full screen mode WITHOUT having contrast issues in the status bar
               systemNavigationBarColor: Colors.transparent,
               systemStatusBarContrastEnforced: false,
-              statusBarIconBrightness: Theme.of(context).brightness == Brightness.dark
+              statusBarIconBrightness: Theme.brightnessOf(context) == Brightness.dark
                   ? Brightness.light
                   : Brightness.dark,
             ),
@@ -313,7 +312,7 @@ class _PlayerScreenContent extends ConsumerWidget {
   }
 
   // This causes the source widget to blink if it does not have a key set.
-  PageRouteBuilder _buildSlideRouteTransition(
+  PageRouteBuilder<SlideTransition> _buildSlideRouteTransition(
     Widget sourceWidget,
     Widget targetWidget, {
     RouteSettings? routeSettings,
@@ -322,7 +321,7 @@ class _PlayerScreenContent extends ConsumerWidget {
       settings: routeSettings,
       pageBuilder: (context, animation, secondaryAnimation) => targetWidget,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        if (MediaQuery.of(context).disableAnimations) {
+        if (MediaQuery.disableAnimationsOf(context)) {
           return child;
         }
         const curve = Curves.ease;
@@ -597,7 +596,7 @@ enum PlayerHideable {
   bigPlayButton(14, 14, 1),
   bottomActions(0, 27, 2),
   progressSlider(0, 20, 4),
-  twoLineTitle(0, 27, 3),
+  twoLineTitle(0, 48, 3),
   features(0, 20, 3),
   loopShuffleButtons(96, 0, 0),
   unhideableElements(144, 165, 0),

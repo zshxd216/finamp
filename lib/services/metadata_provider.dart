@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -20,7 +22,8 @@ class MetadataProvider {
   static const speedControlLongTrackDuration = Duration(minutes: 15);
   static const speedControlLongAlbumDuration = Duration(hours: 3);
 
-  final MediaSourceInfo mediaSourceInfo;
+  final PlaybackInfoResponse playbackInfo;
+  final BaseItemDto item;
   LyricDto? lyrics;
   bool hasAnimatedCover;
   File? animatedCoverFile;
@@ -31,7 +34,8 @@ class MetadataProvider {
   double? parentNormalizationGain;
 
   MetadataProvider({
-    required this.mediaSourceInfo,
+    required this.item,
+    required this.playbackInfo,
     this.lyrics,
     this.hasAnimatedCover = false,
     this.animatedCoverFile,
@@ -42,6 +46,8 @@ class MetadataProvider {
     BaseItemDto? item,
     this.parentNormalizationGain,
   }) : _item = item;
+
+  MediaSourceInfo get mediaSourceInfo => playbackInfo.mediaSources!.first;
 
   bool get hasLyrics => mediaSourceInfo.mediaStreams.any((e) => e.type == "Lyric");
 
@@ -64,8 +70,8 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, BaseItem
 
   metadataProviderLogger.fine("Fetching metadata for '${item.name}' (${item.id})");
 
-  MediaSourceInfo? playbackInfo;
-  MediaSourceInfo? localPlaybackInfo;
+  PlaybackInfoResponse? playbackInfo;
+  PlaybackInfoResponse? localPlaybackInfo;
 
   final downloadStub = await downloadsService.getTrackInfo(id: item.id);
   if (downloadStub != null) {
@@ -73,78 +79,102 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, BaseItem
     if (downloadItem != null && downloadItem.state.isComplete) {
       metadataProviderLogger.fine("Got offline metadata for '${item.name}'");
       var profile = downloadItem.fileTranscodingProfile;
-      // We could explicitly get a mediaSource of type Default, but just grabbing
-      // the first seems to generally work?
-      var codec = profile?.codec != FinampTranscodingCodec.original
-          ? profile?.codec.name
+      var audioStream = downloadItem.baseItem!.mediaSources?.first.mediaStreams.firstWhere(
+        (s) => s.type == "Audio",
+        orElse: () => downloadItem.baseItem!.mediaSources!.first.mediaStreams.first,
+      );
+      var codec = profile?.codec != FinampTranscodingCodec.original ? profile?.codec.name : audioStream?.codec;
+      var container = profile?.codec != FinampTranscodingCodec.original
+          ? profile?.codec.container
           : downloadItem.baseItem!.mediaSources?.first.container;
       var bitrate = profile?.codec != FinampTranscodingCodec.original
           ? profile?.stereoBitrate
           : downloadItem.baseItem!.mediaSources?.first.bitrate;
 
-      // We cannot create accurate MediaStreams for a transcoded item,so
-      // just return the lyrics stream, as those are not affected and will not
-      // be shown if the mediaStream is not present
       List<MediaStream> mediaStream = profile?.codec != FinampTranscodingCodec.original
-          ? downloadItem.baseItem!.mediaStreams?.where((x) => x.type == "Lyric").toList() ?? []
+          ? [
+                  MediaStream(
+                    index: 0,
+                    type: "Audio",
+                    codec: codec,
+                    bitRate: bitrate,
+                    sampleRate: null,
+                    channels: null,
+                    bitDepth: audioStream?.bitDepth,
+                    isInterlaced: false,
+                    isDefault: true,
+                    isForced: false,
+                    isExternal: false,
+                    isTextSubtitleStream: false,
+                    supportsExternalStream: false,
+                  ),
+                ]
+                .followedBy(downloadItem.baseItem!.mediaStreams?.where((x) => x.type == "Lyric").toList() ?? [])
+                .toList()
           : downloadItem.baseItem!.mediaStreams ?? [];
 
-      localPlaybackInfo = MediaSourceInfo(
-        id: downloadItem.baseItem!.id,
-        protocol: "File",
-        type: "Default",
-        isRemote: false,
-        supportsTranscoding: false,
-        supportsDirectStream: false,
-        supportsDirectPlay: true,
-        isInfiniteStream: false,
-        requiresOpening: false,
-        requiresClosing: false,
-        requiresLooping: false,
-        supportsProbing: false,
-        mediaStreams: mediaStream,
-        readAtNativeFramerate: false,
-        ignoreDts: false,
-        ignoreIndex: false,
-        genPtsInput: false,
-        bitrate: bitrate,
-        container: codec,
-        name: downloadItem.baseItem!.mediaSources?.first.name,
-        size: await downloadsService.getFileSize(downloadStub),
+      localPlaybackInfo = PlaybackInfoResponse(
+        mediaSources: [
+          MediaSourceInfo(
+            id: downloadItem.baseItem!.id,
+            protocol: "File",
+            type: "Default",
+            isRemote: false,
+            supportsTranscoding: false,
+            supportsDirectStream: false,
+            supportsDirectPlay: true,
+            isInfiniteStream: false,
+            requiresOpening: false,
+            requiresClosing: false,
+            requiresLooping: false,
+            supportsProbing: false,
+            mediaStreams: mediaStream,
+            readAtNativeFramerate: false,
+            ignoreDts: false,
+            ignoreIndex: false,
+            genPtsInput: false,
+            bitrate: bitrate,
+            container: container,
+            name: downloadItem.baseItem!.mediaSources?.first.name,
+            size: await downloadsService.getFileSize(downloadStub),
+          ),
+        ],
       );
     }
   }
 
-  //!!! only use offline metadata if the app is in offline mode
-  // Finamp should always use the server metadata when online, if possible
   if (ref.watch(finampSettingsProvider.isOffline)) {
     playbackInfo = localPlaybackInfo;
   } else {
-    // fetch from server in online mode
-    metadataProviderLogger.fine(
-      "Fetching metadata for '${item.name}' (${item.id}) from server due to missing attributes",
-    );
     try {
-      playbackInfo = (await jellyfinApiHelper.getPlaybackInfo(item.id))?.first;
+      playbackInfo = await jellyfinApiHelper.getPlaybackInfo(item.id);
     } catch (e) {
       metadataProviderLogger.severe("Failed to fetch metadata for '${item.name}' (${item.id})", e);
       return null;
     }
 
-    // update **PARTS** of playbackInfo with localPlaybackInfo if available
-    if (localPlaybackInfo != null && playbackInfo != null) {
-      playbackInfo.protocol = localPlaybackInfo.protocol;
-      playbackInfo.bitrate = localPlaybackInfo.bitrate;
-      // Use lyrics mediastream from online item, but take all other streams
-      // from downloaded item
-      playbackInfo.mediaStreams = playbackInfo.mediaStreams.where((x) => x.type == "Lyric").toList();
-      playbackInfo.mediaStreams.addAll(localPlaybackInfo.mediaStreams.where((x) => x.type != "Lyric"));
-      playbackInfo.container = localPlaybackInfo.container;
-      playbackInfo.size = localPlaybackInfo.size;
+    if (localPlaybackInfo != null && (playbackInfo.mediaSources?.isNotEmpty ?? false)) {
+      playbackInfo.mediaSources!.first.protocol = localPlaybackInfo.mediaSources!.first.protocol;
+      playbackInfo.mediaSources!.first.bitrate = localPlaybackInfo.mediaSources!.first.bitrate;
+      var remoteBitDepth = playbackInfo.mediaSources!.first.mediaStreams
+          .firstWhereOrNull((x) => x.type == "Audio")
+          ?.bitDepth;
+      playbackInfo.mediaSources!.first.mediaStreams = playbackInfo.mediaSources!.first.mediaStreams
+          .where((x) => x.type == "Lyric")
+          .toList();
+      playbackInfo.mediaSources!.first.mediaStreams.addAll(
+        localPlaybackInfo.mediaSources!.first.mediaStreams.where((x) => x.type != "Lyric"),
+      );
+      var audioStream = playbackInfo.mediaSources!.first.mediaStreams.firstWhereOrNull((x) => x.type == "Audio");
+      if (audioStream != null) {
+        audioStream.bitDepth = remoteBitDepth;
+      }
+      playbackInfo.mediaSources!.first.container = localPlaybackInfo.mediaSources!.first.container;
+      playbackInfo.mediaSources!.first.size = localPlaybackInfo.mediaSources!.first.size;
     }
   }
 
-  if (playbackInfo == null) {
+  if (playbackInfo == null || playbackInfo.mediaSources == null || playbackInfo.mediaSources!.isEmpty) {
     metadataProviderLogger.warning("Couldn't load metadata for '${item.name}' (${item.id})");
     return null;
   }
@@ -155,7 +185,8 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, BaseItem
   }
 
   final metadata = MetadataProvider(
-    mediaSourceInfo: playbackInfo,
+    item: item,
+    playbackInfo: playbackInfo,
     isDownloaded: localPlaybackInfo != null,
     parentNormalizationGain: parent?.normalizationGain,
   );
@@ -246,8 +277,6 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, BaseItem
   ///
   /// Requires the Animated Covers Plugin
   if (metadata.includeVerticalBackgroundVideo) {
-    //!!! only use offline metadata if the app is in offline mode
-    // Finamp should always use the server metadata when online, if possible
     if (FinampSettingsHelper.finampSettings.isOffline) {
       DownloadItem? downloadedVerticalVideo = downloadsService.getVerticalBackgroundVideoDownload(item: item);
       if (downloadedVerticalVideo?.file != null) {
@@ -259,14 +288,11 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, BaseItem
     } else {
       metadataProviderLogger.fine("Fetching vertical background video for '${item.name}' (${item.id})");
       try {
-        // In online mode, trigger download if not already downloaded for future offline use
         DownloadItem? downloadedVerticalVideo = downloadsService.getVerticalBackgroundVideoDownload(item: item);
         if (downloadedVerticalVideo?.file != null) {
           metadata.verticalBackgroundVideoFile = downloadedVerticalVideo!.file;
           metadataProviderLogger.fine("Using cached vertical background video for '${item.name}'");
         } else {
-          // File not cached, but we can still provide the URL for online streaming
-          // The downloads service will handle background caching if configured
           metadataProviderLogger.fine(
             "Vertical background video not cached for '${item.name}', using online streaming",
           );

@@ -3,23 +3,19 @@ import UIKit
 import Flutter
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        GeneratedPluginRegistrant.register(with: self)
-        
         // Exclude the documents and support folders from iCloud backup since we keep songs there.
-        try! setExcludeFromiCloudBackup(
-            try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true),
-            isExcluded: true
-        )
+        if let documentsDir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
+            try? setExcludeFromiCloudBackup(documentsDir, isExcluded: true)
+        }
         
-        try! setExcludeFromiCloudBackup(
-            try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true),
-            isExcluded: true
-        )
+        if let appSupportDir = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
+            try? setExcludeFromiCloudBackup(appSupportDir, isExcluded: true)
+        }
         
         // Retrieve the link from parameters
         if let url = AppLinks.shared.getLink(launchOptions: launchOptions) {
@@ -29,6 +25,10 @@ import Flutter
         }
         
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+    
+    func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+        GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     }
 }
 

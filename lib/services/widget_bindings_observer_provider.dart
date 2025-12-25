@@ -1,9 +1,8 @@
 import 'dart:ui';
 
-import 'package:finamp/services/theme_mode_helper.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_ce/hive.dart';
 
 final displayFeaturesProvider = StateProvider<List<DisplayFeature>>((ref) {
   return [];
@@ -41,7 +40,7 @@ class _FinampProviderBuilderState extends ConsumerState<FinampProviderBuilder> w
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    ThemeModeHelper.themeModeListener.addListener(didChangePlatformBrightness);
+    ref.listenManual(finampSettingsProvider.themeMode, (_, _) => didChangePlatformBrightness());
     Future.microtask(() {
       didChangePlatformBrightness();
       didChangeMetrics();
@@ -56,8 +55,9 @@ class _FinampProviderBuilderState extends ConsumerState<FinampProviderBuilder> w
 
   @override
   void didChangePlatformBrightness() {
-    var theme = switch (Hive.box<ThemeMode>("ThemeMode").get("ThemeMode")) {
-      null || ThemeMode.system => View.of(context).platformDispatcher.platformBrightness,
+    final themeMode = FinampSettingsHelper.finampSettings.themeMode;
+    var theme = switch (themeMode) {
+      ThemeMode.system => View.of(context).platformDispatcher.platformBrightness,
       ThemeMode.light => Brightness.light,
       ThemeMode.dark => Brightness.dark,
     };
@@ -72,7 +72,6 @@ class _FinampProviderBuilderState extends ConsumerState<FinampProviderBuilder> w
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    ThemeModeHelper.themeModeListener.removeListener(didChangePlatformBrightness);
     super.dispose();
   }
 }

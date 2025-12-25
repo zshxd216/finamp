@@ -6,16 +6,16 @@ import 'package:finamp/menus/components/menuEntries/add_to_playlist_menu_entry.d
 import 'package:finamp/menus/components/menuEntries/delete_from_server_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/edit_item_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/instant_mix_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/mix_builder_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/restore_queue_menu_entry.dart';
+import 'package:finamp/menus/components/menuEntries/start_radio_menu_entry.dart';
 import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.dart';
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
-import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:flutter/material.dart';
-
-import 'components/menuEntries/menu_entry.dart';
 
 const Duration playlistMenuDefaultAnimationDuration = Duration(milliseconds: 750);
 const Curve playlistMenuDefaultInCurve = Curves.easeOutCubic;
@@ -31,8 +31,10 @@ Future<void> showModalPlaylistMenu({
   List<HideableMenuEntry> getMenuEntries(BuildContext context) {
     return [
       if (queueInfo != null) RestoreQueueMenuEntry(queueInfo: queueInfo),
-      AddToPlaylistMenuEntry(baseItem: baseItem),
+      AddToPlaylistMenuEntry(item: baseItem),
       InstantMixMenuEntry(baseItem: baseItem),
+      MixBuilderMenuEntry(baseItem: baseItem),
+      StartRadioMenuEntry(baseItem: baseItem),
       AdaptiveDownloadLockDeleteMenuEntry(baseItem: baseItem),
       ToggleFavoriteMenuEntry(baseItem: baseItem),
       EditItemMenuEntry(baseItem: baseItem),
@@ -44,18 +46,11 @@ Future<void> showModalPlaylistMenu({
     final menuEntries = getMenuEntries(context);
     final stackHeight = ThemedBottomSheet.calculateStackHeight(context: context, menuEntries: menuEntries);
 
-    final pageViewController = PageController();
-
     List<Widget> menu = [
       SliverPersistentHeader(delegate: MenuItemInfoSliverHeader(item: baseItem), pinned: true),
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
-        child: SliverToBoxAdapter(
-          child: PlaybackActionRow(
-            controller: pageViewController,
-            playbackActionPages: getPlaybackActionPages(context: context, baseItem: baseItem),
-          ),
-        ),
+        child: SliverToBoxAdapter(child: PlaybackActionRow(item: baseItem)),
       ),
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,

@@ -14,6 +14,17 @@ flutter doctor -v
 This will list out all components used for Flutter development, and if they are installed. This should include either Android or iOS development (depending on your platform), as well as any desktop platform you want to target.  
 You can ignore the Chrome/Web component, since Finamp is not a web app.
 
+### NixOS and Flakes
+
+The project includes a `flake.nix` file that can help you install Flutter and Rust dependencies. The recommended way of using it is to
+use `nix develop`, which allows rustup for Discord RPC dependency. Also, there's `nix develop .#fenix` which stubs rustup with fenix, but it is a hack.
+
+To get the application running on NixOS once you are in the development shell:
+- `flutter build linux` - generates the build files in `./build/linux/x64/release/bundle` where the `lib` folder will have all the dynamic libraries.
+- `cd /build/linux/x64/release/bundle/lib` - flutter cannot find the dynamic libraries by default. Probably works from here only because the fallback is CWD.
+- `../flutter` - start the application.
+- The normally-used `flutter run ...` command does not seem to work on NixOS at this time.
+
 ### Building for Android
 
 You can build debug builds for Android right-away, but you will get an error if you try to build a release build (which is the default type).  
@@ -120,6 +131,48 @@ lib/                                -- the codebase also known as src in other p
 
 1. In [app_en.arb](lib/l10n/app_en.arb), add default english string as well as string description following examples in the file
 2. Run `flutter gen-l10n` or VSCode command "Generate Localizations" if you have Flutter plugin installed
+
+### Playback Reporting
+
+There are several aspects to playback reporting in Finamp. The main goal is to always let the server know what the user is listening to, including when they *started* and when they *stopped*. This is handled in [`playback_history_service.dart`](lib/services/playback_history_service.dart), by listening to the player state (among others) and invoking various Jellyfin endpoints in response. There are 3 endpoints: starting, stopping, and a generic "progress" endpoint that just updates the server's state without creating a start or stop event.  
+The start and stop events are further used by server plugins such as ["Playback Reporting"](https://github.com/jellyfin/jellyfin-plugin-playbackreporting) or ["Last.fm"](https://github.com/jesseward/jellyfin-plugin-lastfm) to keep track of users' listening activity.
+Playback reporting is also used as a way to tell the server about the user's current playback queue, so that it can be shown in other Jellyfin clients when they are controlling Finamp via the "Play On" feature. That's why when a Play On session is established, we increase the frequency of playback updates.
+Finally, playback reporting is also used (read: required) to tell the server about the transcoding status, so that is actually shows up correctly on the admin dashboard (see below).  
+
+Finamp keeps track of any plays that couldn't be sent to the server (due to errors or because offline mode was active) in a text file which can be exported via the "share" icon on the [🔗 Playback History Screen](https://intradeus.github.io/http-protocol-redirector?r=finamp://internal/playbackhistory).  
+The playback history itself currently only contains plays since the app was last launched and is deleted when the app is closed.
+
+#### Showing Transcode Status on the Admin Dashboard
+
+Getting the server to show the actual transcoding status on the admin dashboard isn't trivial. It requires 3 conditions:
+
+1. Requesting a (transcoded) stream from the server
+   - Either endpoint works, `/Audio/{itemId}/main.m3u8` and `/{streamId}/stream.{container}` (the latter can be returned by the server)
+2. Reporting playback of the exact media that was requested (matching `BaseItemDto` IDs)
+3. Using a *consistent* `PlaySessionId` across the two requests above
+
+Importantly, while the `PlaySessionId` *can* be "properly" obtained from the server by using the [`POST /Items/{itemId}/PlaybackInfo`](https://api.jellyfin.org/#tag/MediaInfo/operation/GetPostedPlaybackInfo) endpoint, it currently doesn't have to be (as of Jellyfin 10.10.13, and 10.11-RC3), meaning you can just generate a random ID (UUID v4 works) and use that. It just has to be consistent.  
+The server team mentioned that in the future this ID might be used to authenticate media requests, meaning you'll have to obtain the ID before you can request a media stream, but this will probably require some API changes (as explained below).
+
+The above steps are all that's needed to get the dashboard to show "Transcoding" instead of the default "Direct Play". However, if you want to show *reasons* for transcoding, and/or make use of Jellyfin's ability to support *automatic* transcoding based on device capabilities, there are stricter requirements.  
+Firstly, you'll *have* to use the [`POST /Items/{itemId}/PlaybackInfo`](https://api.jellyfin.org/#tag/MediaInfo/operation/GetPostedPlaybackInfo) endpoint in order to let the server know which codecs, containers, bitrates, etc. your device supports (this data could vary depending on client settings, e.g. the maximum bitrate could be a setting. Jellyfin will probably also default to the Jellyfin user's default settings here.). This endpoint will return information about which playback method is best suited (based on the media formats and the device capabilities), a pre-build endpoint for streaming the media with the recommended settings, IDs, and keys (the `/{streamId}/stream.{container}` URL mentioned earlier), and the `PlaySessionId` which is used to identify the playback session.  
+What this means is that for each and every track you want to possibly play transcoded, you'll have to make a request to the server. There currently is no batching or reusing if you want to properly show the transcoding status and reasons. Possibly because the server needs to decide the transcoding settings for each item individually, since they could all have different formats and bit rates.  
+But since **making one request for each track that is queued up is simply not feasible in Finamp** at the moment (takes way to long, and we need to make the request *before* we can add the track to the queue), we have opted to simply use a random `playSessionId` and not support the transcode reasons and/or automatic transcoding features. Finamp stores the ID in the `playSessionId` field of the `MediaItem`'s `extras` map.  
+Notably, since we already have the full `BaseItemDto`s and additional metadata for each track, we could simply build client-side automatic transcoding. This would be needed anyway for considering network connectivity and such, so we're not losing much here.  
+
+Should the API for this improve in the future, for example by allowing us to submit the supported codecs and bitrate limits to an endpoint like [`/Sessions/Capabilities/Full`](https://api.jellyfin.org/#tag/Session/operation/PostFullCapabilities) (that part is already possible) and then getting the corresponding `PlaySessionId`s and transcode URLs via the regular `BaseItemDto`, then we could think about doing this the proper way. But until then we'll most likely handle the ID generation and transcoding settings client-side.
+### Android Debug Build stuck in 'assembleDebug'
+1. `cd android`
+2. `./gradlew clean`
+3. `cd ..`
+4. `flutter run -d <phone>`
+
+Now you need to wait a bit, but it'll finish :)
+
+### Add dbus message
+1. Open `lib/services/dbus_manager.dart`
+2. Add another `else if (call.interface == 'com.unicornsonlsd.Finamp' && call.name == 'YOUR FUNCTION NAME')`
+3. Profit
 
 ## The Redesign
 

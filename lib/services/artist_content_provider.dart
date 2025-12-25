@@ -1,27 +1,26 @@
 import 'dart:async';
 
-import 'package:finamp/components/curated_item_filter_row.dart';
-import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../models/finamp_models.dart';
-import '../models/jellyfin_models.dart';
-import 'downloads_service.dart';
-import 'finamp_settings_helper.dart';
-import 'jellyfin_api_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:finamp/components/curated_item_filter_row.dart';
+import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/downloads_service.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
 
 part 'artist_content_provider.g.dart';
 
 // Get the Tracks Section content of an artist
 @riverpod
 Future<(List<BaseItemDto>, CuratedItemSelectionType, Set<CuratedItemSelectionType>?)> getArtistTracksSection(
-  Ref ref,
-  BaseItemDto parent,
-  BaseItemDto? library,
+  Ref ref, {
+  required BaseItemDto artist,
+  BaseItemDto? libraryFilter,
   BaseItemDto? genreFilter,
-) async {
+}) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final bool isOffline = ref.watch(finampSettingsProvider.isOffline);
   final bool autoSwitchItemCurationTypeEnabled = ref.watch(finampSettingsProvider.autoSwitchItemCurationType);
@@ -48,7 +47,12 @@ Future<(List<BaseItemDto>, CuratedItemSelectionType, Set<CuratedItemSelectionTyp
       // we just sort them and only return the first 5 items.
       final onlyFavorites = (selectionType == CuratedItemSelectionType.favorites);
       final List<BaseItemDto> allArtistTracks = await ref.watch(
-        getArtistTracksProvider(parent, library, genreFilter, onlyFavorites: onlyFavorites).future,
+        getArtistTracksProvider(
+          artist: artist,
+          libraryFilter: libraryFilter,
+          genreFilter: genreFilter,
+          onlyFavorites: onlyFavorites,
+        ).future,
       );
       var items = sortItems(allArtistTracks, sortBy, SortOrder.descending);
       items = items.take(5).toList();
@@ -56,31 +60,37 @@ Future<(List<BaseItemDto>, CuratedItemSelectionType, Set<CuratedItemSelectionTyp
     } else {
       // In Online Mode:
       final List<BaseItemDto>? topAlbumArtistTracks = await jellyfinApiHelper.getItems(
-        libraryFilter: library,
-        parentItem: parent,
+        libraryFilter: libraryFilter,
+        parentItem: artist,
         genreFilter: genreFilter,
         artistType: ArtistType.albumArtist,
         sortBy: sortBy.jellyfinName(TabContentType.tracks),
-        sortOrder: "Descending",
+        sortOrder: SortOrder.descending.name,
         isFavorite: (selectionType == CuratedItemSelectionType.favorites) ? true : null,
         limit: 5,
-        includeItemTypes: "Audio",
+        includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
       );
       // For everything except Favorites we can re-use the data from the other provider
       // The other provider would not limit the favorites but run a separate call anyway
       // so we would get a lot of overhead and therefore we are just doing it right here
       final List<BaseItemDto>? topPerformingArtistTracks = (selectionType != CuratedItemSelectionType.favorites)
-          ? await ref.watch(getPerformingArtistTracksProvider(parent, library, genreFilter).future)
+          ? await ref.watch(
+              getPerformingArtistTracksProvider(
+                artist: artist,
+                libraryFilter: libraryFilter,
+                genreFilter: genreFilter,
+              ).future,
+            )
           : await jellyfinApiHelper.getItems(
-              libraryFilter: library,
-              parentItem: parent,
+              libraryFilter: libraryFilter,
+              parentItem: artist,
               genreFilter: genreFilter,
               artistType: ArtistType.artist,
               sortBy: sortBy.jellyfinName(TabContentType.tracks),
-              sortOrder: "Descending",
+              sortOrder: SortOrder.descending.name,
               isFavorite: true,
               limit: 5,
-              includeItemTypes: "Audio",
+              includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
             );
 
       final Map<String, BaseItemDto> distinctMap = {
@@ -136,11 +146,13 @@ Future<(List<BaseItemDto>, CuratedItemSelectionType, Set<CuratedItemSelectionTyp
 // Get Albums where the artist is an album artist
 @riverpod
 Future<List<BaseItemDto>> getArtistAlbums(
-  Ref ref,
-  BaseItemDto parent,
-  BaseItemDto? library,
+  Ref ref, {
+  required BaseItemDto artist,
+  BaseItemDto? libraryFilter,
   BaseItemDto? genreFilter,
-) async {
+  SortBy sortBy = SortBy.premiereDate,
+  SortOrder sortOrder = SortOrder.ascending,
+}) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final downloadsService = GetIt.instance<DownloadsService>();
   final bool isOffline = ref.watch(finampSettingsProvider.isOffline);
@@ -148,27 +160,27 @@ Future<List<BaseItemDto>> getArtistAlbums(
   if (isOffline) {
     // In Offline Mode:
     // Get Albums where artist is Album Artist sorted by Premiere Date
-    final List<DownloadStub> fetchArtistAlbums = await downloadsService.getAllCollections(
-      viewFilter: library?.id,
+    List<BaseItemDto> artistAlbums = (await downloadsService.getAllCollections(
+      viewFilter: libraryFilter?.id,
       childViewFilter: null,
       nullableViewFilters: ref.watch(finampSettingsProvider.showDownloadsWithUnknownLibrary),
       baseTypeFilter: BaseItemDtoType.album,
-      relatedTo: parent,
+      relatedTo: artist,
       artistType: ArtistType.albumArtist,
       genreFilter: genreFilter,
-    );
-    fetchArtistAlbums.sort((a, b) => (a.baseItem?.premiereDate ?? "").compareTo(b.baseItem!.premiereDate ?? ""));
-    final List<BaseItemDto> artistAlbums = fetchArtistAlbums.map((e) => e.baseItem).nonNulls.toList();
+    )).map((e) => e.baseItem).nonNulls.toList();
+    artistAlbums = sortItems(artistAlbums, sortBy, sortOrder);
     return artistAlbums;
   } else {
     // In Online Mode:
     // Get Albums where artist is Album Artist sorted by Premiere Date
     final List<BaseItemDto>? artistAlbums = await jellyfinApiHelper.getItems(
-      libraryFilter: library,
-      parentItem: parent,
+      libraryFilter: libraryFilter,
+      parentItem: artist,
       genreFilter: genreFilter,
-      sortBy: "PremiereDate,SortName",
-      includeItemTypes: "MusicAlbum",
+      sortBy: sortBy.jellyfinName(TabContentType.albums),
+      sortOrder: sortOrder.name,
+      includeItemTypes: [BaseItemDtoType.album.jellyfinName].join(","),
       artistType: ArtistType.albumArtist,
     );
     return artistAlbums ?? [];
@@ -180,11 +192,13 @@ Future<List<BaseItemDto>> getArtistAlbums(
 // so we have to filter this list later for the appears on section to exclude those)
 @riverpod
 Future<List<BaseItemDto>> getPerformingArtistAlbums(
-  Ref ref,
-  BaseItemDto parent,
-  BaseItemDto? library,
+  Ref ref, {
+  required BaseItemDto artist,
+  BaseItemDto? libraryFilter,
   BaseItemDto? genreFilter,
-) async {
+  SortBy sortBy = SortBy.premiereDate,
+  SortOrder sortOrder = SortOrder.ascending,
+}) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   final downloadsService = GetIt.instance<DownloadsService>();
   final bool isOffline = ref.watch(finampSettingsProvider.isOffline);
@@ -192,32 +206,27 @@ Future<List<BaseItemDto>> getPerformingArtistAlbums(
   if (isOffline) {
     // In Offline Mode:
     // Get Albums where artist is Performing Artist sorted by Premiere Date
-    final List<DownloadStub> fetchPerformingArtistAlbums = await downloadsService.getAllCollections(
-      viewFilter: library?.id,
+    List<BaseItemDto> performingArtistAlbums = (await downloadsService.getAllCollections(
+      viewFilter: libraryFilter?.id,
       childViewFilter: null,
       nullableViewFilters: ref.watch(finampSettingsProvider.showDownloadsWithUnknownLibrary),
       baseTypeFilter: BaseItemDtoType.album,
-      relatedTo: parent,
+      relatedTo: artist,
       artistType: ArtistType.artist,
       genreFilter: genreFilter,
-    );
-    fetchPerformingArtistAlbums.sort(
-      (a, b) => (a.baseItem?.premiereDate ?? "").compareTo(b.baseItem!.premiereDate ?? ""),
-    );
-    final List<BaseItemDto> performingArtistAlbums = fetchPerformingArtistAlbums
-        .map((e) => e.baseItem)
-        .nonNulls
-        .toList();
-    return performingArtistAlbums;
+    )).map((e) => e.baseItem).nonNulls.toList();
+    performingArtistAlbums = sortItems(performingArtistAlbums, sortBy, sortOrder);
+    return sortArtistTracks(performingArtistAlbums);
   } else {
     // In Online Mode:
     // Get Albums where artist is Performing Artist sorted by Premiere Date
     final List<BaseItemDto>? performingArtistAlbums = await jellyfinApiHelper.getItems(
-      libraryFilter: library,
-      parentItem: parent,
+      libraryFilter: libraryFilter,
+      parentItem: artist,
       genreFilter: genreFilter,
-      sortBy: "PremiereDate,SortName",
-      includeItemTypes: "MusicAlbum",
+      sortBy: sortBy.jellyfinName(TabContentType.albums),
+      sortOrder: sortOrder.name,
+      includeItemTypes: [BaseItemDtoType.album.jellyfinName].join(","),
       artistType: ArtistType.artist,
     );
     return performingArtistAlbums ?? [];
@@ -229,10 +238,10 @@ Future<List<BaseItemDto>> getPerformingArtistAlbums(
 // where the artist is also an album artist)
 @riverpod
 Future<List<BaseItemDto>> getPerformingArtistTracks(
-  Ref ref,
-  BaseItemDto parent,
-  BaseItemDto? library,
-  BaseItemDto? genreFilter, {
+  Ref ref, {
+  required BaseItemDto artist,
+  BaseItemDto? libraryFilter,
+  BaseItemDto? genreFilter,
   bool onlyFavorites = false,
 }) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
@@ -245,7 +254,7 @@ Future<List<BaseItemDto>> getPerformingArtistTracks(
     final List<BaseItemDto> performingArtistTracks = [];
     // Fetch every album where the artist is a performing artist
     final List<BaseItemDto> allPerformingArtistAlbums = await ref.watch(
-      getPerformingArtistAlbumsProvider(parent, library, genreFilter).future,
+      getPerformingArtistAlbumsProvider(artist: artist, libraryFilter: libraryFilter, genreFilter: genreFilter).future,
     );
     // Loop through the albums and add the tracks
     for (var album in allPerformingArtistAlbums) {
@@ -256,7 +265,7 @@ Future<List<BaseItemDto>> getPerformingArtistTracks(
       );
       // Now we remove every track where the artist is NOT an performing artist...
       final filteredPerformingArtistTracks = performingArtistAlbumTracks.where((track) {
-        return track.artistItems?.any((artist) => artist.id == parent.id) ?? false;
+        return track.artistItems?.any((artist) => artist.id == artist.id) ?? false;
       });
       // and add the tracks to the list
       performingArtistTracks.addAll(filteredPerformingArtistTracks);
@@ -265,11 +274,11 @@ Future<List<BaseItemDto>> getPerformingArtistTracks(
   } else {
     // In Online Mode:
     final List<BaseItemDto>? allPerformingArtistTracks = await jellyfinApiHelper.getItems(
-      libraryFilter: library,
-      parentItem: parent,
+      libraryFilter: libraryFilter,
+      parentItem: artist,
       genreFilter: genreFilter,
-      sortBy: "Album,ParentIndexNumber,IndexNumber,SortName",
-      includeItemTypes: "Audio",
+      sortBy: SortBy.premiereDate.jellyfinName(TabContentType.tracks),
+      includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
       artistType: ArtistType.artist,
       isFavorite: (onlyFavorites == true) ? true : null,
     );
@@ -280,10 +289,10 @@ Future<List<BaseItemDto>> getPerformingArtistTracks(
 // Get all Tracks for playback
 @riverpod
 Future<List<BaseItemDto>> getArtistTracks(
-  Ref ref,
-  BaseItemDto parent,
-  BaseItemDto? library,
-  BaseItemDto? genreFilter, {
+  Ref ref, {
+  required BaseItemDto artist,
+  BaseItemDto? libraryFilter,
+  BaseItemDto? genreFilter,
   bool onlyFavorites = false,
 }) async {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
@@ -294,7 +303,7 @@ Future<List<BaseItemDto>> getArtistTracks(
     // In Offline Mode:
     // First fetch every album of the album artist
     final List<BaseItemDto> allAlbumArtistAlbums = await ref.watch(
-      getArtistAlbumsProvider(parent, library, genreFilter).future,
+      getArtistAlbumsProvider(artist: artist, libraryFilter: libraryFilter, genreFilter: genreFilter).future,
     );
     // Then add the tracks of every album
     final List<BaseItemDto> sortedTracks = [];
@@ -305,7 +314,12 @@ Future<List<BaseItemDto>> getArtistTracks(
     }
     // Fetch every performing artist track
     final List<BaseItemDto> allPerformingArtistTracks = await ref.watch(
-      getPerformingArtistTracksProvider(parent, library, genreFilter, onlyFavorites: onlyFavorites).future,
+      getPerformingArtistTracksProvider(
+        artist: artist,
+        libraryFilter: libraryFilter,
+        genreFilter: genreFilter,
+        onlyFavorites: onlyFavorites,
+      ).future,
     );
     // Filter out the tracks already added through album artist albums
     final existingIds = sortedTracks.map((t) => t.id).toSet();
@@ -320,16 +334,21 @@ Future<List<BaseItemDto>> getArtistTracks(
     // In Online Mode:
     // Fetch every album artist track
     final allAlbumArtistTracksResponse = await jellyfinApiHelper.getItems(
-      libraryFilter: library,
-      parentItem: parent,
+      libraryFilter: libraryFilter,
+      parentItem: artist,
       genreFilter: genreFilter,
-      sortBy: "Album,ParentIndexNumber,IndexNumber,SortName",
-      includeItemTypes: "Audio",
+      sortBy: SortBy.premiereDate.jellyfinName(TabContentType.tracks),
+      includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
       artistType: ArtistType.albumArtist,
     );
     // Get all performing artist tracks
     final List<BaseItemDto> allPerformingArtistTracks = await ref.watch(
-      getPerformingArtistTracksProvider(parent, library, genreFilter, onlyFavorites: onlyFavorites).future,
+      getPerformingArtistTracksProvider(
+        artist: artist,
+        libraryFilter: libraryFilter,
+        genreFilter: genreFilter,
+        onlyFavorites: onlyFavorites,
+      ).future,
     );
     // We now remove albumartist tracks from performance artist tracks to avoid duplicates
     final allAlbumArtistTracks = allAlbumArtistTracksResponse ?? [];
