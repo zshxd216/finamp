@@ -33,7 +33,6 @@ import 'package:get_it/get_it.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
 import 'package:finamp/services/animated_music_service.dart';
-import 'package:finamp/services/downloads_service.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
@@ -48,7 +47,7 @@ class PlayerScreen extends ConsumerWidget {
   static const routeName = "/nowplaying";
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
 
     // close the player screen if the queue is empty
@@ -437,9 +436,21 @@ class _AnimatedVerticalBackgroundState extends ConsumerState<_AnimatedVerticalBa
   String? _lastTrackId;
   Player? _videoPlayer;
   VideoController? _videoController;
+  StateController<bool>? _videoBackgroundNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _videoBackgroundNotifier = ref.read(_videoBackgroundProvider.notifier);
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _videoBackgroundNotifier?.state = false;
     _disposeVideoPlayer();
     super.dispose();
   }
@@ -449,10 +460,6 @@ class _AnimatedVerticalBackgroundState extends ConsumerState<_AnimatedVerticalBa
     _videoPlayer = null;
     _videoController = null;
     _currentVideoSource = null;
-    // Only update provider if widget is still mounted and we're not in a build cycle
-    if (mounted) {
-      ref.read(_videoBackgroundProvider.notifier).state = false;
-    }
   }
 
   void _setupVideoPlayer(String videoSource) {
