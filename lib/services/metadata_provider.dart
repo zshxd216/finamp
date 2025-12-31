@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -43,9 +42,8 @@ class MetadataProvider {
     this.verticalBackgroundVideoFile,
     this.isDownloaded = false,
     this.qualifiesForPlaybackSpeedControl = false,
-    BaseItemDto? item,
     this.parentNormalizationGain,
-  }) : _item = item;
+  });
 
   MediaSourceInfo get mediaSourceInfo => playbackInfo.mediaSources!.first;
 
@@ -53,9 +51,6 @@ class MetadataProvider {
 
   bool get includeAnimatedCover => true;
   bool get includeVerticalBackgroundVideo => true;
-
-  // Store reference to the item to check metadata
-  final BaseItemDto? _item;
 }
 
 final AutoDisposeFutureProviderFamily<MetadataProvider?, BaseItemDto>
@@ -93,24 +88,22 @@ metadataProvider = FutureProvider.autoDispose.family<MetadataProvider?, BaseItem
 
       List<MediaStream> mediaStream = profile?.codec != FinampTranscodingCodec.original
           ? [
-                  MediaStream(
-                    index: 0,
-                    type: "Audio",
-                    codec: codec,
-                    bitRate: bitrate,
-                    sampleRate: null,
-                    channels: null,
-                    bitDepth: audioStream?.bitDepth,
-                    isInterlaced: false,
-                    isDefault: true,
-                    isForced: false,
-                    isExternal: false,
-                    isTextSubtitleStream: false,
-                    supportsExternalStream: false,
-                  ),
-                ]
-                .followedBy(downloadItem.baseItem!.mediaStreams?.where((x) => x.type == "Lyric").toList() ?? [])
-                .toList()
+              MediaStream(
+                index: 0,
+                type: "Audio",
+                codec: codec,
+                bitRate: bitrate,
+                sampleRate: null,
+                channels: null,
+                bitDepth: audioStream?.bitDepth,
+                isInterlaced: false,
+                isDefault: true,
+                isForced: false,
+                isExternal: false,
+                isTextSubtitleStream: false,
+                supportsExternalStream: false,
+              ),
+            ].followedBy(downloadItem.baseItem!.mediaStreams?.where((x) => x.type == "Lyric").toList() ?? []).toList()
           : downloadItem.baseItem!.mediaStreams ?? [];
 
       localPlaybackInfo = PlaybackInfoResponse(
