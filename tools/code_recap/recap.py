@@ -27,8 +27,8 @@ commitsNoTranslations = []
 commitsOnlyTranslations = []
 allCommits = []
 
-# data = json.load(open("./repo_history.json", "r"))
-data = main()
+data = json.load(open("./repo_history.json", "r"))
+# data = main()
 for commit in data:
     commit["date"] = datetime.fromisoformat(commit["date"])
     if commit["date"] > end:
@@ -36,10 +36,14 @@ for commit in data:
     if commit["author"] == "Weblate (bot)":
         continue
  
-    for (a, b) in merge:
-        if commit["author"] == b:
-            commit["author"] = a
-            break
+
+    if commit.get("name"):
+        commit["author"] = commit["name"]
+    else:
+        for (a, b) in merge:
+            if commit["author"] == b:
+                commit["author"] = a
+                break
 
     commit["total_additions"] = sum([f["additions"] for f in commit["files"]])
     commit["total_deletions"] = sum([f["additions"] for f in commit["files"]])

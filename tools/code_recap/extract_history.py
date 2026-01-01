@@ -3,10 +3,67 @@ import json
 import os
 import re
 import sys
+import requests
+import time
 from datetime import datetime
 
-PATH = "./" 
+# Path of the github repo
+PATH = "./"
 
+# Request the real username (not displayname) of an user
+# (this will take very long)
+fetchGithubUsername = False
+
+# If you have a vpn, you can enable this to increase speed
+# The tradeoff is that you need to monitor the script and manually
+# Change VPN servers when "(ip got blocked)" gets printed
+iHaveVPN = False
+
+
+
+
+
+
+
+
+user_cache = {}
+def get_github_username_from_commit(repo_path, commit_hash, displayname):
+    if not fetchGithubUsername:
+        return displayname
+
+    if displayname in user_cache.keys():
+        return user_cache[displayname]
+
+    url = f"https://api.github.com/repos/{repo_path}/commits/{commit_hash}"
+    headers = {}
+
+
+    # Default rate limit is 60/h, with an VPN we can spam a bit harder
+    requestsPerMinute = 60/300 if iHaveVPN else 60
+
+    try:
+        response = requests.get(url, headers=headers)
+        while response.status_code == 429 or response.status_code == 403:
+            response = requests.get(url, headers=headers)
+            waitTime = 20 if iHaveVPN else 120
+            print(f"Ratelimited... Waiting {waitTime} seconds")
+            if (response.status_code == 403):
+                print("  (ip got blocked)")
+            time.sleep(waitTime) # wait one minute to recover
+        time.sleep(requestsPerMinute)
+
+        if response.status_code == 200:
+            data = response.json()
+            # GitHub returns a 'author' object if the commit is linked to an account
+            if data.get("author"):
+                username = data["author"]["login"]
+                print("Found " + username + " for " + displayname)
+                user_cache[displayname] = username
+                return username
+    except Exception as e:
+        print(f"Error fetching API: {e}")
+
+    return displayname
 
 def run_git_command(args, cwd):
     try:
@@ -81,7 +138,7 @@ def main():
 
     for i, commit_hash in enumerate(commit_hashes):
         if i % 10 == 0:
-            print(f"Processing {i}/{total_commits} ({round(i / total_commits * 100, 0)}%)...", end="\r")
+            print(f"Processing {i}/{total_commits} ({round(i / total_commits * 100, 0)}%)... [{len(user_cache.keys())} cache size]  ") # end="\r")
 
         meta_cmd = [
             'show', 
@@ -95,7 +152,6 @@ def main():
             continue
 
         lines = meta_output.split('\n')
-
         c_hash = lines[0]
         a_name = lines[1]
         a_email = lines[2]
@@ -119,6 +175,9 @@ def main():
             "message": subject,
             "files": files
         }
+
+        if fetchGithubUsername:
+            commit_entry["name"] = get_github_username_from_commit("jmshrv/finamp", c_hash, a_name)
 
         history_data.append(commit_entry)
 
