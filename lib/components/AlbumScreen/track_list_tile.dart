@@ -383,7 +383,7 @@ Future<bool> onConfirmPlayableDismiss({
 
   final sourceItemType = switch (sourceItem) {
     AlbumDisc() => "disc",
-    BaseItemDto() => BaseItemDtoType.fromPlayableItem(sourceItem).name,
+    BaseItemDto() => BaseItemDtoType.track.name,
   };
 
   switch (followUpAction) {
