@@ -340,6 +340,7 @@ Future<List<BaseItemDto>> getArtistTracks(
       sortBy: SortBy.premiereDate.jellyfinName(TabContentType.tracks),
       includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
       artistType: ArtistType.albumArtist,
+      isFavorite: (onlyFavorites == true) ? true : null,
     );
     // Get all performing artist tracks
     final List<BaseItemDto> allPerformingArtistTracks = await ref.watch(

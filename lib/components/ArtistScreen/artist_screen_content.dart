@@ -227,6 +227,7 @@ class _ArtistScreenContentState extends ConsumerState<ArtistScreenContent> {
                         parent: widget.parent,
                         tracks: topTracks,
                         childrenForQueue: topTracks,
+                        lazyAddMoreTracksToQueue: true,
                         tracksText: type.toLocalisedSectionTitle(context, artistCuratedItemSelectionType),
                         isOnArtistScreen: true,
                         genreFilter: currentGenreFilter,

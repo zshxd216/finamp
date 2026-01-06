@@ -296,6 +296,7 @@ class _GenreScreenContentState extends ConsumerState<GenreScreenContent> {
                     parent: widget.parent,
                     tracks: tracks,
                     childrenForQueue: tracks,
+                    lazyAddMoreTracksToQueue: true,
                     tracksText: (genreCuratedItemSelectionTypeTracks != null)
                         ? genreCuratedItemSelectionTypeTracks.toLocalisedSectionTitle(context, BaseItemDtoType.track)
                         : loc.tracks,
