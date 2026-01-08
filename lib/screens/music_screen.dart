@@ -124,8 +124,7 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
         onPressed: () async {
           try {
             await _audioServiceHelper.shuffleAll(
-              onlyShowFavorites:
-                  (isFavoriteOverride ?? ref.read(finampSettingsProvider.onlyShowFavorites)),
+              onlyShowFavorites: (isFavoriteOverride ?? ref.read(finampSettingsProvider.onlyShowFavorites)),
               genreFilter: widget.genreFilter,
             );
           } catch (e) {

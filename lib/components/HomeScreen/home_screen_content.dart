@@ -1,11 +1,13 @@
 import 'dart:math';
 
+import 'package:balanced_text/balanced_text.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/HomeScreen/show_all_button.dart';
 import 'package:finamp/components/HomeScreen/show_all_screen.dart';
 import 'package:finamp/components/MusicScreen/item_collection_card.dart';
 import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
@@ -61,7 +63,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
       child: RefreshIndicator(
         onRefresh: () async => ref.invalidate(loadHomeSectionItemsProvider),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 200.0),
+          padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 100.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -104,13 +106,27 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.collection, itemId: BaseItemId(""))),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.listenAgain)),
-              const SizedBox(height: 8),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.newlyAdded)),
-              const SizedBox(height: 8),
               _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.favoriteArtists)),
+              SizedBox(height: 80),
+              ...[
+                // monochrome icon
+                FinampIcon(56, 56, overrideColor: TextTheme.of(context).bodySmall?.color?.withOpacity(0.4)),
+                SizedBox(height: 16),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 200),
+                    child: BalancedText(
+                      "Built with ♥ by the Finamp contributors.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: TextTheme.of(context).bodySmall?.color?.withOpacity(0.6)),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -123,39 +139,42 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
       builder: (context, ref, child) {
         final items = ref.watch(loadHomeSectionItemsProvider(sectionInfo: sectionInfo));
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SimpleGestureDetector(
-              onTap: () {
-                // Handle the tap event
-                GlobalSnackbar.message((buildContext) {
-                  return "This feature is not available yet.";
-                });
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    sectionInfo.type.toLocalisedString(context),
-                    style: TextTheme.of(context).titleSmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 18,
-                      color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+        return Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SimpleGestureDetector(
+                onTap: () {
+                  // Handle the tap event
+                  GlobalSnackbar.message((buildContext) {
+                    return "This feature is not available yet.";
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      sectionInfo.type.toLocalisedString(context),
+                      style: TextTheme.of(context).titleSmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                      ),
                     ),
-                  ),
-                  ShowAllButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, ShowAllScreen.routeName, arguments: sectionInfo);
-                    },
-                  ),
-                ],
+                    ShowAllButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, ShowAllScreen.routeName, arguments: sectionInfo);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Flexible(flex: 0, child: _buildHorizontalList(items)),
-          ],
+              const SizedBox(height: 8),
+              Flexible(flex: 0, child: _buildHorizontalList(items)),
+            ],
+          ),
         );
       },
     );
