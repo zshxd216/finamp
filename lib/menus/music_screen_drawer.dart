@@ -47,7 +47,13 @@ class MusicScreenDrawer extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(height: 12),
-                        FinampIcon(56, 56),
+                        FinampIcon(
+                          56,
+                          56,
+                          overrideColor: ref.watch(finampSettingsProvider.isOffline)
+                              ? TextTheme.of(context).bodyMedium?.color?.withOpacity(0.6)
+                              : null,
+                        ),
                         SizedBox(height: 8),
                         FutureBuilder(
                           future: PackageInfo.fromPlatform(),

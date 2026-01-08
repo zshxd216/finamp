@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
@@ -78,7 +79,13 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                         child: Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            SvgPicture.asset('images/finamp_cropped.svg', height: 36),
+                            FinampIcon(
+                              36,
+                              36,
+                              overrideColor: ref.watch(finampSettingsProvider.isOffline)
+                                  ? TextTheme.of(context).bodyMedium?.color?.withOpacity(0.6)
+                                  : null,
+                            ),
                             Positioned(
                               bottom: -6,
                               right: 4,
@@ -224,6 +231,9 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                                     FutureBuilder(
                                       future: GetIt.instance<JellyfinApiHelper>().getUser(),
                                       builder: (context, asyncSnapshot) {
+                                        if (ref.watch(finampSettingsProvider.isOffline)) {
+                                          return SizedBox.shrink();
+                                        }
                                         if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
                                           return SizedBox(
                                             width: 24,

@@ -100,6 +100,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                     vertical: true,
                     minWidth: 110,
                     onPressed: () async {
+                      //TODO handle offline mode (continuous radio not available, and offline request needed) - maybe just hide this?
                       // start continuous radio with a random track?
                       final randomTracks = await _jellyfinApiHelper.getItems(
                         parentItem: _finampUserHelper.currentUser?.currentView,
