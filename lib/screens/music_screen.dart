@@ -306,6 +306,7 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
             );
 
             if (Platform.isAndroid) {
+              //FIXME this should only trigger if the home screen section lists are scrolled all the way to the left
               return TransparentRightSwipeDetector(
                 action: () {
                   if (_tabController?.index == 0 && !ref.watch(finampSettingsProvider.disableGesture)) {

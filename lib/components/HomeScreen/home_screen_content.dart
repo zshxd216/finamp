@@ -140,7 +140,8 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
         final items = ref.watch(loadHomeSectionItemsProvider(sectionInfo: sectionInfo));
 
         return Padding(
-          padding: const EdgeInsets.only(top: 16.0),
+          // if we show text, it won't fill up all four lines (on average), so we have enough white space already
+          padding: EdgeInsets.only(top: ref.watch(finampSettingsProvider.showTextOnGridView) ? 4.0 : 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

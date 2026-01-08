@@ -8,7 +8,7 @@ import '../../services/generate_subtitle.dart';
 import '../album_image.dart';
 
 const double _itemCollectionCardCoverSize = 120;
-const double _itemCollectionCardSpacing = 4;
+const double _itemCollectionCardSpacing = 6;
 
 /// Card content for ItemCollection. You probably shouldn't use this widget directly,
 /// use CollectionItem instead.
@@ -108,11 +108,15 @@ double calculateItemCollectionCardWidth(BuildContext context) {
 }
 
 double calculateItemCollectionCardHeight(BuildContext context) {
-  return _itemCollectionCardCoverSize + calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 4);
+  return _itemCollectionCardCoverSize +
+      (GetIt.instance<ProviderContainer>().read(finampSettingsProvider.showTextOnGridView)
+          ? _itemCollectionCardSpacing
+          : 0) +
+      calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 4);
 }
 
 double calculateTextHeight({required TextStyle style, required int lines}) {
   return (GetIt.instance<ProviderContainer>().read(finampSettingsProvider.showTextOnGridView)
-      ? _itemCollectionCardSpacing + (style.height ?? 1.0) * (style.fontSize ?? 16) * lines
+      ? (style.height ?? 1.0) * (style.fontSize ?? 16) * lines
       : 0);
 }

@@ -13,6 +13,7 @@ import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/screens/album_screen.dart';
 import 'package:finamp/screens/artist_screen.dart';
 import 'package:finamp/screens/genre_screen.dart';
+import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/theme_provider.dart';
@@ -91,6 +92,7 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
     onTap =
         widget.onTap ??
         () {
+          FeedbackHelper.feedback(FeedbackType.selection);
           switch (BaseItemDtoType.fromItem(mutableItem)) {
             case BaseItemDtoType.track:
               showModalTrackMenu(context: context, item: mutableItem);
