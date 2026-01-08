@@ -132,7 +132,14 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                                 onDoubleTap: () => onStopSearch?.call(),
                                 child: IconButton(
                                   icon: Icon(TablerIcons.x, color: Theme.of(context).colorScheme.onSurface),
-                                  onPressed: () => onStopSearch?.call(),
+                                  onPressed: () {
+                                    if (textEditingController.text.isNotEmpty) {
+                                      textEditingController.clear();
+                                      onUpdateSearchQuery?.call('');
+                                    } else {
+                                      onStopSearch?.call();
+                                    }
+                                  },
                                   tooltip: AppLocalizations.of(context)!.clear,
                                   visualDensity: VisualDensity(horizontal: 0, vertical: -4),
                                 ),
