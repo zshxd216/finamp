@@ -15,6 +15,8 @@ import 'package:finamp/screens/music_screen.dart';
 import 'package:finamp/screens/queue_restore_screen.dart';
 import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
@@ -93,15 +95,27 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                     },
                   ),
                   CTALarge(
-                    text: 'Radio*',
+                    text: 'Suprise Me*',
                     icon: TablerIcons.radio,
                     vertical: true,
                     minWidth: 110,
-                    onPressed: () {
-                      //TODO start radio with a random track?
-                      GlobalSnackbar.message((buildContext) {
-                        return "Radio is not available yet.";
-                      });
+                    onPressed: () async {
+                      // start continuous radio with a random track?
+                      final randomTracks = await _jellyfinApiHelper.getItems(
+                        parentItem: _finampUserHelper.currentUser?.currentView,
+                        includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
+                        limit: 1,
+                        sortBy: "Random",
+                      );
+                      if (randomTracks != null && randomTracks.isNotEmpty) {
+                        await GetIt.instance<QueueService>().startPlayback(
+                          items: randomTracks,
+                          source: QueueItemSource.fromBaseItem(randomTracks.first),
+                          skipRadioCacheInvalidation: false,
+                        );
+                        FinampSetters.setRadioMode(RadioMode.continuous);
+                        toggleRadio(true);
+                      }
                     },
                   ),
                 ],

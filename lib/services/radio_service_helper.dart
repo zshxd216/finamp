@@ -164,7 +164,7 @@ Future<void> startRadioPlayback(BaseItemDto source) async {
   };
 
   invalidateRadioCache(); // we're starting a new queue, any older state is invalid now
-  var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
+  var localResult = _radioCacheStateStream.value!.copyWith(generating: true, failed: false);
   _radioCacheStateStream.add(localResult);
 
   List<BaseItemDto> generatedTracks = [];
