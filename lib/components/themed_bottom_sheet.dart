@@ -30,7 +30,7 @@ Future<void> showThemedBottomSheet({
   double minDraggableHeight = 0.6,
   bool showDragHandle = true,
 }) async {
-  FeedbackHelper.feedback(FeedbackType.heavy);
+  FeedbackHelper.feedback(FeedbackType.selection);
   bool useDefaultTheme = false;
   final menu = ThemedBottomSheet(
     key: ValueKey((item?.id?.raw ?? "") + routeName),
@@ -58,8 +58,7 @@ Future<void> showThemedBottomSheet({
     builder: (BuildContext context) {
       return ProviderScope(
         overrides: [
-          if (useDefaultTheme || item == null)
-            localThemeProvider.overrideWithValue(getDefaultTheme(Theme.brightnessOf(context))),
+          if (useDefaultTheme || item == null) localThemeProvider.overrideWith((_) => ColorScheme.of(context)),
           if (!useDefaultTheme && item != null)
             localThemeInfoProvider.overrideWithValue(ThemeInfo(item, useIsolate: false)),
         ],
@@ -87,14 +86,16 @@ class ThemedBottomSheet extends ConsumerStatefulWidget {
     required BuildContext context,
     required List<HideableMenuEntry> menuEntries,
     double? extraHeight,
-    bool includePlaybackrow = true,
+    bool includePlaybackRow = true,
+    bool includePlaybackRowPageIndicator = true,
   }) {
     double stackHeight = infoHeaderFullExtent;
     stackHeight +=
         menuEntries.where((element) => element.isVisible).length *
         (Theme.of(context).visualDensity == VisualDensity.compact ? 48 : 56);
     stackHeight += extraHeight ?? 0.0;
-    stackHeight += includePlaybackrow ? (playActionPageIndicatorHeightDefault + playActionRowHeightDefault) : 0;
+    stackHeight += includePlaybackRow ? playActionRowHeightDefault : 0;
+    stackHeight += includePlaybackRowPageIndicator ? playActionPageIndicatorHeightDefault : 0;
     return stackHeight;
   }
 

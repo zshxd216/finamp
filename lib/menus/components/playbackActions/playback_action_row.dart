@@ -1,10 +1,10 @@
+import 'package:finamp/menus/components/playbackActions/playback_action_page_indicator.dart';
 import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:finamp/menus/components/playbackActions/playback_action_page_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,12 +18,14 @@ class PlaybackActionRow extends ConsumerStatefulWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.queueItem,
   });
 
   final PlayableItem item;
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final FinampQueueItem? queueItem;
 
   @override
   ConsumerState<PlaybackActionRow> createState() => _PlaybackActionRowState();
@@ -34,26 +36,34 @@ class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
 
   @override
   Widget build(BuildContext context) {
-    final nextUpNotEmpty = ref.watch(QueueService.queueInfoStreamProvider).valueOrNull?.nextUp.isNotEmpty ?? false;
-    final lastUsedPlaybackActionRowPage = ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPage);
-    final lastUsedPlaybackActionRowPageIndex = lastUsedPlaybackActionRowPage.pageIndexFor(
-      nextUpIsEmpty: !nextUpNotEmpty,
-    );
-    final initialPageViewIndex = ref.watch(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
-        ? lastUsedPlaybackActionRowPageIndex
-        : 0;
-    controller = PageController(initialPage: initialPageViewIndex);
+    final nextUpEmpty = ref.watch(QueueService.queueProvider)?.nextUp.isEmpty ?? true;
+    final preferPreprendingToNextUp = ref.watch(finampSettingsProvider.preferNextUpPrepending);
 
-    final Map<String, Widget> playbackActionPages = getPlaybackActionPages(
+    final Map<PlaybackActionRowPage, Widget> playbackActionPages = getPlaybackActionPages(
       context: context,
       item: widget.item,
-      nextUpNotEmpty: nextUpNotEmpty,
+      nextUpNotEmpty: !nextUpEmpty,
       popContext: widget.popContext,
       compactLayout: widget.compactLayout,
       genreFilter: widget.genreFilter,
-      preferNextUp: ref.watch(finampSettingsProvider.preferNextUpPrepending),
+      preferPrependingToNextUp: ref.watch(finampSettingsProvider.preferNextUpPrepending),
+      queueItem: widget.queueItem,
     );
 
+    // initial page for regular playback action row
+    // queue menu pages are saved as a separate setting from others.
+    var lastUsedPlaybackActionRowPage = widget.queueItem != null
+        ? ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPageForQueueMenu)
+        : ref.watch(finampSettingsProvider.lastUsedPlaybackActionRowPage);
+    lastUsedPlaybackActionRowPage =
+        nextUpEmpty && preferPreprendingToNextUp && lastUsedPlaybackActionRowPage == PlaybackActionRowPage.appendNext
+        ? PlaybackActionRowPage.playNext
+        : lastUsedPlaybackActionRowPage;
+    final lastUsedPlaybackActionRowPageIndex = playbackActionPages.keys.toList().indexOf(lastUsedPlaybackActionRowPage);
+    final initialPageViewIndex = ref.watch(finampSettingsProvider.rememberLastUsedPlaybackActionRowPage)
+        ? lastUsedPlaybackActionRowPageIndex
+        : 0;
+    controller = PageController(initialPage: initialPageViewIndex.clamp(0, playbackActionPages.length));
     final double playActionRowHeight = widget.compactLayout ? 76.0 : playActionRowHeightDefault;
     final rememberLastUsedPlaybackActionRowPage = ref.read(
       finampSettingsProvider.rememberLastUsedPlaybackActionRowPage,
@@ -72,31 +82,23 @@ class _PlaybackActionRowState extends ConsumerState<PlaybackActionRow> {
             scrollDirection: Axis.horizontal,
             children: playbackActionPages.values.toList(),
             onPageChanged: (index) {
-              if (!rememberLastUsedPlaybackActionRowPage) return;
+              if (!rememberLastUsedPlaybackActionRowPage || playbackActionPages.keys.length <= 1) return;
 
-              final nextUpDefault = ref.read(finampSettingsProvider.preferNextUpPrepending)
-                  ? PlaybackActionRowPage.playNext
-                  : PlaybackActionRowPage.appendNext;
-
-              final pageMap = ref.read(QueueService.queueInfoStreamProvider).value?.nextUp.isEmpty ?? true
-                  ? {0: PlaybackActionRowPage.newQueue, 1: nextUpDefault, 2: PlaybackActionRowPage.playLast}
-                  : {
-                      0: PlaybackActionRowPage.newQueue,
-                      1: PlaybackActionRowPage.playNext,
-                      2: PlaybackActionRowPage.appendNext,
-                      3: PlaybackActionRowPage.playLast,
-                    };
-
-              final newPage = pageMap[index] ?? PlaybackActionRowPage.newQueue;
-              FinampSetters.setLastUsedPlaybackActionRowPage(newPage);
+              final newPage = playbackActionPages.keys.toList()[index];
+              if (widget.queueItem != null) {
+                FinampSetters.setLastUsedPlaybackActionRowPageForQueueMenu(newPage);
+              } else {
+                FinampSetters.setLastUsedPlaybackActionRowPage(newPage);
+              }
             },
           ),
         ),
-        PlaybackActionPageIndicator(
-          pages: playbackActionPages,
-          pageController: controller,
-          compactLayout: widget.compactLayout,
-        ),
+        if (playbackActionPages.keys.length > 1)
+          PlaybackActionPageIndicator(
+            pages: playbackActionPages,
+            pageController: controller,
+            compactLayout: widget.compactLayout,
+          ),
       ],
     );
   }

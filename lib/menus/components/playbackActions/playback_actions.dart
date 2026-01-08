@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:finamp/components/global_snackbar.dart';
@@ -5,7 +6,6 @@ import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/item_helper.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:flutter/material.dart';
@@ -13,61 +13,75 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 
-Map<String, Widget> getPlaybackActionPages({
+Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
   required BuildContext context,
   required PlayableItem item,
   required bool nextUpNotEmpty,
   bool popContext = true,
   bool compactLayout = false,
-  bool preferNextUp = false,
+  bool preferPrependingToNextUp = false,
   BaseItemDto? genreFilter,
+  FinampQueueItem? queueItem,
 }) {
   final BaseItemDtoType? itemType = item is BaseItemDto ? BaseItemDtoType.fromItem(item) : null;
 
-  return {
-    // New Queue
-    AppLocalizations.of(context)!.playbackActionPageNewQueue: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (itemType != BaseItemDtoType.genre)
-          PlayPlaybackAction(
-            item: item,
-            popContext: popContext,
-            compactLayout: compactLayout,
-            genreFilter: genreFilter,
-          ),
-        ShufflePlaybackAction(
-          item: item,
-          itemType: itemType,
-          popContext: popContext,
-          compactLayout: compactLayout,
-          genreFilter: genreFilter,
+  if (itemType == BaseItemDtoType.track) {
+    return {
+      if (queueItem != null)
+        // Move within queue
+        PlaybackActionRowPage.moveWithinQueue: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (nextUpNotEmpty || preferPrependingToNextUp)
+              MovePlayNextPlaybackAction(
+                item: queueItem,
+                popContext: popContext,
+                compactLayout: compactLayout,
+                genreFilter: genreFilter,
+              ),
+            if (nextUpNotEmpty || !preferPrependingToNextUp)
+              MoveAddToNextUpPlaybackAction(
+                item: queueItem,
+                popContext: popContext,
+                compactLayout: compactLayout,
+                genreFilter: genreFilter,
+              ),
+            MoveAddToQueuePlaybackAction(
+              item: queueItem,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
+            ),
+          ],
         ),
-        if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
-          ShuffleAlbumsPlaybackAction(
-            item: item,
-            itemType: itemType,
-            popContext: popContext,
-            compactLayout: compactLayout,
-            genreFilter: genreFilter,
-          ),
-      ],
-    ),
-    // Next
-    if (nextUpNotEmpty || preferNextUp)
-      AppLocalizations.of(context)!.playbackActionPageNext: Row(
+      // Regular Options
+      PlaybackActionRowPage.regularTrackOptions: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          PlayPlaybackAction(item: item),
+          if (nextUpNotEmpty || preferPrependingToNextUp) PlayNextPlaybackAction(item: item),
+          if (nextUpNotEmpty || !preferPrependingToNextUp) AddToNextUpPlaybackAction(item: item),
+          AddToQueuePlaybackAction(item: item),
+        ],
+      ),
+    };
+  } else {
+    return {
+      // New Queue
+      PlaybackActionRowPage.newQueue: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (itemType != BaseItemDtoType.genre)
-            PlayNextPlaybackAction(
+            PlayPlaybackAction(
               item: item,
               popContext: popContext,
               compactLayout: compactLayout,
               genreFilter: genreFilter,
             ),
-          ShuffleNextPlaybackAction(
+          ShufflePlaybackAction(
             item: item,
             itemType: itemType,
             popContext: popContext,
@@ -75,7 +89,7 @@ Map<String, Widget> getPlaybackActionPages({
             genreFilter: genreFilter,
           ),
           if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
-            ShuffleAlbumsNextPlaybackAction(
+            ShuffleAlbumsPlaybackAction(
               item: item,
               itemType: itemType,
               popContext: popContext,
@@ -84,20 +98,79 @@ Map<String, Widget> getPlaybackActionPages({
             ),
         ],
       ),
-    // Append to Next Up
-    if (nextUpNotEmpty || !preferNextUp)
-      AppLocalizations.of(context)!.playbackActionPageNextUp: Row(
+      // Next
+      if (nextUpNotEmpty || preferPrependingToNextUp)
+        PlaybackActionRowPage.playNext: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (itemType != BaseItemDtoType.genre)
+              PlayNextPlaybackAction(
+                item: item,
+                popContext: popContext,
+                compactLayout: compactLayout,
+                genreFilter: genreFilter,
+              ),
+            ShuffleNextPlaybackAction(
+              item: item,
+              itemType: itemType,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
+            ),
+            if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
+              ShuffleAlbumsNextPlaybackAction(
+                item: item,
+                itemType: itemType,
+                popContext: popContext,
+                compactLayout: compactLayout,
+                genreFilter: genreFilter,
+              ),
+          ],
+        ),
+      // Append to Next Up
+      if (nextUpNotEmpty || !preferPrependingToNextUp)
+        PlaybackActionRowPage.appendNext: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (itemType != BaseItemDtoType.genre)
+              AddToNextUpPlaybackAction(
+                item: item,
+                popContext: popContext,
+                compactLayout: compactLayout,
+                genreFilter: genreFilter,
+              ),
+            ShuffleToNextUpPlaybackAction(
+              item: item,
+              itemType: itemType,
+              popContext: popContext,
+              compactLayout: compactLayout,
+              genreFilter: genreFilter,
+            ),
+            if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
+              ShuffleAlbumsToNextUpPlaybackAction(
+                item: item,
+                itemType: itemType,
+                popContext: popContext,
+                compactLayout: compactLayout,
+                genreFilter: genreFilter,
+              ),
+          ],
+        ),
+      // Append to Queue
+      PlaybackActionRowPage.playLast: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (itemType != BaseItemDtoType.genre)
-            AddToNextUpPlaybackAction(
+            AddToQueuePlaybackAction(
               item: item,
               popContext: popContext,
               compactLayout: compactLayout,
               genreFilter: genreFilter,
             ),
-          ShuffleToNextUpPlaybackAction(
+          ShuffleToQueuePlaybackAction(
             item: item,
             itemType: itemType,
             popContext: popContext,
@@ -105,7 +178,7 @@ Map<String, Widget> getPlaybackActionPages({
             genreFilter: genreFilter,
           ),
           if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
-            ShuffleAlbumsToNextUpPlaybackAction(
+            ShuffleAlbumsToQueuePlaybackAction(
               item: item,
               itemType: itemType,
               popContext: popContext,
@@ -114,36 +187,8 @@ Map<String, Widget> getPlaybackActionPages({
             ),
         ],
       ),
-    // Append to Queue
-    AppLocalizations.of(context)!.playbackActionPageAppendToQueue: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (itemType != BaseItemDtoType.genre)
-          AddToQueuePlaybackAction(
-            item: item,
-            popContext: popContext,
-            compactLayout: compactLayout,
-            genreFilter: genreFilter,
-          ),
-        ShuffleToQueuePlaybackAction(
-          item: item,
-          itemType: itemType,
-          popContext: popContext,
-          compactLayout: compactLayout,
-          genreFilter: genreFilter,
-        ),
-        if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
-          ShuffleAlbumsToQueuePlaybackAction(
-            item: item,
-            itemType: itemType,
-            popContext: popContext,
-            compactLayout: compactLayout,
-            genreFilter: genreFilter,
-          ),
-      ],
-    ),
-  };
+    };
+  }
 }
 
 class PlayPlaybackAction extends ConsumerWidget {
@@ -202,7 +247,6 @@ class PlayNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       label: AppLocalizations.of(context)!.playNext,
       compactLayout: compactLayout,
@@ -218,6 +262,47 @@ class PlayNextPlaybackAction extends ConsumerWidget {
 
         GlobalSnackbar.message(
           (scaffold) => AppLocalizations.of(scaffold)!.confirmPlayNext(BaseItemDtoType.fromPlayableItem(item).name),
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+    );
+  }
+}
+
+class MovePlayNextPlaybackAction extends ConsumerWidget {
+  const MovePlayNextPlaybackAction({
+    super.key,
+    required this.item,
+    this.popContext = true,
+    this.compactLayout = false,
+    this.genreFilter,
+  });
+
+  final FinampQueueItem item;
+  final bool popContext;
+  final bool compactLayout;
+  final BaseItemDto? genreFilter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queueService = GetIt.instance<QueueService>();
+
+    return PlaybackAction(
+      icon: TablerIcons.corner_right_down,
+      label: AppLocalizations.of(context)!.movePlayNext,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
+        unawaited(queueService.removeQueueItem(item));
+        await queueService.addNext(items: [item.baseItem!], source: item.source);
+
+        GlobalSnackbar.message(
+          (scaffold) =>
+              AppLocalizations.of(scaffold)!.confirmPlayNext(BaseItemDtoType.fromPlayableItem(item.baseItem!).name),
           isConfirmation: true,
         );
       },
@@ -245,7 +330,6 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       label: AppLocalizations.of(context)!.addToNextUp,
       compactLayout: compactLayout,
@@ -261,6 +345,47 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
 
         GlobalSnackbar.message(
           (scaffold) => AppLocalizations.of(scaffold)!.confirmAddToNextUp(BaseItemDtoType.fromPlayableItem(item).name),
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+    );
+  }
+}
+
+class MoveAddToNextUpPlaybackAction extends ConsumerWidget {
+  const MoveAddToNextUpPlaybackAction({
+    super.key,
+    required this.item,
+    this.popContext = true,
+    this.compactLayout = false,
+    this.genreFilter,
+  });
+
+  final FinampQueueItem item;
+  final bool popContext;
+  final bool compactLayout;
+  final BaseItemDto? genreFilter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queueService = GetIt.instance<QueueService>();
+
+    return PlaybackAction(
+      icon: TablerIcons.corner_right_down_double,
+      label: AppLocalizations.of(context)!.moveAddToNextUp,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
+        unawaited(queueService.removeQueueItem(item));
+        await queueService.addToNextUp(items: [item.baseItem!], source: item.source);
+
+        GlobalSnackbar.message(
+          (scaffold) =>
+              AppLocalizations.of(scaffold)!.confirmAddToNextUp(BaseItemDtoType.fromPlayableItem(item.baseItem!).name),
           isConfirmation: true,
         );
       },
@@ -303,6 +428,47 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
 
         GlobalSnackbar.message(
           (scaffold) => AppLocalizations.of(scaffold)!.confirmAddToQueue(BaseItemDtoType.fromPlayableItem(item).name),
+          isConfirmation: true,
+        );
+      },
+      iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+    );
+  }
+}
+
+class MoveAddToQueuePlaybackAction extends ConsumerWidget {
+  const MoveAddToQueuePlaybackAction({
+    super.key,
+    required this.item,
+    this.popContext = true,
+    this.compactLayout = false,
+    this.genreFilter,
+  });
+
+  final FinampQueueItem item;
+  final bool popContext;
+  final bool compactLayout;
+  final BaseItemDto? genreFilter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queueService = GetIt.instance<QueueService>();
+
+    return PlaybackAction(
+      icon: TablerIcons.playlist,
+      label: AppLocalizations.of(context)!.moveAddToQueue,
+      compactLayout: compactLayout,
+      onPressed: () async {
+        if (popContext) {
+          Navigator.pop(context);
+        }
+
+        unawaited(queueService.removeQueueItem(item));
+        await queueService.addToQueue(items: [item.baseItem!], source: item.source);
+
+        GlobalSnackbar.message(
+          (scaffold) =>
+              AppLocalizations.of(scaffold)!.confirmAddToQueue(BaseItemDtoType.fromPlayableItem(item.baseItem!).name),
           isConfirmation: true,
         );
       },
@@ -374,7 +540,6 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -420,7 +585,6 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -566,7 +730,6 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)
@@ -619,7 +782,6 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
     final queueService = GetIt.instance<QueueService>();
 
     return PlaybackAction(
-      enabled: !(Platform.isWindows || Platform.isLinux),
       icon: TablerIcons.corner_right_down_double,
       addShuffleIcon: true,
       label: (itemType == BaseItemDtoType.genre)

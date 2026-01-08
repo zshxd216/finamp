@@ -88,18 +88,50 @@ class _ArtistScreenContentState extends ConsumerState<ArtistScreenContent> {
     /// will use the next available filter, fetch its items and return those in addition to a set
     /// containing the disabled filters that had no items.
     final (topTracksAsync, artistCuratedItemSelectionType, newDisabledTrackFilters) =
-        ref.watch(getArtistTracksSectionProvider(widget.parent, widget.library, currentGenreFilter)).valueOrNull ??
+        ref
+            .watch(
+              getArtistTracksSectionProvider(
+                artist: widget.parent,
+                libraryFilter: widget.library,
+                genreFilter: currentGenreFilter,
+              ),
+            )
+            .valueOrNull ??
         (null, null, null);
     final albumArtistAlbumsAsync = ref
-        .watch(getArtistAlbumsProvider(widget.parent, widget.library, currentGenreFilter))
+        .watch(
+          getArtistAlbumsProvider(
+            artist: widget.parent,
+            libraryFilter: widget.library,
+            genreFilter: currentGenreFilter,
+          ),
+        )
         .valueOrNull;
     final performingArtistAlbumsAsync = ref
-        .watch(getPerformingArtistAlbumsProvider(widget.parent, widget.library, currentGenreFilter))
+        .watch(
+          getPerformingArtistAlbumsProvider(
+            artist: widget.parent,
+            libraryFilter: widget.library,
+            genreFilter: currentGenreFilter,
+          ),
+        )
         .valueOrNull;
     final allPerformingArtistTracksAsync = ref
-        .watch(getPerformingArtistTracksProvider(widget.parent, widget.library, currentGenreFilter))
+        .watch(
+          getPerformingArtistTracksProvider(
+            artist: widget.parent,
+            libraryFilter: widget.library,
+            genreFilter: currentGenreFilter,
+          ),
+        )
         .valueOrNull;
-    final allTracks = ref.watch(getArtistTracksProvider(widget.parent, widget.library, currentGenreFilter).future);
+    final allTracks = ref.watch(
+      getArtistTracksProvider(
+        artist: widget.parent,
+        libraryFilter: widget.library,
+        genreFilter: currentGenreFilter,
+      ).future,
+    );
 
     final isLoading = topTracksAsync == null || albumArtistAlbumsAsync == null || performingArtistAlbumsAsync == null;
 

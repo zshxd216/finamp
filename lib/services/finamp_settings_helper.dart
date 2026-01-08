@@ -123,7 +123,9 @@ class FinampSettingsHelper {
     FinampSettings finampSettingsTemp = finampSettings;
 
     FinampSetters.setThemeMode(DefaultSettings.themeMode);
-    FinampSetters.setAccentColor(null);
+    FinampSetters.setAccentColor(DefaultSettings.accentColor);
+    FinampSetters.setSystemAccentColor(DefaultSettings.accentColor);
+    FinampSetters.setUseSystemAccentColor(DefaultSettings.useSystemAccentColor);
     FinampSetters.setContentViewType(DefaultSettings.contentViewType);
     finampSettingsTemp.useFixedSizeGridTiles = DefaultSettings.useFixedSizeGridTiles;
     FinampSetters.setContentGridViewCrossAxisCountPortrait(DefaultSettings.contentGridViewCrossAxisCountPortrait);
@@ -135,6 +137,7 @@ class FinampSettingsHelper {
     finampSettingsTemp.allowSplitScreen = DefaultSettings.allowSplitScreen;
     finampSettingsTemp.showProgressOnNowPlayingBar = DefaultSettings.showProgressOnNowPlayingBar;
     finampSettingsTemp.autoSwitchItemCurationType = DefaultSettings.autoSwitchItemCurationType;
+    finampSettingsTemp.useMonochromeIcon = DefaultSettings.useMonochromeIcon;
 
     Hive.box<FinampSettings>("FinampSettings").put("FinampSettings", finampSettingsTemp);
   }
@@ -181,6 +184,8 @@ class FinampSettingsHelper {
     FinampSetters.setAutoReloadQueue(DefaultSettings.autoReloadQueue);
     FinampSetters.setClearQueueOnStopEvent(DefaultSettings.clearQueueOnStopEvent);
     FinampSetters.setAutoplayRestoredQueue(DefaultSettings.autoplayRestoredQueue);
+    FinampSetters.setDuckOnAudioInterruption(DefaultSettings.duckOnAudioInterruption);
+    FinampSetters.setForceAudioOffloadingOnAndroid(DefaultSettings.forceAudioOffloadingOnAndroid);
   }
 
   static void resetPlaybackReportingSettings() {

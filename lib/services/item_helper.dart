@@ -57,13 +57,17 @@ Future<List<BaseItemDto>> loadChildTracksFromBaseItem({required BaseItemDto base
         break;
       case BaseItemDtoType.artist:
         newItemsFuture = ref.read(
-          getArtistTracksProvider(baseItem, finampUserHelper.currentUser?.currentView, genreFilter).future,
+          getArtistTracksProvider(
+            artist: baseItem,
+            libraryFilter: finampUserHelper.currentUser?.currentView,
+            genreFilter: genreFilter,
+          ).future,
         );
         break;
       case BaseItemDtoType.genre:
         newItemsFuture = jellyfinApiHelper.getItems(
           parentItem: finampUserHelper.currentUser?.currentView,
-          includeItemTypes: [BaseItemDtoType.track.idString].join(","),
+          includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
           limit: FinampSettingsHelper.finampSettings.trackShuffleItemCount,
           genreFilter: baseItem,
           sortBy: "Random", // important, as we load limited tracks and otherwise would always get the same
@@ -72,7 +76,7 @@ Future<List<BaseItemDto>> loadChildTracksFromBaseItem({required BaseItemDto base
       default:
         newItemsFuture = jellyfinApiHelper.getItems(
           parentItem: baseItem,
-          includeItemTypes: [BaseItemDtoType.track.idString].join(","),
+          includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
           sortBy: "ParentIndexNumber,IndexNumber,SortName",
           sortOrder: null,
           genreFilter: genreFilter,
@@ -141,7 +145,11 @@ Future<List<BaseItemDto>?> loadChildTracksOffline({
           .then((value) => value.$2); // get playable tracks
     case BaseItemDtoType.artist:
       items = await GetIt.instance<ProviderContainer>().read(
-        getArtistTracksProvider(baseItem, finampUserHelper.currentUser?.currentView, genreFilter).future,
+        getArtistTracksProvider(
+          artist: baseItem,
+          libraryFilter: finampUserHelper.currentUser?.currentView,
+          genreFilter: genreFilter,
+        ).future,
       );
       items = sortArtistTracks(items);
       break;
@@ -202,7 +210,7 @@ Future<List<BaseItemDto>> loadChildTracksFromShuffledGenreAlbums({required BaseI
     List<BaseItemDto>? genreAlbums =
         await jellyfinApiHelper.getItems(
           parentItem: finampUserHelper.currentUser?.currentView,
-          includeItemTypes: [BaseItemDtoType.album.idString].join(","),
+          includeItemTypes: [BaseItemDtoType.album.jellyfinName].join(","),
           limit: albumLimit,
           genreFilter: baseItem,
           sortBy: "Random", // important, as we load limited albums and otherwise would always get the same
@@ -215,7 +223,7 @@ Future<List<BaseItemDto>> loadChildTracksFromShuffledGenreAlbums({required BaseI
     List<BaseItemDto>? newAlbumTracks =
         await jellyfinApiHelper.getItems(
           albumIds: albumIds,
-          includeItemTypes: [BaseItemDtoType.track.idString].join(","),
+          includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
           sortBy: "Album,ParentIndexNumber,IndexNumber,SortName",
           // here we fetch one additional track to later check if the last album fits perfectly in the limit or if it exceeds it and has to be removed:
           limit: totalTrackLimit + 1,

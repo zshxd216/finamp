@@ -6,6 +6,7 @@ import 'package:finamp/components/global_snackbar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
 import 'package:finamp/components/HomeScreen/home_screen_content.dart';
@@ -131,56 +132,47 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
             GlobalSnackbar.error(e);
           }
         },
-        child: const Icon(Icons.shuffle),
+        child: const Icon(TablerIcons.arrows_shuffle),
       );
-    } else if (_tabController!.index == sortedTabs.indexOf(TabContentType.artists)) {
+    } else if ([
+      TabContentType.artists,
+      TabContentType.albums,
+      TabContentType.genres,
+    ].contains(sortedTabs.elementAt(_tabController!.index))) {
       return FloatingActionButton(
         tooltip: AppLocalizations.of(context)!.startMix,
         onPressed: () async {
           try {
-            if (_jellyfinApiHelper.selectedMixArtists.isEmpty) {
-              GlobalSnackbar.message((scaffold) => AppLocalizations.of(context)!.startMixNoTracksArtist);
-            } else {
-              await _audioServiceHelper.startInstantMixForArtists(_jellyfinApiHelper.selectedMixArtists);
-              _jellyfinApiHelper.clearArtistMixBuilderList();
+            switch (sortedTabs.elementAt(_tabController!.index)) {
+              case TabContentType.artists:
+                if (_jellyfinApiHelper.selectedMixArtists.isEmpty) {
+                  GlobalSnackbar.message((scaffold) => AppLocalizations.of(context)!.startMixNoTracksArtist);
+                } else {
+                  await _audioServiceHelper.startInstantMixForArtists(_jellyfinApiHelper.selectedMixArtists);
+                  _jellyfinApiHelper.clearArtistMixBuilderList();
+                }
+                break;
+              case TabContentType.albums:
+                if (_jellyfinApiHelper.selectedMixAlbums.isEmpty) {
+                  GlobalSnackbar.message((scaffold) => AppLocalizations.of(context)!.startMixNoTracksAlbum);
+                } else {
+                  await _audioServiceHelper.startInstantMixForAlbums(_jellyfinApiHelper.selectedMixAlbums);
+                }
+                break;
+              case TabContentType.genres:
+                if (_jellyfinApiHelper.selectedMixGenres.isEmpty) {
+                  GlobalSnackbar.message((scaffold) => AppLocalizations.of(context)!.startMixNoTracksGenre);
+                } else {
+                  await _audioServiceHelper.startInstantMixForGenres(_jellyfinApiHelper.selectedMixGenres);
+                }
+                break;
+              default:
             }
           } catch (e) {
             GlobalSnackbar.error(e);
           }
         },
-        child: const Icon(Icons.explore),
-      );
-    } else if (_tabController!.index == sortedTabs.indexOf(TabContentType.albums)) {
-      return FloatingActionButton(
-        tooltip: AppLocalizations.of(context)!.startMix,
-        onPressed: () async {
-          try {
-            if (_jellyfinApiHelper.selectedMixAlbums.isEmpty) {
-              GlobalSnackbar.message((scaffold) => AppLocalizations.of(context)!.startMixNoTracksAlbum);
-            } else {
-              await _audioServiceHelper.startInstantMixForAlbums(_jellyfinApiHelper.selectedMixAlbums);
-            }
-          } catch (e) {
-            GlobalSnackbar.error(e);
-          }
-        },
-        child: const Icon(Icons.explore),
-      );
-    } else if (_tabController!.index == sortedTabs.indexOf(TabContentType.genres)) {
-      return FloatingActionButton(
-        tooltip: AppLocalizations.of(context)!.startMix,
-        onPressed: () async {
-          try {
-            if (_jellyfinApiHelper.selectedMixGenres.isEmpty) {
-              GlobalSnackbar.message((scaffold) => AppLocalizations.of(context)!.startMixNoTracksGenre);
-            } else {
-              await _audioServiceHelper.startInstantMixForGenres(_jellyfinApiHelper.selectedMixGenres);
-            }
-          } catch (e) {
-            GlobalSnackbar.error(e);
-          }
-        },
-        child: const Icon(Icons.explore),
+        child: const Icon(TablerIcons.category_2),
       );
     } else {
       return null;

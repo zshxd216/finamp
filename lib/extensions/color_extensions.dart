@@ -1,10 +1,29 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
 
 extension AtContrast on Color {
   static const double _tolerance = 0.05;
 
-  static final _atContrastLogger = Logger("AtContrast");
+  static Color getContrastiveTintedTextColor({required Color onBackground}) {
+    final whiteTinted = Color.alphaBlend(onBackground.withOpacity(0.05), Colors.white);
+    final blackTinted = Color.alphaBlend(onBackground.withOpacity(0.3), Colors.black);
+    final contrasts = {
+      'white': whiteTinted.contrastAgainst(onBackground),
+      'black': blackTinted.contrastAgainst(onBackground),
+    };
+
+    print("contrasts: $contrasts");
+    print("contrasts selected color: ${contrasts.entries.sortedBy((e) => -e.value).first.key}");
+    return switch (contrasts.entries.sortedBy((e) => -e.value).first.key) {
+      'white' => whiteTinted,
+      'black' => blackTinted,
+      _ => onBackground,
+    };
+  }
+
+  double contrastAgainst(Color other) {
+    return contrastRatio(computeLuminance(), other.computeLuminance());
+  }
 
   // Contrast calculations
   double contrastRatio(num a, num b) {
@@ -45,8 +64,6 @@ extension AtContrast on Color {
 
       diff = (contrast.abs() - targetContrast.abs());
     }
-
-    _atContrastLogger.info("Calculated contrast in $steps steps");
 
     return hslColor.toColor();
   }

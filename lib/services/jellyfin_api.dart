@@ -221,6 +221,16 @@ abstract class JellyfinApi extends ChopperService {
   });
 
   @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
+  @GET(path: "/Albums/{id}/Similar")
+  Future<dynamic> getSimilarAlbums({
+    @Path() required BaseItemId id,
+    @Query() String? userId,
+    @Query() List<String>? excludeArtistIds,
+    @Query() int? limit,
+    @Query() List<String>? fields,
+  });
+
+  @FactoryConverter(request: JsonConverter.requestFactory, response: JsonConverter.responseFactory)
   @Get(path: "/Users/{userId}/Items/{itemId}")
   Future<dynamic> getItemById({
     /// User id.
@@ -673,7 +683,7 @@ Future<DeviceInfo> getDeviceInfo() async {
   if (Platform.isAndroid) {
     AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
     final appSetId = await AppSetId().getIdentifier();
-    info = DeviceInfo(name: androidDeviceInfo.model, id: "$appSetId-$idExtension");
+    info = DeviceInfo(name: androidDeviceInfo.name, id: "$appSetId-$idExtension");
   } else if (Platform.isIOS) {
     IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
     final appSetId = await AppSetId().getIdentifier();

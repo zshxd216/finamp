@@ -275,7 +275,7 @@ Future<BaseItemDto?> getPlaylistGenreBaseItemDto(String genreName, bool isOfflin
     genreItems =
         await jellyfinApiHelper.getItems(
           parentItem: finampUserHelper.currentUser?.currentView,
-          includeItemTypes: BaseItemDtoType.genre.idString,
+          includeItemTypes: BaseItemDtoType.genre.jellyfinName,
           searchTerm: genreName.trim(),
         ) ??
         [];

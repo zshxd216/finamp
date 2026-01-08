@@ -15,6 +15,7 @@ import 'package:finamp/services/current_album_image_provider.dart';
 import 'package:finamp/services/datetime_helper.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/item_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
@@ -103,6 +104,17 @@ class TrackListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    bool playable;
+    if (ref.watch(finampSettingsProvider.isOffline)) {
+      playable = ref.watch(
+        GetIt.instance<DownloadsService>()
+            .stateProvider(DownloadStub.fromItem(type: DownloadItemType.track, item: item))
+            .select((value) => value.value?.isComplete ?? false),
+      );
+    } else {
+      playable = true;
+    }
+
     Future<void> trackListTileOnTap(bool playable) async {
       final queueService = GetIt.instance<QueueService>();
       final audioServiceHelper = GetIt.instance<AudioServiceHelper>();
@@ -159,16 +171,37 @@ class TrackListTile extends ConsumerWidget {
           );
 
           var items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
+          var sortBy = settings.tabSortBy[TabContentType.tracks];
+          if ([SortBy.playCount, SortBy.datePlayed].contains(sortBy)) {
+            sortBy = SortBy.sortName;
+          }
 
-          items = sortItems(
-            items,
-            settings.tabSortBy[TabContentType.tracks],
-            settings.tabSortOrder[TabContentType.tracks],
-          );
+          items = sortItems(items, sortBy, settings.tabSortOrder[TabContentType.tracks]);
+
+          int startingIndex = isShownInSearchOrHistory
+              ? items.indexWhere((element) => element.id == item.id)
+              : index ?? 0;
+          //!!! limit the amount of tracks to prevent freezing and crashing for many tracks
+          if (items.length > QueueService.maxInitialQueueItems) {
+            // take 10% of the maximum before the index, and the rest after the index
+            final firstTrackIndex = startingIndex - (QueueService.maxInitialQueueItems ~/ 10);
+            final lastTrackIndex =
+                startingIndex + (QueueService.maxInitialQueueItems - (QueueService.maxInitialQueueItems ~/ 10));
+            // update the initial index
+            if (firstTrackIndex > 0) {
+              startingIndex = startingIndex - firstTrackIndex;
+            } else {
+              startingIndex = startingIndex;
+            }
+            items = items.sublist(
+              firstTrackIndex >= 0 ? firstTrackIndex : 0,
+              lastTrackIndex <= items.length ? lastTrackIndex : items.length,
+            );
+          }
 
           await queueService.startPlayback(
             items: items,
-            startingIndex: isShownInSearchOrHistory ? items.indexWhere((element) => element.id == item.id) : index,
+            startingIndex: startingIndex,
             source: QueueItemSource(
               name: QueueItemSourceName(
                 type: item.name != null ? QueueItemSourceNameType.mix : QueueItemSourceNameType.instantMix,
@@ -176,6 +209,7 @@ class TrackListTile extends ConsumerWidget {
               ),
               type: QueueItemSourceType.allTracks,
               id: item.id,
+              item: item,
             ),
           );
         } else {
@@ -183,12 +217,8 @@ class TrackListTile extends ConsumerWidget {
             await audioServiceHelper.startInstantMixForItem(item);
           } else {
             await queueService.startPlayback(
-              items: [item],
-              source: QueueItemSource(
-                name: QueueItemSourceName(type: QueueItemSourceNameType.preTranslated, pretranslatedName: item.name),
-                type: QueueItemSourceType.track,
-                id: item.id,
-              ),
+              items: await loadChildTracks(item: item, genreFilter: genreFilter),
+              source: QueueItemSource.fromBaseItem(item),
             );
           }
         }
@@ -204,7 +234,6 @@ class TrackListTile extends ConsumerWidget {
       forceAlbumArtists: forceAlbumArtists,
       adaptiveAdditionalInfoSortBy: adaptiveAdditionalInfoSortBy,
       isInPlaylist: isInPlaylist,
-      allowDismiss: allowDismiss,
       highlightCurrentTrack: highlightCurrentTrack,
       onRemoveFromList: onRemoveFromList,
       onTap: trackListTileOnTap,
@@ -232,6 +261,7 @@ class TrackListTile extends ConsumerWidget {
         showCover ? TrackListItemFeatures.cover : null,
         TrackListItemFeatures.duration,
         TrackListItemFeatures.addToPlaylistOrFavorite,
+        playable && allowDismiss ? TrackListItemFeatures.swipeable : null,
       ].nonNulls.toList(),
     );
   }
@@ -258,10 +288,6 @@ Future<bool> onConfirmPlayableDismiss({
   var followUpAction = (direction == DismissDirection.startToEnd)
       ? FinampSettingsHelper.finampSettings.itemSwipeActionLeftToRight
       : FinampSettingsHelper.finampSettings.itemSwipeActionRightToLeft;
-
-  if (Platform.isWindows || Platform.isLinux) {
-    followUpAction = ItemSwipeActions.addToQueue;
-  }
 
   final queueService = GetIt.instance<QueueService>();
 
@@ -344,10 +370,6 @@ Widget buildSwipeActionBackground({
   required ItemSwipeActions action,
   double? iconSize,
 }) {
-  if (Platform.isWindows || Platform.isLinux) {
-    action = ItemSwipeActions.addToQueue;
-  }
-
   final icon = getSwipeActionIcon(action);
   final label = action.toLocalisedString(context);
 
@@ -376,12 +398,12 @@ DismissDirection getAllowedDismissDirection({required bool swipeLeftEnabled, req
 
 class QueueListTile extends StatelessWidget {
   final BaseItemDto item;
+  final FinampQueueItem queueItem;
   final BaseItemDto? parentItem;
   final int? listIndex;
   final bool isCurrentTrack;
   final bool isInPlaylist;
   final bool allowReorder;
-  final bool allowDismiss;
   final bool highlightCurrentTrack;
 
   final void Function(bool playable) onTap;
@@ -392,12 +414,12 @@ class QueueListTile extends StatelessWidget {
   const QueueListTile({
     super.key,
     required this.item,
+    required this.queueItem,
     required this.listIndex,
     required this.onTap,
     required this.isCurrentTrack,
     required this.isInPlaylist,
     required this.allowReorder,
-    this.allowDismiss = true,
     this.highlightCurrentTrack = false,
     this.parentItem,
     this.onRemoveFromList,
@@ -407,14 +429,14 @@ class QueueListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return TrackListItem(
       baseItem: item,
+      queueItem: queueItem,
       parentItem: parentItem,
       listIndex: listIndex,
       actualIndex: item.indexNumber,
       isInPlaylist: isInPlaylist,
-      allowDismiss: allowDismiss,
       highlightCurrentTrack: highlightCurrentTrack,
       onRemoveFromList: onRemoveFromList,
-      // This must be in ListTile instead of parent GestureDetecter to
+      // This must be in ListTile instead of parent GestureDetector to
       // enable hover color changes
       onTap: onTap,
       confirmDismiss: (DismissDirection direction) async {
@@ -426,6 +448,7 @@ class QueueListTile extends StatelessWidget {
         TrackListItemFeatures.cover,
         TrackListItemFeatures.duration,
         TrackListItemFeatures.addToPlaylistOrFavorite,
+        TrackListItemFeatures.swipeable,
         allowReorder ? TrackListItemFeatures.dragHandle : null,
       ].nonNulls.toList(),
     );
@@ -469,6 +492,7 @@ class EditListTile extends StatelessWidget {
         TrackListItemFeatures.cover,
         TrackListItemFeatures.dragHandle,
         TrackListItemFeatures.fullyDraggable,
+        TrackListItemFeatures.swipeable,
         restoreInsteadOfRemove ? TrackListItemFeatures.restoreButton : TrackListItemFeatures.removeFromListButton,
       ].nonNulls.toList(),
     );
@@ -478,13 +502,13 @@ class EditListTile extends StatelessWidget {
 class TrackListItem extends ConsumerWidget {
   final BaseItemDto baseItem;
   final BaseItemDto? parentItem;
+  final FinampQueueItem? queueItem;
   final int? listIndex;
   final int? actualIndex;
   final bool showArtists;
   final bool forceAlbumArtists;
   final SortBy? adaptiveAdditionalInfoSortBy;
   final bool isInPlaylist;
-  final bool allowDismiss;
   final bool highlightCurrentTrack;
   final Widget leftSwipeBackground;
   final Widget rightSwipeBackground;
@@ -504,8 +528,8 @@ class TrackListItem extends ConsumerWidget {
     required this.confirmDismiss,
     required this.features,
     this.parentItem,
+    this.queueItem,
     this.isInPlaylist = false,
-    this.allowDismiss = true,
     this.showArtists = true,
     this.forceAlbumArtists = false,
     this.adaptiveAdditionalInfoSortBy,
@@ -539,6 +563,7 @@ class TrackListItem extends ConsumerWidget {
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0),
       child: TrackListItemTile(
         baseItem: baseItem,
+        queueItem: queueItem,
         listIndex: listIndex,
         actualIndex: actualIndex,
         showArtists: showArtists,
@@ -569,6 +594,7 @@ class TrackListItem extends ConsumerWidget {
               parentItem: parentItem,
               onRemoveFromList: onRemoveFromList,
               confirmPlaylistRemoval: false,
+              queueItem: queueItem,
             );
           }
         }
@@ -584,25 +610,23 @@ class TrackListItem extends ConsumerWidget {
           onSecondaryTapDown: features.contains(TrackListItemFeatures.fullyDraggable)
               ? null
               : (details) => menuCallback(),
-          child: !playable
-              ? listItem
-              : Dismissible(
+          child: features.contains(TrackListItemFeatures.swipeable) && !ref.watch(finampSettingsProvider.disableGesture)
+              ? Dismissible(
                   key: Key(listIndex.toString()),
-                  direction: ref.watch(finampSettingsProvider.disableGesture) || !allowDismiss
-                      ? DismissDirection.none
-                      : getAllowedDismissDirection(
-                          swipeLeftEnabled:
-                              ref.watch(finampSettingsProvider.itemSwipeActionLeftToRight) != ItemSwipeActions.nothing,
-                          swipeRightEnabled:
-                              ref.watch(finampSettingsProvider.itemSwipeActionRightToLeft) != ItemSwipeActions.nothing,
-                        ),
+                  direction: getAllowedDismissDirection(
+                    swipeLeftEnabled:
+                        ref.watch(finampSettingsProvider.itemSwipeActionLeftToRight) != ItemSwipeActions.nothing,
+                    swipeRightEnabled:
+                        ref.watch(finampSettingsProvider.itemSwipeActionRightToLeft) != ItemSwipeActions.nothing,
+                  ),
                   dismissThresholds: const {DismissDirection.startToEnd: 0.65, DismissDirection.endToStart: 0.65},
                   // no background, dismissing really dismisses here
                   confirmDismiss: confirmDismiss,
                   background: leftSwipeBackground,
                   secondaryBackground: rightSwipeBackground,
                   child: listItem,
-                ),
+                )
+              : listItem,
         );
       },
     );
@@ -649,6 +673,7 @@ enum TrackListItemFeatures {
   addToPlaylistOrFavorite,
   dragHandle,
   fullyDraggable,
+  swipeable,
   removeFromListButton,
   restoreButton,
 }
@@ -661,6 +686,7 @@ class TrackListItemTile extends ConsumerWidget {
     required this.onTap,
     required this.actualIndex,
     required this.features,
+    this.queueItem,
     this.listIndex,
     this.showArtists = true,
     this.forceAlbumArtists = false,
@@ -672,6 +698,7 @@ class TrackListItemTile extends ConsumerWidget {
   });
 
   final BaseItemDto baseItem;
+  final FinampQueueItem? queueItem;
   final bool isCurrentTrack;
   final int? listIndex;
   final int? actualIndex;
@@ -736,8 +763,10 @@ class TrackListItemTile extends ConsumerWidget {
       item: DownloadStub.fromItem(item: baseItem, type: DownloadItemType.track),
       size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1,
     );
+    final isRadioTrack = queueItem?.source.type == QueueItemSourceType.radio;
     final addSpaceAfterSpecialIcons =
-        (downloadedIndicator.isVisible(ref) || (baseItem.hasLyrics ?? false)) && (showDateAdded || showDateLastPlayed);
+        (downloadedIndicator.isVisible(ref) || (baseItem.hasLyrics ?? false) || isRadioTrack) &&
+        (showDateAdded || showDateLastPlayed);
 
     final showPlaybackProgress = !highlightCurrentTrack && playbackProgress != null && playbackProgress! < 0.99;
 
@@ -810,6 +839,18 @@ class TrackListItemTile extends ConsumerWidget {
               maxLines: 1,
               TextSpan(
                 children: [
+                  if (isRadioTrack)
+                    WidgetSpan(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 2.0),
+                        child: Transform.translate(
+                          offset: isOnDesktop ? Offset(-1.5, 1.7) : Offset(-1.5, 0.4),
+                          child: Icon(TablerIcons.radio, size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1),
+                        ),
+                      ),
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                    ),
                   WidgetSpan(
                     child: Padding(
                       padding: const EdgeInsets.only(right: 2.0),
@@ -838,7 +879,21 @@ class TrackListItemTile extends ConsumerWidget {
                       alignment: PlaceholderAlignment.baseline,
                       baseline: TextBaseline.alphabetic,
                     ),
-                  if (baseItem.hasLyrics ?? false) const WidgetSpan(child: SizedBox(width: 5)),
+                  if (baseItem.isExplicit)
+                    WidgetSpan(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 2.0),
+                        child: Transform.translate(
+                          offset: isOnDesktop ? Offset(-1.5, 3.3) : Offset(-1.5, 1.7),
+                          child: Icon(
+                            TablerIcons.explicit,
+                            size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 3,
+                          ),
+                        ),
+                      ),
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                    ),
                   if (addSpaceAfterSpecialIcons) const WidgetSpan(child: SizedBox(width: 5)),
                   if (showPlayCount)
                     TextSpan(
@@ -1024,7 +1079,7 @@ class TrackListItemTile extends ConsumerWidget {
                   ),
                 if (showOverflowMenu)
                   OverflowMenuButton(
-                    onPressed: () => showModalTrackMenu(context: context, item: baseItem),
+                    onPressed: () => showModalTrackMenu(context: context, item: baseItem, queueItem: queueItem),
                     color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
                     label: AppLocalizations.of(context)!.menuButtonLabel,
                   ),

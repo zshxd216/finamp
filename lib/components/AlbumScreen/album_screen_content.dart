@@ -119,15 +119,19 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
       slivers: [
         SliverLayoutBuilder(
           builder: (context, constraints) {
+            final maxActions = constraints.crossAxisExtent ~/ 48.0;
             final actions = [
-              if (parentIsPlaylist &&
+              if (maxActions >= 9 &&
+                  parentIsPlaylist &&
                   !ref.watch(finampSettingsProvider.isOffline) &&
                   ref.watch(canEditPlaylistProvider(widget.parent)))
                 PlaylistEditButton(playlist: widget.parent),
-              if (parentIsPlaylist) SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
-              if (parentIsPlaylist) SortMenuButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
-              FavoriteButton(item: widget.parent),
-              if (!isLoading)
+              if (parentIsPlaylist) ...[
+                // SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
+                SortMenuButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
+              ],
+              FavoriteButton(item: widget.parent, visualDensity: VisualDensity.standard),
+              if (maxActions >= 8 && !isLoading)
                 DownloadButton(
                   item: downloadStub,
                   children: displayChildren,

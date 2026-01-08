@@ -1,19 +1,38 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:collection/collection.dart';
 import 'package:finamp/components/AddToPlaylistScreen/add_to_playlist_button.dart';
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
+import 'package:finamp/components/Buttons/finamp_extended_floating_action_button.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
+import 'package:finamp/components/PlayerScreen/queue_source_helper.dart';
+import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/audio_fade_progress_visualizer_container.dart';
+import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/one_line_marquee_helper.dart';
+import 'package:finamp/components/padded_custom_scrollview.dart';
 import 'package:finamp/components/print_duration.dart';
+import 'package:finamp/components/themed_bottom_sheet.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/main.dart';
+import 'package:finamp/menus/choice_menu.dart';
+import 'package:finamp/menus/components/icon_button_with_semantics.dart';
+import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/menus/track_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart' as jellyfin_models;
 import 'package:finamp/screens/blurred_player_screen_background.dart';
+import 'package:finamp/services/current_album_image_provider.dart';
 import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/media_state_stream.dart';
+import 'package:finamp/services/music_player_background_task.dart';
+import 'package:finamp/services/process_artist.dart';
+import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/radio_service_helper.dart';
 import 'package:finamp/services/theme_provider.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/material.dart';
@@ -24,17 +43,6 @@ import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../models/jellyfin_models.dart' as jellyfin_models;
-import '../../services/current_album_image_provider.dart';
-import '../../services/media_state_stream.dart';
-import '../../services/music_player_background_task.dart';
-import '../../services/process_artist.dart';
-import '../../services/queue_service.dart';
-import '../album_image.dart';
-import '../padded_custom_scrollview.dart';
-import '../themed_bottom_sheet.dart';
-import 'queue_source_helper.dart';
-
 class QueueListStreamState {
   QueueListStreamState(this.mediaState, this.queueInfo);
 
@@ -42,7 +50,7 @@ class QueueListStreamState {
   final FinampQueueInfo? queueInfo;
 }
 
-class QueueList extends StatefulWidget {
+class QueueList extends ConsumerStatefulWidget {
   static const routeName = "/queue";
 
   const QueueList({
@@ -61,7 +69,7 @@ class QueueList extends StatefulWidget {
   final GlobalKey<JumpToCurrentButtonState> jumpToCurrentKey;
 
   @override
-  State<QueueList> createState() => _QueueListState();
+  ConsumerState<QueueList> createState() => _QueueListState();
 }
 
 void scrollToKey({required GlobalKey key, Duration duration = const Duration(milliseconds: 500)}) async {
@@ -78,7 +86,7 @@ void scrollToKey({required GlobalKey key, Duration duration = const Duration(mil
   );
 }
 
-class _QueueListState extends State<QueueList> {
+class _QueueListState extends ConsumerState<QueueList> {
   final _queueService = GetIt.instance<QueueService>();
 
   QueueItemSource? _source;
@@ -89,6 +97,7 @@ class _QueueListState extends State<QueueList> {
   late List<Widget> _contents;
 
   // Used to jump when changing playback order
+  final nextUpHeaderKey = GlobalKey();
   final queueHeaderKey = GlobalKey();
 
   @override
@@ -135,13 +144,19 @@ class _QueueListState extends State<QueueList> {
             widget.scrollController.hasClients &&
             FinampSettingsHelper.finampSettings.previousTracksExpaned) {
           final changeHeight = _queueService.getQueue().previousTracks.length * QueueListTile.height;
-          widget.scrollController.position.correctBy(changeHeight - 50);
+          var target = widget.scrollController.position.pixels + changeHeight - 50;
+          target = target.clamp(
+            widget.scrollController.position.minScrollExtent,
+            widget.scrollController.position.maxScrollExtent,
+          );
+          widget.scrollController.position.correctPixels(target);
         }
       });
     }
 
     _contents = <Widget>[
       // Previous Tracks
+      // nested consumer to contain rebuilds
       Consumer(
         builder: (context, ref, child) {
           if (ref.watch(finampSettingsProvider.previousTracksExpaned)) {
@@ -174,6 +189,7 @@ class _QueueListState extends State<QueueList> {
       ),
       const CurrentTrack(),
       // next up
+      SliverToBoxAdapter(key: nextUpHeaderKey),
       StreamBuilder(
         stream: _queueService.getQueueStream(),
         initialData: _queueService.getQueue(),
@@ -192,26 +208,34 @@ class _QueueListState extends State<QueueList> {
       // Scrolling to floating headers doesn't work properly, so place the key in a dedicated sliver
       SliverToBoxAdapter(key: queueHeaderKey),
       SliverStickyHeader(
-        header: QueueSectionHeader(
-          source: _source,
-          title: Row(
-            children: [
-              Text(
-                "${AppLocalizations.of(context)!.playingFrom} ",
-                style: const TextStyle(fontWeight: FontWeight.w300),
-              ),
-              Flexible(
-                child: Text(
-                  _source?.name.getLocalized(context) ?? AppLocalizations.of(context)!.unknownName,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                  overflow: TextOverflow.ellipsis,
+        header: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          reverseDuration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOutCubic,
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.antiAlias,
+          child: QueueSectionHeader(
+            source: _source,
+            title: Row(
+              children: [
+                Text(
+                  "${AppLocalizations.of(context)!.playingFrom} ",
+                  style: const TextStyle(fontWeight: FontWeight.w300),
                 ),
-              ),
-            ],
+                Flexible(
+                  child: Text(
+                    _source?.name.getLocalized(context) ?? AppLocalizations.of(context)!.unknownName,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            controls: true,
+            nextUpHeaderKey: nextUpHeaderKey,
+            queueHeaderKey: queueHeaderKey,
+            scrollController: widget.scrollController,
           ),
-          controls: true,
-          queueHeaderKey: queueHeaderKey,
-          scrollController: widget.scrollController,
         ),
         sliver: QueueTracksList(previousTracksHeaderKey: widget.previousTracksHeaderKey),
       ),
@@ -357,22 +381,13 @@ class JumpToCurrentButtonState extends State<JumpToCurrentButton> {
   @override
   Widget build(BuildContext context) {
     return _jumpToCurrentTrackDirection != 0
-        ? FloatingActionButton.extended(
-            onPressed: () {
+        ? FinampExtendedFloatingActionButton(
+            icon: _jumpToCurrentTrackDirection < 0 ? TablerIcons.arrow_bar_to_up : TablerIcons.arrow_bar_to_down,
+            label: AppLocalizations.of(context)!.scrollToCurrentTrack,
+            onTap: () {
               FeedbackHelper.feedback(FeedbackType.heavy);
               scrollToKey(key: widget.previousTracksHeaderKey, duration: const Duration(milliseconds: 500));
             },
-            backgroundColor: IconTheme.of(context).color!.withOpacity(0.70),
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
-            icon: Icon(
-              _jumpToCurrentTrackDirection < 0 ? TablerIcons.arrow_bar_to_up : TablerIcons.arrow_bar_to_down,
-              size: 28.0,
-              color: Colors.white.withOpacity(0.9),
-            ),
-            label: Text(
-              AppLocalizations.of(context)!.scrollToCurrentTrack,
-              style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14.0, fontWeight: FontWeight.w500),
-            ),
           )
         : const SizedBox.shrink();
   }
@@ -436,17 +451,17 @@ class _PreviousTracksListState extends State<PreviousTracksList> with TickerProv
                 final indexOffset = -((_previousTracks?.length ?? 0) - index);
                 return QueueListTile(
                   key: ValueKey(item.id),
-                  item: item.baseItem!,
+                  item: item.baseItem,
                   listIndex: index,
                   isInPlaylist: queueItemInPlaylist(item),
                   parentItem: item.source.item,
-                  allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
+                  queueItem: item,
+                  allowReorder: true,
                   onTap: (bool playable) async {
                     FeedbackHelper.feedback(FeedbackType.selection);
                     await _queueService.skipByOffset(indexOffset);
                     scrollToKey(key: widget.previousTracksHeaderKey, duration: const Duration(milliseconds: 500));
                   },
-                  allowDismiss: true,
                   onRemoveFromList: () {
                     unawaited(_queueService.removeAtOffset(indexOffset));
                   },
@@ -523,11 +538,12 @@ class _NextUpTracksListState extends State<NextUpTracksList> {
                   final indexOffset = index + 1;
                   return QueueListTile(
                     key: ValueKey(item.id),
-                    item: item.baseItem!,
+                    item: item.baseItem,
                     listIndex: index,
                     isInPlaylist: queueItemInPlaylist(item),
                     parentItem: item.source.item,
-                    allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
+                    queueItem: item,
+                    allowReorder: true,
                     onRemoveFromList: () {
                       unawaited(_queueService.removeAtOffset(indexOffset));
                     },
@@ -550,16 +566,16 @@ class _NextUpTracksListState extends State<NextUpTracksList> {
   }
 }
 
-class QueueTracksList extends StatefulWidget {
+class QueueTracksList extends ConsumerStatefulWidget {
   final GlobalKey previousTracksHeaderKey;
 
   const QueueTracksList({super.key, required this.previousTracksHeaderKey});
 
   @override
-  State<QueueTracksList> createState() => _QueueTracksListState();
+  ConsumerState<QueueTracksList> createState() => _QueueTracksListState();
 }
 
-class _QueueTracksListState extends State<QueueTracksList> {
+class _QueueTracksListState extends ConsumerState<QueueTracksList> {
   final _queueService = GetIt.instance<QueueService>();
   List<FinampQueueItem>? _queue;
   List<FinampQueueItem>? _nextUp;
@@ -567,7 +583,9 @@ class _QueueTracksListState extends State<QueueTracksList> {
   @override
   Widget build(context) {
     return MenuMask(
-      height: QueueSectionHeader.defaultHeight,
+      height: ref.watch(finampSettingsProvider.radioEnabled)
+          ? QueueSectionHeader.radioActiveHeight
+          : QueueSectionHeader.defaultHeight,
       child: StreamBuilder<FinampQueueInfo?>(
         stream: _queueService.getQueueStream(),
         initialData: _queueService.getQueue(),
@@ -611,11 +629,12 @@ class _QueueTracksListState extends State<QueueTracksList> {
 
                 return QueueListTile(
                   key: ValueKey(item.id),
-                  item: item.baseItem!,
+                  item: item.baseItem,
                   listIndex: index,
                   isInPlaylist: queueItemInPlaylist(item),
                   parentItem: item.source.item,
-                  allowReorder: _queueService.playbackOrder == FinampPlaybackOrder.linear,
+                  queueItem: item,
+                  allowReorder: true,
                   onRemoveFromList: () {
                     unawaited(_queueService.removeAtOffset(indexOffset));
                   },
@@ -686,6 +705,18 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
           const horizontalPadding = 8.0;
           const albumImageSize = 70.0;
 
+          final elapsedPartBackgroundColor = ColorScheme.of(context).primary;
+          final remainingPartBackgroundColor = Color.alphaBlend(
+            elapsedPartBackgroundColor.withOpacity(0.7),
+            // this is an approximation, the actual background has the blurred cover image
+            ref.watch(brightnessProvider) == Brightness.dark ? Colors.black : Colors.white,
+          );
+          final averageBackgroundColor = Color.alphaBlend(
+            elapsedPartBackgroundColor.withOpacity(0.5),
+            remainingPartBackgroundColor,
+          );
+          Color primaryTextColor = AtContrast.getContrastiveTintedTextColor(onBackground: averageBackgroundColor);
+
           return SliverAppBar(
             pinned: true,
             collapsedHeight: 70.0,
@@ -700,12 +731,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
               child: Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
-                  color: Color.alphaBlend(
-                    Theme.brightnessOf(context) == Brightness.dark
-                        ? IconTheme.of(context).color!.withOpacity(0.35)
-                        : IconTheme.of(context).color!.withOpacity(0.65),
-                    Theme.brightnessOf(context) == Brightness.dark ? Colors.black : Colors.white,
-                  ),
+                  color: remainingPartBackgroundColor,
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
                 ),
                 child: Row(
@@ -756,10 +782,10 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     alignment: AlignmentDirectional.centerStart,
                                     widthFactor: itemLength == null
                                         ? 0
-                                        : playbackPosition!.inMilliseconds / itemLength.inMilliseconds,
+                                        : max(0, playbackPosition!.inMilliseconds / itemLength.inMilliseconds),
                                     child: DecoratedBox(
                                       decoration: ShapeDecoration(
-                                        color: IconTheme.of(context).color!.withOpacity(0.75),
+                                        color: elapsedPartBackgroundColor,
                                         shape: const RoundedRectangleBorder(
                                           borderRadius: BorderRadius.only(
                                             topRight: Radius.circular(12),
@@ -796,7 +822,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                           style: TextStyle(
                                             fontSize: 16,
                                             height: 26 / 20,
-                                            color: Colors.white,
+                                            color: primaryTextColor,
                                             fontWeight: Theme.brightnessOf(context) == Brightness.light
                                                 ? FontWeight.w500
                                                 : FontWeight.w600,
@@ -811,9 +837,9 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                             child: Text(
                                               processArtist(currentTrack!.item.artist, context),
                                               style: TextStyle(
-                                                color: (Colors.white).withOpacity(0.85),
+                                                color: primaryTextColor,
                                                 fontSize: 13,
-                                                fontWeight: FontWeight.w300,
+                                                fontWeight: FontWeight.w400,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
@@ -825,7 +851,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                                 initialData: _audioHandler.playbackState.value.position,
                                                 builder: (context, snapshot) {
                                                   final TextStyle style = TextStyle(
-                                                    color: (Colors.white).withOpacity(0.8),
+                                                    color: primaryTextColor,
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w400,
                                                   );
@@ -847,7 +873,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                               Text(
                                                 '/',
                                                 style: TextStyle(
-                                                  color: (Colors.white).withOpacity(0.8),
+                                                  color: primaryTextColor,
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
                                                 ),
@@ -859,7 +885,7 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                                     ? "${mediaState?.mediaItem?.duration?.inHours.toString()}:${((mediaState?.mediaItem?.duration?.inMinutes ?? 0) % 60).toString().padLeft(2, '0')}:${((mediaState?.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}"
                                                     : "${mediaState?.mediaItem?.duration?.inMinutes.toString()}:${((mediaState?.mediaItem?.duration?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}",
                                                 style: TextStyle(
-                                                  color: (Colors.white).withOpacity(0.8),
+                                                  color: primaryTextColor,
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,
                                                 ),
@@ -880,23 +906,19 @@ class _CurrentTrackState extends ConsumerState<CurrentTrack> {
                                     child: AddToPlaylistButton(
                                       item: currentTrackBaseItem,
                                       queueItem: currentTrack,
-                                      color: Colors.white,
+                                      color: primaryTextColor,
                                       size: 28,
                                       visualDensity: const VisualDensity(horizontal: -4),
                                     ),
                                   ),
                                   IconButton(
+                                    tooltip: AppLocalizations.of(context)!.menuButtonLabel,
                                     iconSize: 28,
                                     visualDensity: const VisualDensity(horizontal: -4),
                                     // visualDensity: VisualDensity.compact,
-                                    icon: const Icon(
-                                      TablerIcons.dots_vertical,
-                                      size: 28,
-                                      color: Colors.white,
-                                      weight: 1.5,
-                                    ),
+                                    icon: Icon(TablerIcons.dots, size: 28, color: primaryTextColor, weight: 1.5),
                                     onPressed: () {
-                                      Feedback.forLongPress(context);
+                                      FeedbackHelper.feedback(FeedbackType.selection);
                                       showModalTrackMenu(
                                         context: context,
                                         item: currentTrackBaseItem,
@@ -935,10 +957,11 @@ class PlaybackBehaviorInfo {
   PlaybackBehaviorInfo(this.order, this.loop, this.speed);
 }
 
-class QueueSectionHeader extends StatelessWidget {
+class QueueSectionHeader extends ConsumerWidget {
   final Widget title;
   final QueueItemSource? source;
   final bool controls;
+  final GlobalKey nextUpHeaderKey;
   final GlobalKey queueHeaderKey;
   final ScrollController scrollController;
 
@@ -946,123 +969,231 @@ class QueueSectionHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.source,
+    required this.nextUpHeaderKey,
     required this.queueHeaderKey,
     required this.scrollController,
     this.controls = false,
   });
 
   static MenuMaskHeight defaultHeight = MenuMaskHeight(132.0);
+  // queue header + radio chooser tile height
+  static MenuMaskHeight radioActiveHeight = MenuMaskHeight(132.0 + 58.0);
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: GestureDetector(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 8.0, top: 12.5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    title,
-                    StreamBuilder(
-                      stream: queueService.getQueueStream(),
-                      initialData: queueService.getQueue(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          var remaining = snapshot.data!.remainingDuration;
-                          var remainText = printDuration(remaining, leadingZeroes: false);
-                          final remainingLabelFullHours = (remaining.inHours);
-                          final remainingLabelFullMinutes = (remaining.inMinutes) % 60;
-                          final remainingLabelSeconds = (remaining.inSeconds) % 60;
-                          final remainingLabelString =
-                              "${remainingLabelFullHours > 0 ? "$remainingLabelFullHours ${AppLocalizations.of(context)!.hours} " : ""}${remainingLabelFullMinutes > 0 ? "$remainingLabelFullMinutes ${AppLocalizations.of(context)!.minutes} " : ""}$remainingLabelSeconds ${AppLocalizations.of(context)!.seconds}";
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 4.0, right: 8.0),
-                            child: Text(
-                              "${snapshot.data!.currentTrackIndex} / ${snapshot.data!.trackCount}  (${AppLocalizations.of(context)!.remainingDuration(remainText)})",
-                              semanticsLabel:
-                                  "${AppLocalizations.of(context)!.trackCountTooltip(snapshot.data!.currentTrackIndex, snapshot.data!.trackCount)} (${AppLocalizations.of(context)!.remainingDuration(remainingLabelString)})",
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
+    final radioEnabled = ref.watch(finampSettingsProvider.radioEnabled);
+    final radioMode = ref.watch(finampSettingsProvider.radioMode);
+    final radioSeedItem = ref.watch(getActiveRadioSeedProvider(radioMode));
+    final currentRadioAvailabilityStatus = ref.watch(currentRadioAvailabilityStatusProvider);
+    final radioLoading = ref.watch(radioStateProvider.select((state) => state?.loading ?? false));
+    final radioFailed = ref.watch(radioStateProvider.select((state) => state?.failed ?? false));
+    final radioModeTranslatedName = AppLocalizations.of(context)!.radioModeOptionName(radioMode.name);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0, top: 12.5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        title,
+                        StreamBuilder(
+                          stream: queueService.getQueueStream(),
+                          initialData: queueService.getQueue(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              var remaining = snapshot.data!.remainingDuration;
+                              var remainText = printDuration(remaining, leadingZeroes: false);
+                              final remainingLabelFullHours = (remaining.inHours);
+                              final remainingLabelFullMinutes = (remaining.inMinutes) % 60;
+                              final remainingLabelSeconds = (remaining.inSeconds) % 60;
+                              final remainingLabelString =
+                                  "${remainingLabelFullHours > 0 ? "$remainingLabelFullHours ${AppLocalizations.of(context)!.hours} " : ""}${remainingLabelFullMinutes > 0 ? "$remainingLabelFullMinutes ${AppLocalizations.of(context)!.minutes} " : ""}$remainingLabelSeconds ${AppLocalizations.of(context)!.seconds}";
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 4.0, right: 8.0),
+                                child: Text(
+                                  "${snapshot.data!.currentTrackIndex} / ${snapshot.data!.trackCount}  (${AppLocalizations.of(context)!.remainingDuration(remainText)})",
+                                  semanticsLabel:
+                                      "${AppLocalizations.of(context)!.trackCountTooltip(snapshot.data!.currentTrackIndex, snapshot.data!.trackCount)} (${AppLocalizations.of(context)!.remainingDuration(remainingLabelString)})",
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  onTap: () {
+                    if (source != null) {
+                      navigateToSource(context, source!);
+                    }
+                  },
                 ),
               ),
-              onTap: () {
-                if (source != null) {
-                  navigateToSource(context, source!);
-                }
-              },
-            ),
+              if (controls)
+                StreamBuilder(
+                  stream: Rx.combineLatest3(
+                    queueService.getPlaybackOrderStream(),
+                    queueService.getLoopModeStream(),
+                    queueService.getPlaybackSpeedStream(),
+                    (a, b, c) => PlaybackBehaviorInfo(a, b, c),
+                  ),
+                  initialData: PlaybackBehaviorInfo(
+                    queueService.playbackOrder,
+                    queueService.loopMode,
+                    queueService.playbackSpeed,
+                  ),
+                  builder: (context, snapshot) {
+                    PlaybackBehaviorInfo? info = snapshot.data;
+                    return Row(
+                      children: [
+                        IconButtonWithSemantics(
+                          label: info?.order == FinampPlaybackOrder.shuffled
+                              ? AppLocalizations.of(context)!.playbackOrderShuffledButtonTooltip
+                              : AppLocalizations.of(context)!.playbackOrderLinearButtonTooltip,
+                          icon: info?.order == FinampPlaybackOrder.shuffled
+                              ? (TablerIcons.arrows_shuffle)
+                              : (TablerIcons.arrows_right),
+                          iconSize: 28.0,
+                          color: info?.order == FinampPlaybackOrder.shuffled
+                              ? IconTheme.of(context).color!
+                              : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
+                          visualDensity: VisualDensity.standard,
+                          onPressed: () async {
+                            await queueService.togglePlaybackOrder();
+                            FeedbackHelper.feedback(FeedbackType.selection);
+                            if (queueService.getQueue().nextUp.isNotEmpty) {
+                              scrollToKey(key: nextUpHeaderKey);
+                            } else {
+                              scrollToKey(key: queueHeaderKey);
+                            }
+                          },
+                        ),
+                        IconButtonWithSemantics(
+                          label: radioEnabled
+                              ? AppLocalizations.of(context)!.loopingUnavailableWhileRadioActiveWarning
+                              : switch (info?.loop) {
+                                  FinampLoopMode.none => AppLocalizations.of(context)!.loopModeNoneButtonLabel,
+                                  FinampLoopMode.one => AppLocalizations.of(context)!.loopModeOneButtonLabel,
+                                  FinampLoopMode.all => AppLocalizations.of(context)!.loopModeAllButtonLabel,
+                                  null => AppLocalizations.of(context)!.loopModeNoneButtonLabel,
+                                },
+                          icon: switch (radioEnabled ? null : info?.loop) {
+                            FinampLoopMode.none => TablerIcons.repeat_off,
+                            FinampLoopMode.one => TablerIcons.repeat_once,
+                            FinampLoopMode.all => TablerIcons.repeat,
+                            null => TablerIcons.repeat_off,
+                          },
+                          iconSize: 28.0,
+                          color: radioEnabled
+                              ? (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.3)
+                              : (info?.loop != FinampLoopMode.none
+                                    ? IconTheme.of(context).color!
+                                    : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(
+                                        0.85,
+                                      )),
+                          visualDensity: VisualDensity.standard,
+                          onPressed: () {
+                            if (radioEnabled) {
+                              GlobalSnackbar.message(
+                                (scaffold) => AppLocalizations.of(context)!.loopingUnavailableWhileRadioActiveWarning,
+                              );
+                              return;
+                            }
+                            queueService.toggleLoopMode();
+                            FeedbackHelper.feedback(FeedbackType.selection);
+                          },
+                          onLongPress: () => showRadioMenu(
+                            context,
+                            subtitle: AppLocalizations.of(context)!.loopingOverriddenByRadioSubtitle,
+                          ),
+                        ),
+                        IconButtonWithSemantics(
+                          label: radioEnabled
+                              ? AppLocalizations.of(context)!.radioModeDisableButtonTitle
+                              : AppLocalizations.of(context)!.radioModeEnableButtonTitle,
+                          icon: radioEnabled ? TablerIcons.radio : TablerIcons.radio_off,
+                          iconSize: 28.0,
+                          color: currentRadioAvailabilityStatus.isAvailable
+                              ? IconTheme.of(context).color!
+                              : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
+                          visualDensity: VisualDensity.standard,
+                          onPressed: () {
+                            toggleRadio();
+                            FeedbackHelper.feedback(FeedbackType.selection);
+                          },
+                          onLongPress: () => showRadioMenu(context),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+            ],
           ),
-          if (controls)
-            StreamBuilder(
-              stream: Rx.combineLatest3(
-                queueService.getPlaybackOrderStream(),
-                queueService.getLoopModeStream(),
-                queueService.getPlaybackSpeedStream(),
-                (a, b, c) => PlaybackBehaviorInfo(a, b, c),
-              ),
-              initialData: PlaybackBehaviorInfo(
-                queueService.playbackOrder,
-                queueService.loopMode,
-                queueService.playbackSpeed,
-              ),
-              builder: (context, snapshot) {
-                PlaybackBehaviorInfo? info = snapshot.data;
-                return Row(
-                  children: [
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      iconSize: 28.0,
-                      icon: info?.order == FinampPlaybackOrder.shuffled
-                          ? (const Icon(TablerIcons.arrows_shuffle))
-                          : (const Icon(TablerIcons.arrows_right)),
-                      color: info?.order == FinampPlaybackOrder.shuffled
-                          ? IconTheme.of(context).color!
-                          : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                      onPressed: () async {
-                        await queueService.togglePlaybackOrder();
-                        FeedbackHelper.feedback(FeedbackType.selection);
-                        scrollToKey(key: queueHeaderKey);
-                      },
-                    ),
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      iconSize: 28.0,
-                      icon: info?.loop != FinampLoopMode.none
-                          ? (info?.loop == FinampLoopMode.one
-                                ? (const Icon(TablerIcons.repeat_once))
-                                : (const Icon(TablerIcons.repeat)))
-                          : (const Icon(TablerIcons.repeat_off)),
-                      color: info?.loop != FinampLoopMode.none
-                          ? IconTheme.of(context).color!
-                          : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white).withOpacity(0.85),
-                      onPressed: () {
-                        queueService.toggleLoopMode();
-                        FeedbackHelper.feedback(FeedbackType.selection);
-                      },
-                    ),
-                  ],
-                );
-              },
+        ),
+        // Radio mode
+        if (radioEnabled)
+          ChoiceMenuListTile(
+            title: switch (currentRadioAvailabilityStatus) {
+              RadioModeAvailabilityStatus.available => AppLocalizations.of(
+                context,
+              )!.radioModeOptionTitle(radioMode.name),
+              RadioModeAvailabilityStatus.disabled => AppLocalizations.of(context)!.radioModeDisabledTitle,
+              _ => AppLocalizations.of(context)!.radioModeInactiveTitle,
+            },
+            subtitle: switch (currentRadioAvailabilityStatus) {
+              RadioModeAvailabilityStatus.available => AppLocalizations.of(context)!.radioModeEnabledSubtitle,
+              RadioModeAvailabilityStatus.disabled => AppLocalizations.of(context)!.radioModeDisabledSubtitle,
+              RadioModeAvailabilityStatus.unavailableSourceTypeNotSupported ||
+              RadioModeAvailabilityStatus.unavailableSourceNull => AppLocalizations.of(
+                context,
+              )!.radioModeUnavailableForSourceItemSubtitle(radioModeTranslatedName),
+              RadioModeAvailabilityStatus.unavailableOffline => AppLocalizations.of(
+                context,
+              )!.radioModeUnavailableWhileOfflineSubtitle(radioModeTranslatedName),
+              RadioModeAvailabilityStatus.unavailableNotDownloaded =>
+                radioSeedItem?.name != null
+                    ? AppLocalizations.of(
+                        context,
+                      )!.radioModeRandomUnavailableNotDownloadedSubtitle(radioModeTranslatedName, radioSeedItem!.name!)
+                    : AppLocalizations.of(
+                        context,
+                      )!.radioModeRandomUnavailableNotDownloadedGenericSubtitle(radioModeTranslatedName),
+              RadioModeAvailabilityStatus.unavailableQueueEmpty => AppLocalizations.of(
+                context,
+              )!.radioModeUnavailableQueueEmptySubtitle(radioModeTranslatedName),
+            },
+            menuCreator: () => showRadioMenu(
+              context,
+              subtitle: radioFailed ? AppLocalizations.of(context)!.radioFailedSubtitle : null,
             ),
-        ],
-      ),
+            isLoading: radioLoading,
+            leading: Icon(
+              !currentRadioAvailabilityStatus.isAvailable || radioFailed ? TablerIcons.radio_off : TablerIcons.radio,
+              size: 32.0,
+              color: currentRadioAvailabilityStatus.isAvailable ? IconTheme.of(context).color : null,
+            ),
+            state: currentRadioAvailabilityStatus.isAvailable,
+            icon: radioFailed ? TablerIcons.alert_circle : getRadioModeIcon(radioMode),
+            compact: true,
+          ),
+      ],
     );
   }
 }
 
+// TODO fix this being visible as it scrolls under currently playing track
 class NextUpSectionHeader extends StatelessWidget {
   final bool controls;
 

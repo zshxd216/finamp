@@ -223,8 +223,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "아니오",
     "@noButtonLabel": {},
-    "setSleepTimer": "다음 재생 일시 정지",
-    "@setSleepTimer": {},
     "minutes": "분",
     "@minutes": {},
     "invalidNumber": "잘못된 숫자",
@@ -945,7 +943,7 @@
     "@nextUp": {
         "description": "Description in the queue panel for the list of tracks were manually added to be played after the current track. This should be capitalized (if applicable) to be more recognizable throughout the UI"
     },
-    "shuffleToQueue": "대기열 끝에 임의 재생 추가",
+    "shuffleToQueue": "대기열에 임의 재생을 추가함",
     "@shuffleToQueue": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the regular queue, to play after all prior tracks from the queue have played"
     },
@@ -1085,7 +1083,7 @@
     "@savedQueue": {
         "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
     },
-    "shuffleAlbumsToNextUp": "앨범 셔플하여 우선재생에 추가",
+    "shuffleAlbumsToNextUp": "대기열 바로 다음 차례에 임의 재생 앨범들을 추가함",
     "@shuffleAlbumsToNextUp": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of Next Up"
     },
@@ -1093,7 +1091,7 @@
     "@shuffleAlbumsNext": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the start of Next Up"
     },
-    "shuffleAlbumsToQueue": "앨범 셔플하여 재생목록에 추가",
+    "shuffleAlbumsToQueue": "대기열에 임의 재생 앨범들을 추가함",
     "@shuffleAlbumsToQueue": {
         "description": "Label for action that shuffles all albums of an artist or genre and adds them at the end of the regular queue"
     },
@@ -1753,7 +1751,7 @@
     "@redownloadSubtitle": {
         "description": "subtitle for download transcode setting which redownloads tracks with higher allowed qualities"
     },
-    "playerAlbumArtworkTooltip": "{title}을 위한 아트워크. 탭하여 재생화면을 전환합니다. 좌우로 스와이프하여 곡(들)을 변경합니다.",
+    "playerAlbumArtworkTooltip": "{title}의 앨범아트. 탭하면 재생화면으로 돌아갑니다. 트랙을 변경하려면 좌우로 스와이프하세요.",
     "@playerAlbumArtworkTooltip": {
         "placeholders": {
             "title": {
@@ -1945,7 +1943,7 @@
     "@enableAutoScroll": {
         "description": "Tooltip for button that can be used to re-enable auto scroll on the lyrics view after the user manually scrolled"
     },
-    "numberAsKiloHertz": "{kiloHertz} kHz",
+    "numberAsKiloHertz": "{kiloHertz} 킬로헤르츠",
     "@numberAsKiloHertz": {
         "description": "Value for the sample rate of a track, in kilohertz",
         "placeholders": {
@@ -2055,8 +2053,170 @@
     "@showLyricsTimestampsSubtitle": {
         "description": "Subtitle for the setting that controls if timestamps are shown for lyrics"
     },
-    "showStopButtonOnMediaNotificationTitle": "미디어 알림에 정지 버튼을 표시합니다",
+    "showStopButtonOnMediaNotificationTitle": "미디어 알림에 정지 버튼을 표시",
     "@showStopButtonOnMediaNotificationTitle": {
         "description": "Title for the setting that controls if the media notification has a stop button."
+    },
+    "shuffleSome": "임의 재생",
+    "@shuffleSome": {},
+    "playbackActionPageNewQueue": "새 대기열",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "다음 곡 재생",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageNextUp": "바로 다음 재생에 곡 추가",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "playbackActionPageAppendToQueue": "재생 대기열 끝에 곡 추가",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "updatePlaylistButtonLabel": "플레이리스트 갱신하기",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "변경사항 저장중…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "accentColor": "강조 색상",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "강조 색상 선택하기",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "기본값",
+    "@defaultWord": {},
+    "useDefaultButton": "강조 색상 초기화",
+    "@useDefaultButton": {},
+    "colorCode": "색상 코드 (Hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "예시) #FFFFFF, #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "저장",
+    "@save": {},
+    "invalidColorCode": "잘못된 색상 코드",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "showStopButtonOnMediaNotificationSubtitle": "미디어 알림에 정지 버튼을 표시할지 결정합니다. 앱을 열지 않고 음악 재생을 멈출 수 있습니다.",
+    "@showStopButtonOnMediaNotificationSubtitle": {
+        "description": "Subtitle for the setting that controls if the media notification has a stop button."
+    },
+    "showShuffleButtonOnMediaNotificationTitle": "미디어 알림에 셔플 버튼 표시",
+    "@showShuffleButtonOnMediaNotificationTitle": {
+        "description": "Title for the setting that controls if the media notification has a shuffle button."
+    },
+    "showShuffleButtonOnMediaNotificationSubtitle": "미디어 알림에 셔플 버튼을 표시할지 결정합니다. 앱을 열지 않고 셔플기능을 설정/해제할 수 있습니다.",
+    "@showShuffleButtonOnMediaNotificationSubtitle": {
+        "description": "Subtitle for the setting that controls if the media notification has a shuffle button."
+    },
+    "showFavoriteButtonOnMediaNotificationTitle": "미디어 알림에 즐겨찾기 버튼 표시",
+    "@showFavoriteButtonOnMediaNotificationTitle": {
+        "description": "Title for the setting that controls if the media notification has a favorite button."
+    },
+    "showFavoriteButtonOnMediaNotificationSubtitle": "미디어 알림에 즐겨찾기 버튼을 표시할지 결정합니다. 이 기능을 사용하면 곡을 즐겨찾기에 등록/해제할 수 있습니다. 오프라인 모드일 경우에는 해당 버튼이 표시되지 않습니다.",
+    "@showFavoriteButtonOnMediaNotificationSubtitle": {
+        "description": "Subtitle for the setting that controls if the media notification has a favorite button."
+    },
+    "showSeekControlsOnMediaNotificationTitle": "미디어 알림에 탐색 바 표시",
+    "@showSeekControlsOnMediaNotificationTitle": {
+        "description": "Title for the setting that controls if the media notification has a seekable progress bar."
+    },
+    "showSeekControlsOnMediaNotificationSubtitle": "미디어 알림에 탐색 바를 표시합니다. 앱을 열지 않고 음악의 재생 위치를 변경할 수 있습니다.",
+    "@showSeekControlsOnMediaNotificationSubtitle": {
+        "description": "Subtitle for the setting that controls if the media notification has a seekable progress bar."
+    },
+    "alignmentOptionStart": "좌측 정렬",
+    "@alignmentOptionStart": {
+        "description": "Alignment option for things like the lyrics view. Start means left-aligned in LTR languages and right-aligned in RTL languages."
+    },
+    "alignmentOptionCenter": "가운데 정렬",
+    "@alignmentOptionCenter": {
+        "description": "Alignment option for things like the lyrics view. Center means centered."
+    },
+    "alignmentOptionEnd": "우측 정렬",
+    "@alignmentOptionEnd": {
+        "description": "Alignment option for things like the lyrics view. End means right-aligned in LTR languages and left-aligned in RTL languages."
+    },
+    "fontSizeOptionSmall": "작게",
+    "@fontSizeOptionSmall": {
+        "description": "Font size option for things like the lyrics view. Small means a smaller font size."
+    },
+    "fontSizeOptionMedium": "중간",
+    "@fontSizeOptionMedium": {
+        "description": "Font size option for things like the lyrics view. Medium means a medium font size."
+    },
+    "fontSizeOptionLarge": "크게",
+    "@fontSizeOptionLarge": {
+        "description": "Font size option for things like the lyrics view. Large means a larger font size."
+    },
+    "lyricsAlignmentTitle": "가사 정렬",
+    "@lyricsAlignmentTitle": {
+        "description": "Title for the setting that controls the alignment of lyrics in the lyrics view"
+    },
+    "lyricsAlignmentSubtitle": "가사가 표시될 때 가사의 가로 정렬 방식을 선택합니다.",
+    "@lyricsAlignmentSubtitle": {
+        "description": "Subtitle for the setting that controls the alignment of lyrics in the lyrics view"
+    },
+    "lyricsFontSizeTitle": "가사 폰트 크기",
+    "@lyricsFontSizeTitle": {
+        "description": "Title for the setting that controls the font size of lyrics in the lyrics view"
+    },
+    "lyricsFontSizeSubtitle": "가사 폰트 크기를 선택합니다.",
+    "@lyricsFontSizeSubtitle": {
+        "description": "Subtitle for the setting that controls the font size of lyrics in the lyrics view"
+    },
+    "showLyricsScreenAlbumPreludeTitle": "가사 표시 전에 앨범 커버 표시",
+    "@showLyricsScreenAlbumPreludeTitle": {
+        "description": "Title for the setting that controls if the album cover is shown before the lyrics in the lyrics view"
+    },
+    "showLyricsScreenAlbumPreludeSubtitle": "가사 위에 앨범 커버를 표시할지 결정합니다. 앨범 커버를 스크롤하면 가사를 확인할 수 있습니다.",
+    "@showLyricsScreenAlbumPreludeSubtitle": {
+        "description": "Subtitle for the setting that controls if the album cover is shown before the lyrics in the lyrics view"
+    },
+    "keepScreenOn": "화면 꺼지지 않게 하기",
+    "@keepScreenOn": {
+        "description": "Option to keep the screen on while using the app"
+    },
+    "keepScreenOnSubtitle": "어떤 상황에서 화면을 꺼지지 않게 할지 선택",
+    "@keepScreenOnSubtitle": {},
+    "keepScreenOnDisabled": "비활성",
+    "@keepScreenOnDisabled": {},
+    "keepScreenOnAlwaysOn": "항상 켜놓기",
+    "@keepScreenOnAlwaysOn": {},
+    "keepScreenOnWhilePlaying": "음악이 재생중일 때",
+    "@keepScreenOnWhilePlaying": {},
+    "keepScreenOnWhileLyrics": "가사가 표시될 때",
+    "@keepScreenOnWhileLyrics": {},
+    "genericToggleButtonTooltip": "탭하여 토글하기.",
+    "@genericToggleButtonTooltip": {
+        "description": "Tooltip for toggle buttons that can be tapped to toggle their state"
+    },
+    "artwork": "앨범아트",
+    "@artwork": {},
+    "artworkTooltip": "{title}의 앨범아트",
+    "@artworkTooltip": {
+        "placeholders": {
+            "title": {
+                "type": "String",
+                "example": "Abbey Road"
+            }
+        },
+        "description": "Tooltip for album artwork on track and album tiles as well as the album screen"
+    },
+    "nowPlayingBarTooltip": "플레이어 화면 열기",
+    "@nowPlayingBarTooltip": {
+        "description": "Tooltip for the now playing bar at the bottom of the screen"
     }
 }

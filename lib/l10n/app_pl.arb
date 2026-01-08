@@ -270,8 +270,6 @@
     "@dark": {},
     "tabs": "Zakładki",
     "@tabs": {},
-    "setSleepTimer": "Ustaw wyłącznik czasowy",
-    "@setSleepTimer": {},
     "enterLowPriorityStateOnPause": "Przechodź w stan niskiego priorytetu w trakcie trwania pauzy",
     "@enterLowPriorityStateOnPause": {},
     "trackCount": "{count,plural,=1{{count} Utwór} few{{count} Utwory} other{{count} Utworów}}",

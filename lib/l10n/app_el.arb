@@ -288,8 +288,6 @@
     "@tabs": {},
     "cancelSleepTimer": "Ακύρωση χρονοδιακόπτη ύπνου;",
     "@cancelSleepTimer": {},
-    "setSleepTimer": "Παύση αναπαραγωγής μετά από",
-    "@setSleepTimer": {},
     "minutes": "Λεπτά",
     "@minutes": {},
     "sleepTimerTooltip": "Χρονοδιακόπτης Ύπνου",
@@ -936,7 +934,7 @@
     "@shuffleToNextUp": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue, to play after all prior tracks from Next Up have played"
     },
-    "shuffleToQueue": "Τυχαία στην Ουρά",
+    "shuffleToQueue": "Ανακάτεμα στην ουρά",
     "@shuffleToQueue": {
         "description": "Used for shuffling a list (album, playlist, etc.) to the end of the regular queue, to play after all prior tracks from the queue have played"
     },
@@ -1169,7 +1167,7 @@
             }
         }
     },
-    "playingFromType": "Αναπαραγωγή από {source, select, album{Άλμπουμ} playlist{Λίστα αναπαραγωγής} trackMix{Μείξη τραγουδιών} artistMix{Μείξη καλλιτέχνη} albumMix{Μείξη άλμπουμ} genreMix{Μείξη είδους} favorites{Αγαπημένα} allTracks{Όλα τα τραγούδια} filteredList{Τραγούδια} genre{Είδος} artist{Καλλιτέχνης} track{Τραγούδι} nextUpAlbum{Άλμπουμ στο Επόμενο} nextUpPlaylist{Λίστα αναπαραγωγής στο Επόμενο} nextUpArtist{Καλλιτέχνης στο Επόμενο} nextUpGenre{Είδος στο Επόμενο} remoteClient{Απομακρυσμένος Πελάτης} other{}}",
+    "playingFromType": "Αναπαραγωγή από {source, select, album{Άλμπουμ} playlist{Playlist} trackMix{Μείγμα Κομματιών} artistMix{Μείγμα Καλλιτέχνη} albumMix{Μείγμα Άλμπουμ} genreMix{Μείγμα Είδους} favorites{Αγαπημένα} allTracks{Όλα τα Κομμάτια} filteredList{Κομμάτια} genre{Είδος} artist{Καλλιτέχνης} track{Κομμάτι} nextUpAlbum{Άλμπουμ στο Next Up} nextUpPlaylist{Playlist στο Next Up} nextUpArtist{Καλλιτέχνης στο Next Up} nextUpGenre{Είδος στο Next Up} remoteClient{Απομακρυσμένη Συσκευή} other{}}",
     "@playingFromType": {
         "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
         "placeholders": {
@@ -1178,11 +1176,11 @@
             }
         }
     },
-    "confirmShuffleNext": "Θα ανακατέψει στη συνέχεια",
+    "confirmShuffleNext": "Θα ανακατευτεί αμέσως μετά",
     "@confirmShuffleNext": {
         "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the front of the \"Next Up\" queue"
     },
-    "shareOfflineListens": "Κοινοποίηση μη αποσταλ. αναπαραγ.",
+    "shareOfflineListens": "Κοινοποίηση ακροάσεων εκτός σύνδεσης",
     "@shareOfflineListens": {
         "description": "Button for exporting the JSON file containing any playback events that couldn't be submitted to the server, either because offline mode was enabled or the connection failed"
     },
@@ -1248,7 +1246,7 @@
     "@itemSectionsOrderSubtitle": {
         "description": "Description of the setting that controls the order of item sections on the screens."
     },
-    "genreItemSectionFilterChipOrderTitle": "Σειρά Φίλτρων Ενοτήτων Αντικειμένων",
+    "genreItemSectionFilterChipOrderTitle": "Σειρά φίλτρων τμημάτων αντικειμένων",
     "@genreItemSectionFilterChipOrderTitle": {
         "description": "Label for the setting that controls the order of item sections filter chips."
     },
@@ -1720,5 +1718,125 @@
     "hideQueueButton": "Απόκρυψη κουμπιού ουράς",
     "@hideQueueButton": {},
     "hideQueueButtonSubtitle": "Απόκρυψη του κουμπιού ουράς στην οθόνη αναπαραγωγής. Σαρώστε προς τα πάνω για να αποκτήσετε πρόσβαση στην ουρά.",
-    "@hideQueueButtonSubtitle": {}
+    "@hideQueueButtonSubtitle": {},
+    "shuffleSome": "Ανακάτεψε μερικά",
+    "@shuffleSome": {},
+    "playbackActionPageNewQueue": "Νέα Ουρά",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Παίξε μετά",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "playbackActionPageAppendToQueue": "Παίξε το τελευταίο",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "updatePlaylistButtonLabel": "Ενημέρωση Playlist",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "Αποθήκευση αλλαγών…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "accentColor": "Χρώμα έμφασης",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Επέλεξε ένα χρώμα έμφασης",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "Προεπιλογή",
+    "@defaultWord": {},
+    "useDefaultButton": "Επαναφορά στο προεπιλεγμένο χρώμα έμφασης",
+    "@useDefaultButton": {},
+    "colorCode": "Κωδικός Χρώματος (Hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "π.χ. #FFFFFF ή #coffee",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "Αποθήκευση",
+    "@save": {},
+    "invalidColorCode": "Μη έγκυρος κωδικός χρώματος",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "sleepTimerRemainingTracks": "Ύπνος {time,plural,=1{μετά από αυτό το κομμάτι} other{σε {time} κομμάτια}}",
+    "@sleepTimerRemainingTracks": {
+        "description": "Button label for sleep timer. {time} is the amount of minutes left.",
+        "placeholders": {
+            "time": {
+                "type": "int"
+            }
+        }
+    },
+    "removeFromPlaylistNamedTooltip": "Αφαίρεση απο την playlist '{playlistName}'",
+    "@removeFromPlaylistNamedTooltip": {
+        "description": "Tooltip for the action that removes a track from a specific playlist. The playlist name is a placeholder.",
+        "placeholders": {
+            "playlistName": {
+                "type": "String",
+                "example": "My Favorite Tracks"
+            }
+        }
+    },
+    "removeFromPlaylistNamedTitle": "Αφαίρεση από την Playlist '{playlistName}'",
+    "@removeFromPlaylistNamedTitle": {
+        "description": "Tooltip for the action that removes a track from a specific playlist. The playlist name is a placeholder.",
+        "placeholders": {
+            "playlistName": {
+                "type": "String",
+                "example": "My Favorite Tracks"
+            }
+        }
+    },
+    "playlistActionsMenuButtonTooltip": "Πατήστε για προσθήκη στην playlist. Παρατεταμένο πάτημα για αγαπημένα.",
+    "@playlistActionsMenuButtonTooltip": {
+        "description": "Tooltip for the (currently heart) button that opens the playlist actions menu / playlist picker by default and can toggle the favorite status on long press"
+    },
+    "shuffleSomeToQueue": "Ανακάτεμα μερικών στην ουρά",
+    "@shuffleSomeToQueue": {
+        "description": "Used for shuffling some tracks to the end of the regular queue, to play after all prior tracks from the queue have played"
+    },
+    "confirmShuffleToNextUp": "Ανακατεύτηκε στο “Next Up”",
+    "@confirmShuffleToNextUp": {
+        "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the end of the \"Next Up\" queue"
+    },
+    "confirmShuffleToQueue": "Ανακατεύτηκε στην ουρά",
+    "@confirmShuffleToQueue": {
+        "description": "A confirmation message that is shown after successfully shuffling a list (album, playlist, etc.) to the end of the regular queue"
+    },
+    "tracksFormerNextUp": "Κομμάτια που προστέθηκαν μέσω Next Up",
+    "@tracksFormerNextUp": {
+        "description": "Title for the queue source for tracks that were once added to the queue via the \"Next Up\" feature, but have since been played"
+    },
+    "genreItemSectionFilterChipOrderSubtitle": "Ελέγχει τη σειρά των διαθέσιμων φίλτρων για τα τμήματα αντικειμένων.",
+    "@genreItemSectionFilterChipOrderSubtitle": {
+        "description": "Description of the setting that controls the order of item sections filter chips."
+    },
+    "artistItemSectionFilterChipOrderTitle": "Σειρά φίλτρων τμημάτων κομματιών",
+    "@artistItemSectionFilterChipOrderTitle": {
+        "description": "Label for the setting that controls the order of the tracks sections filter chips."
+    },
+    "artistItemSectionFilterChipOrderSubtitle": "Ελέγχει τη σειρά των διαθέσιμων φίλτρων για τα τμήματα κομματιών.",
+    "@artistItemSectionFilterChipOrderSubtitle": {
+        "description": "Description of the setting that controls the order of the tracks sections filter chips."
+    },
+    "curatedItemsNotListenedYet": "Δεν έχετε ακούσει ακόμα κανένα κομμάτι{itemType, select, artistGenreFilter{ από αυτόν τον καλλιτέχνη σε αυτό το είδος} artist{ από αυτόν τον καλλιτέχνη} genre{ σε αυτό το είδος} other{}}.",
+    "@curatedItemsNotListenedYet": {
+        "description": "Tooltip for Most Played and Recently Played on Curated Items in Online Mode when not yet listened to any tracks.",
+        "placeholders": {
+            "itemType": {
+                "type": "String",
+                "optional": true,
+                "example": "artistGenreFilter, artist or genre"
+            }
+        }
+    }
 }

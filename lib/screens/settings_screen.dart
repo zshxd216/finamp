@@ -1,4 +1,5 @@
 import 'package:finamp/components/SettingsScreen/logout_list_tile.dart';
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/menus/quick_connect_authorization_menu.dart';
 import 'package:finamp/menus/server_sharing_menu.dart';
@@ -18,7 +19,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:locale_names/locale_names.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -65,10 +65,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   context: context,
                   applicationName: packageInfo.appName,
                   applicationVersion: packageInfo.version,
-                  applicationIcon: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SvgPicture.asset('images/finamp_cropped.svg', width: 56, height: 56),
-                  ),
+                  applicationIcon: Padding(padding: const EdgeInsets.only(top: 8.0), child: FinampIcon(56, 56)),
                   applicationLegalese: applicationLegalese,
                   children: [
                     const SizedBox(height: 20),
@@ -129,6 +126,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 200.0),
         children: [
           ListTile(
             leading: const Icon(Icons.compress),

@@ -96,6 +96,7 @@ class GlobalSnackbar {
         actionOverflowThreshold: 0.5,
         duration: (isConfirmation && action == null) ? const Duration(milliseconds: 1500) : const Duration(seconds: 4),
         action: action?.call(context),
+        persist: false,
       ),
     );
   }
@@ -106,12 +107,18 @@ class GlobalSnackbar {
     // Suppress common transient network error "Failed host lookup"
     bool suppressError = false;
     if (event is SocketException || event is ClientException) {
-      suppressError = event.toString().contains("Failed host lookup");
+      suppressError =
+          event.toString().contains("Failed host lookup") || event.toString().contains("HTTP connection timed out");
+    } else if (event is TimeoutException) {
+      suppressError = true;
     } else if (event is Response && event.error is SocketException) {
       suppressError = event.error.toString().contains("Failed host lookup");
-    } else if (event.toString().contains("Failed host lookup")) {
-      suppressError = true;
+    } else {
+      suppressError =
+          event.toString().contains("Failed host lookup") ||
+          event.toString().contains("Could not fetch the response for GET");
     }
+
     if (suppressError) {
       _logger.fine("Suppressed error: $event", event);
       return;
@@ -177,6 +184,7 @@ class GlobalSnackbar {
           ),
         ),
         duration: const Duration(seconds: 4),
+        persist: false,
       ),
     );
 

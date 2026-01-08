@@ -457,8 +457,6 @@
     "@noButtonLabel": {},
     "yesButtonLabel": "آره",
     "@yesButtonLabel": {},
-    "setSleepTimer": "توقف پخش بعد از",
-    "@setSleepTimer": {},
     "hours": "ساعت",
     "@hours": {},
     "seconds": "ثانیه",

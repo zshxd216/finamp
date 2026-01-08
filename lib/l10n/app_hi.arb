@@ -906,8 +906,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "नहीं",
     "@noButtonLabel": {},
-    "setSleepTimer": "स्लीप टाइमर सेट करें",
-    "@setSleepTimer": {},
     "hours": "घंटे",
     "@hours": {},
     "seconds": "सेकंड",

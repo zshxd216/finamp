@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.9.20+120
+version: 0.9.22+122
 
 environment:
   sdk: ^3.9.0
@@ -30,16 +30,26 @@ dependencies:
   json_annotation: ^4.8.1
   chopper: ^8.0.0
   get_it: ^8.2.0
-  just_audio: ^0.9.43
-  just_audio_media_kit: ^2.0.6
-  media_kit_libs_linux: ^1.1.3
+  # just_audio: ^0.10.5
+  just_audio:
+  # TODO switch back to official just_audio once https://github.com/ryanheise/just_audio/pull/1555 is merged
+    git:
+      url: https://github.com/LennartEnns/just_audio_fork.git
+      ref: 6dfdd07d19f6f037d3f4ff04c397639e4632c687
+      path: just_audio
+  just_audio_media_kit:
+    git:
+      url: https://github.com/Komodo5197/just_audio_media_kit.git
+      ref: feat/queue-shuffle
+
+  media_kit_libs_linux: ^1.2.1
 
   # Transcoding does not work on windows with current media-kit release.  This fork uses the most recent
   # build of MPV from https://github.com/zhongfly/mpv-winbuild, which works correctly while transcoding.
   media_kit_libs_windows_audio: #^1.0.9
     git:
       url: https://github.com/Komodo5197/media-kit.git
-      ref: bfbcea1976093311d6b0ab6bc004a0cc7cd25811
+      ref: 9659892e095266beffeb71969db733afe9b6c424
       path: libs/windows/media_kit_libs_windows_audio
   smtc_windows:
     git:
@@ -47,10 +57,10 @@ dependencies:
       ref: 7ece49cc16a459aaa0718ed23458802533daef37
       path: packages/smtc_windows/
 
-  audio_service: ^0.18.17
+  audio_service: ^0.18.18
   audio_service_mpris: ^0.2.0
-  audio_service_platform_interface: ^0.1.1
-  audio_session: ^0.1.25
+  audio_service_platform_interface: ^0.1.3
+  audio_session: ^0.2.2
   rxdart: ^0.28.0
   simple_gesture_detector: ^0.2.1
   path_provider: ^2.0.14
@@ -132,6 +142,9 @@ dependencies:
   flutter_discord_rpc: ^1.0.0
   shared_preferences: ^2.5.3
   flex_color_picker: ^3.7.1
+  dynamic_color: ^1.8.1
+  dbus: ^0.7.11
+  bits: ^1.4.0
 
 dev_dependencies:
   flutter_test:
@@ -229,7 +242,7 @@ msix_config:
   display_name: Finamp
   publisher_display_name: jmshrv
   identity_name: com.unicornsonlsd.finamp
-  msix_version: 0.9.20.0
+  msix_version: 0.9.22.0
   logo_path: ./images/finamp_cropped.png
   trim_logo: false # don't force logo to be square, it will be stretched
   # backgroundMediaPlayback prevents apps from getting muted or killed when being in the background (won't build if included at the moment)

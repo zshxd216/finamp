@@ -713,8 +713,6 @@
     "@yesButtonLabel": {},
     "noButtonLabel": "இல்லை",
     "@noButtonLabel": {},
-    "setSleepTimer": "பின்னர் பின்னணி இடைநிறுத்து",
-    "@setSleepTimer": {},
     "hours": "மணி",
     "@hours": {},
     "seconds": "நொடிகள்",
@@ -2376,10 +2374,6 @@
             }
         },
         "description": "Label for the type of device in the output menu"
-    },
-    "desktopShuffleWarning": "சஃபிள் பயன்முறையை மாற்றுவது தற்போது டெச்க்டாப்பில் கிடைக்கவில்லை.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
     },
     "itemCount": "{childType, select, track{{amount, plural, =1{1 பாடல்} other{{amount} பாடல்கள்}}} album{{amount, plural, =1{1 ஆல்பம்} other{{amount} ஆல்பங்கள்}}} other{{amount, plural, =1{1 உருப்படி} other{{amount} உருப்படிகள்}}}}",
     "@itemCount": {

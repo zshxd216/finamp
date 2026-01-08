@@ -104,18 +104,26 @@ class _AddDownloadLocationScreenState extends State<AddDownloadLocationScreen> w
                   songPassed = true;
                   imageTest.createSync(recursive: true);
                 } on FileSystemException {
-                  bool? confirmed = await showDialog(
+                  await showDialog<dynamic>(
                     context: context,
-                    builder: (_) => ConfirmationPromptDialog(
-                      // If song writes succeed but image writes fail, assume we are in the android Music folder.
-                      promptText: songPassed
-                          ? AppLocalizations.of(context)!.androidImageErrorPrompt
-                          : AppLocalizations.of(context)!.addDownloadLocationsErrorPrompt,
-                      confirmButtonText: AppLocalizations.of(context)!.addDownloadLocationsErrorButton,
-                      centerText: true,
+                    builder: (_) => AlertDialog(
+                      title: Text(AppLocalizations.of(context)!.addDownloadLocationsErrorTitle),
+                      content: Text(
+                        // If song writes succeed but image writes fail, assume we are in the android Music folder.
+                        songPassed
+                            ? AppLocalizations.of(context)!.androidImageErrorPrompt
+                            : AppLocalizations.of(context)!.addDownloadLocationsErrorPrompt,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(AppLocalizations.of(context)!.close),
+                        ),
+                      ],
                     ),
                   );
-                  if (!(confirmed ?? false)) return;
+
+                  return;
                 } finally {
                   if (songTest.existsSync()) {
                     songTest.deleteSync();

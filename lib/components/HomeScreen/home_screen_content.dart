@@ -255,7 +255,7 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
     case HomeScreenSectionType.listenAgain:
       newItemsFuture = jellyfinApiHelper.getItems(
         parentItem: finampUserHelper.currentUser?.currentView,
-        includeItemTypes: [BaseItemDtoType.album.idString, BaseItemDtoType.playlist.idString].join(","),
+        includeItemTypes: [BaseItemDtoType.album.jellyfinName, BaseItemDtoType.playlist.jellyfinName].join(","),
         sortBy: SortBy.datePlayed.jellyfinName(null),
         sortOrder: SortOrder.descending.toString(),
         // filters: settings.onlyShowFavorites ? "IsFavorite" : null,
@@ -268,7 +268,7 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
         parentItem: finampUserHelper
             .currentUser
             ?.currentView, //FIXME Jellyfin can't query (playlists) and (albums of a specific library) at the same time yet
-        includeItemTypes: [BaseItemDtoType.album.idString, BaseItemDtoType.playlist.idString].join(","),
+        includeItemTypes: [BaseItemDtoType.album.jellyfinName, BaseItemDtoType.playlist.jellyfinName].join(","),
         sortBy: SortBy.dateCreated.jellyfinName(null),
         sortOrder: SortOrder.descending.toString(),
         // filters: settings.onlyShowFavorites ? "IsFavorite" : null,
@@ -279,7 +279,7 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
     case HomeScreenSectionType.favoriteArtists:
       newItemsFuture = jellyfinApiHelper.getItems(
         parentItem: finampUserHelper.currentUser?.currentView,
-        includeItemTypes: [BaseItemDtoType.artist.idString].join(","),
+        includeItemTypes: [BaseItemDtoType.artist.jellyfinName].join(","),
         sortBy: SortBy.datePlayed.jellyfinName(null),
         sortOrder: SortOrder.descending.toString(),
         filters: "IsFavorite",
@@ -294,11 +294,11 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
       newItemsFuture = jellyfinApiHelper.getItems(
         parentItem: baseItem,
         // includeItemTypes: [
-        //   BaseItemDtoType.album.idString,
-        //   BaseItemDtoType.playlist.idString,
-        //   BaseItemDtoType.artist.idString,
-        //   BaseItemDtoType.genre.idString,
-        //   BaseItemDtoType.audioBook.idString,
+        //   BaseItemDtoType.album.jellyfinName,
+        //   BaseItemDtoType.playlist.jellyfinName,
+        //   BaseItemDtoType.artist.jellyfinName,
+        //   BaseItemDtoType.genre.jellyfinName,
+        //   BaseItemDtoType.audioBook.jellyfinName,
         // ].join(","),
         recursive: false, //!!! prevent loading tracks and albums from inside the collection items
         // filters: "IsFavorite",

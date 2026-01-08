@@ -423,6 +423,12 @@ class IsarTaskQueue implements TaskQueue {
   void taskFinished(Task task) {
     _activeDownloads.remove(int.parse(task.taskId));
   }
+
+  // We do not currently pause or resume the downloads
+  @override
+  Future<void> pauseAll() async {}
+  @override
+  Future<void> resumeAll() async {}
 }
 
 /// A class for storing pending deletes in Isar.  This is used to save unlinked
@@ -1289,7 +1295,7 @@ class DownloadsSyncService {
       var childItems =
           await _jellyfinApiData.getItems(
             parentItem: item,
-            includeItemTypes: childFilter.idString,
+            includeItemTypes: childFilter.jellyfinName,
             sortBy: sortOrder,
             fields: fields,
           ) ??
@@ -1302,7 +1308,7 @@ class DownloadsSyncService {
         var trackChildItems =
             await _jellyfinApiData.getItems(
               parentItem: item,
-              includeItemTypes: BaseItemDtoType.track.idString,
+              includeItemTypes: BaseItemDtoType.track.jellyfinName,
               recursive: false,
               fields: "${_jellyfinApiData.defaultFields},MediaSources,MediaStreams,SortName",
             ) ??
@@ -1320,7 +1326,7 @@ class DownloadsSyncService {
         var artistTrackChildItems =
             await _jellyfinApiData.getItems(
               parentItem: item,
-              includeItemTypes: BaseItemDtoType.track.idString,
+              includeItemTypes: BaseItemDtoType.track.jellyfinName,
               filters: "Artist=${parent.name}",
               artistType: ArtistType.artist,
               fields: "${_jellyfinApiData.defaultFields},MediaSources,MediaStreams,SortName",
@@ -1417,7 +1423,7 @@ class DownloadsSyncService {
                 parentItem: (baseItemType == BaseItemDtoType.genre) ? collection.library! : item,
                 libraryFilter: (baseItemType == BaseItemDtoType.artist) ? collection.library! : null,
                 genreFilter: (baseItemType == BaseItemDtoType.genre) ? item : null,
-                includeItemTypes: BaseItemDtoType.album.idString,
+                includeItemTypes: BaseItemDtoType.album.jellyfinName,
                 fields: fields,
               ) ??
               [];
@@ -1430,7 +1436,7 @@ class DownloadsSyncService {
               await _jellyfinApiData.getItems(
                     parentItem: item,
                     libraryFilter: collection.library!,
-                    includeItemTypes: BaseItemDtoType.track.idString,
+                    includeItemTypes: BaseItemDtoType.track.jellyfinName,
                     filters: "Artist=${parent.name}",
                     artistType: ArtistType.artist,
                     fields: fields,

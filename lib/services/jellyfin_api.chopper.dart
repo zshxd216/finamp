@@ -329,6 +329,35 @@ final class _$JellyfinApi extends JellyfinApi {
   }
 
   @override
+  Future<dynamic> getSimilarAlbums({
+    required BaseItemId id,
+    String? userId,
+    List<String>? excludeArtistIds,
+    int? limit,
+    List<String>? fields,
+  }) async {
+    final Uri $url = Uri.parse('/Albums/${id}/Similar');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'userId': userId,
+      'excludeArtistIds': excludeArtistIds,
+      'limit': limit,
+      'fields': fields,
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    final Response $response = await client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+    return $response.bodyOrThrow;
+  }
+
+  @override
   Future<dynamic> getItemById({
     required String userId,
     required BaseItemId itemId,

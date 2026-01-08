@@ -292,8 +292,6 @@
     "@theme": {},
     "system": "Sistema",
     "@system": {},
-    "setSleepTimer": "Pausar reproducción después de",
-    "@setSleepTimer": {},
     "sleepTimerTooltip": "Temporizador de sueño",
     "@sleepTimerTooltip": {},
     "unknownArtist": "Artista desconocido",
@@ -2337,10 +2335,6 @@
         },
         "description": "Label for the type of device in the output menu"
     },
-    "desktopShuffleWarning": "Cambiar el modo de mezcla no está disponible actualmente en plataformas de escritorio.",
-    "@desktopShuffleWarning": {
-        "description": "Warning message when trying to shuffle queue on desktop saying it is not implemented."
-    },
     "audioFadeInDurationSettingTitle": "Duración del fundido de entrada de audio",
     "@audioFadeInDurationSettingTitle": {
         "description": "Title for the audio fade-in duration setting."
@@ -2662,5 +2656,61 @@
                 "type": "int"
             }
         }
+    },
+    "playbackActionPageNewQueue": "Nueva Cola",
+    "@playbackActionPageNewQueue": {
+        "description": "Label for the playback action page that contains all actions related to starting a new queue"
+    },
+    "playbackActionPageNext": "Reproducir Siguiente",
+    "@playbackActionPageNext": {
+        "description": "Label for the playback action page that contains all actions related to playing tracks directly after the current one"
+    },
+    "shuffleSome": "Reproducir algunas al azar",
+    "@shuffleSome": {},
+    "playbackActionPageNextUp": "Reproducir a Continuación",
+    "@playbackActionPageNextUp": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks to Next Up"
+    },
+    "playbackActionPageAppendToQueue": "Reproducir de Último",
+    "@playbackActionPageAppendToQueue": {
+        "description": "Label for the playback action page that contains all actions related to appending tracks at the end of the queue"
+    },
+    "updatePlaylistButtonLabel": "Actualizar Lista de Reproducción",
+    "@updatePlaylistButtonLabel": {
+        "description": "Label for the button that updates the playlist on the edit playlist screen"
+    },
+    "savingChanges": "Guardando cambios…",
+    "@savingChanges": {
+        "description": "Text shown while the changes to a playlist are being saved"
+    },
+    "accentColor": "Color de Acento",
+    "@accentColor": {
+        "description": "Title of the accent color setting"
+    },
+    "accentColorTitle": "Elegir un Color de Acento",
+    "@accentColorTitle": {
+        "description": "Title for the accent color picker sheet"
+    },
+    "defaultWord": "Por Defecto",
+    "@defaultWord": {},
+    "useDefaultButton": "Restablecer al Color de Acento Por Defecto",
+    "@useDefaultButton": {},
+    "colorCode": "Código de Color (Hex)",
+    "@colorCode": {
+        "description": "Label for a text field where the user can manually enter a color in hexadecimal format"
+    },
+    "colorCodeHint": "p.e. #FFFFFF ó #café",
+    "@colorCodeHint": {
+        "description": "Hint text for the color code input field"
+    },
+    "save": "Guardar",
+    "@save": {},
+    "invalidColorCode": "Código de color inválido",
+    "@invalidColorCode": {
+        "description": "Snackbar message shown when the user tries to save an invalid hex color code"
+    },
+    "shuffleSomeNext": "Reproducir algunas al azar después",
+    "@shuffleSomeNext": {
+        "description": "Used for shuffling some tracks to the \"Next Up\" queue at the first position, to play right after the current track finishes playing"
     }
 }

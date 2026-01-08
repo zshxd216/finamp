@@ -52,7 +52,7 @@ class DownloadedIndicator extends ConsumerWidget {
           return Icon(TablerIcons.download_off, color: Colors.red, size: size);
         case DownloadItemState.complete:
         case DownloadItemState.needsRedownloadComplete:
-          return Icon(TablerIcons.device_sd_card, color: Theme.of(context).textTheme.bodyMedium!.color, size: size);
+          return Icon(TablerIcons.device_sd_card, size: size);
       }
     } else if (status.hasError) {
       GlobalSnackbar.error(status.error);

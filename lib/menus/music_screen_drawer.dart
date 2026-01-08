@@ -1,3 +1,4 @@
+import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/components/MusicScreen/offline_mode_switch_list_tile.dart';
 import 'package:finamp/components/MusicScreen/view_list_tile.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -46,7 +47,7 @@ class MusicScreenDrawer extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(height: 12),
-                        SvgPicture.asset('images/finamp_cropped.svg', width: 56, height: 56),
+                        FinampIcon(56, 56),
                         SizedBox(height: 8),
                         FutureBuilder(
                           future: PackageInfo.fromPlatform(),

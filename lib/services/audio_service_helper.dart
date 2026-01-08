@@ -82,15 +82,22 @@ class AudioServiceHelper {
         await _queueService.startPlayback(
           items: items,
           source: QueueItemSource(
-            type: QueueItemSourceType.trackMix,
+            type: switch (BaseItemDtoType.fromItem(item)) {
+              BaseItemDtoType.track => QueueItemSourceType.trackMix,
+              BaseItemDtoType.album => QueueItemSourceType.albumMix,
+              BaseItemDtoType.artist => QueueItemSourceType.artistMix,
+              BaseItemDtoType.genre => QueueItemSourceType.genreMix,
+              _ => QueueItemSourceType.unknown,
+            },
             name: QueueItemSourceName(
               type: item.name != null ? QueueItemSourceNameType.mix : QueueItemSourceNameType.instantMix,
               localizationParameter: item.name ?? "",
             ),
             id: item.id,
+            item: item,
           ),
-          order: FinampPlaybackOrder
-              .linear, // instant mixes should have their order determined by the server, especially to make sure the first item is the one that the mix is based off of
+          // instant mixes should have their order determined by the server
+          order: FinampPlaybackOrder.linear,
         );
       }
     } catch (e) {

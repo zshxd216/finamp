@@ -279,8 +279,6 @@
     "@addToMix": {},
     "noButtonLabel": "Không",
     "@noButtonLabel": {},
-    "setSleepTimer": "Dừng phát sau",
-    "@setSleepTimer": {},
     "grid": "Lưới",
     "@grid": {},
     "portrait": "Dọc",

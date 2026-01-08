@@ -1178,6 +1178,76 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setSystemAccentColor(Color? newSystemAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.systemAccentColor = newSystemAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setUseSystemAccentColor(bool newUseSystemAccentColor) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.useSystemAccentColor = newUseSystemAccentColor;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setUseMonochromeIcon(bool newUseMonochromeIcon) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.useMonochromeIcon = newUseMonochromeIcon;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setLastUsedPlaybackActionRowPageForQueueMenu(
+    PlaybackActionRowPage newLastUsedPlaybackActionRowPageForQueueMenu,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.lastUsedPlaybackActionRowPageForQueueMenu =
+        newLastUsedPlaybackActionRowPageForQueueMenu;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setRadioEnabled(bool newRadioEnabled) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.radioEnabled = newRadioEnabled;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setRadioMode(RadioMode newRadioMode) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.radioMode = newRadioMode;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setDuckOnAudioInterruption(bool newDuckOnAudioInterruption) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.duckOnAudioInterruption = newDuckOnAudioInterruption;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
+  static void setForceAudioOffloadingOnAndroid(
+    bool newForceAudioOffloadingOnAndroid,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.forceAudioOffloadingOnAndroid =
+        newForceAudioOffloadingOnAndroid;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1587,6 +1657,27 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
   ProviderListenable<bool> get hasCompletedThemeModeLocaleMigration =>
       finampSettingsProvider.select(
         (value) => value.requireValue.hasCompletedThemeModeLocaleMigration,
+      );
+  ProviderListenable<Color?> get systemAccentColor => finampSettingsProvider
+      .select((value) => value.requireValue.systemAccentColor);
+  ProviderListenable<bool> get useSystemAccentColor => finampSettingsProvider
+      .select((value) => value.requireValue.useSystemAccentColor);
+  ProviderListenable<bool> get useMonochromeIcon => finampSettingsProvider
+      .select((value) => value.requireValue.useMonochromeIcon);
+  ProviderListenable<PlaybackActionRowPage>
+  get lastUsedPlaybackActionRowPageForQueueMenu =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.lastUsedPlaybackActionRowPageForQueueMenu,
+      );
+  ProviderListenable<bool> get radioEnabled =>
+      finampSettingsProvider.select((value) => value.requireValue.radioEnabled);
+  ProviderListenable<RadioMode> get radioMode =>
+      finampSettingsProvider.select((value) => value.requireValue.radioMode);
+  ProviderListenable<bool> get duckOnAudioInterruption => finampSettingsProvider
+      .select((value) => value.requireValue.duckOnAudioInterruption);
+  ProviderListenable<bool> get forceAudioOffloadingOnAndroid =>
+      finampSettingsProvider.select(
+        (value) => value.requireValue.forceAudioOffloadingOnAndroid,
       );
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(

@@ -127,7 +127,7 @@ Future<(List<BaseItemDto>, int)> getCuratedItemsOnline({
     sortOrder: "Descending",
     isFavorite: (genreCuratedItemSelectionType == CuratedItemSelectionType.favorites) ? true : null,
     limit: 5,
-    includeItemTypes: baseItemType.idString,
+    includeItemTypes: baseItemType.jellyfinName,
     artistType: (baseItemType == BaseItemDtoType.artist) ? artistType : null,
   );
   // Set the Item Count
@@ -138,7 +138,7 @@ Future<(List<BaseItemDto>, int)> getCuratedItemsOnline({
       parentItem: library,
       genreFilter: parent,
       limit: 1,
-      includeItemTypes: baseItemType.idString,
+      includeItemTypes: baseItemType.jellyfinName,
       artistType: (baseItemType == BaseItemDtoType.artist) ? artistType : null,
     );
     itemCount = fetchedItemCountWithoutFavorites.totalRecordCount;

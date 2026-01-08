@@ -33,9 +33,11 @@ import 'package:finamp/services/album_image_provider.dart';
 import 'package:finamp/services/android_auto_helper.dart';
 import 'package:finamp/services/audio_service_smtc.dart';
 import 'package:finamp/services/data_source_service.dart';
+import 'package:finamp/services/dbus_manager.dart';
 import 'package:finamp/services/discord_rpc.dart';
 import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/downloads_service_backend.dart';
+import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_logs_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
@@ -45,6 +47,7 @@ import 'package:finamp/services/offline_listen_helper.dart';
 import 'package:finamp/services/playback_history_service.dart';
 import 'package:finamp/services/playon_service.dart';
 import 'package:finamp/services/queue_service.dart';
+import 'package:finamp/services/theme_provider.dart';
 import 'package:finamp/services/ui_overlay_setter_observer.dart';
 import 'package:finamp/services/widget_bindings_observer_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -56,6 +59,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:flutter_user_certificates_android/flutter_user_certificates_android.dart';
+import 'package:gaimon/gaimon.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -73,6 +77,7 @@ import 'components/LogsScreen/share_logs_button.dart';
 import 'components/PlayerScreen/player_split_screen_scaffold.dart';
 import 'components/global_snackbar.dart';
 import 'models/finamp_models.dart';
+import 'models/migration_adapters.dart';
 import 'models/theme_mode_adapter.dart';
 import 'screens/active_downloads_screen.dart';
 import 'screens/add_download_location_screen.dart';
@@ -169,6 +174,8 @@ void main() async {
 
     await findSystemLocale();
     await initializeDateFormatting();
+    unawaited(fetchSystemPalette());
+    await initDBus();
 
     _mainLog.info("Launching main app");
 
@@ -273,6 +280,7 @@ Future<void> setupHive() async {
   Hive.registerAdapter(ThemeModeAdapter());
   Hive.registerAdapter(ColorAdapter());
   Hive.registerAdapter(LocaleAdapter());
+  Hive.registerAdapter(FinampStorableQueueInfoMigrationAdapter());
 
   await Future.wait([
     Hive.openBox<FinampSettings>("FinampSettings", path: dir.path),
@@ -314,7 +322,7 @@ Future<void> _setupProviders() async {
   AutoOffline.startWatching();
 
   unawaited(
-    Stream.periodic(Duration(seconds: 1)).forEach((_) {
+    Stream<void>.periodic(Duration(seconds: 1)).forEach((_) {
       if (!SchedulerBinding.instance.framesEnabled) {
         (providerScopeKey.currentContext as InheritedElement?)?.build();
       }
@@ -369,8 +377,8 @@ Future<void> _setupPlaybackServices() async {
   if (Platform.isWindows) {
     AudioServiceSMTC.registerWith();
   }
-  final session = await AudioSession.instance;
-  await session.configure(const AudioSessionConfiguration.music());
+
+  await MusicPlayerBackgroundTask.configureAudioSession();
 
   GetIt.instance.registerSingleton<AndroidAutoHelper>(AndroidAutoHelper());
 
@@ -637,7 +645,11 @@ class FinampApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accentColor = ref.watch(finampSettingsProvider.accentColor);
+    final useSystemTheme = ref.watch(finampSettingsProvider.useSystemAccentColor);
+    // System Accent has priority over custom Accent
+    Color? accentColor = ref.watch(
+      useSystemTheme ? finampSettingsProvider.systemAccentColor : finampSettingsProvider.accentColor,
+    );
     final themeMode = ref.watch(finampSettingsProvider.themeMode);
     final locale = ref.watch(finampSettingsProvider.locale);
     final transitionBuilder = MediaQuery.disableAnimationsOf(context)
@@ -814,16 +826,36 @@ class ErrorScreen extends StatelessWidget {
                       WidgetSpan(
                         child: Padding(
                           padding: const EdgeInsets.only(top: 20),
-                          child: SimpleButton(
-                            text: 'Delete FinampSettings',
-                            icon: Icons.delete,
-                            onPressed: () async {
-                              final dir = (Platform.isAndroid || Platform.isIOS)
-                                  ? await getApplicationDocumentsDirectory()
-                                  : await getApplicationSupportDirectory();
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 8.0,
+                            children: [
+                              SimpleButton(
+                                text: 'Delete FinampSettings',
+                                icon: Icons.delete,
+                                onPressed: () async {
+                                  final dir = (Platform.isAndroid || Platform.isIOS)
+                                      ? await getApplicationDocumentsDirectory()
+                                      : await getApplicationSupportDirectory();
 
-                              await Hive.deleteBoxFromDisk("FinampSettings", path: dir.path);
-                            },
+                                  await Hive.deleteBoxFromDisk("FinampSettings", path: dir.path);
+                                  Gaimon.success();
+                                },
+                              ),
+                              SimpleButton(
+                                text: 'Delete Stored Queues',
+                                icon: Icons.delete,
+                                onPressed: () async {
+                                  final dir = (Platform.isAndroid || Platform.isIOS)
+                                      ? await getApplicationDocumentsDirectory()
+                                      : await getApplicationSupportDirectory();
+
+                                  await Hive.deleteBoxFromDisk("Queues", path: dir.path);
+                                  Gaimon.success();
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),

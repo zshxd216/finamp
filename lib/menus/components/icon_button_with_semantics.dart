@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class IconButtonWithSemantics extends ConsumerWidget {
   final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
   final IconData icon;
   final Color? color;
   final String label;
+  final double? iconSize;
   final VisualDensity? visualDensity;
 
   const IconButtonWithSemantics({
@@ -15,7 +17,9 @@ class IconButtonWithSemantics extends ConsumerWidget {
     required this.label,
     required this.icon,
     this.color,
+    this.iconSize,
     this.visualDensity,
+    this.onLongPress,
   });
 
   @override
@@ -24,19 +28,35 @@ class IconButtonWithSemantics extends ConsumerWidget {
       label: label,
       excludeSemantics: true, // replace child semantics with custom semantics
       container: true,
-      child: IconTheme(
-        data: IconThemeData(color: color ?? IconTheme.of(context).color, size: 24),
-        child: IconButton(
-          tooltip: label,
-          icon: Icon(icon),
-          visualDensity: visualDensity ?? VisualDensity.compact,
-          onPressed: () {
-            var callback = onPressed;
-            if (callback != null) {
-              callback();
-              FeedbackHelper.feedback(FeedbackType.selection);
-            }
-          },
+      child: GestureDetector(
+        onSecondaryTap: () {
+          var callback = onLongPress;
+          if (callback != null) {
+            callback();
+            FeedbackHelper.feedback(FeedbackType.selection);
+          }
+        },
+        child: IconTheme(
+          data: IconThemeData(color: color ?? IconTheme.of(context).color, size: iconSize ?? 24.0),
+          child: IconButton(
+            tooltip: label,
+            icon: Icon(icon),
+            visualDensity: visualDensity ?? VisualDensity.compact,
+            onPressed: () {
+              var callback = onPressed;
+              if (callback != null) {
+                callback();
+                FeedbackHelper.feedback(FeedbackType.selection);
+              }
+            },
+            onLongPress: () {
+              var callback = onLongPress;
+              if (callback != null) {
+                callback();
+                FeedbackHelper.feedback(FeedbackType.selection);
+              }
+            },
+          ),
         ),
       ),
     );
