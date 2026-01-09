@@ -126,10 +126,6 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
                   !ref.watch(finampSettingsProvider.isOffline) &&
                   ref.watch(canEditPlaylistProvider(widget.parent)))
                 PlaylistEditButton(playlist: widget.parent),
-              if (parentIsPlaylist) ...[
-                // SortOrderButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
-                SortMenuButton(tabType: TabContentType.tracks, forPlaylistTracks: true),
-              ],
               FavoriteButton(item: widget.parent, visualDensity: VisualDensity.standard),
               if (maxActions >= 8 && !isLoading)
                 DownloadButton(
@@ -150,7 +146,7 @@ class _AlbumScreenContentState extends ConsumerState<AlbumScreenContent> {
 
             return SliverAppBar(
               title: (!parentIsPlaylist) ? Text(widget.parent.name ?? AppLocalizations.of(context)!.unknownName) : null,
-              expandedHeight: kToolbarHeight + 125 + 18 + 100,
+              expandedHeight: kToolbarHeight + 125 + 18 + 100 + (parentIsPlaylist ? 40 : 0),
               // collapsedHeight: kToolbarHeight + 125 + 80,
               pinned: true,
               centerTitle: false,

@@ -20,6 +20,8 @@ class SortAndFilterRow extends ConsumerWidget {
   final bool? isFavoriteOverride;
   final void Function(bool?) updateIsFavoriteOverride;
 
+  final bool forPlaylistTracks;
+
   const SortAndFilterRow({
     super.key,
     required this.tabType,
@@ -30,6 +32,7 @@ class SortAndFilterRow extends ConsumerWidget {
     required this.updateSortOrderOverride,
     required this.isFavoriteOverride,
     required this.updateIsFavoriteOverride,
+    this.forPlaylistTracks = false,
   });
 
   @override
@@ -52,6 +55,7 @@ class SortAndFilterRow extends ConsumerWidget {
                 tabType: tabType,
                 sortByOverride: sortByOverride,
                 onOverrideChanged: (newSortBy) => updateSortByOverride(newSortBy),
+                forPlaylistTracks: forPlaylistTracks,
               ),
               // if (ref.watch(finampSettingsProvider.isOffline) && tabType != TabContentType.tracks)
               //   IconButton(
