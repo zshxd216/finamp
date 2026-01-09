@@ -371,7 +371,7 @@ class NowPlayingBar extends ConsumerWidget {
                                                             style: TextStyle(
                                                               color: primaryTextColor,
                                                               fontSize: 13,
-                                                              fontWeight: FontWeight.w300,
+                                                              fontWeight: FontWeight.w400,
                                                               overflow: TextOverflow.ellipsis,
                                                             ),
                                                           ),

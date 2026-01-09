@@ -36,11 +36,13 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(FinampFeatureChipTypeAdapter());
     registerAdapter(FinampFeatureChipsConfigurationAdapter());
     registerAdapter(FinampHistoryItemAdapter());
+    registerAdapter(FinampHomeScreenConfigurationAdapter());
     registerAdapter(FinampLoopModeAdapter());
     registerAdapter(FinampPlaybackOrderAdapter());
     registerAdapter(FinampQueueInfoAdapter());
     registerAdapter(FinampQueueItemAdapter());
     registerAdapter(FinampQueueOrderAdapter());
+    registerAdapter(FinampQuickActionAdapter());
     registerAdapter(FinampSettingsAdapter());
     registerAdapter(FinampStorableQueueInfoAdapter());
     registerAdapter(FinampTranscodingCodecAdapter());
@@ -138,11 +140,13 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(FinampFeatureChipTypeAdapter());
     registerAdapter(FinampFeatureChipsConfigurationAdapter());
     registerAdapter(FinampHistoryItemAdapter());
+    registerAdapter(FinampHomeScreenConfigurationAdapter());
     registerAdapter(FinampLoopModeAdapter());
     registerAdapter(FinampPlaybackOrderAdapter());
     registerAdapter(FinampQueueInfoAdapter());
     registerAdapter(FinampQueueItemAdapter());
     registerAdapter(FinampQueueOrderAdapter());
+    registerAdapter(FinampQuickActionAdapter());
     registerAdapter(FinampSettingsAdapter());
     registerAdapter(FinampStorableQueueInfoAdapter());
     registerAdapter(FinampTranscodingCodecAdapter());

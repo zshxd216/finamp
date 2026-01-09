@@ -142,6 +142,14 @@ class FinampSettingsHelper {
     Hive.box<FinampSettings>("FinampSettings").put("FinampSettings", finampSettingsTemp);
   }
 
+  static void resetHomeScreenSettings() {
+    FinampSettings finampSettingsTemp = finampSettings;
+
+    //TODO reset to default home screen
+
+    Hive.box<FinampSettings>("FinampSettings").put("FinampSettings", finampSettingsTemp);
+  }
+
   static void resetTranscodingSettings() {
     FinampSettings finampSettingsTemp = finampSettings;
 

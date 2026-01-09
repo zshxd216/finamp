@@ -445,6 +445,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         forceAudioOffloadingOnAndroid: fields[143] == null
             ? false
             : fields[143] as bool,
+        homeScreenConfiguration: fields[144] == null
+            ? DefaultSettings.homeScreenConfiguration
+            : fields[144] as FinampHomeScreenConfiguration,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -463,7 +466,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(137)
+      ..writeByte(138)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -737,7 +740,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(142)
       ..write(obj.duckOnAudioInterruption)
       ..writeByte(143)
-      ..write(obj.forceAudioOffloadingOnAndroid);
+      ..write(obj.forceAudioOffloadingOnAndroid)
+      ..writeByte(144)
+      ..write(obj.homeScreenConfiguration);
   }
 
   @override
@@ -1598,6 +1603,44 @@ class HomeScreenSectionInfoAdapter extends TypeAdapter<HomeScreenSectionInfo> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is HomeScreenSectionInfoAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FinampHomeScreenConfigurationAdapter
+    extends TypeAdapter<FinampHomeScreenConfiguration> {
+  @override
+  final typeId = 114;
+
+  @override
+  FinampHomeScreenConfiguration read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return FinampHomeScreenConfiguration(
+      actions: (fields[0] as List).cast<FinampQuickAction>(),
+      sections: (fields[1] as List).cast<HomeScreenSectionInfo>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, FinampHomeScreenConfiguration obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.actions)
+      ..writeByte(1)
+      ..write(obj.sections);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FinampHomeScreenConfigurationAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -3186,6 +3229,47 @@ class HomeScreenSectionTypeAdapter extends TypeAdapter<HomeScreenSectionType> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is HomeScreenSectionTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FinampQuickActionAdapter extends TypeAdapter<FinampQuickAction> {
+  @override
+  final typeId = 113;
+
+  @override
+  FinampQuickAction read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return FinampQuickAction.trackMix;
+      case 1:
+        return FinampQuickAction.recents;
+      case 2:
+        return FinampQuickAction.surpriseMe;
+      default:
+        return FinampQuickAction.trackMix;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, FinampQuickAction obj) {
+    switch (obj) {
+      case FinampQuickAction.trackMix:
+        writer.writeByte(0);
+      case FinampQuickAction.recents:
+        writer.writeByte(1);
+      case FinampQuickAction.surpriseMe:
+        writer.writeByte(2);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FinampQuickActionAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -5496,7 +5580,8 @@ const _DownloadItembaseItemTypeEnumValueMap = {
   'video': 11,
   'movie': 12,
   'trailer': 13,
-  'unknown': 14,
+  'collection': 14,
+  'unknown': 15,
 };
 const _DownloadItembaseItemTypeValueEnumMap = {
   0: BaseItemDtoType.noItem,
@@ -5513,7 +5598,8 @@ const _DownloadItembaseItemTypeValueEnumMap = {
   11: BaseItemDtoType.video,
   12: BaseItemDtoType.movie,
   13: BaseItemDtoType.trailer,
-  14: BaseItemDtoType.unknown,
+  14: BaseItemDtoType.collection,
+  15: BaseItemDtoType.unknown,
 };
 const _DownloadItemstateEnumValueMap = {
   'notDownloaded': 0,
@@ -8892,6 +8978,7 @@ const _$BaseItemDtoTypeEnumMap = {
   BaseItemDtoType.video: 'video',
   BaseItemDtoType.movie: 'movie',
   BaseItemDtoType.trailer: 'trailer',
+  BaseItemDtoType.collection: 'collection',
   BaseItemDtoType.unknown: 'unknown',
 };
 
@@ -9064,4 +9151,30 @@ const _$HomeScreenSectionTypeEnumMap = {
   HomeScreenSectionType.newlyAdded: 'newlyAdded',
   HomeScreenSectionType.favoriteArtists: 'favoriteArtists',
   HomeScreenSectionType.collection: 'collection',
+};
+
+FinampHomeScreenConfiguration _$FinampHomeScreenConfigurationFromJson(
+  Map<String, dynamic> json,
+) => FinampHomeScreenConfiguration(
+  actions: (json['actions'] as List<dynamic>)
+      .map((e) => $enumDecode(_$FinampQuickActionEnumMap, e))
+      .toList(),
+  sections: (json['sections'] as List<dynamic>)
+      .map((e) => HomeScreenSectionInfo.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$FinampHomeScreenConfigurationToJson(
+  FinampHomeScreenConfiguration instance,
+) => <String, dynamic>{
+  'actions': instance.actions
+      .map((e) => _$FinampQuickActionEnumMap[e]!)
+      .toList(),
+  'sections': instance.sections,
+};
+
+const _$FinampQuickActionEnumMap = {
+  FinampQuickAction.trackMix: 'trackMix',
+  FinampQuickAction.recents: 'recents',
+  FinampQuickAction.surpriseMe: 'surpriseMe',
 };

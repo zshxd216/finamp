@@ -20,6 +20,7 @@ import 'package:finamp/screens/album_settings_screen.dart';
 import 'package:finamp/screens/artist_settings_screen.dart';
 import 'package:finamp/screens/downloads_settings_screen.dart';
 import 'package:finamp/screens/genre_settings_screen.dart';
+import 'package:finamp/screens/home_screen_settings_screen.dart';
 import 'package:finamp/screens/interaction_settings_screen.dart';
 import 'package:finamp/screens/login_screen.dart';
 import 'package:finamp/screens/lyrics_settings_screen.dart';
@@ -678,6 +679,7 @@ class FinampApp extends ConsumerWidget {
         LogsScreen.routeName: (context) => const LogsScreen(),
         QueueRestoreScreen.routeName: (context) => const QueueRestoreScreen(),
         SettingsScreen.routeName: (context) => const SettingsScreen(),
+        HomeScreenSettingsScreen.routeName: (context) => const HomeScreenSettingsScreen(),
         TranscodingSettingsScreen.routeName: (context) => const TranscodingSettingsScreen(),
         DownloadsLocationScreen.routeName: (context) => const DownloadsLocationScreen(),
         DownloadsSettingsScreen.routeName: (context) => const DownloadsSettingsScreen(),

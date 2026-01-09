@@ -15,6 +15,7 @@ import 'package:finamp/screens/music_screen.dart';
 import 'package:finamp/screens/queue_restore_screen.dart';
 import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/item_by_id_provider.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:finamp/services/radio_service_helper.dart';
 import 'package:flutter/material.dart';
@@ -75,57 +76,51 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                 direction: Axis.horizontal,
                 alignment: WrapAlignment.spaceBetween,
                 runAlignment: WrapAlignment.center,
-                children: [
-                  CTALarge(
-                    text: 'Song Mix*',
-                    icon: TablerIcons.arrows_shuffle,
-                    vertical: true,
-                    minWidth: 110,
-                    onPressed: () {
-                      _audioServiceHelper.shuffleAll(onlyShowFavorites: finampSettings?.onlyShowFavorites ?? false);
+                children: ref.watch(finampSettingsProvider.homeScreenConfiguration).actions.map((action) {
+                  return CTALarge(
+                    text: action.toLocalisedString(context),
+                    icon: switch (action) {
+                      FinampQuickAction.trackMix => TablerIcons.arrows_shuffle,
+                      FinampQuickAction.recents => TablerIcons.calendar,
+                      FinampQuickAction.surpriseMe => TablerIcons.radio,
                     },
-                  ),
-                  CTALarge(
-                    text: 'Recents*',
-                    icon: TablerIcons.calendar,
                     vertical: true,
                     minWidth: 110,
-                    onPressed: () {
-                      Navigator.pushNamed(context, QueueRestoreScreen.routeName);
-                    },
-                  ),
-                  CTALarge(
-                    text: 'Suprise Me*',
-                    icon: TablerIcons.radio,
-                    vertical: true,
-                    minWidth: 110,
-                    onPressed: () async {
-                      //TODO handle offline mode (continuous radio not available, and offline request needed) - maybe just hide this?
-                      // start continuous radio with a random track?
-                      final randomTracks = await _jellyfinApiHelper.getItems(
-                        parentItem: _finampUserHelper.currentUser?.currentView,
-                        includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
-                        limit: 1,
-                        sortBy: "Random",
-                      );
-                      if (randomTracks != null && randomTracks.isNotEmpty) {
-                        await GetIt.instance<QueueService>().startPlayback(
-                          items: randomTracks,
-                          source: QueueItemSource.fromBaseItem(randomTracks.first),
-                          skipRadioCacheInvalidation: false,
+                    onPressed: switch (action) {
+                      FinampQuickAction.trackMix => () {
+                        _audioServiceHelper.shuffleAll(onlyShowFavorites: finampSettings?.onlyShowFavorites ?? false);
+                      },
+                      FinampQuickAction.recents => () {
+                        Navigator.pushNamed(context, QueueRestoreScreen.routeName);
+                      },
+                      FinampQuickAction.surpriseMe => () async {
+                        //TODO handle offline mode (continuous radio not available, and offline request needed) - maybe just hide this?
+                        // start continuous radio with a random track?
+                        final randomTracks = await _jellyfinApiHelper.getItems(
+                          parentItem: _finampUserHelper.currentUser?.currentView,
+                          includeItemTypes: [BaseItemDtoType.track.jellyfinName].join(","),
+                          limit: 1,
+                          sortBy: "Random",
                         );
-                        FinampSetters.setRadioMode(RadioMode.continuous);
-                        toggleRadio(true);
-                      }
+                        if (randomTracks != null && randomTracks.isNotEmpty) {
+                          await GetIt.instance<QueueService>().startPlayback(
+                            items: randomTracks,
+                            source: QueueItemSource.fromBaseItem(randomTracks.first),
+                            skipRadioCacheInvalidation: false,
+                          );
+                          FinampSetters.setRadioMode(RadioMode.continuous);
+                          toggleRadio(true);
+                        }
+                      },
                     },
-                  ),
-                ],
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 8),
-              _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.collection, itemId: BaseItemId(""))),
-              _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.listenAgain)),
-              _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.newlyAdded)),
-              _buildSection(HomeScreenSectionInfo(type: HomeScreenSectionType.favoriteArtists)),
+              ...ref
+                  .watch(finampSettingsProvider.homeScreenConfiguration)
+                  .sections
+                  .map((sectionInfo) => _buildSection(sectionInfo)),
               SizedBox(height: 80),
               ...[
                 // monochrome icon
@@ -162,7 +157,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
             children: [
               SimpleGestureDetector(
                 onTap: () {
-                  // Handle the tap event
+                  //TODO Handle the tap event?
                   GlobalSnackbar.message((buildContext) {
                     return "This feature is not available yet.";
                   });
@@ -172,7 +167,10 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      sectionInfo.type.toLocalisedString(context),
+                      sectionInfo.itemId != null
+                          ? ref.watch(itemByIdProvider(sectionInfo.itemId!)).valueOrNull?.name ??
+                                sectionInfo.type.toLocalisedString(context)
+                          : sectionInfo.type.toLocalisedString(context),
                       style: TextTheme.of(context).titleSmall?.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: 18,
@@ -323,18 +321,9 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
       );
       break;
     case HomeScreenSectionType.collection:
-      final baseItem = await jellyfinApiHelper.getItemById(
-        sectionInfo.itemId!,
-      ); //TODO I don't like this null check. Enforcing IDs for collection types would be much nice, but how to do that while allowing dynamic IDs? Enums don't seem to work
+      final baseItem = await GetIt.instance<ProviderContainer>().read(itemByIdProvider(sectionInfo.itemId!).future);
       newItemsFuture = jellyfinApiHelper.getItems(
         parentItem: baseItem,
-        // includeItemTypes: [
-        //   BaseItemDtoType.album.jellyfinName,
-        //   BaseItemDtoType.playlist.jellyfinName,
-        //   BaseItemDtoType.artist.jellyfinName,
-        //   BaseItemDtoType.genre.jellyfinName,
-        //   BaseItemDtoType.audioBook.jellyfinName,
-        // ].join(","),
         recursive: false, //!!! prevent loading tracks and albums from inside the collection items
         // filters: "IsFavorite",
         startIndex: startIndex,
@@ -398,9 +387,22 @@ Future<List<BaseItemDto>?> loadHomeSectionItemsOffline({
       items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
       items = sortItems(items, SortBy.datePlayed, SortOrder.descending);
       break;
-    default:
-      offlineItems = <DownloadStub>[]; // No items for other sections
+    case HomeScreenSectionType.collection:
+      final baseItem = GetIt.instance<ProviderContainer>().read(itemByIdProvider(sectionInfo.itemId!)).valueOrNull;
+      if (baseItem == null) {
+        return [];
+      }
+      offlineItems = await downloadsService.getAllCollections(
+        relatedTo: baseItem,
+        fullyDownloaded: settings.onlyShowFullyDownloaded,
+        //TODO collections are cross-library - should we really filter by library here?
+        viewFilter: finampUserHelper.currentUser?.currentViewId,
+        childViewFilter: null,
+        nullableViewFilters: settings.showDownloadsWithUnknownLibrary,
+        onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
+      );
       items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
+      break;
   }
 
   return items.take(limit).toList();

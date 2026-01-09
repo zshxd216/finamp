@@ -259,6 +259,7 @@ class JellyfinApiHelper {
           recursive: recursive,
           fields: fields,
         );
+        //FIXME this check will break for mixed item types
       } else if (includeItemTypes == "MusicArtist") {
         // For artists, we need to use different endpoints
         if (artistType == ArtistType.albumArtist) {

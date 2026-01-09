@@ -24,7 +24,6 @@ import 'package:finamp/menus/components/menuEntries/toggle_favorite_menu_entry.d
 import 'package:finamp/menus/components/menu_item_info_header.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action.dart';
 import 'package:finamp/menus/components/playbackActions/playback_action_row.dart';
-import 'package:finamp/menus/components/playbackActions/playback_actions.dart';
 import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/menus/components/speed_menu.dart';
 import 'package:finamp/menus/sleep_timer_menu.dart';
@@ -37,12 +36,6 @@ import 'package:finamp/services/metadata_provider.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:finamp/services/radio_service_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
-import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 
 const Duration trackMenuDefaultAnimationDuration = Duration(milliseconds: 500);
 const Curve trackMenuDefaultInCurve = Curves.easeOutCubic;
@@ -232,12 +225,8 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       includePlaybackRowPageIndicator: widget.queueItem != null,
     );
 
-    return Consumer(
-      builder: (context, ref, child) {
-        final metadata = ref.watch(currentTrackMetadataProvider).unwrapPrevious();
-        return widget.childBuilder(stackHeight, menu(context, menuEntries, metadata.value));
-      },
-    );
+    final metadata = ref.watch(currentTrackMetadataProvider).unwrapPrevious();
+    return widget.childBuilder(stackHeight, menu(context, menuEntries, metadata.value));
   }
 
   // Normal track menu entries, excluding headers

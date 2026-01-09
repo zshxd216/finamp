@@ -3238,5 +3238,9 @@
   "home": "Home",
   "@home": {
     "description": "Label for the home tab in the main navigation bar"
+  },
+  "homeScreenSettingsTitle": "Home Screen",
+  "@homeScreenSettingsTitle": {
+    "description": "Title for the home screen settings"
   }
 }

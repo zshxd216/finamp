@@ -7,6 +7,7 @@ enum IconPosition { start, end }
 
 class SimpleButton extends StatelessWidget {
   final String text;
+  final TextStyle textStyle;
   final IconData icon;
   final IconPosition? iconPosition;
   final double iconSize;
@@ -34,7 +35,22 @@ class SimpleButton extends StatelessWidget {
     this.iconColor,
     this.disabled = false,
     this.inactive = false,
-  });
+  }) : textStyle = const TextStyle(fontSize: 14, fontWeight: FontWeight.normal);
+
+  const SimpleButton.small({
+    super.key,
+    required this.text,
+    required this.icon,
+    required this.onPressed,
+    this.onPressedSecondary,
+    this.textColor,
+    this.fontWeight,
+    this.iconPosition = IconPosition.start,
+    this.iconSize = 16.0,
+    this.iconColor,
+    this.disabled = false,
+    this.inactive = false,
+  }) : textStyle = const TextStyle(fontSize: 12, fontWeight: FontWeight.normal);
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +64,8 @@ class SimpleButton extends StatelessWidget {
               : (textColor != null)
               ? textColor
               : Theme.of(context).textTheme.bodyMedium!.color!,
-          fontSize: 14,
-          fontWeight: (fontWeight != null) ? fontWeight : FontWeight.normal,
+          fontSize: textStyle.fontSize,
+          fontWeight: (fontWeight != null) ? fontWeight : textStyle.fontWeight,
         ),
         textAlign: TextAlign.center,
       ),

@@ -68,6 +68,8 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
         case BaseItemDtoType.genre:
           Navigator.of(context).pushNamed(GenreScreen.routeName, arguments: radioSource.item);
           break;
+        case BaseItemDtoType.collection:
+        //TODO implement collection screen
         case BaseItemDtoType.noItem:
         case BaseItemDtoType.library:
         case BaseItemDtoType.folder:

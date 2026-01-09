@@ -6,6 +6,7 @@ import 'package:finamp/menus/server_sharing_menu.dart';
 import 'package:finamp/screens/accessibility_settings_screen.dart';
 import 'package:finamp/screens/audio_service_settings_screen.dart';
 import 'package:finamp/screens/downloads_settings_screen.dart';
+import 'package:finamp/screens/home_screen_settings_screen.dart';
 import 'package:finamp/screens/interaction_settings_screen.dart';
 import 'package:finamp/screens/language_selection_screen.dart';
 import 'package:finamp/screens/layout_settings_screen.dart';
@@ -128,6 +129,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 200.0),
         children: [
+          ListTile(
+            leading: const Icon(TablerIcons.home),
+            title: Text(AppLocalizations.of(context)!.homeScreenSettingsTitle),
+            onTap: () => Navigator.of(context).pushNamed(HomeScreenSettingsScreen.routeName),
+          ),
           ListTile(
             leading: const Icon(Icons.compress),
             title: Text(AppLocalizations.of(context)!.transcoding),

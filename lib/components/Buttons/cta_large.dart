@@ -7,6 +7,7 @@ class CTALarge extends StatelessWidget {
   final double? minWidth;
   final bool vertical;
   final void Function() onPressed;
+  final bool disabled;
 
   const CTALarge({
     super.key,
@@ -15,18 +16,23 @@ class CTALarge extends StatelessWidget {
     this.minWidth,
     this.vertical = false,
     required this.onPressed,
+    this.disabled = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = Theme.of(context).colorScheme.primary;
+    final accentColor = disabled
+        ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+        : Theme.of(context).colorScheme.primary;
     return ConstrainedBox(
       constraints: BoxConstraints(minWidth: minWidth ?? 0),
       child: FilledButton(
-        onPressed: () {
-          FeedbackHelper.feedback(FeedbackType.selection);
-          onPressed();
-        },
+        onPressed: disabled
+            ? null
+            : () {
+                FeedbackHelper.feedback(FeedbackType.selection);
+                onPressed();
+              },
         style: ButtonStyle(
           shape: WidgetStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -36,8 +42,8 @@ class CTALarge extends StatelessWidget {
           ),
           backgroundColor: WidgetStateProperty.all<Color>(
             Theme.of(context).brightness == Brightness.dark
-                ? accentColor.withOpacity(0.15)
-                : Color.alphaBlend(accentColor.withOpacity(0.2), Colors.white),
+                ? accentColor.withOpacity(disabled ? 0.05 : 0.15)
+                : Color.alphaBlend(accentColor.withOpacity(0.2), Colors.white).withOpacity(disabled ? 0.5 : 1.0),
           ),
         ),
         child: Wrap(
@@ -50,9 +56,11 @@ class CTALarge extends StatelessWidget {
             Text(
               text,
               style: TextStyle(
-                color: Theme.of(context).brightness == Brightness.light
-                    ? Color.alphaBlend(accentColor.withOpacity(0.33), Colors.black)
-                    : Colors.white,
+                color:
+                    (Theme.of(context).brightness == Brightness.light
+                            ? Color.alphaBlend(accentColor.withOpacity(0.33), Colors.black)
+                            : Colors.white)
+                        .withOpacity(disabled ? 0.5 : 1.0),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

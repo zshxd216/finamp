@@ -254,6 +254,14 @@ class DefaultSettings {
   static const radioEnabled = false;
   static const duckOnAudioInterruption = true;
   static const forceAudioOffloadingOnAndroid = false;
+  static const homeScreenConfiguration = FinampHomeScreenConfiguration(
+    actions: [FinampQuickAction.trackMix, FinampQuickAction.recents, FinampQuickAction.surpriseMe],
+    sections: [
+      HomeScreenSectionInfo(type: HomeScreenSectionType.listenAgain),
+      HomeScreenSectionInfo(type: HomeScreenSectionType.newlyAdded),
+      HomeScreenSectionInfo(type: HomeScreenSectionType.favoriteArtists),
+    ],
+  );
 }
 
 @HiveType(typeId: 28)
@@ -395,6 +403,7 @@ class FinampSettings {
     this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
     this.duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption,
     this.forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid,
+    this.homeScreenConfiguration = DefaultSettings.homeScreenConfiguration,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -843,6 +852,9 @@ class FinampSettings {
 
   @HiveField(143, defaultValue: DefaultSettings.forceAudioOffloadingOnAndroid)
   bool forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid;
+
+  @HiveField(144, defaultValue: DefaultSettings.homeScreenConfiguration)
+  FinampHomeScreenConfiguration homeScreenConfiguration = DefaultSettings.homeScreenConfiguration;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
@@ -1740,6 +1752,11 @@ enum BaseItemDtoType {
   video("Video", false, [], DownloadItemType.track),
   movie("Movie", false, [], DownloadItemType.track),
   trailer("Trailer", false, [], DownloadItemType.track),
+  //!!! apparently a typo in the API docs, "BoxSet" returns an invalid result (i.e. all libraries), but "BoxSets" returns the correct thing. at least for some requests?
+  collection("BoxSet", true, [
+    album, track, playlist, artist, genre, audioBook,
+    // collection,
+  ], DownloadItemType.collection),
   unknown(null, true, null, DownloadItemType.collection);
 
   // All possible types in Jellyfin as of 10.9:
@@ -4026,7 +4043,7 @@ class HomeScreenSectionInfo {
   @HiveField(1)
   final BaseItemId? itemId;
 
-  HomeScreenSectionInfo({required this.type, this.itemId});
+  const HomeScreenSectionInfo({required this.type, this.itemId});
 
   factory HomeScreenSectionInfo.fromJson(Map<String, dynamic> json) => _$HomeScreenSectionInfoFromJson(json);
 
@@ -4045,4 +4062,70 @@ class HomeScreenSectionInfo {
   @override
   @ignore
   int get hashCode => Object.hash(type, itemId);
+}
+
+@HiveType(typeId: 113)
+enum FinampQuickAction {
+  @HiveField(0)
+  trackMix,
+  @HiveField(1)
+  recents,
+  @HiveField(2)
+  surpriseMe;
+
+  /// Human-readable version of the [FinampQuickActionType]
+  @override
+  @Deprecated("Use toLocalisedString when possible")
+  String toString() => _humanReadableName(this);
+
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableName(FinampQuickAction quickAction) {
+    switch (quickAction) {
+      case FinampQuickAction.trackMix:
+        return "Track Mix";
+      case FinampQuickAction.recents:
+        return "Recents";
+      case FinampQuickAction.surpriseMe:
+        return "Surprise Me";
+    }
+  }
+
+  String _humanReadableLocalisedName(FinampQuickAction quickAction, BuildContext context) {
+    switch (quickAction) {
+      case FinampQuickAction.trackMix:
+        return "Track Mix*";
+      case FinampQuickAction.recents:
+        return "Recents*";
+      case FinampQuickAction.surpriseMe:
+        return "Surprise Me*";
+    }
+  }
+}
+
+@JsonSerializable()
+@HiveType(typeId: 114)
+class FinampHomeScreenConfiguration {
+  const FinampHomeScreenConfiguration({required this.actions, required this.sections});
+
+  @HiveField(0)
+  final List<FinampQuickAction> actions;
+
+  @HiveField(1)
+  final List<HomeScreenSectionInfo> sections;
+
+  factory FinampHomeScreenConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$FinampHomeScreenConfigurationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FinampHomeScreenConfigurationToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+
+  // implement copyWith
+  FinampHomeScreenConfiguration copyWith({List<FinampQuickAction>? actions, List<HomeScreenSectionInfo>? sections}) {
+    return FinampHomeScreenConfiguration(actions: actions ?? this.actions, sections: sections ?? this.sections);
+  }
 }
