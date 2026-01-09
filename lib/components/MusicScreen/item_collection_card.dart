@@ -74,7 +74,7 @@ class _ItemCollectionCardText extends ConsumerWidget {
     );
 
     return SizedBox(
-      height: calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 4),
+      height: calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 3),
       child: Align(
         alignment: Alignment.topLeft,
         child: Wrap(
@@ -92,7 +92,7 @@ class _ItemCollectionCardText extends ConsumerWidget {
               Text(
                 subtitle,
                 overflow: TextOverflow.ellipsis,
-                maxLines: 2,
+                maxLines: 1,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
           ],
@@ -112,7 +112,7 @@ double calculateItemCollectionCardHeight(BuildContext context) {
       (GetIt.instance<ProviderContainer>().read(finampSettingsProvider.showTextOnGridView)
           ? _itemCollectionCardSpacing
           : 0) +
-      calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 4);
+      calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 3);
 }
 
 double calculateTextHeight({required TextStyle style, required int lines}) {

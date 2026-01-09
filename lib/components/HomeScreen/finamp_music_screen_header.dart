@@ -213,7 +213,7 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                 labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
                 dividerHeight: 0.0,
                 dividerColor: Colors.transparent,
-                padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
+                padding: EdgeInsets.only(top: 2.0, bottom: 2.0, left: 12.0, right: 6.0),
                 tabs: sortedTabs
                     .map(
                       (tabType) => Tab(

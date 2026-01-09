@@ -196,6 +196,7 @@ class AlbumInfo extends ConsumerWidget {
         Padding(
           padding: condensed ? const EdgeInsets.only(top: 6.0) : const EdgeInsets.symmetric(vertical: 0.0),
           child: ArtistChips(
+            artistType: ArtistType.albumArtist, // show only album artist for albums
             baseItem: baseItem,
             backgroundColor:
                 IconTheme.of(context).color?.withOpacity(0.1) ??
