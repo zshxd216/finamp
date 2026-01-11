@@ -247,6 +247,7 @@ class DefaultSettings {
   static const radioEnabled = false;
   static const duckOnAudioInterruption = true;
   static const forceAudioOffloadingOnAndroid = false;
+  static const previousTracksPersistenceMode = PreviousTracksPersistenceMode.persistent;
 }
 
 @HiveType(typeId: 28)
@@ -388,6 +389,7 @@ class FinampSettings {
     this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
     this.duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption,
     this.forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid,
+    this.previousTracksPersistenceMode = DefaultSettings.previousTracksPersistenceMode,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -836,6 +838,9 @@ class FinampSettings {
 
   @HiveField(143, defaultValue: DefaultSettings.forceAudioOffloadingOnAndroid)
   bool forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid;
+
+  @HiveField(144, defaultValue: DefaultSettings.previousTracksPersistenceMode)
+  PreviousTracksPersistenceMode previousTracksPersistenceMode = DefaultSettings.previousTracksPersistenceMode;
 
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
@@ -3962,4 +3967,20 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
   String toString() {
     return "previous:${previousTracks.length} current:$currentTrack seek:$currentTrackSeek next:${nextUp.length} queue:${queue.length} order:${packedShuffleOrder == null ? "linear" : "shuffled"} sources $sourceList";
   }
+}
+
+@HiveType(typeId: 111)
+/// Describes initial state of "previous tracks" header on queue open
+enum PreviousTracksPersistenceMode {
+  /// Use last stored state
+  @HiveField(0)
+  persistent,
+
+  /// Override state to be collapsed on open
+  @HiveField(1)
+  initiallyCollapsed,
+
+  /// Override state to be expanded on open
+  @HiveField(2)
+  initiallyExpanded,
 }

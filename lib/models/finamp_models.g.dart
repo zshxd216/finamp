@@ -444,6 +444,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         forceAudioOffloadingOnAndroid: fields[143] == null
             ? false
             : fields[143] as bool,
+        previousTracksPersistenceMode: fields[144] == null
+            ? PreviousTracksPersistenceMode.persistent
+            : fields[144] as PreviousTracksPersistenceMode,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -462,7 +465,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(137)
+      ..writeByte(138)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -736,7 +739,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(142)
       ..write(obj.duckOnAudioInterruption)
       ..writeByte(143)
-      ..write(obj.forceAudioOffloadingOnAndroid);
+      ..write(obj.forceAudioOffloadingOnAndroid)
+      ..writeByte(144)
+      ..write(obj.previousTracksPersistenceMode);
   }
 
   @override
@@ -3099,6 +3104,48 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RadioModeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class PreviousTracksPersistenceModeAdapter
+    extends TypeAdapter<PreviousTracksPersistenceMode> {
+  @override
+  final typeId = 111;
+
+  @override
+  PreviousTracksPersistenceMode read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return PreviousTracksPersistenceMode.persistent;
+      case 1:
+        return PreviousTracksPersistenceMode.initiallyCollapsed;
+      case 2:
+        return PreviousTracksPersistenceMode.initiallyExpanded;
+      default:
+        return PreviousTracksPersistenceMode.persistent;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, PreviousTracksPersistenceMode obj) {
+    switch (obj) {
+      case PreviousTracksPersistenceMode.persistent:
+        writer.writeByte(0);
+      case PreviousTracksPersistenceMode.initiallyCollapsed:
+        writer.writeByte(1);
+      case PreviousTracksPersistenceMode.initiallyExpanded:
+        writer.writeByte(2);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PreviousTracksPersistenceModeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -1248,6 +1248,17 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setPreviousTracksPersistenceMode(
+    PreviousTracksPersistenceMode newPreviousTracksPersistenceMode,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.previousTracksPersistenceMode =
+        newPreviousTracksPersistenceMode;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1679,6 +1690,10 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select(
         (value) => value.requireValue.forceAudioOffloadingOnAndroid,
       );
+  ProviderListenable<PreviousTracksPersistenceMode>
+  get previousTracksPersistenceMode => finampSettingsProvider.select(
+    (value) => value.requireValue.previousTracksPersistenceMode,
+  );
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(
         (value) => value.requireValue.downloadTranscodingProfile,
