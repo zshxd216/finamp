@@ -108,10 +108,6 @@ class _AlbumScreenContentFlexibleSpaceBarState extends ConsumerState<AlbumScreen
                         FinampSetters.setPlaylistTracksSortOrder(newSortOrder);
                       }
                     },
-                    isFavoriteOverride: false,
-                    updateIsFavoriteOverride: (newIsFavorite) {
-                      //nop
-                    },
                   ),
                 ],
               ],

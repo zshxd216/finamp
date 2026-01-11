@@ -12,7 +12,7 @@ part of 'home_screen_content.dart';
 // **************************************************************************
 
 String _$loadHomeSectionItemsHash() =>
-    r'a584974a5dc45a4765c73716c5b8f03a3754aea7';
+    r'12d1b1f11f50104d357c3f82c551100c33833580';
 
 /// Copied from Dart SDK
 class _SystemHash {

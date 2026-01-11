@@ -268,10 +268,12 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
                           sortOrderOverride = newSortOrder;
                         });
                       },
-                      isFavoriteOverride: isFavoriteOverride,
-                      updateIsFavoriteOverride: (newIsFavorite) {
+                      filterOverride: isFavoriteOverride != null
+                          ? {if (isFavoriteOverride!) ItemFilter(type: ItemFilterType.isFavorite, extras: true)}
+                          : null,
+                      updateFilterOverride: (newFilters) {
                         setState(() {
-                          isFavoriteOverride = newIsFavorite;
+                          isFavoriteOverride = newFilters?.any((filter) => filter.type == ItemFilterType.isFavorite);
                         });
                       },
                     ),

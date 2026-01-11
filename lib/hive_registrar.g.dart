@@ -53,6 +53,8 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(HomeScreenSectionTypeAdapter());
     registerAdapter(HttpHeaderInfoAdapter());
     registerAdapter(ImageBlurHashesAdapter());
+    registerAdapter(ItemFilterAdapter());
+    registerAdapter(ItemFilterTypeAdapter());
     registerAdapter(ItemSwipeActionsAdapter());
     registerAdapter(KeepScreenOnOptionAdapter());
     registerAdapter(LyricDtoAdapter());
@@ -94,6 +96,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(SessionUserInfoAdapter());
     registerAdapter(SleepTimerAdapter());
     registerAdapter(SleepTimerTypeAdapter());
+    registerAdapter(SortAndFilterConfigurationAdapter());
     registerAdapter(SortByAdapter());
     registerAdapter(SortOrderAdapter());
     registerAdapter(SubtitleProfileAdapter());
@@ -157,6 +160,8 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(HomeScreenSectionTypeAdapter());
     registerAdapter(HttpHeaderInfoAdapter());
     registerAdapter(ImageBlurHashesAdapter());
+    registerAdapter(ItemFilterAdapter());
+    registerAdapter(ItemFilterTypeAdapter());
     registerAdapter(ItemSwipeActionsAdapter());
     registerAdapter(KeepScreenOnOptionAdapter());
     registerAdapter(LyricDtoAdapter());
@@ -198,6 +203,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(SessionUserInfoAdapter());
     registerAdapter(SleepTimerAdapter());
     registerAdapter(SleepTimerTypeAdapter());
+    registerAdapter(SortAndFilterConfigurationAdapter());
     registerAdapter(SortByAdapter());
     registerAdapter(SortOrderAdapter());
     registerAdapter(SubtitleProfileAdapter());

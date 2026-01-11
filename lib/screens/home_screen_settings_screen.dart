@@ -1,7 +1,10 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
+import 'package:finamp/components/HomeScreen/home_screen_content.dart';
+import 'package:finamp/components/MusicScreen/sort_and_filter_row.dart';
 import 'package:finamp/components/SettingsScreen/finamp_settings_dropdown.dart';
 import 'package:finamp/components/TranscodingSettingsScreen/bitrate_selector.dart';
 import 'package:finamp/components/TranscodingSettingsScreen/transcode_switch.dart';
@@ -201,13 +204,13 @@ class HomeScreenSectionsSelector extends ConsumerWidget {
                             future: ref.watch(itemByIdProvider(section.itemId!).future).then((item) => item?.name),
                             builder: (context, asyncSnapshot) {
                               if (asyncSnapshot.data == null) {
-                                return Text(section.type.toLocalisedString(context));
+                                return Text(section.toLocalisedString(context));
                               }
                               final itemName = asyncSnapshot.data!;
-                              return Text("${section.type.toLocalisedString(context)} '$itemName'*");
+                              return Text("${section.toLocalisedString(context)} '$itemName'*");
                             },
                           )
-                        : Text(section.type.toLocalisedString(context)),
+                        : Text(section.toLocalisedString(context)),
                   ),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                   visualDensity: VisualDensity(horizontal: -4, vertical: -4),
@@ -271,7 +274,7 @@ void showHomeScreenSectionConfigurationMenu(BuildContext context, {int? editingS
   await showThemedBottomSheet(
     context: context,
     routeName: HomeScreenSectionConfigurationMenu.routeName,
-    minDraggableHeight: 0.65,
+    minDraggableHeight: 0.85,
     buildWrapper: (context, dragController, childBuilder) {
       return HomeScreenSectionConfigurationMenu(
         editingSectionIndex: editingSectionIndex,
@@ -312,6 +315,10 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
 
   HomeScreenSectionType? selectedSectionType;
   BaseItemId? selectedCollectionId;
+  TabContentType? selectedContentType;
+  SortBy? selectedSortBy;
+  SortOrder? selectedSortOrder;
+  Set<ItemFilter>? selectedFilters;
 
   List<BaseItemDto> collections = [];
 
@@ -321,7 +328,7 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
   void initState() {
     super.initState();
 
-    initialSheetExtent = 0.65;
+    initialSheetExtent = 0.85;
     oldExtent = initialSheetExtent;
 
     _jellyfinApiHelper
@@ -350,6 +357,53 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
     oldExtent = currentSize;
   }
 
+  HomeScreenSectionInfo _getCurrentSectionInfo() {
+    final sections = ref.watch(finampSettingsProvider.homeScreenConfiguration).sections;
+    return HomeScreenSectionInfo(
+      type:
+          selectedSectionType ??
+          (widget.editingSectionIndex != null
+              ? sections[widget.editingSectionIndex!].type
+              : HomeScreenSectionType.tabView),
+      itemId: selectedCollectionId,
+      contentType:
+          selectedContentType ??
+          (widget.editingSectionIndex != null
+              ? sections[widget.editingSectionIndex!].contentType ?? TabContentType.tracks
+              : TabContentType.tracks),
+      sortAndFilterConfiguration: SortAndFilterConfiguration(
+        sortBy:
+            selectedSortBy ??
+            (widget.editingSectionIndex != null
+                ? ref
+                      .watch(finampSettingsProvider.homeScreenConfiguration)
+                      .sections[widget.editingSectionIndex!]
+                      .sortAndFilterConfiguration
+                      .sortBy
+                : SortBy.sortName),
+        sortOrder:
+            selectedSortOrder ??
+            (widget.editingSectionIndex != null
+                ? ref
+                      .watch(finampSettingsProvider.homeScreenConfiguration)
+                      .sections[widget.editingSectionIndex!]
+                      .sortAndFilterConfiguration
+                      .sortOrder
+                : SortOrder.ascending),
+        filters:
+            selectedFilters ??
+            (widget.editingSectionIndex != null
+                ? ref
+                      .watch(finampSettingsProvider.homeScreenConfiguration)
+                      .sections[widget.editingSectionIndex!]
+                      .sortAndFilterConfiguration
+                      .filters
+                      .toSet()
+                : <ItemFilter>{}),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final menuEntries = _getMenuEntries(context);
@@ -362,6 +416,19 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
   List<Widget> _getMenuEntries(BuildContext context) {
     final sections = ref.watch(finampSettingsProvider.homeScreenConfiguration).sections;
     return [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.max,
+        spacing: 4.0,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text("Preview*", style: Theme.of(context).textTheme.bodyMedium),
+          ),
+          HomeScreenSectionContent(sectionInfo: _getCurrentSectionInfo()),
+        ],
+      ),
+      SizedBox(height: 40.0),
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -379,7 +446,7 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
                 selectedSectionType ??
                 (widget.editingSectionIndex != null
                     ? sections[widget.editingSectionIndex!].type
-                    : HomeScreenSectionType.favoriteArtists),
+                    : HomeScreenSectionType.tabView),
             onSelected: (selectedActionType) {
               if (selectedActionType != null) {
                 setState(() {
@@ -390,8 +457,8 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
           ),
         ],
       ),
-      SizedBox(height: 24.0),
-      if (selectedSectionType == HomeScreenSectionType.collection)
+      if (selectedSectionType == HomeScreenSectionType.collection) ...[
+        SizedBox(height: 24.0),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -478,28 +545,92 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
             ),
           ],
         ),
+      ],
+      if (selectedSectionType == HomeScreenSectionType.tabView) ...[
+        SizedBox(height: 24.0),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          spacing: 4.0,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 4.0),
+              child: Text("Tab Type*", style: Theme.of(context).textTheme.bodyMedium),
+            ),
+            FinampSettingsDropdown<TabContentType>(
+              dropdownItems: TabContentType.values
+                  .whereNot((contentType) => contentType == TabContentType.home)
+                  .map((e) => DropdownMenuEntry<TabContentType>(value: e, label: e.toLocalisedString(context)))
+                  .toList(),
+              selectedValue:
+                  selectedContentType ??
+                  (widget.editingSectionIndex != null
+                      ? sections[widget.editingSectionIndex!].contentType ?? TabContentType.tracks
+                      : TabContentType.tracks),
+              onSelected: (selectedTabType) {
+                if (selectedTabType != null) {
+                  setState(() {
+                    selectedContentType = selectedTabType;
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+      ],
+      SizedBox(height: 24.0),
+      // sort and filter configuration
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        spacing: 4.0,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text("Sort By*", style: Theme.of(context).textTheme.bodyMedium),
+          ),
+          SortAndFilterRow(
+            tabType: _getCurrentSectionInfo().contentType ?? TabContentType.tracks,
+            sortByOverride: _getCurrentSectionInfo().sortAndFilterConfiguration.sortBy,
+            sortOrderOverride: _getCurrentSectionInfo().sortAndFilterConfiguration.sortOrder,
+            filterOverride: _getCurrentSectionInfo().sortAndFilterConfiguration.filters.toSet(),
+            updateSortByOverride: (selectedSortByValue) {
+              setState(() {
+                selectedSortBy = selectedSortByValue;
+              });
+            },
+            updateSortOrderOverride: (selectedSortOrderValue) {
+              setState(() {
+                selectedSortOrder = selectedSortOrderValue;
+              });
+            },
+            updateFilterOverride: (newFilters) {
+              setState(() {
+                selectedFilters = newFilters;
+              });
+            },
+            refreshTab: (_) {},
+          ),
+        ],
+      ),
       SizedBox(height: 24.0),
       CTAMedium(
         text: "Save*",
         icon: TablerIcons.device_floppy,
         onPressed: () {
-          if (selectedSectionType != null) {
-            if (widget.editingSectionIndex != null) {
-              final newSections = [...sections];
-              newSections[widget.editingSectionIndex!] = HomeScreenSectionInfo(type: selectedSectionType!);
-              final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
-                sections: newSections,
-              );
-              FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
-            } else {
-              final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
-                sections: [
-                  ...sections,
-                  HomeScreenSectionInfo(type: selectedSectionType!, itemId: selectedCollectionId),
-                ],
-              );
-              FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
-            }
+          final newSectionInfo = _getCurrentSectionInfo();
+          if (widget.editingSectionIndex != null) {
+            final newSections = [...sections];
+            newSections[widget.editingSectionIndex!] = newSectionInfo;
+            final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
+              sections: newSections,
+            );
+            FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
+          } else {
+            final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
+              sections: [...sections, newSectionInfo],
+            );
+            FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
           }
           Navigator.of(context).pop();
         },

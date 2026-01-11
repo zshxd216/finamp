@@ -14,11 +14,11 @@ class SortAndFilterRow extends ConsumerWidget {
   final TabContentType tabType;
   final void Function(TabContentType) refreshTab;
   final SortBy? sortByOverride;
-  final void Function(SortBy?) updateSortByOverride;
+  final void Function(SortBy?)? updateSortByOverride;
   final SortOrder? sortOrderOverride;
-  final void Function(SortOrder?) updateSortOrderOverride;
-  final bool? isFavoriteOverride;
-  final void Function(bool?) updateIsFavoriteOverride;
+  final void Function(SortOrder?)? updateSortOrderOverride;
+  final Set<ItemFilter>? filterOverride;
+  final void Function(Set<ItemFilter>?)? updateFilterOverride;
 
   final bool forPlaylistTracks;
 
@@ -26,12 +26,12 @@ class SortAndFilterRow extends ConsumerWidget {
     super.key,
     required this.tabType,
     required this.refreshTab,
-    required this.sortByOverride,
-    required this.updateSortByOverride,
-    required this.sortOrderOverride,
-    required this.updateSortOrderOverride,
-    required this.isFavoriteOverride,
-    required this.updateIsFavoriteOverride,
+    this.sortByOverride,
+    this.updateSortByOverride,
+    this.sortOrderOverride,
+    this.updateSortOrderOverride,
+    this.filterOverride,
+    this.updateFilterOverride,
     this.forPlaylistTracks = false,
   });
 
@@ -48,13 +48,15 @@ class SortAndFilterRow extends ConsumerWidget {
             children: [
               FilterMenuButton(
                 tabType: tabType,
-                sortByOverride: sortByOverride,
-                onOverrideChanged: (newSortBy) => updateSortByOverride(newSortBy),
+                filterOverride: filterOverride,
+                updateFilterOverride: (newFilters) => updateFilterOverride?.call(newFilters),
               ),
               SortMenuButton(
                 tabType: tabType,
                 sortByOverride: sortByOverride,
-                onOverrideChanged: (newSortBy) => updateSortByOverride(newSortBy),
+                onSortByOverrideChanged: (newSortBy) => updateSortByOverride?.call(newSortBy),
+                sortOrderOverride: sortOrderOverride,
+                updateSortOrderOverride: (newSortOrder) => updateSortOrderOverride?.call(newSortOrder),
                 forPlaylistTracks: forPlaylistTracks,
               ),
               // if (ref.watch(finampSettingsProvider.isOffline) && tabType != TabContentType.tracks)

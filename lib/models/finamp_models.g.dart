@@ -123,7 +123,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         contentGridViewCrossAxisCountLandscape: fields[12] == null
             ? 3
             : (fields[12] as num).toInt(),
-        showTextOnGridView: fields[13] == null ? false : fields[13] as bool,
+        showTextOnGridView: fields[13] == null ? true : fields[13] as bool,
         downloadLocationsMap: fields[15] == null
             ? {}
             : (fields[15] as Map).cast<String, DownloadLocation>(),
@@ -1583,17 +1583,23 @@ class HomeScreenSectionInfoAdapter extends TypeAdapter<HomeScreenSectionInfo> {
     return HomeScreenSectionInfo(
       type: fields[0] as HomeScreenSectionType,
       itemId: fields[1] as BaseItemId?,
+      contentType: fields[2] as TabContentType?,
+      sortAndFilterConfiguration: fields[3] as SortAndFilterConfiguration,
     );
   }
 
   @override
   void write(BinaryWriter writer, HomeScreenSectionInfo obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.type)
       ..writeByte(1)
-      ..write(obj.itemId);
+      ..write(obj.itemId)
+      ..writeByte(2)
+      ..write(obj.contentType)
+      ..writeByte(3)
+      ..write(obj.sortAndFilterConfiguration);
   }
 
   @override
@@ -1641,6 +1647,84 @@ class FinampHomeScreenConfigurationAdapter
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FinampHomeScreenConfigurationAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ItemFilterAdapter extends TypeAdapter<ItemFilter> {
+  @override
+  final typeId = 116;
+
+  @override
+  ItemFilter read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ItemFilter(
+      type: fields[0] as ItemFilterType,
+      extras: fields[1] as dynamic,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ItemFilter obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.type)
+      ..writeByte(1)
+      ..write(obj.extras);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ItemFilterAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class SortAndFilterConfigurationAdapter
+    extends TypeAdapter<SortAndFilterConfiguration> {
+  @override
+  final typeId = 117;
+
+  @override
+  SortAndFilterConfiguration read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return SortAndFilterConfiguration(
+      sortBy: fields[0] as SortBy,
+      sortOrder: fields[1] as SortOrder,
+      filters: (fields[2] as Set).cast<ItemFilter>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, SortAndFilterConfiguration obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.sortBy)
+      ..writeByte(1)
+      ..write(obj.sortOrder)
+      ..writeByte(2)
+      ..write(obj.filters);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SortAndFilterConfigurationAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -3196,29 +3280,21 @@ class HomeScreenSectionTypeAdapter extends TypeAdapter<HomeScreenSectionType> {
   HomeScreenSectionType read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return HomeScreenSectionType.listenAgain;
+        return HomeScreenSectionType.tabView;
       case 1:
-        return HomeScreenSectionType.newlyAdded;
-      case 2:
-        return HomeScreenSectionType.favoriteArtists;
-      case 3:
         return HomeScreenSectionType.collection;
       default:
-        return HomeScreenSectionType.listenAgain;
+        return HomeScreenSectionType.tabView;
     }
   }
 
   @override
   void write(BinaryWriter writer, HomeScreenSectionType obj) {
     switch (obj) {
-      case HomeScreenSectionType.listenAgain:
+      case HomeScreenSectionType.tabView:
         writer.writeByte(0);
-      case HomeScreenSectionType.newlyAdded:
-        writer.writeByte(1);
-      case HomeScreenSectionType.favoriteArtists:
-        writer.writeByte(2);
       case HomeScreenSectionType.collection:
-        writer.writeByte(3);
+        writer.writeByte(1);
     }
   }
 
@@ -3270,6 +3346,47 @@ class FinampQuickActionAdapter extends TypeAdapter<FinampQuickAction> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FinampQuickActionAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ItemFilterTypeAdapter extends TypeAdapter<ItemFilterType> {
+  @override
+  final typeId = 115;
+
+  @override
+  ItemFilterType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return ItemFilterType.isFavorite;
+      case 1:
+        return ItemFilterType.isFullyDownloaded;
+      case 2:
+        return ItemFilterType.startsWithCharacter;
+      default:
+        return ItemFilterType.isFavorite;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, ItemFilterType obj) {
+    switch (obj) {
+      case ItemFilterType.isFavorite:
+        writer.writeByte(0);
+      case ItemFilterType.isFullyDownloaded:
+        writer.writeByte(1);
+      case ItemFilterType.startsWithCharacter:
+        writer.writeByte(2);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ItemFilterTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -9134,6 +9251,13 @@ HomeScreenSectionInfo _$HomeScreenSectionInfoFromJson(
     json['itemId'],
     const BaseItemIdConverter().fromJson,
   ),
+  contentType: $enumDecodeNullable(
+    _$TabContentTypeEnumMap,
+    json['contentType'],
+  ),
+  sortAndFilterConfiguration: SortAndFilterConfiguration.fromJson(
+    json['sortAndFilterConfiguration'] as Map<String, dynamic>,
+  ),
 );
 
 Map<String, dynamic> _$HomeScreenSectionInfoToJson(
@@ -9144,12 +9268,12 @@ Map<String, dynamic> _$HomeScreenSectionInfoToJson(
     instance.itemId,
     const BaseItemIdConverter().toJson,
   ),
+  'contentType': _$TabContentTypeEnumMap[instance.contentType],
+  'sortAndFilterConfiguration': instance.sortAndFilterConfiguration,
 };
 
 const _$HomeScreenSectionTypeEnumMap = {
-  HomeScreenSectionType.listenAgain: 'listenAgain',
-  HomeScreenSectionType.newlyAdded: 'newlyAdded',
-  HomeScreenSectionType.favoriteArtists: 'favoriteArtists',
+  HomeScreenSectionType.tabView: 'tabView',
   HomeScreenSectionType.collection: 'collection',
 };
 
@@ -9177,4 +9301,63 @@ const _$FinampQuickActionEnumMap = {
   FinampQuickAction.trackMix: 'trackMix',
   FinampQuickAction.recents: 'recents',
   FinampQuickAction.surpriseMe: 'surpriseMe',
+};
+
+ItemFilter _$ItemFilterFromJson(Map<String, dynamic> json) => ItemFilter(
+  type: $enumDecode(_$ItemFilterTypeEnumMap, json['type']),
+  extras: json['extras'],
+);
+
+Map<String, dynamic> _$ItemFilterToJson(ItemFilter instance) =>
+    <String, dynamic>{
+      'type': _$ItemFilterTypeEnumMap[instance.type]!,
+      'extras': instance.extras,
+    };
+
+const _$ItemFilterTypeEnumMap = {
+  ItemFilterType.isFavorite: 'isFavorite',
+  ItemFilterType.isFullyDownloaded: 'isFullyDownloaded',
+  ItemFilterType.startsWithCharacter: 'startsWithCharacter',
+};
+
+SortAndFilterConfiguration _$SortAndFilterConfigurationFromJson(
+  Map<String, dynamic> json,
+) => SortAndFilterConfiguration(
+  sortBy: $enumDecode(_$SortByEnumMap, json['sortBy']),
+  sortOrder: $enumDecode(_$SortOrderEnumMap, json['sortOrder']),
+  filters: (json['filters'] as List<dynamic>)
+      .map((e) => ItemFilter.fromJson(e as Map<String, dynamic>))
+      .toSet(),
+);
+
+Map<String, dynamic> _$SortAndFilterConfigurationToJson(
+  SortAndFilterConfiguration instance,
+) => <String, dynamic>{
+  'sortBy': _$SortByEnumMap[instance.sortBy]!,
+  'sortOrder': _$SortOrderEnumMap[instance.sortOrder]!,
+  'filters': instance.filters.toList(),
+};
+
+const _$SortByEnumMap = {
+  SortBy.album: 'album',
+  SortBy.albumArtist: 'albumArtist',
+  SortBy.artist: 'artist',
+  SortBy.budget: 'budget',
+  SortBy.communityRating: 'communityRating',
+  SortBy.criticRating: 'criticRating',
+  SortBy.dateCreated: 'dateCreated',
+  SortBy.datePlayed: 'datePlayed',
+  SortBy.playCount: 'playCount',
+  SortBy.premiereDate: 'premiereDate',
+  SortBy.productionYear: 'productionYear',
+  SortBy.sortName: 'sortName',
+  SortBy.random: 'random',
+  SortBy.revenue: 'revenue',
+  SortBy.runtime: 'runtime',
+  SortBy.defaultOrder: 'defaultOrder',
+};
+
+const _$SortOrderEnumMap = {
+  SortOrder.ascending: 'ascending',
+  SortOrder.descending: 'descending',
 };

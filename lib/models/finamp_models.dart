@@ -120,7 +120,7 @@ class DefaultSettings {
   static const playbackSpeedVisibility = PlaybackSpeedVisibility.automatic;
   static const contentGridViewCrossAxisCountPortrait = 2;
   static const contentGridViewCrossAxisCountLandscape = 3;
-  static const showTextOnGridView = false;
+  static const showTextOnGridView = true;
   static const sleepTimerDurationSeconds = 60 * 30;
   static const useCoverAsBackground = true;
   static const playerScreenCoverMinimumPadding = 1.5;
@@ -257,9 +257,33 @@ class DefaultSettings {
   static const homeScreenConfiguration = FinampHomeScreenConfiguration(
     actions: [FinampQuickAction.trackMix, FinampQuickAction.recents, FinampQuickAction.surpriseMe],
     sections: [
-      HomeScreenSectionInfo(type: HomeScreenSectionType.listenAgain),
-      HomeScreenSectionInfo(type: HomeScreenSectionType.newlyAdded),
-      HomeScreenSectionInfo(type: HomeScreenSectionType.favoriteArtists),
+      HomeScreenSectionInfo(
+        type: HomeScreenSectionType.tabView,
+        contentType: TabContentType.tracks,
+        sortAndFilterConfiguration: SortAndFilterConfiguration(
+          sortBy: SortBy.datePlayed,
+          sortOrder: SortOrder.descending,
+          filters: {},
+        ),
+      ),
+      HomeScreenSectionInfo(
+        type: HomeScreenSectionType.tabView,
+        contentType: TabContentType.albums,
+        sortAndFilterConfiguration: SortAndFilterConfiguration(
+          sortBy: SortBy.dateCreated,
+          sortOrder: SortOrder.descending,
+          filters: {},
+        ),
+      ),
+      HomeScreenSectionInfo(
+        type: HomeScreenSectionType.tabView,
+        contentType: TabContentType.artists,
+        sortAndFilterConfiguration: SortAndFilterConfiguration(
+          sortBy: SortBy.sortName,
+          sortOrder: SortOrder.ascending,
+          filters: {ItemFilter(type: ItemFilterType.isFavorite, extras: null)},
+        ),
+      ),
     ],
   );
 }
@@ -3993,12 +4017,8 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
 @HiveType(typeId: 111)
 enum HomeScreenSectionType {
   @HiveField(0)
-  listenAgain,
+  tabView,
   @HiveField(1)
-  newlyAdded,
-  @HiveField(2)
-  favoriteArtists,
-  @HiveField(3)
   collection;
 
   /// Human-readable version of the [HomeScreenSectionType]
@@ -4010,12 +4030,8 @@ enum HomeScreenSectionType {
 
   String _humanReadableName(HomeScreenSectionType homeScreenSectionType) {
     switch (homeScreenSectionType) {
-      case HomeScreenSectionType.listenAgain:
-        return "Listen Again";
-      case HomeScreenSectionType.newlyAdded:
-        return "Newly Added";
-      case HomeScreenSectionType.favoriteArtists:
-        return "Favorite Artists";
+      case HomeScreenSectionType.tabView:
+        return "Tab View";
       case HomeScreenSectionType.collection:
         return "Collection";
     }
@@ -4023,12 +4039,8 @@ enum HomeScreenSectionType {
 
   String _humanReadableLocalisedName(HomeScreenSectionType homeScreenSectionType, BuildContext context) {
     switch (homeScreenSectionType) {
-      case HomeScreenSectionType.listenAgain:
-        return "Listen Again*";
-      case HomeScreenSectionType.newlyAdded:
-        return "Newly Added*";
-      case HomeScreenSectionType.favoriteArtists:
-        return "Favorite Artists*";
+      case HomeScreenSectionType.tabView:
+        return "Tab View*";
       case HomeScreenSectionType.collection:
         return "Collection*";
     }
@@ -4042,8 +4054,18 @@ class HomeScreenSectionInfo {
   final HomeScreenSectionType type;
   @HiveField(1)
   final BaseItemId? itemId;
+  @HiveField(2)
+  final TabContentType? contentType; //TODO make this a list?
+  @HiveField(3)
+  final SortAndFilterConfiguration sortAndFilterConfiguration;
+  //TODO consolidate SortBy, SortOrder, and filters like isFavorite and isFullyDownloaded into a single object/type, then use it here and everywhere else (e.g. SortAndFilterRow)
 
-  const HomeScreenSectionInfo({required this.type, this.itemId});
+  const HomeScreenSectionInfo({
+    required this.type,
+    this.itemId,
+    this.contentType,
+    required this.sortAndFilterConfiguration,
+  });
 
   factory HomeScreenSectionInfo.fromJson(Map<String, dynamic> json) => _$HomeScreenSectionInfoFromJson(json);
 
@@ -4054,14 +4076,29 @@ class HomeScreenSectionInfo {
     return jsonEncode(toJson());
   }
 
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableLocalisedName(HomeScreenSectionInfo homeScreenSectionInfo, BuildContext context) {
+    switch (homeScreenSectionInfo.type) {
+      case HomeScreenSectionType.tabView:
+        return "${homeScreenSectionInfo.sortAndFilterConfiguration.filters.map((filter) => filter.extras != null ? "${filter.type.name} (${filter.extras})" : filter.type.name).join(", ")} ${homeScreenSectionInfo.contentType?.toLocalisedString(context) ?? "Tab View"} ${homeScreenSectionInfo.sortAndFilterConfiguration.sortBy.toLocalisedString(context)} [${homeScreenSectionInfo.sortAndFilterConfiguration.sortOrder == SortOrder.ascending ? "^" : "v"}]*";
+      case HomeScreenSectionType.collection:
+        return "Collection*";
+    }
+  }
+
   @override
   bool operator ==(Object other) {
-    return other is HomeScreenSectionInfo && other.type == type && other.itemId == itemId;
+    return other is HomeScreenSectionInfo &&
+        other.type == type &&
+        other.itemId == itemId &&
+        other.contentType == contentType &&
+        other.sortAndFilterConfiguration == sortAndFilterConfiguration;
   }
 
   @override
   @ignore
-  int get hashCode => Object.hash(type, itemId);
+  int get hashCode => Object.hash(type, itemId, sortAndFilterConfiguration);
 }
 
 @HiveType(typeId: 113)
@@ -4127,5 +4164,60 @@ class FinampHomeScreenConfiguration {
   // implement copyWith
   FinampHomeScreenConfiguration copyWith({List<FinampQuickAction>? actions, List<HomeScreenSectionInfo>? sections}) {
     return FinampHomeScreenConfiguration(actions: actions ?? this.actions, sections: sections ?? this.sections);
+  }
+}
+
+@HiveType(typeId: 115)
+enum ItemFilterType {
+  @HiveField(0)
+  isFavorite,
+  @HiveField(1)
+  isFullyDownloaded,
+  @HiveField(2)
+  startsWithCharacter,
+}
+
+@JsonSerializable()
+@HiveType(typeId: 116)
+class ItemFilter {
+  const ItemFilter({required this.type, this.extras});
+
+  @HiveField(0)
+  final ItemFilterType type;
+
+  @HiveField(1)
+  final dynamic extras;
+
+  factory ItemFilter.fromJson(Map<String, dynamic> json) => _$ItemFilterFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ItemFilterToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+}
+
+@JsonSerializable()
+@HiveType(typeId: 117)
+class SortAndFilterConfiguration {
+  const SortAndFilterConfiguration({required this.sortBy, required this.sortOrder, required this.filters});
+
+  @HiveField(0)
+  final SortBy sortBy;
+
+  @HiveField(1)
+  final SortOrder sortOrder;
+
+  @HiveField(2)
+  final Set<ItemFilter> filters;
+
+  factory SortAndFilterConfiguration.fromJson(Map<String, dynamic> json) => _$SortAndFilterConfigurationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SortAndFilterConfigurationToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
   }
 }

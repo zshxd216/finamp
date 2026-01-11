@@ -120,8 +120,8 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
               ...ref
                   .watch(finampSettingsProvider.homeScreenConfiguration)
                   .sections
-                  .map((sectionInfo) => _buildSection(sectionInfo)),
-              SizedBox(height: 80),
+                  .map((sectionInfo) => HomeScreenSection(sectionInfo: sectionInfo)),
+              SizedBox(height: 60),
               ...[
                 // monochrome icon
                 FinampIcon(56, 56, overrideColor: TextTheme.of(context).bodySmall?.color?.withOpacity(0.4)),
@@ -143,12 +143,17 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
       ),
     );
   }
+}
 
-  Widget _buildSection(HomeScreenSectionInfo sectionInfo) {
+class HomeScreenSection extends ConsumerWidget {
+  const HomeScreenSection({super.key, required this.sectionInfo});
+
+  final HomeScreenSectionInfo sectionInfo;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     return Consumer(
       builder: (context, ref, child) {
-        final items = ref.watch(loadHomeSectionItemsProvider(sectionInfo: sectionInfo));
-
         return Padding(
           // if we show text, it won't fill up all four lines (on average), so we have enough white space already
           padding: EdgeInsets.only(top: ref.watch(finampSettingsProvider.showTextOnGridView) ? 4.0 : 16.0),
@@ -169,8 +174,8 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                     Text(
                       sectionInfo.itemId != null
                           ? ref.watch(itemByIdProvider(sectionInfo.itemId!)).valueOrNull?.name ??
-                                sectionInfo.type.toLocalisedString(context)
-                          : sectionInfo.type.toLocalisedString(context),
+                                sectionInfo.toLocalisedString(context)
+                          : sectionInfo.toLocalisedString(context),
                       style: TextTheme.of(context).titleSmall?.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: 18,
@@ -186,18 +191,27 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
                 ),
               ),
               const SizedBox(height: 8),
-              Flexible(flex: 0, child: _buildHorizontalList(items)),
+              Flexible(flex: 0, child: HomeScreenSectionContent(sectionInfo: sectionInfo)),
             ],
           ),
         );
       },
     );
   }
+}
 
-  Widget _buildHorizontalList(AsyncValue<List<BaseItemDto>?> items) {
+class HomeScreenSectionContent extends ConsumerWidget {
+  const HomeScreenSectionContent({super.key, required this.sectionInfo, this.interactive = true});
+
+  final HomeScreenSectionInfo sectionInfo;
+  final bool interactive;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(loadHomeSectionItemsProvider(sectionInfo: sectionInfo));
     return switch (items) {
       AsyncData(:final value) => switch (value) {
-        null => _buildHorizontalSkeletonLoader(),
+        null => _buildHorizontalSkeletonLoader(context),
         [] => const Center(child: Text("No items available.", maxLines: 1)),
         _ => SizedBox(
           height: calculateItemCollectionCardHeight(context),
@@ -206,7 +220,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
             itemCount: value.length,
             itemBuilder: (context, index) {
               final BaseItemDto item = value[index];
-              return ItemCollectionWrapper(item: item, isGrid: true);
+              return ItemCollectionWrapper(item: item, isGrid: true, interactive: interactive);
             },
             separatorBuilder: (context, index) => const SizedBox(width: 8, height: 1),
           ),
@@ -217,11 +231,11 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
         _homeScreenLogger.severe("Error loading items: $error");
         return Center(child: Text("Failed to load items.", maxLines: 1));
       }(),
-      _ => _buildHorizontalSkeletonLoader(),
+      _ => _buildHorizontalSkeletonLoader(context),
     };
   }
 
-  Widget _buildHorizontalSkeletonLoader() {
+  Widget _buildHorizontalSkeletonLoader(BuildContext context) {
     return SizedBox(
       height: calculateItemCollectionCardHeight(context) + 20,
       child: ListView.separated(
@@ -285,37 +299,61 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
   }
 
   switch (sectionInfo.type) {
-    case HomeScreenSectionType.listenAgain:
+    // case HomeScreenSectionType.listenAgain:
+    //   newItemsFuture = jellyfinApiHelper.getItems(
+    //     parentItem: finampUserHelper.currentUser?.currentView,
+    //     includeItemTypes: [BaseItemDtoType.album.jellyfinName, BaseItemDtoType.playlist.jellyfinName].join(","),
+    //     sortBy: SortBy.datePlayed.jellyfinName(null),
+    //     sortOrder: SortOrder.descending.toString(),
+    //     // filters: settings.onlyShowFavorites ? "IsFavorite" : null,
+    //     startIndex: startIndex,
+    //     limit: limit,
+    //   );
+    //   break;
+    // case HomeScreenSectionType.newlyAdded:
+    //   newItemsFuture = jellyfinApiHelper.getItems(
+    //     parentItem: finampUserHelper
+    //         .currentUser
+    //         ?.currentView, //FIXME Jellyfin can't query (playlists) and (albums of a specific library) at the same time yet
+    //     includeItemTypes: [BaseItemDtoType.album.jellyfinName, BaseItemDtoType.playlist.jellyfinName].join(","),
+    //     sortBy: SortBy.dateCreated.jellyfinName(null),
+    //     sortOrder: SortOrder.descending.toString(),
+    //     // filters: settings.onlyShowFavorites ? "IsFavorite" : null,
+    //     startIndex: startIndex,
+    //     limit: limit,
+    //   );
+    //   break;
+    // case HomeScreenSectionType.favoriteArtists:
+    //   newItemsFuture = jellyfinApiHelper.getItems(
+    //     parentItem: finampUserHelper.currentUser?.currentView,
+    //     includeItemTypes: [BaseItemDtoType.artist.jellyfinName].join(","),
+    //     sortBy: SortBy.datePlayed.jellyfinName(null),
+    //     sortOrder: SortOrder.descending.toString(),
+    //     filters: "IsFavorite",
+    //     startIndex: startIndex,
+    //     limit: limit,
+    //   );
+    //   break;
+    case HomeScreenSectionType.tabView:
       newItemsFuture = jellyfinApiHelper.getItems(
-        parentItem: finampUserHelper.currentUser?.currentView,
-        includeItemTypes: [BaseItemDtoType.album.jellyfinName, BaseItemDtoType.playlist.jellyfinName].join(","),
-        sortBy: SortBy.datePlayed.jellyfinName(null),
-        sortOrder: SortOrder.descending.toString(),
-        // filters: settings.onlyShowFavorites ? "IsFavorite" : null,
-        startIndex: startIndex,
-        limit: limit,
-      );
-      break;
-    case HomeScreenSectionType.newlyAdded:
-      newItemsFuture = jellyfinApiHelper.getItems(
-        parentItem: finampUserHelper
-            .currentUser
-            ?.currentView, //FIXME Jellyfin can't query (playlists) and (albums of a specific library) at the same time yet
-        includeItemTypes: [BaseItemDtoType.album.jellyfinName, BaseItemDtoType.playlist.jellyfinName].join(","),
-        sortBy: SortBy.dateCreated.jellyfinName(null),
-        sortOrder: SortOrder.descending.toString(),
-        // filters: settings.onlyShowFavorites ? "IsFavorite" : null,
-        startIndex: startIndex,
-        limit: limit,
-      );
-      break;
-    case HomeScreenSectionType.favoriteArtists:
-      newItemsFuture = jellyfinApiHelper.getItems(
-        parentItem: finampUserHelper.currentUser?.currentView,
-        includeItemTypes: [BaseItemDtoType.artist.jellyfinName].join(","),
-        sortBy: SortBy.datePlayed.jellyfinName(null),
-        sortOrder: SortOrder.descending.toString(),
-        filters: "IsFavorite",
+        parentItem: sectionInfo.contentType == TabContentType.playlists
+            ? null
+            : finampUserHelper.currentUser?.currentView,
+        includeItemTypes: [sectionInfo.contentType?.itemType?.jellyfinName].join(","),
+        sortBy: sectionInfo.sortAndFilterConfiguration.sortBy.jellyfinName(null),
+        sortOrder: sectionInfo.sortAndFilterConfiguration.sortOrder.toString(),
+        filters: sectionInfo.sortAndFilterConfiguration.filters
+            .map(
+              (filter) => switch (filter.type) {
+                ItemFilterType.isFavorite => "IsFavorite",
+                ItemFilterType.isFullyDownloaded => null, // only applicable for offline mode
+                // ItemFilterType.startsWithCharacter => "NameStartsWith: ${filter.value}",
+                ItemFilterType.startsWithCharacter =>
+                  null, //TODO properly handle the "NameStartsWith" filter in the API helper
+              },
+            )
+            .nonNulls
+            .join(","),
         startIndex: startIndex,
         limit: limit,
       );
@@ -348,42 +386,71 @@ Future<List<BaseItemDto>?> loadHomeSectionItemsOffline({
   List<BaseItemDto> items;
 
   switch (sectionInfo.type) {
-    case HomeScreenSectionType.listenAgain:
+    // case HomeScreenSectionType.listenAgain:
+    //   //FIXME this seems to also return metadata-only albums which don't have any downloaded children
+    //   offlineItems = await downloadsService.getAllCollections(
+    //     includeItemTypes: [BaseItemDtoType.album, BaseItemDtoType.playlist], //FIXME support allowing multiple types
+    //     fullyDownloaded: settings.onlyShowFullyDownloaded,
+    //     viewFilter: finampUserHelper.currentUser?.currentViewId,
+    //     childViewFilter: null,
+    //     nullableViewFilters: settings.showDownloadsWithUnknownLibrary,
+    //     onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
+    //   );
+
+    //   items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
+    //   items = sortItems(items, SortBy.datePlayed, SortOrder.descending);
+    //   break;
+
+    // case HomeScreenSectionType.newlyAdded:
+    //   offlineItems = await downloadsService.getAllCollections(
+    //     includeItemTypes: [BaseItemDtoType.album, BaseItemDtoType.playlist], //FIXME support allowing multiple types
+    //     fullyDownloaded: settings.onlyShowFullyDownloaded,
+    //     viewFilter: finampUserHelper.currentUser?.currentViewId,
+    //     childViewFilter: null,
+    //     nullableViewFilters: settings.showDownloadsWithUnknownLibrary,
+    //     onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
+    //   );
+    //   items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
+    //   items = sortItems(items, SortBy.dateCreated, SortOrder.descending);
+    //   break;
+    // case HomeScreenSectionType.favoriteArtists:
+    //   offlineItems = await downloadsService.getAllCollections(
+    //     includeItemTypes: [BaseItemDtoType.artist],
+    //     fullyDownloaded: settings.onlyShowFullyDownloaded,
+    //     viewFilter: finampUserHelper.currentUser?.currentViewId,
+    //     childViewFilter: null,
+    //     nullableViewFilters: false,
+    //     onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
+    //   );
+    //   items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
+    //   items = sortItems(items, SortBy.datePlayed, SortOrder.descending);
+    //   break;
+    case HomeScreenSectionType.tabView:
       //FIXME this seems to also return metadata-only albums which don't have any downloaded children
-      offlineItems = await downloadsService.getAllCollections(
-        includeItemTypes: [BaseItemDtoType.album, BaseItemDtoType.playlist], //FIXME support allowing multiple types
-        fullyDownloaded: settings.onlyShowFullyDownloaded,
-        viewFilter: finampUserHelper.currentUser?.currentViewId,
-        childViewFilter: null,
-        nullableViewFilters: settings.showDownloadsWithUnknownLibrary,
-        onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
-      );
+      if (sectionInfo.contentType == TabContentType.tracks) {
+        // tracks are not stored as collections, so we need to get them differently
+        offlineItems = await downloadsService.getAllTracks(
+          viewFilter: finampUserHelper.currentUser?.currentViewId,
+          nullableViewFilters: settings.showDownloadsWithUnknownLibrary,
+          onlyFavorites: sectionInfo.sortAndFilterConfiguration.filters.any(
+            (filter) => filter.type == ItemFilterType.isFavorite,
+          ),
+        );
+      } else {
+        offlineItems = await downloadsService.getAllCollections(
+          includeItemTypes: [
+            sectionInfo.contentType?.itemType ?? BaseItemDtoType.album,
+          ], //FIXME support allowing multiple types
+          fullyDownloaded: settings.onlyShowFullyDownloaded,
+          viewFilter: finampUserHelper.currentUser?.currentViewId,
+          childViewFilter: null,
+          nullableViewFilters: settings.showDownloadsWithUnknownLibrary,
+          onlyFavorites: sectionInfo.sortAndFilterConfiguration.filters.any(
+            (filter) => filter.type == ItemFilterType.isFavorite,
+          ),
+        );
+      }
 
-      items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
-      items = sortItems(items, SortBy.datePlayed, SortOrder.descending);
-      break;
-
-    case HomeScreenSectionType.newlyAdded:
-      offlineItems = await downloadsService.getAllCollections(
-        includeItemTypes: [BaseItemDtoType.album, BaseItemDtoType.playlist], //FIXME support allowing multiple types
-        fullyDownloaded: settings.onlyShowFullyDownloaded,
-        viewFilter: finampUserHelper.currentUser?.currentViewId,
-        childViewFilter: null,
-        nullableViewFilters: settings.showDownloadsWithUnknownLibrary,
-        onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
-      );
-      items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
-      items = sortItems(items, SortBy.dateCreated, SortOrder.descending);
-      break;
-    case HomeScreenSectionType.favoriteArtists:
-      offlineItems = await downloadsService.getAllCollections(
-        includeItemTypes: [BaseItemDtoType.artist],
-        fullyDownloaded: settings.onlyShowFullyDownloaded,
-        viewFilter: finampUserHelper.currentUser?.currentViewId,
-        childViewFilter: null,
-        nullableViewFilters: false,
-        onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
-      );
       items = offlineItems.map((e) => e.baseItem).nonNulls.toList();
       items = sortItems(items, SortBy.datePlayed, SortOrder.descending);
       break;

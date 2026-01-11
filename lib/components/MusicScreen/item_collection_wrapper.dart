@@ -37,6 +37,7 @@ class ItemCollectionWrapper extends ConsumerStatefulWidget {
     this.albumShowsYearAndDurationInstead = false,
     this.adaptiveAdditionalInfoSortBy,
     this.showFavoriteIconOnlyWhenFilterDisabled = false,
+    this.interactive = true,
   });
 
   /// The item to show in the widget.
@@ -58,19 +59,23 @@ class ItemCollectionWrapper extends ConsumerStatefulWidget {
   /// showing only tracks and albums of that artist that match the genre filter
   final BaseItemDto? genreFilter;
 
-  // If this is true and the item is an album, the release year and album duration
-  // will be shown as subtitle instead of the album artists
+  /// If this is true and the item is an album, the release year and album duration
+  /// will be shown as subtitle instead of the album artists
   final bool albumShowsYearAndDurationInstead;
 
-  // If a SortBy is passed, the subtitle row in list view will display the matching
-  // info (i.e. runtime or release date) before the actual default subtitle.
+  /// If a SortBy is passed, the subtitle row in list view will display the matching
+  /// info (i.e. runtime or release date) before the actual default subtitle.
   final SortBy? adaptiveAdditionalInfoSortBy;
 
-  // If this is true, the red favorite icon that marks your favorites will
-  // only be shown when the favorite filter on the MusicScreen is disabled
-  // We want to always display the favorite indicator icon on other screens
-  // so this defaults to false.
+  /// If this is true, the red favorite icon that marks your favorites will
+  /// only be shown when the favorite filter on the MusicScreen is disabled
+  /// We want to always display the favorite indicator icon on other screens
+  /// so this defaults to false.
   final bool showFavoriteIconOnlyWhenFilterDisabled;
+
+  /// If this is false, the item will not be interactive (no onTap, no menu on long press)
+  /// This is useful for read-only displays of items like previews
+  final bool interactive;
 
   @override
   ConsumerState<ItemCollectionWrapper> createState() => _ItemCollectionWrapperState();
@@ -89,44 +94,47 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
     super.initState();
     mutableItem = widget.item;
 
-    onTap =
-        widget.onTap ??
-        () {
-          FeedbackHelper.feedback(FeedbackType.selection);
-          switch (BaseItemDtoType.fromItem(mutableItem)) {
-            case BaseItemDtoType.track:
-              showModalTrackMenu(context: context, item: mutableItem);
-              break;
-            case BaseItemDtoType.artist:
-              Navigator.of(context).push(
-                MaterialPageRoute<ArtistScreen>(
-                  builder: (_) => ArtistScreen(
-                    widgetArtist: mutableItem,
-                    genreFilter: (ref.watch(finampSettingsProvider.genreFilterArtistScreens))
-                        ? widget.genreFilter
-                        : null,
-                  ),
-                ),
-              );
-              break;
-            case BaseItemDtoType.genre:
-              Navigator.of(context).pushNamed(GenreScreen.routeName, arguments: mutableItem);
-              break;
-            case BaseItemDtoType.playlist:
-              Navigator.of(context).push(
-                MaterialPageRoute<AlbumScreen>(
-                  builder: (_) => AlbumScreen(
-                    parent: mutableItem,
-                    genreFilter: (ref.watch(finampSettingsProvider.genreFilterPlaylists)) ? widget.genreFilter : null,
-                  ),
-                ),
-              );
-              break;
-            default:
-              Navigator.of(context).pushNamed(AlbumScreen.routeName, arguments: mutableItem);
-              return;
-          }
-        };
+    onTap = widget.interactive
+        ? widget.onTap ??
+              () {
+                FeedbackHelper.feedback(FeedbackType.selection);
+                switch (BaseItemDtoType.fromItem(mutableItem)) {
+                  case BaseItemDtoType.track:
+                    showModalTrackMenu(context: context, item: mutableItem);
+                    break;
+                  case BaseItemDtoType.artist:
+                    Navigator.of(context).push(
+                      MaterialPageRoute<ArtistScreen>(
+                        builder: (_) => ArtistScreen(
+                          widgetArtist: mutableItem,
+                          genreFilter: (ref.watch(finampSettingsProvider.genreFilterArtistScreens))
+                              ? widget.genreFilter
+                              : null,
+                        ),
+                      ),
+                    );
+                    break;
+                  case BaseItemDtoType.genre:
+                    Navigator.of(context).pushNamed(GenreScreen.routeName, arguments: mutableItem);
+                    break;
+                  case BaseItemDtoType.playlist:
+                    Navigator.of(context).push(
+                      MaterialPageRoute<AlbumScreen>(
+                        builder: (_) => AlbumScreen(
+                          parent: mutableItem,
+                          genreFilter: (ref.watch(finampSettingsProvider.genreFilterPlaylists))
+                              ? widget.genreFilter
+                              : null,
+                        ),
+                      ),
+                    );
+                    break;
+                  default:
+                    Navigator.of(context).pushNamed(AlbumScreen.routeName, arguments: mutableItem);
+                    return;
+                }
+              }
+        : () {};
   }
 
   @override
@@ -135,11 +143,12 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
 
     return GestureDetector(
       onTapDown: (_) {
+        if (!widget.interactive) return;
         // Begin precalculating theme for menu
         ref.listenManual(finampThemeProvider(ThemeInfo(widget.item)), (_, __) {});
       },
-      onLongPressStart: (details) => openItemMenu(context: context, item: widget.item),
-      onSecondaryTapDown: (details) => openItemMenu(context: context, item: widget.item),
+      onLongPressStart: (details) => widget.interactive ? openItemMenu(context: context, item: widget.item) : null,
+      onSecondaryTapDown: (details) => widget.interactive ? openItemMenu(context: context, item: widget.item) : null,
       child: widget.isGrid
           ? ItemCollectionCard(item: mutableItem, onTap: onTap, parentType: widget.parentType)
           : ItemCollectionListTile(
