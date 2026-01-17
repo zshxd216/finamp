@@ -539,7 +539,6 @@ class _FinampState extends State<Finamp> with WindowListener {
   static final Logger windowManagerLogger = Logger("WindowManager");
   static final Logger linkHandlingLogger = Logger("LinkHandling");
 
-
   StreamSubscription<Uri>? _uriLinkSubscription;
 
   @override
