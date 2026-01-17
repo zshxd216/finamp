@@ -148,7 +148,7 @@ class _HomeScreenContentState extends ConsumerState<HomeScreenContent> {
 class HomeScreenSection extends ConsumerWidget {
   const HomeScreenSection({super.key, required this.sectionInfo});
 
-  final HomeScreenSectionInfo sectionInfo;
+  final HomeScreenSectionConfiguration sectionInfo;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -174,8 +174,8 @@ class HomeScreenSection extends ConsumerWidget {
                     Text(
                       sectionInfo.itemId != null
                           ? ref.watch(itemByIdProvider(sectionInfo.itemId!)).valueOrNull?.name ??
-                                sectionInfo.toLocalisedString(context)
-                          : sectionInfo.toLocalisedString(context),
+                                sectionInfo.getTitle(context)
+                          : sectionInfo.getTitle(context),
                       style: TextTheme.of(context).titleSmall?.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: 18,
@@ -203,7 +203,7 @@ class HomeScreenSection extends ConsumerWidget {
 class HomeScreenSectionContent extends ConsumerWidget {
   const HomeScreenSectionContent({super.key, required this.sectionInfo, this.interactive = true});
 
-  final HomeScreenSectionInfo sectionInfo;
+  final HomeScreenSectionConfiguration sectionInfo;
   final bool interactive;
 
   @override
@@ -281,7 +281,7 @@ class HomeScreenSectionContent extends ConsumerWidget {
 @Riverpod(keepAlive: true)
 Future<List<BaseItemDto>?> loadHomeSectionItems(
   Ref ref, {
-  required HomeScreenSectionInfo sectionInfo,
+  required HomeScreenSectionConfiguration sectionInfo,
   int startIndex = 0,
   int limit = homeScreenSectionItemLimit,
 }) async {
@@ -374,7 +374,7 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
 }
 
 Future<List<BaseItemDto>?> loadHomeSectionItemsOffline({
-  required HomeScreenSectionInfo sectionInfo,
+  required HomeScreenSectionConfiguration sectionInfo,
   int startIndex = 0,
   int limit = 10,
 }) async {

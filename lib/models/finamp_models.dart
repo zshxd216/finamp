@@ -254,10 +254,12 @@ class DefaultSettings {
   static const radioEnabled = false;
   static const duckOnAudioInterruption = true;
   static const forceAudioOffloadingOnAndroid = false;
-  static const homeScreenConfiguration = FinampHomeScreenConfiguration(
+  static final homeScreenConfiguration = FinampHomeScreenConfiguration(
     actions: [FinampQuickAction.trackMix, FinampQuickAction.recents, FinampQuickAction.surpriseMe],
     sections: [
-      HomeScreenSectionInfo(
+      HomeScreenSectionConfiguration.fromPreset(HomeScreenSectionPresetType.favoriteTracks),
+      HomeScreenSectionConfiguration.fromPreset(HomeScreenSectionPresetType.forgottenFavoriteTracks),
+      HomeScreenSectionConfiguration(
         type: HomeScreenSectionType.tabView,
         contentType: TabContentType.tracks,
         sortAndFilterConfiguration: SortAndFilterConfiguration(
@@ -266,7 +268,7 @@ class DefaultSettings {
           filters: {},
         ),
       ),
-      HomeScreenSectionInfo(
+      HomeScreenSectionConfiguration(
         type: HomeScreenSectionType.tabView,
         contentType: TabContentType.albums,
         sortAndFilterConfiguration: SortAndFilterConfiguration(
@@ -275,7 +277,7 @@ class DefaultSettings {
           filters: {},
         ),
       ),
-      HomeScreenSectionInfo(
+      HomeScreenSectionConfiguration(
         type: HomeScreenSectionType.tabView,
         contentType: TabContentType.artists,
         sortAndFilterConfiguration: SortAndFilterConfiguration(
@@ -427,7 +429,7 @@ class FinampSettings {
     this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
     this.duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption,
     this.forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid,
-    this.homeScreenConfiguration = DefaultSettings.homeScreenConfiguration,
+    required this.homeScreenConfiguration,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -877,7 +879,10 @@ class FinampSettings {
   @HiveField(143, defaultValue: DefaultSettings.forceAudioOffloadingOnAndroid)
   bool forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid;
 
-  @HiveField(144, defaultValue: DefaultSettings.homeScreenConfiguration)
+  @HiveField(
+    144,
+    defaultValue: FinampHomeScreenConfiguration(actions: [], sections: []),
+  )
   FinampHomeScreenConfiguration homeScreenConfiguration = DefaultSettings.homeScreenConfiguration;
 
   static Future<FinampSettings> create() async {
@@ -894,6 +899,7 @@ class FinampSettings {
       tabSortBy: {},
       tabSortOrder: {},
       useFixedSizeGridTiles: !(Platform.isIOS || Platform.isAndroid),
+      homeScreenConfiguration: DefaultSettings.homeScreenConfiguration,
     );
   }
 
@@ -4049,7 +4055,7 @@ enum HomeScreenSectionType {
 
 @JsonSerializable(converters: [BaseItemIdConverter()])
 @HiveType(typeId: 112)
-class HomeScreenSectionInfo {
+class HomeScreenSectionConfiguration {
   @HiveField(0)
   final HomeScreenSectionType type;
   @HiveField(1)
@@ -4058,18 +4064,88 @@ class HomeScreenSectionInfo {
   final TabContentType? contentType; //TODO make this a list?
   @HiveField(3)
   final SortAndFilterConfiguration sortAndFilterConfiguration;
-  //TODO consolidate SortBy, SortOrder, and filters like isFavorite and isFullyDownloaded into a single object/type, then use it here and everywhere else (e.g. SortAndFilterRow)
+  @HiveField(4)
+  final String? customSectionTitle;
+  @HiveField(5)
+  final HomeScreenSectionPresetType? _presetType;
 
-  const HomeScreenSectionInfo({
+  const HomeScreenSectionConfiguration({
     required this.type,
     this.itemId,
     this.contentType,
     required this.sortAndFilterConfiguration,
-  });
+    this.customSectionTitle,
+  }) : _presetType = null;
 
-  factory HomeScreenSectionInfo.fromJson(Map<String, dynamic> json) => _$HomeScreenSectionInfoFromJson(json);
+  const HomeScreenSectionConfiguration._internal({
+    required this.type,
+    required this.itemId,
+    required this.contentType,
+    required this.sortAndFilterConfiguration,
+    required this.customSectionTitle,
+    required HomeScreenSectionPresetType? presetType,
+  }) : _presetType = presetType;
 
-  Map<String, dynamic> toJson() => _$HomeScreenSectionInfoToJson(this);
+  factory HomeScreenSectionConfiguration.fromPreset(HomeScreenSectionPresetType presetType) => switch (presetType) {
+    HomeScreenSectionPresetType.favoriteTracks => HomeScreenSectionConfiguration._internal(
+      type: HomeScreenSectionType.tabView,
+      itemId: null,
+      contentType: TabContentType.tracks,
+      sortAndFilterConfiguration: const SortAndFilterConfiguration(
+        sortBy: SortBy.random,
+        sortOrder: SortOrder.ascending,
+        filters: {ItemFilter(type: ItemFilterType.isFavorite)},
+      ),
+      customSectionTitle: null,
+      presetType: presetType,
+    ),
+    HomeScreenSectionPresetType.forgottenFavoriteTracks => HomeScreenSectionConfiguration._internal(
+      type: HomeScreenSectionType.tabView,
+      itemId: null,
+      contentType: TabContentType.tracks,
+      sortAndFilterConfiguration: const SortAndFilterConfiguration(
+        sortBy: SortBy.datePlayed,
+        sortOrder: SortOrder.ascending,
+        filters: {ItemFilter(type: ItemFilterType.isFavorite)},
+      ),
+      customSectionTitle: null,
+      presetType: presetType,
+    ),
+  };
+
+  HomeScreenSectionPresetType? get presetType => _presetType;
+
+  String getTitle(BuildContext context) =>
+      customSectionTitle ??
+      (_presetType != null ? getTitleForPreset(context: context, presetType: _presetType) : toLocalisedString(context));
+  static String getTitleForPreset({required BuildContext context, required HomeScreenSectionPresetType presetType}) =>
+      switch (presetType) {
+        HomeScreenSectionPresetType.favoriteTracks => AppLocalizations.of(
+          context,
+        )!.homeScreenSectionPresetFavoriteTracksTitle,
+        HomeScreenSectionPresetType.forgottenFavoriteTracks => AppLocalizations.of(
+          context,
+        )!.homeScreenSectionPresetForgottenFavoriteTracksTitle,
+      };
+  String getDescription(BuildContext context) => _presetType != null
+      ? getDescriptionForPreset(context: context, presetType: _presetType)
+      : toLocalisedString(context);
+  static String getDescriptionForPreset({
+    required BuildContext context,
+    required HomeScreenSectionPresetType presetType,
+  }) => switch (presetType) {
+    HomeScreenSectionPresetType.favoriteTracks => AppLocalizations.of(
+      context,
+    )!.homeScreenSectionPresetFavoriteTracksDescription,
+    HomeScreenSectionPresetType.forgottenFavoriteTracks => AppLocalizations.of(
+      context,
+    )!.homeScreenSectionPresetForgottenFavoriteTracksDescription,
+  };
+
+  factory HomeScreenSectionConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$HomeScreenSectionConfigurationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$HomeScreenSectionConfigurationToJson(this);
 
   @override
   String toString() {
@@ -4078,7 +4154,7 @@ class HomeScreenSectionInfo {
 
   String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
 
-  String _humanReadableLocalisedName(HomeScreenSectionInfo homeScreenSectionInfo, BuildContext context) {
+  String _humanReadableLocalisedName(HomeScreenSectionConfiguration homeScreenSectionInfo, BuildContext context) {
     switch (homeScreenSectionInfo.type) {
       case HomeScreenSectionType.tabView:
         return "${homeScreenSectionInfo.sortAndFilterConfiguration.filters.map((filter) => filter.extras != null ? "${filter.type.name} (${filter.extras})" : filter.type.name).join(", ")} ${homeScreenSectionInfo.contentType?.toLocalisedString(context) ?? "Tab View"} ${homeScreenSectionInfo.sortAndFilterConfiguration.sortBy.toLocalisedString(context)} [${homeScreenSectionInfo.sortAndFilterConfiguration.sortOrder == SortOrder.ascending ? "^" : "v"}]*";
@@ -4089,19 +4165,30 @@ class HomeScreenSectionInfo {
 
   @override
   bool operator ==(Object other) {
-    return other is HomeScreenSectionInfo &&
+    return other is HomeScreenSectionConfiguration &&
         other.type == type &&
         other.itemId == itemId &&
         other.contentType == contentType &&
-        other.sortAndFilterConfiguration == sortAndFilterConfiguration;
+        other.sortAndFilterConfiguration == sortAndFilterConfiguration &&
+        other.customSectionTitle == customSectionTitle &&
+        other._presetType == _presetType;
   }
 
   @override
   @ignore
-  int get hashCode => Object.hash(type, itemId, sortAndFilterConfiguration);
+  int get hashCode => Object.hash(type, itemId, sortAndFilterConfiguration, customSectionTitle, _presetType);
 }
 
 @HiveType(typeId: 113)
+enum HomeScreenSectionPresetType {
+  @HiveField(0)
+  favoriteTracks,
+  @HiveField(1)
+  forgottenFavoriteTracks,
+  //TODO add more
+}
+
+@HiveType(typeId: 114)
 enum FinampQuickAction {
   @HiveField(0)
   trackMix,
@@ -4141,7 +4228,7 @@ enum FinampQuickAction {
 }
 
 @JsonSerializable()
-@HiveType(typeId: 114)
+@HiveType(typeId: 115)
 class FinampHomeScreenConfiguration {
   const FinampHomeScreenConfiguration({required this.actions, required this.sections});
 
@@ -4149,7 +4236,7 @@ class FinampHomeScreenConfiguration {
   final List<FinampQuickAction> actions;
 
   @HiveField(1)
-  final List<HomeScreenSectionInfo> sections;
+  final List<HomeScreenSectionConfiguration> sections;
 
   factory FinampHomeScreenConfiguration.fromJson(Map<String, dynamic> json) =>
       _$FinampHomeScreenConfigurationFromJson(json);
@@ -4162,12 +4249,15 @@ class FinampHomeScreenConfiguration {
   }
 
   // implement copyWith
-  FinampHomeScreenConfiguration copyWith({List<FinampQuickAction>? actions, List<HomeScreenSectionInfo>? sections}) {
+  FinampHomeScreenConfiguration copyWith({
+    List<FinampQuickAction>? actions,
+    List<HomeScreenSectionConfiguration>? sections,
+  }) {
     return FinampHomeScreenConfiguration(actions: actions ?? this.actions, sections: sections ?? this.sections);
   }
 }
 
-@HiveType(typeId: 115)
+@HiveType(typeId: 116)
 enum ItemFilterType {
   @HiveField(0)
   isFavorite,
@@ -4178,7 +4268,7 @@ enum ItemFilterType {
 }
 
 @JsonSerializable()
-@HiveType(typeId: 116)
+@HiveType(typeId: 117)
 class ItemFilter {
   const ItemFilter({required this.type, this.extras});
 
@@ -4199,7 +4289,7 @@ class ItemFilter {
 }
 
 @JsonSerializable()
-@HiveType(typeId: 117)
+@HiveType(typeId: 118)
 class SortAndFilterConfiguration {
   const SortAndFilterConfiguration({required this.sortBy, required this.sortOrder, required this.filters});
 

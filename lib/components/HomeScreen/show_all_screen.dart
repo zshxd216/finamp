@@ -68,13 +68,13 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen> with AutomaticKee
   int refreshCount = 0;
   int fullyLoadedRefresh = -1;
 
-  late HomeScreenSectionInfo sectionInfo;
+  late HomeScreenSectionConfiguration sectionInfo;
   late List<BaseItemDto> prefetchedItems;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    sectionInfo = ModalRoute.of(context)!.settings.arguments as HomeScreenSectionInfo;
+    sectionInfo = ModalRoute.of(context)!.settings.arguments as HomeScreenSectionConfiguration;
     final itemsProviderInstance = loadHomeSectionItemsProvider(
       sectionInfo: sectionInfo,
       startIndex: 0,

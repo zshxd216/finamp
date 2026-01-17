@@ -446,7 +446,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             ? false
             : fields[143] as bool,
         homeScreenConfiguration: fields[144] == null
-            ? DefaultSettings.homeScreenConfiguration
+            ? const FinampHomeScreenConfiguration(actions: [], sections: [])
             : fields[144] as FinampHomeScreenConfiguration,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
@@ -1570,28 +1570,30 @@ class FinampStorableQueueInfoAdapter
           typeId == other.typeId;
 }
 
-class HomeScreenSectionInfoAdapter extends TypeAdapter<HomeScreenSectionInfo> {
+class HomeScreenSectionConfigurationAdapter
+    extends TypeAdapter<HomeScreenSectionConfiguration> {
   @override
   final typeId = 112;
 
   @override
-  HomeScreenSectionInfo read(BinaryReader reader) {
+  HomeScreenSectionConfiguration read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return HomeScreenSectionInfo(
+    return HomeScreenSectionConfiguration(
       type: fields[0] as HomeScreenSectionType,
       itemId: fields[1] as BaseItemId?,
       contentType: fields[2] as TabContentType?,
       sortAndFilterConfiguration: fields[3] as SortAndFilterConfiguration,
+      customSectionTitle: fields[4] as String?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, HomeScreenSectionInfo obj) {
+  void write(BinaryWriter writer, HomeScreenSectionConfiguration obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.type)
       ..writeByte(1)
@@ -1599,7 +1601,9 @@ class HomeScreenSectionInfoAdapter extends TypeAdapter<HomeScreenSectionInfo> {
       ..writeByte(2)
       ..write(obj.contentType)
       ..writeByte(3)
-      ..write(obj.sortAndFilterConfiguration);
+      ..write(obj.sortAndFilterConfiguration)
+      ..writeByte(4)
+      ..write(obj.customSectionTitle);
   }
 
   @override
@@ -1608,7 +1612,7 @@ class HomeScreenSectionInfoAdapter extends TypeAdapter<HomeScreenSectionInfo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HomeScreenSectionInfoAdapter &&
+      other is HomeScreenSectionConfigurationAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -1616,7 +1620,7 @@ class HomeScreenSectionInfoAdapter extends TypeAdapter<HomeScreenSectionInfo> {
 class FinampHomeScreenConfigurationAdapter
     extends TypeAdapter<FinampHomeScreenConfiguration> {
   @override
-  final typeId = 114;
+  final typeId = 116;
 
   @override
   FinampHomeScreenConfiguration read(BinaryReader reader) {
@@ -1626,7 +1630,7 @@ class FinampHomeScreenConfigurationAdapter
     };
     return FinampHomeScreenConfiguration(
       actions: (fields[0] as List).cast<FinampQuickAction>(),
-      sections: (fields[1] as List).cast<HomeScreenSectionInfo>(),
+      sections: (fields[1] as List).cast<HomeScreenSectionConfiguration>(),
     );
   }
 
@@ -1653,7 +1657,7 @@ class FinampHomeScreenConfigurationAdapter
 
 class ItemFilterAdapter extends TypeAdapter<ItemFilter> {
   @override
-  final typeId = 116;
+  final typeId = 118;
 
   @override
   ItemFilter read(BinaryReader reader) {
@@ -1691,7 +1695,7 @@ class ItemFilterAdapter extends TypeAdapter<ItemFilter> {
 class SortAndFilterConfigurationAdapter
     extends TypeAdapter<SortAndFilterConfiguration> {
   @override
-  final typeId = 117;
+  final typeId = 119;
 
   @override
   SortAndFilterConfiguration read(BinaryReader reader) {
@@ -3309,9 +3313,47 @@ class HomeScreenSectionTypeAdapter extends TypeAdapter<HomeScreenSectionType> {
           typeId == other.typeId;
 }
 
-class FinampQuickActionAdapter extends TypeAdapter<FinampQuickAction> {
+class HomeScreenSectionPresetTypeAdapter
+    extends TypeAdapter<HomeScreenSectionPresetType> {
   @override
   final typeId = 113;
+
+  @override
+  HomeScreenSectionPresetType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return HomeScreenSectionPresetType.favoriteTracks;
+      case 1:
+        return HomeScreenSectionPresetType.forgottenFavoriteTracks;
+      default:
+        return HomeScreenSectionPresetType.favoriteTracks;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, HomeScreenSectionPresetType obj) {
+    switch (obj) {
+      case HomeScreenSectionPresetType.favoriteTracks:
+        writer.writeByte(0);
+      case HomeScreenSectionPresetType.forgottenFavoriteTracks:
+        writer.writeByte(1);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HomeScreenSectionPresetTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FinampQuickActionAdapter extends TypeAdapter<FinampQuickAction> {
+  @override
+  final typeId = 115;
 
   @override
   FinampQuickAction read(BinaryReader reader) {
@@ -3352,7 +3394,7 @@ class FinampQuickActionAdapter extends TypeAdapter<FinampQuickAction> {
 
 class ItemFilterTypeAdapter extends TypeAdapter<ItemFilterType> {
   @override
-  final typeId = 115;
+  final typeId = 117;
 
   @override
   ItemFilterType read(BinaryReader reader) {
@@ -9243,9 +9285,9 @@ Map<String, dynamic> _$FinampOutputRouteToJson(FinampOutputRoute instance) =>
       'iconUri': instance.iconUri,
     };
 
-HomeScreenSectionInfo _$HomeScreenSectionInfoFromJson(
+HomeScreenSectionConfiguration _$HomeScreenSectionConfigurationFromJson(
   Map<String, dynamic> json,
-) => HomeScreenSectionInfo(
+) => HomeScreenSectionConfiguration(
   type: $enumDecode(_$HomeScreenSectionTypeEnumMap, json['type']),
   itemId: _$JsonConverterFromJson<String, BaseItemId>(
     json['itemId'],
@@ -9258,10 +9300,11 @@ HomeScreenSectionInfo _$HomeScreenSectionInfoFromJson(
   sortAndFilterConfiguration: SortAndFilterConfiguration.fromJson(
     json['sortAndFilterConfiguration'] as Map<String, dynamic>,
   ),
+  customSectionTitle: json['customSectionTitle'] as String?,
 );
 
-Map<String, dynamic> _$HomeScreenSectionInfoToJson(
-  HomeScreenSectionInfo instance,
+Map<String, dynamic> _$HomeScreenSectionConfigurationToJson(
+  HomeScreenSectionConfiguration instance,
 ) => <String, dynamic>{
   'type': _$HomeScreenSectionTypeEnumMap[instance.type]!,
   'itemId': _$JsonConverterToJson<String, BaseItemId>(
@@ -9270,6 +9313,7 @@ Map<String, dynamic> _$HomeScreenSectionInfoToJson(
   ),
   'contentType': _$TabContentTypeEnumMap[instance.contentType],
   'sortAndFilterConfiguration': instance.sortAndFilterConfiguration,
+  'customSectionTitle': instance.customSectionTitle,
 };
 
 const _$HomeScreenSectionTypeEnumMap = {
@@ -9284,7 +9328,10 @@ FinampHomeScreenConfiguration _$FinampHomeScreenConfigurationFromJson(
       .map((e) => $enumDecode(_$FinampQuickActionEnumMap, e))
       .toList(),
   sections: (json['sections'] as List<dynamic>)
-      .map((e) => HomeScreenSectionInfo.fromJson(e as Map<String, dynamic>))
+      .map(
+        (e) =>
+            HomeScreenSectionConfiguration.fromJson(e as Map<String, dynamic>),
+      )
       .toList(),
 );
 

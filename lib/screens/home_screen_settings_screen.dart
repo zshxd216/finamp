@@ -6,11 +6,11 @@ import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/HomeScreen/home_screen_content.dart';
 import 'package:finamp/components/MusicScreen/sort_and_filter_row.dart';
 import 'package:finamp/components/SettingsScreen/finamp_settings_dropdown.dart';
-import 'package:finamp/components/TranscodingSettingsScreen/bitrate_selector.dart';
-import 'package:finamp/components/TranscodingSettingsScreen/transcode_switch.dart';
 import 'package:finamp/components/themed_bottom_sheet.dart';
+import 'package:finamp/menus/choice_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/feedback_helper.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/item_by_id_provider.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
@@ -204,13 +204,13 @@ class HomeScreenSectionsSelector extends ConsumerWidget {
                             future: ref.watch(itemByIdProvider(section.itemId!).future).then((item) => item?.name),
                             builder: (context, asyncSnapshot) {
                               if (asyncSnapshot.data == null) {
-                                return Text(section.toLocalisedString(context));
+                                return Text(section.getTitle(context));
                               }
                               final itemName = asyncSnapshot.data!;
-                              return Text("${section.toLocalisedString(context)} '$itemName'*");
+                              return Text("${section.getTitle(context)} '$itemName'*");
                             },
                           )
-                        : Text(section.toLocalisedString(context)),
+                        : Text(section.getTitle(context)),
                   ),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                   visualDensity: VisualDensity(horizontal: -4, vertical: -4),
@@ -261,7 +261,18 @@ class HomeScreenSectionsSelector extends ConsumerWidget {
             child: CTAMedium(
               text: "Add New Section*",
               icon: TablerIcons.plus,
-              onPressed: () => showHomeScreenSectionConfigurationMenu(context),
+              onPressed: () async {
+                final selectedPreset = await showSectionPresetPickerMenu(context);
+                if (selectedPreset != null) {
+                  final newSectionInfo = HomeScreenSectionConfiguration.fromPreset(selectedPreset);
+                  final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
+                    sections: [...sections, newSectionInfo],
+                  );
+                  FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
+                } else if (context.mounted) {
+                  showHomeScreenSectionConfigurationMenu(context);
+                }
+              },
             ),
           ),
         ],
@@ -271,7 +282,7 @@ class HomeScreenSectionsSelector extends ConsumerWidget {
 }
 
 void showHomeScreenSectionConfigurationMenu(BuildContext context, {int? editingSectionIndex}) async {
-  await showThemedBottomSheet(
+  await showThemedBottomSheet<void>(
     context: context,
     routeName: HomeScreenSectionConfigurationMenu.routeName,
     minDraggableHeight: 0.85,
@@ -357,9 +368,9 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
     oldExtent = currentSize;
   }
 
-  HomeScreenSectionInfo _getCurrentSectionInfo() {
+  HomeScreenSectionConfiguration _getCurrentSectionInfo() {
     final sections = ref.watch(finampSettingsProvider.homeScreenConfiguration).sections;
-    return HomeScreenSectionInfo(
+    return HomeScreenSectionConfiguration(
       type:
           selectedSectionType ??
           (widget.editingSectionIndex != null
@@ -429,6 +440,7 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
         ],
       ),
       SizedBox(height: 40.0),
+      //TODO add custom section title
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -618,6 +630,7 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
         text: "Save*",
         icon: TablerIcons.device_floppy,
         onPressed: () {
+          //TODO remove preset type when editing section, pre-fill name?
           final newSectionInfo = _getCurrentSectionInfo();
           if (widget.editingSectionIndex != null) {
             final newSections = [...sections];
@@ -660,4 +673,106 @@ class _HomeScreenSectionConfigurationMenuState extends ConsumerState<HomeScreenS
       ),
     ];
   }
+}
+
+const sectionPresetPickerMenuRouteName = "/section-preset-picker-menu";
+
+Future<HomeScreenSectionPresetType?> showSectionPresetPickerMenu(
+  BuildContext context, {
+  int? editingSectionIndex,
+}) async {
+  final List<Widget> menuItems = HomeScreenSectionPresetType.values
+      .map<Widget>((presetType) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final currentSections = ref.watch(finampSettingsProvider.homeScreenConfiguration).sections;
+            return ChoiceMenuOption(
+              title: HomeScreenSectionConfiguration.getTitleForPreset(context: context, presetType: presetType),
+              description: HomeScreenSectionConfiguration.getDescriptionForPreset(
+                context: context,
+                presetType: presetType,
+              ),
+              badges: [
+                // // similar mode is recommended
+                // if (preset == RadioMode.similar && radioModeOptionAvailabilityStatus.isAvailable)
+                //   Icon(TablerIcons.star, size: 14.0),
+              ],
+              enabled: true,
+              icon: TablerIcons.settings_star,
+              isInactive: false,
+              isSelected: editingSectionIndex != null && currentSections[editingSectionIndex].presetType == presetType,
+              onSelect: () async {
+                //TODO ideally rebuild with check and then pop after delay
+                // FeedbackHelper.feedback(FeedbackType.selection);
+                // await Future<void>.delayed(const Duration(milliseconds: 400));
+                // Navigator.of(context).pop(preset);
+                if (context.mounted) {
+                  FeedbackHelper.feedback(FeedbackType.selection);
+                  Navigator.of(context).pop(presetType);
+                }
+              },
+            );
+          },
+        );
+      })
+      .followedBy(<Widget>[
+        Divider(height: 8.0, thickness: 1.5, indent: 20.0, endIndent: 20.0, radius: BorderRadius.circular(2.0)),
+        Consumer(
+          builder: (context, ref, child) {
+            final currentSections = ref.watch(finampSettingsProvider.homeScreenConfiguration).sections;
+            return ChoiceMenuOption(
+              title: AppLocalizations.of(context)!.homeScreenSectionCustomSectionTitle,
+              description: AppLocalizations.of(context)!.homeScreenSectionCustomSectionDescription,
+              icon: TablerIcons.radio_off,
+              isSelected: editingSectionIndex != null && currentSections[editingSectionIndex].presetType == null,
+              enabled: true,
+              onSelect: () async {
+                //TODO ideally rebuild with check and then pop after delay
+                // FeedbackHelper.feedback(FeedbackType.selection);
+                // await Future<void>.delayed(const Duration(milliseconds: 400));
+                // if (context.mounted) {
+                //   Navigator.of(context).pop();
+                // }
+                if (context.mounted) {
+                  FeedbackHelper.feedback(FeedbackType.selection);
+                  Navigator.of(context).pop(null);
+                }
+              },
+            );
+          },
+        ),
+      ])
+      .toList();
+
+  return await showThemedBottomSheet<HomeScreenSectionPresetType?>(
+    context: context,
+    routeName: sectionPresetPickerMenuRouteName,
+    minDraggableHeight: 0.25,
+    buildSlivers: (context) {
+      var menu = [
+        SliverStickyHeader(
+          header: Padding(
+            padding: const EdgeInsets.only(top: 10.0, bottom: 8.0, left: 16.0, right: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2.0,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.homeScreenSectionPresetPickerMenuTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+          ),
+          sliver: MenuMask(
+            height: MenuMaskHeight(36.0),
+            child: SliverList.list(children: menuItems),
+          ),
+        ),
+      ];
+      // header + menu entries
+      var stackHeight = 42.0 + menuItems.length * ((Platform.isAndroid || Platform.isIOS) ? 72.0 : 64.0);
+      return (stackHeight, menu);
+    },
+  );
 }

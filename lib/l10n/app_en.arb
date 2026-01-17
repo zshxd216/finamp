@@ -3242,5 +3242,33 @@
   "homeScreenSettingsTitle": "Home Screen",
   "@homeScreenSettingsTitle": {
     "description": "Title for the home screen settings"
+  },
+  "homeScreenSectionPresetPickerMenuTitle": "Pick a Preset",
+  "@homeScreenSectionPresetPickerMenuTitle": {
+    "description": "Title for the preset picker menu, which allows users to pick a preset section to add to the home screen"
+  },
+  "homeScreenSectionCustomSectionTitle": "Custom Section",
+  "@homeScreenSectionCustomSectionTitle": {
+    "description": "Title for the custom section type, which can be added to the home screen"
+  },
+  "homeScreenSectionCustomSectionDescription": "Configure your own section",
+  "@homeScreenSectionCustomSectionDescription": {
+    "description": "Description for the custom section type, which can be added to the home screen"
+  },
+  "homeScreenSectionPresetFavoriteTracksTitle": "Favorite Tracks",
+  "@homeScreenSectionPresetFavoriteTracksTitle": {
+    "description": "Title for the favorite tracks preset section, which can be added to the home screen"
+  },
+  "homeScreenSectionPresetFavoriteTracksDescription": "Liked tracks in random order",
+  "@homeScreenSectionPresetFavoriteTracksDescription": {
+    "description": "Description for the favorite tracks preset section, which can be added to the home screen"
+  },
+  "homeScreenSectionPresetForgottenFavoriteTracksTitle": "Forgotten Favorite Tracks",
+  "@homeScreenSectionPresetForgottenFavoriteTracksTitle": {
+    "description": "Title for the forgotten favorite tracks preset section, which can be added to the home screen"
+  },
+  "homeScreenSectionPresetForgottenFavoriteTracksDescription": "Liked tracks which you least recently played",
+  "@homeScreenSectionPresetForgottenFavoriteTracksDescription": {
+    "description": "Description for the forgotten favorite tracks preset section, which can be added to the home screen"
   }
 }

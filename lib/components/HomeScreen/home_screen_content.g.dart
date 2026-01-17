@@ -12,7 +12,7 @@ part of 'home_screen_content.dart';
 // **************************************************************************
 
 String _$loadHomeSectionItemsHash() =>
-    r'12d1b1f11f50104d357c3f82c551100c33833580';
+    r'14b7c9003fb1ee3e37bf88399461ed9c906c37ae';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -47,7 +47,7 @@ class LoadHomeSectionItemsFamily
 
   /// See also [loadHomeSectionItems].
   LoadHomeSectionItemsProvider call({
-    required HomeScreenSectionInfo sectionInfo,
+    required HomeScreenSectionConfiguration sectionInfo,
     int startIndex = 0,
     int limit = homeScreenSectionItemLimit,
   }) {
@@ -88,7 +88,7 @@ class LoadHomeSectionItemsFamily
 class LoadHomeSectionItemsProvider extends FutureProvider<List<BaseItemDto>?> {
   /// See also [loadHomeSectionItems].
   LoadHomeSectionItemsProvider({
-    required HomeScreenSectionInfo sectionInfo,
+    required HomeScreenSectionConfiguration sectionInfo,
     int startIndex = 0,
     int limit = homeScreenSectionItemLimit,
   }) : this._internal(
@@ -123,7 +123,7 @@ class LoadHomeSectionItemsProvider extends FutureProvider<List<BaseItemDto>?> {
     required this.limit,
   }) : super.internal();
 
-  final HomeScreenSectionInfo sectionInfo;
+  final HomeScreenSectionConfiguration sectionInfo;
   final int startIndex;
   final int limit;
 
@@ -176,7 +176,7 @@ class LoadHomeSectionItemsProvider extends FutureProvider<List<BaseItemDto>?> {
 // ignore: unused_element
 mixin LoadHomeSectionItemsRef on FutureProviderRef<List<BaseItemDto>?> {
   /// The parameter `sectionInfo` of this provider.
-  HomeScreenSectionInfo get sectionInfo;
+  HomeScreenSectionConfiguration get sectionInfo;
 
   /// The parameter `startIndex` of this provider.
   int get startIndex;
@@ -191,7 +191,7 @@ class _LoadHomeSectionItemsProviderElement
   _LoadHomeSectionItemsProviderElement(super.provider);
 
   @override
-  HomeScreenSectionInfo get sectionInfo =>
+  HomeScreenSectionConfiguration get sectionInfo =>
       (origin as LoadHomeSectionItemsProvider).sectionInfo;
   @override
   int get startIndex => (origin as LoadHomeSectionItemsProvider).startIndex;
