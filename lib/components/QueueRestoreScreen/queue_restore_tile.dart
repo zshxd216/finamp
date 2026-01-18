@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
+import 'package:finamp/components/MusicScreen/item_wrapper.dart';
 import 'package:finamp/components/album_image.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';

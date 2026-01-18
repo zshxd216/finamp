@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:finamp/components/Buttons/cta_medium.dart';
-import 'package:finamp/components/MusicScreen/item_collection_card.dart';
+import 'package:finamp/components/MusicScreen/item_card.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ import '../first_page_progress_indicator.dart';
 import '../global_snackbar.dart';
 import '../new_page_progress_indicator.dart';
 import 'alphabet_item_list.dart';
-import 'item_collection_wrapper.dart';
+import 'item_wrapper.dart';
 
 // this is used to allow refreshing the music screen from other parts of the app, e.g. after deleting items from the server
 final musicScreenRefreshStream = StreamController<void>.broadcast();
@@ -475,7 +475,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                                     ? _pagingController.itemList
                                     : null,
                               )
-                            : ItemCollectionWrapper(
+                            : ItemWrapper(
                                 key: ValueKey(item.id),
                                 item: item,
                                 genreFilter: widget.genreFilter,
@@ -508,7 +508,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                       key: ValueKey(index),
                       controller: controller,
                       index: index,
-                      child: ItemCollectionWrapper(
+                      child: ItemWrapper(
                         key: ValueKey(item.id),
                         item: item,
                         isGrid: true,

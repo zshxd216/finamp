@@ -13,6 +13,7 @@ import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/radio_service_helper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -4146,6 +4147,24 @@ class HomeScreenSectionConfiguration {
   factory HomeScreenSectionConfiguration.fromJson(Map<String, dynamic> json) =>
       _$HomeScreenSectionConfigurationFromJson(json);
 
+  HomeScreenSectionConfiguration copyWith({
+    HomeScreenSectionType? type,
+    BaseItemId? itemId,
+    TabContentType? contentType,
+    SortAndFilterConfiguration? sortAndFilterConfiguration,
+    String? customSectionTitle,
+    HomeScreenSectionPresetType? presetType,
+  }) {
+    return HomeScreenSectionConfiguration(
+      type: type ?? this.type,
+      itemId: itemId ?? this.itemId,
+      contentType: contentType ?? this.contentType,
+      sortAndFilterConfiguration: sortAndFilterConfiguration ?? this.sortAndFilterConfiguration,
+      customSectionTitle: customSectionTitle ?? this.customSectionTitle,
+      presetType: presetType ?? this.presetType,
+    );
+  }
+
   Map<String, dynamic> toJson() => _$HomeScreenSectionConfigurationToJson(this);
 
   @override
@@ -4310,5 +4329,13 @@ class SortAndFilterConfiguration {
   @override
   String toString() {
     return jsonEncode(toJson());
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SortAndFilterConfiguration &&
+        other.sortBy == sortBy &&
+        other.sortOrder == sortOrder &&
+        setEquals(other.filters, filters);
   }
 }

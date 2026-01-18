@@ -27,6 +27,8 @@ String? generateSubtitle({
           : processArtist(item.albumArtist, context);
     case BaseItemDtoType.playlist:
       return AppLocalizations.of(context)!.trackCount(item.childCount!);
+    case BaseItemDtoType.track:
+      return item.artistItems?.map((e) => processArtist(e.name, context)).join(", ");
     // case BaseItemDtoType.genre:
     // Currently, for each album Jellyfin only increases the childCount of ONE album-artist
     // If there are multiple, we get incorrect childCounts on those (and if they only have albums

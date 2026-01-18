@@ -219,6 +219,14 @@ class _MusicScreenState extends ConsumerState<MusicScreen> with TickerProviderSt
           tabController: _tabController,
           onSearch: () => setState(() {
             isSearching = true;
+            if (_tabController != null &&
+                !_tabController!.indexIsChanging &&
+                sortedTabs.elementAt(_tabController!.index) == TabContentType.home) {
+              // we can't search on the home tab yet
+              _tabController!.index = sortedTabs.toList().indexWhere(
+                (TabContentType tabType) => tabType != TabContentType.home,
+              );
+            }
           }),
           onStopSearch: _stopSearching,
           onUpdateSearchQuery: (value) {

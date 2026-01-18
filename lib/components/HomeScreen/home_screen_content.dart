@@ -4,8 +4,8 @@ import 'package:balanced_text/balanced_text.dart';
 import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/HomeScreen/show_all_button.dart';
 import 'package:finamp/components/HomeScreen/show_all_screen.dart';
-import 'package:finamp/components/MusicScreen/item_collection_card.dart';
-import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
+import 'package:finamp/components/MusicScreen/item_card.dart';
+import 'package:finamp/components/MusicScreen/item_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/components/global_snackbar.dart';
@@ -229,7 +229,7 @@ class HomeScreenSectionContent extends ConsumerWidget {
             itemCount: value.length,
             itemBuilder: (context, index) {
               final BaseItemDto item = value[index];
-              return ItemCollectionWrapper(item: item, isGrid: true, interactive: interactive, source: source);
+              return ItemWrapper(item: item, isGrid: true, interactive: interactive, source: source);
             },
             separatorBuilder: (context, index) => const SizedBox(width: 8, height: 1),
           ),
@@ -298,8 +298,6 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
   final finampUserHelper = GetIt.instance<FinampUserHelper>();
   final settings = FinampSettingsHelper.finampSettings;
 
-  print("CALLED loadHomeSectionItems provider with ${sectionInfo.type}");
-
   final Future<List<BaseItemDto>?> newItemsFuture;
 
   if (settings.isOffline) {
@@ -308,41 +306,6 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
   }
 
   switch (sectionInfo.type) {
-    // case HomeScreenSectionType.listenAgain:
-    //   newItemsFuture = jellyfinApiHelper.getItems(
-    //     parentItem: finampUserHelper.currentUser?.currentView,
-    //     includeItemTypes: [BaseItemDtoType.album.jellyfinName, BaseItemDtoType.playlist.jellyfinName].join(","),
-    //     sortBy: SortBy.datePlayed.jellyfinName(null),
-    //     sortOrder: SortOrder.descending.toString(),
-    //     // filters: settings.onlyShowFavorites ? "IsFavorite" : null,
-    //     startIndex: startIndex,
-    //     limit: limit,
-    //   );
-    //   break;
-    // case HomeScreenSectionType.newlyAdded:
-    //   newItemsFuture = jellyfinApiHelper.getItems(
-    //     parentItem: finampUserHelper
-    //         .currentUser
-    //         ?.currentView, //FIXME Jellyfin can't query (playlists) and (albums of a specific library) at the same time yet
-    //     includeItemTypes: [BaseItemDtoType.album.jellyfinName, BaseItemDtoType.playlist.jellyfinName].join(","),
-    //     sortBy: SortBy.dateCreated.jellyfinName(null),
-    //     sortOrder: SortOrder.descending.toString(),
-    //     // filters: settings.onlyShowFavorites ? "IsFavorite" : null,
-    //     startIndex: startIndex,
-    //     limit: limit,
-    //   );
-    //   break;
-    // case HomeScreenSectionType.favoriteArtists:
-    //   newItemsFuture = jellyfinApiHelper.getItems(
-    //     parentItem: finampUserHelper.currentUser?.currentView,
-    //     includeItemTypes: [BaseItemDtoType.artist.jellyfinName].join(","),
-    //     sortBy: SortBy.datePlayed.jellyfinName(null),
-    //     sortOrder: SortOrder.descending.toString(),
-    //     filters: "IsFavorite",
-    //     startIndex: startIndex,
-    //     limit: limit,
-    //   );
-    //   break;
     case HomeScreenSectionType.tabView:
       newItemsFuture = jellyfinApiHelper.getItems(
         parentItem: sectionInfo.contentType == TabContentType.playlists
@@ -372,7 +335,20 @@ Future<List<BaseItemDto>?> loadHomeSectionItems(
       newItemsFuture = jellyfinApiHelper.getItems(
         parentItem: baseItem,
         recursive: false, //!!! prevent loading tracks and albums from inside the collection items
-        // filters: "IsFavorite",
+        sortBy: sectionInfo.sortAndFilterConfiguration.sortBy.jellyfinName(null),
+        sortOrder: sectionInfo.sortAndFilterConfiguration.sortOrder.toString(),
+        filters: sectionInfo.sortAndFilterConfiguration.filters
+            .map(
+              (filter) => switch (filter.type) {
+                ItemFilterType.isFavorite => "IsFavorite",
+                ItemFilterType.isFullyDownloaded => null, // only applicable for offline mode
+                // ItemFilterType.startsWithCharacter => "NameStartsWith: ${filter.value}",
+                ItemFilterType.startsWithCharacter =>
+                  null, //TODO properly handle the "NameStartsWith" filter in the API helper
+              },
+            )
+            .nonNulls
+            .join(","),
         startIndex: startIndex,
         limit: limit,
       );

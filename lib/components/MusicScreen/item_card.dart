@@ -10,10 +10,10 @@ import 'package:get_it/get_it.dart';
 const double _itemCollectionCardCoverSize = 120;
 const double _itemCollectionCardSpacing = 6;
 
-/// Card content for ItemCollection. You probably shouldn't use this widget directly,
-/// use CollectionItem instead.
-class ItemCollectionCard extends ConsumerWidget {
-  const ItemCollectionCard({super.key, required this.item, this.parentType, this.onTap});
+/// Card content for items. You probably shouldn't use this widget directly,
+/// use ItemWrapper instead.
+class ItemCard extends ConsumerWidget {
+  const ItemCard({super.key, required this.item, this.parentType, this.onTap});
 
   final BaseItemDto item;
   final String? parentType;

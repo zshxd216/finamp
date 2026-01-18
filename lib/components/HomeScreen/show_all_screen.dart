@@ -13,7 +13,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:finamp/components/Buttons/cta_medium.dart';
 import 'package:finamp/components/HomeScreen/home_screen_content.dart';
-import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
+import 'package:finamp/components/MusicScreen/item_wrapper.dart';
 import 'package:finamp/components/finamp_app_bar_button.dart';
 import 'package:finamp/components/first_page_progress_indicator.dart';
 import 'package:finamp/components/global_snackbar.dart';
@@ -249,7 +249,7 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen> with AutomaticKee
                     // only done in offline mode since online mode doesn't support playing the tab contents in order anyway
                     children: _pagingController.itemList,
                   )
-                : ItemCollectionWrapper(item: item, source: source, isGrid: false),
+                : ItemWrapper(item: item, source: source, isGrid: false),
           );
         },
         firstPageProgressIndicatorBuilder: (_) => const FirstPageProgressIndicator(),

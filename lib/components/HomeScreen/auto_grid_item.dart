@@ -1,6 +1,6 @@
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
 import 'package:finamp/components/MusicScreen/artist_item.dart';
-import 'package:finamp/components/MusicScreen/item_collection_card.dart';
+import 'package:finamp/components/MusicScreen/item_card.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,7 @@ class AutoGridItem extends ConsumerWidget {
       case BaseItemDtoType.album:
       case BaseItemDtoType.playlist:
       case BaseItemDtoType.genre:
-        gridItem = ItemCollectionCard(key: ValueKey(baseItem.id), item: baseItem);
+        gridItem = ItemCard(key: ValueKey(baseItem.id), item: baseItem);
         break;
       default:
         gridItem = SizedBox.shrink();

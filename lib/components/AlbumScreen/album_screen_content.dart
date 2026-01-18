@@ -4,7 +4,7 @@ import 'package:finamp/components/AlbumScreen/album_screen_content_flexible_spac
 import 'package:finamp/components/AlbumScreen/download_button.dart';
 import 'package:finamp/components/AlbumScreen/playlist_edit_button.dart';
 import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
-import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
+import 'package:finamp/components/MusicScreen/item_wrapper.dart';
 import 'package:finamp/components/MusicScreen/music_screen_tab_view.dart';
 import 'package:finamp/components/MusicScreen/sort_menu_button.dart';
 import 'package:finamp/components/MusicScreen/sort_order_button.dart';

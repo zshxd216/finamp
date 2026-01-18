@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:finamp/components/MusicScreen/item_collection_card.dart';
+import 'package:finamp/components/MusicScreen/item_card.dart';
 import 'package:finamp/components/MusicScreen/item_collection_list_tile.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/menus/album_menu.dart';
@@ -21,13 +21,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 
-/// This widget is kind of a wrapper around ItemCollectionCard and ItemCollectionListTile.
-/// It gets used for albums, artists, genres and playlists.
-/// Depending on the values given, a list tile or a card will be returned. This
-/// widget exists to handle the dropdown stuff and other stuff shared between
-/// the two widgets.
-class ItemCollectionWrapper extends ConsumerStatefulWidget {
-  const ItemCollectionWrapper({
+/// This is a wrapper around ItemCollectionCard and ItemCollectionListTile.
+/// It receives an item, and automatically handles displaying the item appropriately.
+/// Depending on the values given, a list tile or a card will be returned.
+class ItemWrapper extends ConsumerStatefulWidget {
+  const ItemWrapper({
     super.key,
     required this.item,
     this.parentType,
@@ -82,10 +80,10 @@ class ItemCollectionWrapper extends ConsumerStatefulWidget {
   final QueueItemSource? source;
 
   @override
-  ConsumerState<ItemCollectionWrapper> createState() => _ItemCollectionWrapperState();
+  ConsumerState<ItemWrapper> createState() => _ItemCollectionWrapperState();
 }
 
-class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
+class _ItemCollectionWrapperState extends ConsumerState<ItemWrapper> {
   late BaseItemDto mutableItem;
 
   final finampUserHelper = GetIt.instance<FinampUserHelper>();
@@ -154,7 +152,7 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
       onLongPressStart: (details) => widget.interactive ? openItemMenu(context: context, item: widget.item) : null,
       onSecondaryTapDown: (details) => widget.interactive ? openItemMenu(context: context, item: widget.item) : null,
       child: widget.isGrid
-          ? ItemCollectionCard(item: mutableItem, onTap: onTap, parentType: widget.parentType)
+          ? ItemCard(item: mutableItem, onTap: onTap, parentType: widget.parentType)
           : ItemCollectionListTile(
               item: mutableItem,
               onTap: onTap,
