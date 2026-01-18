@@ -246,7 +246,7 @@ class HomeScreenSectionContent extends ConsumerWidget {
 
   Widget _buildHorizontalSkeletonLoader(BuildContext context) {
     return SizedBox(
-      height: calculateItemCollectionCardHeight(context) + 20,
+      height: calculateItemCollectionCardHeight(context),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: 5, // Show 5 skeleton items
