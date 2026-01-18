@@ -250,6 +250,8 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                                             height: 24,
                                             child: CircularProgressIndicator(strokeWidth: 2),
                                           );
+                                        } else if (asyncSnapshot.data?.primaryImageTag == null) {
+                                          return SizedBox.shrink();
                                         }
                                         return Padding(
                                           padding: const EdgeInsets.all(1.5),

@@ -47,7 +47,6 @@ class ItemCollectionListTile extends ConsumerWidget {
     final finampUserHelper = GetIt.instance<FinampUserHelper>();
     final library = finampUserHelper.currentUser?.currentView;
     final itemType = BaseItemDtoType.fromItem(item);
-    final isArtistOrGenre = (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre);
     final isOnDesktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
     final subtitle = (itemType != BaseItemDtoType.album || !albumShowsYearAndDurationInstead)
         ? generateSubtitle(
@@ -57,11 +56,13 @@ class ItemCollectionListTile extends ConsumerWidget {
             artistType: ref.watch(finampSettingsProvider.defaultArtistType),
           )
         : null;
-    final itemDownloadStub = isArtistOrGenre
-        ? DownloadStub.fromFinampCollection(
-            FinampCollection(type: FinampCollectionType.collectionWithLibraryFilter, library: library, item: item),
-          )
-        : DownloadStub.fromItem(type: DownloadItemType.collection, item: item);
+    final itemDownloadStub = switch (itemType) {
+      BaseItemDtoType.artist || BaseItemDtoType.genre => DownloadStub.fromFinampCollection(
+        FinampCollection(type: FinampCollectionType.collectionWithLibraryFilter, library: library, item: item),
+      ),
+      BaseItemDtoType.track => DownloadStub.fromItem(type: DownloadItemType.track, item: item),
+      _ => DownloadStub.fromItem(type: DownloadItemType.collection, item: item),
+    };
     final downloadedIndicator = DownloadedIndicator(
       item: itemDownloadStub,
       size: Theme.of(context).textTheme.bodyMedium!.fontSize! + 1,

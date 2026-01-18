@@ -459,7 +459,6 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                             ? TrackListTile(
                                 key: ValueKey(item.id),
                                 item: item,
-                                isTrack: true,
                                 index: index,
                                 isShownInSearchOrHistory: widget.searchTerm != null,
                                 // when the tabBar was filtered and we only have the tracks tab,

@@ -66,7 +66,6 @@ class TrackListTile extends ConsumerWidget {
     this.showCover = true,
 
     /// Whether we are in the tracks tab, as opposed to a playlist/album
-    this.isTrack = false,
     this.onRemoveFromList,
     this.adaptiveAdditionalInfoSortBy,
     this.forceAlbumArtists = false,
@@ -81,6 +80,9 @@ class TrackListTile extends ConsumerWidget {
     this.highlightCurrentTrack = true,
     this.genreFilter,
     this.playbackProgress,
+
+    /// Used to pass a source if the context isn't enough to determine it
+    this.source,
   });
 
   final BaseItemDto item;
@@ -88,7 +90,6 @@ class TrackListTile extends ConsumerWidget {
   final int? index;
   final bool showIndex;
   final bool showCover;
-  final bool isTrack;
   final BaseItemDto? parentItem;
   final VoidCallback? onRemoveFromList;
   final bool forceAlbumArtists;
@@ -101,6 +102,7 @@ class TrackListTile extends ConsumerWidget {
   final bool highlightCurrentTrack;
   final BaseItemDto? genreFilter;
   final double? playbackProgress;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,31 +128,33 @@ class TrackListTile extends ConsumerWidget {
           items: children!,
           startingIndex: index,
           order: FinampPlaybackOrder.linear,
-          source: QueueItemSource.rawId(
-            type: isInPlaylist
-                ? QueueItemSourceType.playlist
-                : isOnArtistScreen
-                ? QueueItemSourceType.artist
-                : isOnGenreScreen
-                ? QueueItemSourceType.genre
-                : parentItem != null
-                ? QueueItemSourceType.album
-                : QueueItemSourceType.queue,
-            name: parentItem != null
-                ? QueueItemSourceName(
-                    type: QueueItemSourceNameType.preTranslated,
-                    pretranslatedName:
-                        ((isInPlaylist || isOnArtistScreen || isOnGenreScreen) ? parentItem?.name : item.album) ??
-                        AppLocalizations.of(context)!.placeholderSource,
-                  )
-                : QueueItemSourceName(type: QueueItemSourceNameType.queue),
-            id: parentItem?.id.raw ?? "",
-            item: parentItem,
-            // we're playing from an album, so we should use the album's normalization gain.
-            contextNormalizationGain: (isInPlaylist || isOnArtistScreen || isOnGenreScreen)
-                ? null
-                : parentItem?.normalizationGain,
-          ),
+          source:
+              source ??
+              QueueItemSource.rawId(
+                type: isInPlaylist
+                    ? QueueItemSourceType.playlist
+                    : isOnArtistScreen
+                    ? QueueItemSourceType.artist
+                    : isOnGenreScreen
+                    ? QueueItemSourceType.genre
+                    : parentItem != null
+                    ? QueueItemSourceType.album
+                    : QueueItemSourceType.queue,
+                name: parentItem != null
+                    ? QueueItemSourceName(
+                        type: QueueItemSourceNameType.preTranslated,
+                        pretranslatedName:
+                            ((isInPlaylist || isOnArtistScreen || isOnGenreScreen) ? parentItem?.name : item.album) ??
+                            AppLocalizations.of(context)!.placeholderSource,
+                      )
+                    : QueueItemSourceName(type: QueueItemSourceNameType.queue),
+                id: parentItem?.id.raw ?? "",
+                item: parentItem,
+                // we're playing from an album, so we should use the album's normalization gain.
+                contextNormalizationGain: (isInPlaylist || isOnArtistScreen || isOnGenreScreen)
+                    ? null
+                    : parentItem?.normalizationGain,
+              ),
         );
       } else {
         // TODO put in a real offline tracks implementation
@@ -202,15 +206,17 @@ class TrackListTile extends ConsumerWidget {
           await queueService.startPlayback(
             items: items,
             startingIndex: startingIndex,
-            source: QueueItemSource(
-              name: QueueItemSourceName(
-                type: item.name != null ? QueueItemSourceNameType.mix : QueueItemSourceNameType.instantMix,
-                localizationParameter: item.name ?? "",
-              ),
-              type: QueueItemSourceType.allTracks,
-              id: item.id,
-              item: item,
-            ),
+            source:
+                source ??
+                QueueItemSource(
+                  name: QueueItemSourceName(
+                    type: item.name != null ? QueueItemSourceNameType.mix : QueueItemSourceNameType.instantMix,
+                    localizationParameter: item.name ?? "",
+                  ),
+                  type: QueueItemSourceType.allTracks,
+                  id: item.id,
+                  item: item,
+                ),
           );
         } else {
           if (FinampSettingsHelper.finampSettings.startInstantMixForIndividualTracks) {
@@ -218,7 +224,7 @@ class TrackListTile extends ConsumerWidget {
           } else {
             await queueService.startPlayback(
               items: await loadChildTracks(item: item, genreFilter: genreFilter),
-              source: QueueItemSource.fromBaseItem(item),
+              source: source ?? QueueItemSource.fromBaseItem(item),
             );
           }
         }

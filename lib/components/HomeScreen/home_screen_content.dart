@@ -209,6 +209,15 @@ class HomeScreenSectionContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final items = ref.watch(loadHomeSectionItemsProvider(sectionInfo: sectionInfo));
+    final source = QueueItemSource.rawId(
+      type: QueueItemSourceType.homeScreenSection,
+      name: QueueItemSourceName(
+        type: QueueItemSourceNameType.homeScreenSection,
+        localizationParameter: sectionInfo.presetType?.name,
+        pretranslatedName: sectionInfo.getTitle(context),
+      ),
+      id: sectionInfo.toLocalisedString(context),
+    );
     return switch (items) {
       AsyncData(:final value) => switch (value) {
         null => _buildHorizontalSkeletonLoader(context),
@@ -220,7 +229,7 @@ class HomeScreenSectionContent extends ConsumerWidget {
             itemCount: value.length,
             itemBuilder: (context, index) {
               final BaseItemDto item = value[index];
-              return ItemCollectionWrapper(item: item, isGrid: true, interactive: interactive);
+              return ItemCollectionWrapper(item: item, isGrid: true, interactive: interactive, source: source);
             },
             separatorBuilder: (context, index) => const SizedBox(width: 8, height: 1),
           ),

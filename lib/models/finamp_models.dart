@@ -1972,6 +1972,8 @@ enum QueueItemSourceType {
   remoteClient,
   @HiveField(22)
   radio,
+  @HiveField(23)
+  homeScreenSection,
 }
 
 @HiveType(typeId: 53)
@@ -2121,6 +2123,8 @@ enum QueueItemSourceNameType {
   remoteClient,
   @HiveField(10)
   radio,
+  @HiveField(11)
+  homeScreenSection,
 }
 
 @HiveType(typeId: 56)
@@ -2166,6 +2170,13 @@ class QueueItemSourceName {
         } else {
           return AppLocalizations.of(context)!.radio;
         }
+      case QueueItemSourceNameType.homeScreenSection:
+        return localizationParameter != null
+            ? HomeScreenSectionConfiguration.getTitleForPreset(
+                context: context,
+                presetType: HomeScreenSectionPresetType.values.byName(localizationParameter!),
+              )
+            : pretranslatedName ?? "";
     }
   }
 
@@ -4067,7 +4078,7 @@ class HomeScreenSectionConfiguration {
   @HiveField(4)
   final String? customSectionTitle;
   @HiveField(5)
-  final HomeScreenSectionPresetType? _presetType;
+  final HomeScreenSectionPresetType? presetType;
 
   const HomeScreenSectionConfiguration({
     required this.type,
@@ -4075,19 +4086,11 @@ class HomeScreenSectionConfiguration {
     this.contentType,
     required this.sortAndFilterConfiguration,
     this.customSectionTitle,
-  }) : _presetType = null;
-
-  const HomeScreenSectionConfiguration._internal({
-    required this.type,
-    required this.itemId,
-    required this.contentType,
-    required this.sortAndFilterConfiguration,
-    required this.customSectionTitle,
-    required HomeScreenSectionPresetType? presetType,
-  }) : _presetType = presetType;
+    this.presetType,
+  });
 
   factory HomeScreenSectionConfiguration.fromPreset(HomeScreenSectionPresetType presetType) => switch (presetType) {
-    HomeScreenSectionPresetType.favoriteTracks => HomeScreenSectionConfiguration._internal(
+    HomeScreenSectionPresetType.favoriteTracks => HomeScreenSectionConfiguration(
       type: HomeScreenSectionType.tabView,
       itemId: null,
       contentType: TabContentType.tracks,
@@ -4099,7 +4102,7 @@ class HomeScreenSectionConfiguration {
       customSectionTitle: null,
       presetType: presetType,
     ),
-    HomeScreenSectionPresetType.forgottenFavoriteTracks => HomeScreenSectionConfiguration._internal(
+    HomeScreenSectionPresetType.forgottenFavoriteTracks => HomeScreenSectionConfiguration(
       type: HomeScreenSectionType.tabView,
       itemId: null,
       contentType: TabContentType.tracks,
@@ -4113,11 +4116,9 @@ class HomeScreenSectionConfiguration {
     ),
   };
 
-  HomeScreenSectionPresetType? get presetType => _presetType;
-
   String getTitle(BuildContext context) =>
       customSectionTitle ??
-      (_presetType != null ? getTitleForPreset(context: context, presetType: _presetType) : toLocalisedString(context));
+      (presetType != null ? getTitleForPreset(context: context, presetType: presetType!) : toLocalisedString(context));
   static String getTitleForPreset({required BuildContext context, required HomeScreenSectionPresetType presetType}) =>
       switch (presetType) {
         HomeScreenSectionPresetType.favoriteTracks => AppLocalizations.of(
@@ -4127,8 +4128,8 @@ class HomeScreenSectionConfiguration {
           context,
         )!.homeScreenSectionPresetForgottenFavoriteTracksTitle,
       };
-  String getDescription(BuildContext context) => _presetType != null
-      ? getDescriptionForPreset(context: context, presetType: _presetType)
+  String getDescription(BuildContext context) => presetType != null
+      ? getDescriptionForPreset(context: context, presetType: presetType!)
       : toLocalisedString(context);
   static String getDescriptionForPreset({
     required BuildContext context,
@@ -4171,12 +4172,12 @@ class HomeScreenSectionConfiguration {
         other.contentType == contentType &&
         other.sortAndFilterConfiguration == sortAndFilterConfiguration &&
         other.customSectionTitle == customSectionTitle &&
-        other._presetType == _presetType;
+        other.presetType == presetType;
   }
 
   @override
   @ignore
-  int get hashCode => Object.hash(type, itemId, sortAndFilterConfiguration, customSectionTitle, _presetType);
+  int get hashCode => Object.hash(type, itemId, sortAndFilterConfiguration, customSectionTitle, presetType);
 }
 
 @HiveType(typeId: 113)

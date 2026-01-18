@@ -21,7 +21,6 @@ class AutoGridItem extends ConsumerWidget {
         gridItem = TrackListTile(
           key: ValueKey(baseItem.id),
           item: baseItem,
-          isTrack: true,
           index: 0,
           isShownInSearchOrHistory: false,
           allowDismiss: false,

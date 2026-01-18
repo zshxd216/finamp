@@ -1,11 +1,11 @@
+import 'package:finamp/components/album_image.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:finamp/services/generate_subtitle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../models/jellyfin_models.dart';
-import '../../services/finamp_settings_helper.dart';
-import '../../services/generate_subtitle.dart';
-import '../album_image.dart';
 
 const double _itemCollectionCardCoverSize = 120;
 const double _itemCollectionCardSpacing = 6;

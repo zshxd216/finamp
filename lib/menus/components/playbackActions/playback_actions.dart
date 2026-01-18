@@ -22,6 +22,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
   bool preferPrependingToNextUp = false,
   BaseItemDto? genreFilter,
   FinampQueueItem? queueItem,
+  QueueItemSource? source,
 }) {
   final BaseItemDtoType? itemType = item is BaseItemDto ? BaseItemDtoType.fromItem(item) : null;
 
@@ -60,10 +61,10 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          PlayPlaybackAction(item: item),
-          if (nextUpNotEmpty || preferPrependingToNextUp) PlayNextPlaybackAction(item: item),
-          if (nextUpNotEmpty || !preferPrependingToNextUp) AddToNextUpPlaybackAction(item: item),
-          AddToQueuePlaybackAction(item: item),
+          PlayPlaybackAction(item: item, source: source),
+          if (nextUpNotEmpty || preferPrependingToNextUp) PlayNextPlaybackAction(item: item, source: source),
+          if (nextUpNotEmpty || !preferPrependingToNextUp) AddToNextUpPlaybackAction(item: item, source: source),
+          AddToQueuePlaybackAction(item: item, source: source),
         ],
       ),
     };
@@ -80,6 +81,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
               popContext: popContext,
               compactLayout: compactLayout,
               genreFilter: genreFilter,
+              source: source,
             ),
           ShufflePlaybackAction(
             item: item,
@@ -87,6 +89,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
             popContext: popContext,
             compactLayout: compactLayout,
             genreFilter: genreFilter,
+            source: source,
           ),
           if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
             ShuffleAlbumsPlaybackAction(
@@ -95,6 +98,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
               popContext: popContext,
               compactLayout: compactLayout,
               genreFilter: genreFilter,
+              source: source,
             ),
         ],
       ),
@@ -110,6 +114,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
                 popContext: popContext,
                 compactLayout: compactLayout,
                 genreFilter: genreFilter,
+                source: source,
               ),
             ShuffleNextPlaybackAction(
               item: item,
@@ -117,6 +122,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
               popContext: popContext,
               compactLayout: compactLayout,
               genreFilter: genreFilter,
+              source: source,
             ),
             if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
               ShuffleAlbumsNextPlaybackAction(
@@ -125,6 +131,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
                 popContext: popContext,
                 compactLayout: compactLayout,
                 genreFilter: genreFilter,
+                source: source,
               ),
           ],
         ),
@@ -140,6 +147,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
                 popContext: popContext,
                 compactLayout: compactLayout,
                 genreFilter: genreFilter,
+                source: source,
               ),
             ShuffleToNextUpPlaybackAction(
               item: item,
@@ -147,6 +155,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
               popContext: popContext,
               compactLayout: compactLayout,
               genreFilter: genreFilter,
+              source: source,
             ),
             if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
               ShuffleAlbumsToNextUpPlaybackAction(
@@ -155,6 +164,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
                 popContext: popContext,
                 compactLayout: compactLayout,
                 genreFilter: genreFilter,
+                source: source,
               ),
           ],
         ),
@@ -169,6 +179,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
               popContext: popContext,
               compactLayout: compactLayout,
               genreFilter: genreFilter,
+              source: source,
             ),
           ShuffleToQueuePlaybackAction(
             item: item,
@@ -176,6 +187,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
             popContext: popContext,
             compactLayout: compactLayout,
             genreFilter: genreFilter,
+            source: source,
           ),
           if (itemType == BaseItemDtoType.artist || itemType == BaseItemDtoType.genre)
             ShuffleAlbumsToQueuePlaybackAction(
@@ -184,6 +196,7 @@ Map<PlaybackActionRowPage, Widget> getPlaybackActionPages({
               popContext: popContext,
               compactLayout: compactLayout,
               genreFilter: genreFilter,
+              source: source,
             ),
         ],
       ),
@@ -198,12 +211,14 @@ class PlayPlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -219,7 +234,7 @@ class PlayPlaybackAction extends ConsumerWidget {
 
         await queueService.startPlayback(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
-          source: QueueItemSource.fromPlayableItem(item),
+          source: source ?? QueueItemSource.fromPlayableItem(item),
           order: FinampPlaybackOrder.linear,
         );
       },
@@ -235,12 +250,14 @@ class PlayNextPlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -257,7 +274,7 @@ class PlayNextPlaybackAction extends ConsumerWidget {
 
         await queueService.addNext(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
-          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          source: source ?? QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
         );
 
         GlobalSnackbar.message(
@@ -318,12 +335,14 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -340,7 +359,7 @@ class AddToNextUpPlaybackAction extends ConsumerWidget {
 
         await queueService.addToNextUp(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
-          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          source: source ?? QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
         );
 
         GlobalSnackbar.message(
@@ -401,12 +420,14 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -423,7 +444,7 @@ class AddToQueuePlaybackAction extends ConsumerWidget {
 
         await queueService.addToQueue(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
-          source: QueueItemSource.fromPlayableItem(item),
+          source: source ?? QueueItemSource.fromPlayableItem(item),
         );
 
         GlobalSnackbar.message(
@@ -485,6 +506,7 @@ class ShufflePlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
@@ -492,6 +514,7 @@ class ShufflePlaybackAction extends ConsumerWidget {
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -510,7 +533,7 @@ class ShufflePlaybackAction extends ConsumerWidget {
 
         await queueService.startPlayback(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
-          source: QueueItemSource.fromPlayableItem(item),
+          source: source ?? QueueItemSource.fromPlayableItem(item),
           order: FinampPlaybackOrder.shuffled,
         );
       },
@@ -527,6 +550,7 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
@@ -534,6 +558,7 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -553,7 +578,7 @@ class ShuffleNextPlaybackAction extends ConsumerWidget {
 
         await queueService.addNext(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
-          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          source: source ?? QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
           order: FinampPlaybackOrder.shuffled,
         );
 
@@ -572,6 +597,7 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
@@ -579,6 +605,7 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -598,7 +625,7 @@ class ShuffleToNextUpPlaybackAction extends ConsumerWidget {
 
         await queueService.addToNextUp(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
-          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          source: source ?? QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
           order: FinampPlaybackOrder.shuffled,
         );
 
@@ -620,6 +647,7 @@ class ShuffleToQueuePlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
@@ -627,6 +655,7 @@ class ShuffleToQueuePlaybackAction extends ConsumerWidget {
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -646,7 +675,7 @@ class ShuffleToQueuePlaybackAction extends ConsumerWidget {
 
         await queueService.addToQueue(
           items: await loadChildTracks(item: item, genreFilter: genreFilter),
-          source: QueueItemSource.fromPlayableItem(item),
+          source: source ?? QueueItemSource.fromPlayableItem(item),
           order: FinampPlaybackOrder.shuffled,
         );
 
@@ -668,6 +697,7 @@ class ShuffleAlbumsPlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
@@ -675,6 +705,7 @@ class ShuffleAlbumsPlaybackAction extends ConsumerWidget {
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -701,7 +732,7 @@ class ShuffleAlbumsPlaybackAction extends ConsumerWidget {
             groupListBy: (element) => element.albumId?.toString(),
             manuallyShuffle: true,
           ),
-          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          source: source ?? QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
         );
       },
       iconColor: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
@@ -717,6 +748,7 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
@@ -724,6 +756,7 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -751,7 +784,7 @@ class ShuffleAlbumsNextPlaybackAction extends ConsumerWidget {
             groupListBy: (element) => element.albumId?.toString(),
             manuallyShuffle: true,
           ),
-          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          source: source ?? QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
         );
 
         GlobalSnackbar.message((scaffold) => AppLocalizations.of(scaffold)!.confirmShuffleNext, isConfirmation: true);
@@ -769,6 +802,7 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
@@ -776,6 +810,7 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -803,7 +838,7 @@ class ShuffleAlbumsToNextUpPlaybackAction extends ConsumerWidget {
             groupListBy: (element) => element.albumId?.toString(),
             manuallyShuffle: true,
           ),
-          source: QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
+          source: source ?? QueueItemSource.fromPlayableItem(item, type: QueueItemSourceType.nextUpAlbum),
         );
 
         GlobalSnackbar.message(
@@ -824,6 +859,7 @@ class ShuffleAlbumsToQueuePlaybackAction extends ConsumerWidget {
     this.popContext = true,
     this.compactLayout = false,
     this.genreFilter,
+    this.source,
   });
 
   final PlayableItem item;
@@ -831,6 +867,7 @@ class ShuffleAlbumsToQueuePlaybackAction extends ConsumerWidget {
   final bool popContext;
   final bool compactLayout;
   final BaseItemDto? genreFilter;
+  final QueueItemSource? source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -858,7 +895,7 @@ class ShuffleAlbumsToQueuePlaybackAction extends ConsumerWidget {
             groupListBy: (element) => element.albumId?.toString(),
             manuallyShuffle: true,
           ),
-          source: QueueItemSource.fromPlayableItem(item),
+          source: source ?? QueueItemSource.fromPlayableItem(item),
         );
 
         GlobalSnackbar.message(

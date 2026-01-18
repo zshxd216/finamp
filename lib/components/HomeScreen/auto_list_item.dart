@@ -30,7 +30,6 @@ class AutoListItem extends ConsumerWidget {
         listItem = TrackListTile(
           key: ValueKey(baseItem.id),
           item: baseItem,
-          isTrack: true,
           index: 0,
           isShownInSearchOrHistory: false,
           allowDismiss: false,

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:finamp/components/AlbumScreen/track_list_tile.dart';
+import 'package:finamp/services/item_by_id_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -219,11 +221,35 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen> with AutomaticKee
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       builderDelegate: PagedChildBuilderDelegate<BaseItemDto>(
         itemBuilder: (context, item, index) {
+          final source = QueueItemSource.rawId(
+            type: QueueItemSourceType.homeScreenSection,
+            name: QueueItemSourceName(
+              type: QueueItemSourceNameType.homeScreenSection,
+              localizationParameter: sectionInfo.presetType?.name,
+              pretranslatedName: sectionInfo.getTitle(context),
+            ),
+            id: sectionInfo.toLocalisedString(context),
+          );
           return AutoScrollTag(
             key: ValueKey(index),
             controller: controller,
             index: index,
-            child: ItemCollectionWrapper(item: item, isGrid: false),
+            child: BaseItemDtoType.fromItem(item) == BaseItemDtoType.track
+                ? TrackListTile(
+                    key: ValueKey(item.id),
+                    item: item,
+                    index: index,
+                    // when the tabBar was filtered and we only have the tracks tab,
+                    // we can allow Dismiss gestures in the track list
+                    parentItem: sectionInfo.itemId != null
+                        ? ref.watch(itemByIdProvider(sectionInfo.itemId!)).value
+                        : null,
+                    source: source,
+                    // since we can't re-create the current random sorting, we simply pass the pre-sorted tracks along
+                    // only done in offline mode since online mode doesn't support playing the tab contents in order anyway
+                    children: _pagingController.itemList,
+                  )
+                : ItemCollectionWrapper(item: item, source: source, isGrid: false),
           );
         },
         firstPageProgressIndicatorBuilder: (_) => const FirstPageProgressIndicator(),
@@ -246,7 +272,7 @@ class _ShowAllScreenState extends ConsumerState<ShowAllScreen> with AutomaticKee
         scrolledUnderElevation: 0.0, // disable tint/shadow when content is scrolled under the app bar
         centerTitle: true,
         toolbarHeight: 53,
-        title: Text(sectionInfo.type.toLocalisedString(context)),
+        title: Text(sectionInfo.getTitle(context)),
         leading: FinampAppBarButton(onPressed: () => Navigator.of(context).pop(), dismissDirection: AxisDirection.left),
         actions: [],
       ),

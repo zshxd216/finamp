@@ -233,6 +233,7 @@ class HomeScreenSectionsSelector extends ConsumerWidget {
                         text: "Remove Section*",
                         icon: TablerIcons.trash,
                         onPressed: () {
+                          FeedbackHelper.feedback(FeedbackType.warning);
                           final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration
                               .copyWith(sections: [...sections.sublist(0, index), ...sections.sublist(index + 1)]);
                           FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);

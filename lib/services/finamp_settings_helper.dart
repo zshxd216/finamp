@@ -146,6 +146,7 @@ class FinampSettingsHelper {
     FinampSettings finampSettingsTemp = finampSettings;
 
     //TODO reset to default home screen
+    finampSettingsTemp.homeScreenConfiguration = DefaultSettings.homeScreenConfiguration;
 
     Hive.box<FinampSettings>("FinampSettings").put("FinampSettings", finampSettingsTemp);
   }

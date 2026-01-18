@@ -52,6 +52,7 @@ Future<void> showModalTrackMenu({
   bool showQueueActions = false,
   FinampStorableQueueInfo? queueInfo,
   FinampQueueItem? queueItem,
+  QueueItemSource? source,
 }) async {
   final isOffline = FinampSettingsHelper.finampSettings.isOffline;
 
@@ -74,6 +75,7 @@ Future<void> showModalTrackMenu({
         dragController: dragController,
         queueInfo: queueInfo,
         queueItem: queueItem,
+        source: source,
       );
     },
   );
@@ -98,6 +100,7 @@ class TrackMenu extends ConsumerStatefulWidget {
     required this.dragController,
     this.queueInfo,
     this.queueItem,
+    this.source,
   });
 
   final BaseItemDto item;
@@ -112,6 +115,7 @@ class TrackMenu extends ConsumerStatefulWidget {
   final DraggableScrollableController dragController;
   final FinampStorableQueueInfo? queueInfo;
   final FinampQueueItem? queueItem;
+  final QueueItemSource? source;
 
   @override
   ConsumerState<TrackMenu> createState() => _TrackMenuState();
@@ -508,7 +512,7 @@ class _TrackMenuState extends ConsumerState<TrackMenu> with TickerProviderStateM
       MenuMask(
         height: MenuItemInfoSliverHeader.defaultHeight,
         child: SliverToBoxAdapter(
-          child: PlaybackActionRow(item: widget.item, queueItem: widget.queueItem),
+          child: PlaybackActionRow(item: widget.item, queueItem: widget.queueItem, source: widget.source),
         ),
       ),
       MenuMask(

@@ -38,6 +38,7 @@ class ItemCollectionWrapper extends ConsumerStatefulWidget {
     this.adaptiveAdditionalInfoSortBy,
     this.showFavoriteIconOnlyWhenFilterDisabled = false,
     this.interactive = true,
+    this.source,
   });
 
   /// The item to show in the widget.
@@ -77,6 +78,9 @@ class ItemCollectionWrapper extends ConsumerStatefulWidget {
   /// This is useful for read-only displays of items like previews
   final bool interactive;
 
+  /// Used to pass a source if the context isn't enough to determine it
+  final QueueItemSource? source;
+
   @override
   ConsumerState<ItemCollectionWrapper> createState() => _ItemCollectionWrapperState();
 }
@@ -100,7 +104,7 @@ class _ItemCollectionWrapperState extends ConsumerState<ItemCollectionWrapper> {
                 FeedbackHelper.feedback(FeedbackType.selection);
                 switch (BaseItemDtoType.fromItem(mutableItem)) {
                   case BaseItemDtoType.track:
-                    showModalTrackMenu(context: context, item: mutableItem);
+                    showModalTrackMenu(context: context, item: mutableItem, source: widget.source);
                     break;
                   case BaseItemDtoType.artist:
                     Navigator.of(context).push(

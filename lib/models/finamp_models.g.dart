@@ -1587,13 +1587,14 @@ class HomeScreenSectionConfigurationAdapter
       contentType: fields[2] as TabContentType?,
       sortAndFilterConfiguration: fields[3] as SortAndFilterConfiguration,
       customSectionTitle: fields[4] as String?,
+      presetType: fields[5] as HomeScreenSectionPresetType?,
     );
   }
 
   @override
   void write(BinaryWriter writer, HomeScreenSectionConfiguration obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.type)
       ..writeByte(1)
@@ -1603,7 +1604,9 @@ class HomeScreenSectionConfigurationAdapter
       ..writeByte(3)
       ..write(obj.sortAndFilterConfiguration)
       ..writeByte(4)
-      ..write(obj.customSectionTitle);
+      ..write(obj.customSectionTitle)
+      ..writeByte(5)
+      ..write(obj.presetType);
   }
 
   @override
@@ -1620,7 +1623,7 @@ class HomeScreenSectionConfigurationAdapter
 class FinampHomeScreenConfigurationAdapter
     extends TypeAdapter<FinampHomeScreenConfiguration> {
   @override
-  final typeId = 116;
+  final typeId = 115;
 
   @override
   FinampHomeScreenConfiguration read(BinaryReader reader) {
@@ -1657,7 +1660,7 @@ class FinampHomeScreenConfigurationAdapter
 
 class ItemFilterAdapter extends TypeAdapter<ItemFilter> {
   @override
-  final typeId = 118;
+  final typeId = 117;
 
   @override
   ItemFilter read(BinaryReader reader) {
@@ -1695,7 +1698,7 @@ class ItemFilterAdapter extends TypeAdapter<ItemFilter> {
 class SortAndFilterConfigurationAdapter
     extends TypeAdapter<SortAndFilterConfiguration> {
   @override
-  final typeId = 119;
+  final typeId = 118;
 
   @override
   SortAndFilterConfiguration read(BinaryReader reader) {
@@ -1954,6 +1957,8 @@ class QueueItemSourceTypeAdapter extends TypeAdapter<QueueItemSourceType> {
         return QueueItemSourceType.remoteClient;
       case 22:
         return QueueItemSourceType.radio;
+      case 23:
+        return QueueItemSourceType.homeScreenSection;
       default:
         return QueueItemSourceType.album;
     }
@@ -2008,6 +2013,8 @@ class QueueItemSourceTypeAdapter extends TypeAdapter<QueueItemSourceType> {
         writer.writeByte(21);
       case QueueItemSourceType.radio:
         writer.writeByte(22);
+      case QueueItemSourceType.homeScreenSection:
+        writer.writeByte(23);
     }
   }
 
@@ -2097,6 +2104,8 @@ class QueueItemSourceNameTypeAdapter
         return QueueItemSourceNameType.remoteClient;
       case 10:
         return QueueItemSourceNameType.radio;
+      case 11:
+        return QueueItemSourceNameType.homeScreenSection;
       default:
         return QueueItemSourceNameType.preTranslated;
     }
@@ -2127,6 +2136,8 @@ class QueueItemSourceNameTypeAdapter
         writer.writeByte(9);
       case QueueItemSourceNameType.radio:
         writer.writeByte(10);
+      case QueueItemSourceNameType.homeScreenSection:
+        writer.writeByte(11);
     }
   }
 
@@ -3353,7 +3364,7 @@ class HomeScreenSectionPresetTypeAdapter
 
 class FinampQuickActionAdapter extends TypeAdapter<FinampQuickAction> {
   @override
-  final typeId = 115;
+  final typeId = 114;
 
   @override
   FinampQuickAction read(BinaryReader reader) {
@@ -3394,7 +3405,7 @@ class FinampQuickActionAdapter extends TypeAdapter<FinampQuickAction> {
 
 class ItemFilterTypeAdapter extends TypeAdapter<ItemFilterType> {
   @override
-  final typeId = 117;
+  final typeId = 116;
 
   @override
   ItemFilterType read(BinaryReader reader) {
@@ -9301,6 +9312,10 @@ HomeScreenSectionConfiguration _$HomeScreenSectionConfigurationFromJson(
     json['sortAndFilterConfiguration'] as Map<String, dynamic>,
   ),
   customSectionTitle: json['customSectionTitle'] as String?,
+  presetType: $enumDecodeNullable(
+    _$HomeScreenSectionPresetTypeEnumMap,
+    json['presetType'],
+  ),
 );
 
 Map<String, dynamic> _$HomeScreenSectionConfigurationToJson(
@@ -9314,11 +9329,18 @@ Map<String, dynamic> _$HomeScreenSectionConfigurationToJson(
   'contentType': _$TabContentTypeEnumMap[instance.contentType],
   'sortAndFilterConfiguration': instance.sortAndFilterConfiguration,
   'customSectionTitle': instance.customSectionTitle,
+  'presetType': _$HomeScreenSectionPresetTypeEnumMap[instance.presetType],
 };
 
 const _$HomeScreenSectionTypeEnumMap = {
   HomeScreenSectionType.tabView: 'tabView',
   HomeScreenSectionType.collection: 'collection',
+};
+
+const _$HomeScreenSectionPresetTypeEnumMap = {
+  HomeScreenSectionPresetType.favoriteTracks: 'favoriteTracks',
+  HomeScreenSectionPresetType.forgottenFavoriteTracks:
+      'forgottenFavoriteTracks',
 };
 
 FinampHomeScreenConfiguration _$FinampHomeScreenConfigurationFromJson(

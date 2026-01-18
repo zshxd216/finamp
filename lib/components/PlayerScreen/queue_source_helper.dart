@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:finamp/components/HomeScreen/show_all_screen.dart';
 import 'package:finamp/components/confirmation_prompt_dialog.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
@@ -82,6 +83,12 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
         case BaseItemDtoType.unknown:
           break;
       }
+      break;
+    case QueueItemSourceType.homeScreenSection:
+      final sectionInfo = FinampSettingsHelper.finampSettings.homeScreenConfiguration.sections.singleWhere(
+        (section) => section.toLocalisedString(context) == source.id,
+      );
+      Navigator.pushNamed(context, ShowAllScreen.routeName, arguments: sectionInfo);
       break;
     case QueueItemSourceType.downloads:
       Navigator.of(context).pushNamed(DownloadsScreen.routeName);
