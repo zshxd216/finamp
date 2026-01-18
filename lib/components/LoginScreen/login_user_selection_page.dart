@@ -53,15 +53,8 @@ class _LoginUserSelectionPageState extends State<LoginUserSelectionPage> {
     widget.onAuthenticated?.call();
   }
 
-  late Future<bool> canQuickConnect;
-  late Future<PublicUsersResponse> publicUsers;
-
-  @override
-  void initState() {
-    super.initState();
-    canQuickConnect = jellyfinApiHelper.checkQuickConnect();
-    publicUsers = jellyfinApiHelper.loadPublicUsers();
-  }
+  late Future<bool> canQuickConnect = jellyfinApiHelper.checkQuickConnect();
+  late Future<PublicUsersResponse> publicUsers = jellyfinApiHelper.loadPublicUsers();
 
   @override
   Widget build(BuildContext context) {
