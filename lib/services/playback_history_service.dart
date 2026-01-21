@@ -131,7 +131,8 @@ class PlaybackHistoryService {
           prevItem?.id == currentItem.id &&
               // current position is close to the beginning of the track
               currentState.position.inMilliseconds <= 1000 * 10) {
-            if ((prevState.position.inMilliseconds) >= ((prevItem?.item.duration?.inMilliseconds ?? 0) - 1000 * 10)) {
+            if (currentState.repeatMode == AudioServiceRepeatMode.one
+              && prevState.position.inMilliseconds >= (prevItem?.item.duration?.inMilliseconds ?? 0) - 1000 * 10) {
               // looping a single track
               // last position was close to the end of the track
               updateCurrentTrack(currentItem, forceNewTrack: true); // add to playback history
