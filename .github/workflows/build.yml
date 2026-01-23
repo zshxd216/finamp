@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
   push:
+    # Trigger on tags OR set branches
+    tags:
+      - '*.*.*'
     branches:
       - main
       - redesign
@@ -179,7 +182,13 @@ jobs:
         path: ${{ env.SHA_NAME }}
         compression-level: 0 # no compression
 
-
+    - name: Upload release archive
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+      uses: alexellis/upload-assets@0.4.1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        asset_paths: '["./${{ env.TAR_NAME }}", "./${{ env.SHA_NAME }}"]'
 
   build-windows:
     name: Build for Windows
@@ -202,18 +211,52 @@ jobs:
     - run: flutter doctor
     - run: flutter pub get
     - run: flutter build windows
+
+    - name: Set archive and msix base name
+      shell: bash
+      run: |
+        # For PR builds, use pr-<number>, else use branch or tag name
+        if [ "${{ github.event.pull_request.number }}" != "" ]; then
+          ref_name="pr-${{ github.event.pull_request.number }}"
+        else
+          ref_name="${{ github.ref_name }}"
+        fi
+        echo "BASE_NAME=Finamp-${ref_name}-Windows" >> $GITHUB_ENV
+
     # TODO pack in redistributables?
+    # upload original, unzipped directory. GitHub will zip it anyway
     - uses: actions/upload-artifact@v4
       with:
-        name: finamp-windows
+        name: ${{ env.BASE_NAME }}
         path: build/windows/x64/runner/Release/
-    - run: dart run msix:create --install-certificate false
+
+    - run: |
+        dart run msix:create --install-certificate false
+        # move msix file with correct naming
+        mv build/windows/x64/runner/Release/finamp.msix ./${{ env.BASE_NAME }}.msix
+
     #TODO would be nice to have an old-school installer here that can take the .exe + libraries and install them to the device + create a shortcut
     - uses: actions/upload-artifact@v4
       with:
-        name: finamp-windows.msix
-        path: build/windows/x64/runner/Release/finamp.msix
-        compression-level: 0 # no compression
+        name: ${{ env.BASE_NAME }}.msix
+        path: ./${{ env.BASE_NAME }}.msix
+        compression-level: 0 # no compression       
+
+    - name: Prepare release archive
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+      run: |
+        # zip folder
+        powershell -Command "Compress-Archive -Path './build/windows/x64/runner/Release/*' -DestinationPath './${{ env.BASE_NAME }}.zip'"
+
+    - name: Upload release archive
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+      uses: alexellis/upload-assets@0.4.1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        # upload zip archive here, uploading the raw directory fails
+        asset_paths: '["./${{ env.BASE_NAME }}.msix", "./${{ env.BASE_NAME }}.zip"]'
+
   # build-macos:
   #   name: Build for macOS
   #   runs-on: macos-latest
