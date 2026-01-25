@@ -1373,6 +1373,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler with SeekHandler, Queue
         "maxAudioBitDepth": "16",
         "audioBitRate": FinampSettingsHelper.finampSettings.transcodeBitrate.toString(),
         "segmentContainer": FinampSettingsHelper.finampSettings.transcodingStreamingFormat.container,
+        "maxAudioChannels": FinampSettingsHelper.finampSettings.transcodingStreamingFormat.codec != 'flac'
+            ? "2",
       });
     } else {
       builtPath.addAll(["Items", mediaItem.extras!["itemJson"]["Id"] as String, "File"]);
