@@ -333,6 +333,17 @@ Future<dynamic> showQueueBottomSheet(BuildContext context, WidgetRef ref) {
     ),
   );
 
+  switch (FinampSettingsHelper.finampSettings.previousTracksPersistenceMode) {
+    case PreviousTracksPersistenceMode.persistent:
+      break;
+    case PreviousTracksPersistenceMode.initiallyCollapsed:
+      FinampSetters.setPreviousTracksExpaned(false);
+      break;
+    case PreviousTracksPersistenceMode.initiallyExpanded:
+      FinampSetters.setPreviousTracksExpaned(true);
+      break;
+  }
+
   return showModalBottomSheet(
     context: context,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24.0))),
