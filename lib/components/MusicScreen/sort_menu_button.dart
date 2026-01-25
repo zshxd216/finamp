@@ -54,82 +54,84 @@ class SortMenuButton extends ConsumerWidget {
     return SimpleButton(
       icon: selectedSortOrder == SortOrder.ascending ? TablerIcons.sort_ascending : TablerIcons.sort_descending,
       text: selectedSortBy?.toLocalisedString(context) ?? AppLocalizations.of(context)!.sortBy,
-      onPressed: () {
-        showMenu<SortBy>(
-          context: context,
-          position: const RelativeRect.fromLTRB(100, 160, 0, 0),
-          items: [
-            for (SortBy sortBy in sortOptions)
-              PopupMenuItem(
-                value: sortBy,
-                child: Opacity(
-                  opacity: (isOffline && ((sortBy == SortBy.playCount || sortBy == SortBy.datePlayed))) ? 0.3 : 1,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Icon(
-                            sortBy.getIcon(),
-                            size: 18,
-                            color: ((selectedSortBy == sortBy) ? Theme.of(context).colorScheme.secondary : null),
+      onPressed:
+          () {} ??
+          () {
+            showMenu<SortBy>(
+              context: context,
+              position: const RelativeRect.fromLTRB(100, 160, 0, 0),
+              items: [
+                for (SortBy sortBy in sortOptions)
+                  PopupMenuItem(
+                    value: sortBy,
+                    child: Opacity(
+                      opacity: (isOffline && ((sortBy == SortBy.playCount || sortBy == SortBy.datePlayed))) ? 0.3 : 1,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Icon(
+                                sortBy.getIcon(),
+                                size: 18,
+                                color: ((selectedSortBy == sortBy) ? Theme.of(context).colorScheme.secondary : null),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          sortBy.toLocalisedString(context),
-                          style: TextStyle(
-                            color: ((selectedSortBy == sortBy) ? Theme.of(context).colorScheme.secondary : null),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              sortBy.toLocalisedString(context),
+                              style: TextStyle(
+                                color: ((selectedSortBy == sortBy) ? Theme.of(context).colorScheme.secondary : null),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-          ],
-        ).then((value) {
-          if (value != null) {
-            if (isOffline && ((value == SortBy.playCount || value == SortBy.datePlayed))) {
-              GlobalSnackbar.message((context) => AppLocalizations.of(context)!.notAvailableInOfflineMode);
-            } else {
-              // if same value as before, toggle sort order
+              ],
+            ).then((value) {
+              if (value != null) {
+                if (isOffline && ((value == SortBy.playCount || value == SortBy.datePlayed))) {
+                  GlobalSnackbar.message((context) => AppLocalizations.of(context)!.notAvailableInOfflineMode);
+                } else {
+                  // if same value as before, toggle sort order
 
-              if ((sortByOverride != null && onSortByOverrideChanged != null) ||
-                  (sortOrderOverride != null && updateSortOrderOverride != null)) {
-                if (sortByOverride == value && sortOrderOverride != null && updateSortOrderOverride != null) {
-                  updateSortOrderOverride!(
-                    sortOrderOverride == SortOrder.ascending ? SortOrder.descending : SortOrder.ascending,
-                  );
-                } else if (sortByOverride != null && onSortByOverrideChanged != null) {
-                  onSortByOverrideChanged!(value);
-                }
-              } else if (forPlaylistTracks) {
-                if (selectedSortBy == value) {
-                  FinampSetters.setPlaylistTracksSortOrder(
-                    selectedSortOrder == SortOrder.ascending ? SortOrder.descending : SortOrder.ascending,
-                  );
-                } else {
-                  FinampSetters.setPlaylistTracksSortBy(value);
-                }
-              } else {
-                if (selectedSortBy == value) {
-                  FinampSetters.setTabSortOrder(
-                    tabType,
-                    selectedSortOrder == SortOrder.ascending ? SortOrder.descending : SortOrder.ascending,
-                  );
-                } else {
-                  FinampSetters.setTabSortBy(tabType, value);
+                  if ((sortByOverride != null && onSortByOverrideChanged != null) ||
+                      (sortOrderOverride != null && updateSortOrderOverride != null)) {
+                    if (sortByOverride == value && sortOrderOverride != null && updateSortOrderOverride != null) {
+                      updateSortOrderOverride!(
+                        sortOrderOverride == SortOrder.ascending ? SortOrder.descending : SortOrder.ascending,
+                      );
+                    } else if (sortByOverride != null && onSortByOverrideChanged != null) {
+                      onSortByOverrideChanged!(value);
+                    }
+                  } else if (forPlaylistTracks) {
+                    if (selectedSortBy == value) {
+                      FinampSetters.setPlaylistTracksSortOrder(
+                        selectedSortOrder == SortOrder.ascending ? SortOrder.descending : SortOrder.ascending,
+                      );
+                    } else {
+                      FinampSetters.setPlaylistTracksSortBy(value);
+                    }
+                  } else {
+                    if (selectedSortBy == value) {
+                      FinampSetters.setTabSortOrder(
+                        tabType,
+                        selectedSortOrder == SortOrder.ascending ? SortOrder.descending : SortOrder.ascending,
+                      );
+                    } else {
+                      FinampSetters.setTabSortBy(tabType, value);
+                    }
+                  }
                 }
               }
-            }
-          }
-        });
-      },
+            });
+          },
     );
   }
 }

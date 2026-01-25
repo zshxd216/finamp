@@ -14,10 +14,12 @@ class FinampSettingsDropdown<T> extends StatelessWidget {
     required this.dropdownItems,
     required this.selectedValue,
     required this.onSelected,
+    this.selectedIcon,
   });
 
   final List<DropdownMenuEntry<T>> dropdownItems;
   final T selectedValue;
+  final IconData? selectedIcon;
   final void Function(T?) onSelected;
 
   @override
@@ -48,6 +50,7 @@ class FinampSettingsDropdown<T> extends StatelessWidget {
           requestFocusOnTap: false,
           onSelected: onSelected,
           textStyle: Theme.of(context).textTheme.bodyMedium,
+          leadingIcon: selectedIcon != null ? Icon(selectedIcon) : null,
           trailingIcon: const Icon(TablerIcons.chevron_down),
           selectedTrailingIcon: const Icon(TablerIcons.chevron_up),
           menuStyle: MenuStyle(

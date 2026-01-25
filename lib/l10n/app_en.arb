@@ -1408,6 +1408,14 @@
   "@recentlyPlayed": {},
   "latestReleases": "Latest Releases",
   "@latestReleases": {},
+  "ascending": "Ascending",
+  "@ascending": {
+    "description": "Label for ascending order."
+  },
+  "descending": "Descending",
+  "@descending": {
+    "description": "Label for descending order."
+  },
   "itemSectionsOrder": "Item Sections Order",
   "@itemSectionsOrder": {
     "description": "Label for the setting that controls the order of item sections on the screens."

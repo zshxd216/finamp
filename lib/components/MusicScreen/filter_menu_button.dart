@@ -51,122 +51,125 @@ class FilterMenuButton extends ConsumerWidget {
       textColor: activeFilterCount > 0
           ? ColorScheme.of(context).primary
           : TextTheme.of(context).bodyMedium?.color?.withOpacity(0.7),
-      onPressed: () {
-        showMenu<ItemFilterType>(
-          context: context,
-          position: const RelativeRect.fromLTRB(0, 160, 0, 0),
-          items: [
-            for (final option in ItemFilterType.values)
-              PopupMenuItem(
-                value: option,
-                child: Builder(
-                  builder: (context) {
-                    final color =
-                        switch (option) {
-                          ItemFilterType.isFavorite => activeFilters.any(
-                            (filter) => filter.type == ItemFilterType.isFavorite,
-                          ),
-                          ItemFilterType.isFullyDownloaded => activeFilters.any(
-                            (filter) => filter.type == ItemFilterType.isFullyDownloaded,
-                          ),
-                          ItemFilterType.startsWithCharacter => activeFilters.any(
-                            (filter) => filter.type == ItemFilterType.startsWithCharacter,
-                          ),
-                        }
-                        ? Theme.of(context).colorScheme.secondary
-                        : null;
-                    return Opacity(
-                      opacity:
-                          (ref.watch(finampSettingsProvider.isOffline) && option == ItemFilterType.isFullyDownloaded)
-                          ? 0.3
-                          : 1,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Icon(
-                                switch (option) {
-                                  ItemFilterType.isFavorite =>
-                                    activeFilters.any((filter) => filter.type == ItemFilterType.isFavorite)
-                                        ? TablerIcons.heart_filled
-                                        : TablerIcons.heart,
-                                  ItemFilterType.isFullyDownloaded =>
-                                    activeFilters.any((filter) => filter.type == ItemFilterType.isFullyDownloaded)
-                                        ? TablerIcons.download
-                                        : TablerIcons.download_off,
-                                  ItemFilterType.startsWithCharacter => TablerIcons.sort_ascending,
-                                },
-                                size: 18,
-                                color: color,
+      onPressed: () =>
+          {} ??
+          () {
+            showMenu<ItemFilterType>(
+              context: context,
+              position: const RelativeRect.fromLTRB(0, 160, 0, 0),
+              items: [
+                for (final option in ItemFilterType.values)
+                  PopupMenuItem(
+                    value: option,
+                    child: Builder(
+                      builder: (context) {
+                        final color =
+                            switch (option) {
+                              ItemFilterType.isFavorite => activeFilters.any(
+                                (filter) => filter.type == ItemFilterType.isFavorite,
                               ),
-                            ),
+                              ItemFilterType.isFullyDownloaded => activeFilters.any(
+                                (filter) => filter.type == ItemFilterType.isFullyDownloaded,
+                              ),
+                              ItemFilterType.startsWithCharacter => activeFilters.any(
+                                (filter) => filter.type == ItemFilterType.startsWithCharacter,
+                              ),
+                            }
+                            ? Theme.of(context).colorScheme.secondary
+                            : null;
+                        return Opacity(
+                          opacity:
+                              (ref.watch(finampSettingsProvider.isOffline) &&
+                                  option == ItemFilterType.isFullyDownloaded)
+                              ? 0.3
+                              : 1,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Icon(
+                                    switch (option) {
+                                      ItemFilterType.isFavorite =>
+                                        activeFilters.any((filter) => filter.type == ItemFilterType.isFavorite)
+                                            ? TablerIcons.heart_filled
+                                            : TablerIcons.heart,
+                                      ItemFilterType.isFullyDownloaded =>
+                                        activeFilters.any((filter) => filter.type == ItemFilterType.isFullyDownloaded)
+                                            ? TablerIcons.download
+                                            : TablerIcons.download_off,
+                                      ItemFilterType.startsWithCharacter => TablerIcons.sort_ascending,
+                                    },
+                                    size: 18,
+                                    color: color,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text("${option.name}*", style: TextStyle(color: color)),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text("${option.name}*", style: TextStyle(color: color)),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-          ],
-        ).then((value) {
-          if (value != null) {
-            if (filterOverride == null) {
-              switch (value) {
-                case ItemFilterType.isFavorite:
-                  FinampSetters.setOnlyShowFavorites(
-                    !activeFilters.any((filter) => filter.type == ItemFilterType.isFavorite),
-                  );
-                  break;
-                case ItemFilterType.isFullyDownloaded:
-                  if (isOffline) {
-                    FinampSetters.setOnlyShowFullyDownloaded(
-                      !activeFilters.any((filter) => filter.type == ItemFilterType.isFullyDownloaded),
-                    );
-                  } else {
-                    GlobalSnackbar.message((context) => AppLocalizations.of(context)!.notAvailableInOfflineMode);
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ).then((value) {
+              if (value != null) {
+                if (filterOverride == null) {
+                  switch (value) {
+                    case ItemFilterType.isFavorite:
+                      FinampSetters.setOnlyShowFavorites(
+                        !activeFilters.any((filter) => filter.type == ItemFilterType.isFavorite),
+                      );
+                      break;
+                    case ItemFilterType.isFullyDownloaded:
+                      if (isOffline) {
+                        FinampSetters.setOnlyShowFullyDownloaded(
+                          !activeFilters.any((filter) => filter.type == ItemFilterType.isFullyDownloaded),
+                        );
+                      } else {
+                        GlobalSnackbar.message((context) => AppLocalizations.of(context)!.notAvailableInOfflineMode);
+                      }
+                      break;
+                    case ItemFilterType.startsWithCharacter:
+                      //TODO implement
+                      GlobalSnackbar.message((context) => "Not implemented yet*");
+                      break;
                   }
-                  break;
-                case ItemFilterType.startsWithCharacter:
-                  //TODO implement
-                  GlobalSnackbar.message((context) => "Not implemented yet*");
-                  break;
+                }
+                if (filterOverride != null && updateFilterOverride != null) {
+                  final newFilters = Set<ItemFilter>.from(activeFilters);
+                  switch (value) {
+                    case ItemFilterType.isFavorite:
+                      final exists = newFilters.any((filter) => filter.type == ItemFilterType.isFavorite);
+                      if (exists) {
+                        newFilters.removeWhere((filter) => filter.type == ItemFilterType.isFavorite);
+                      } else {
+                        newFilters.add(ItemFilter(type: ItemFilterType.isFavorite));
+                      }
+                      break;
+                    case ItemFilterType.isFullyDownloaded:
+                      final exists = newFilters.any((filter) => filter.type == ItemFilterType.isFullyDownloaded);
+                      if (exists) {
+                        newFilters.removeWhere((filter) => filter.type == ItemFilterType.isFullyDownloaded);
+                      } else {
+                        newFilters.add(ItemFilter(type: ItemFilterType.isFullyDownloaded));
+                      }
+                      break;
+                    case ItemFilterType.startsWithCharacter:
+                      //TODO implement
+                      break;
+                  }
+                  updateFilterOverride!(newFilters);
+                }
               }
-            }
-            if (filterOverride != null && updateFilterOverride != null) {
-              final newFilters = Set<ItemFilter>.from(activeFilters);
-              switch (value) {
-                case ItemFilterType.isFavorite:
-                  final exists = newFilters.any((filter) => filter.type == ItemFilterType.isFavorite);
-                  if (exists) {
-                    newFilters.removeWhere((filter) => filter.type == ItemFilterType.isFavorite);
-                  } else {
-                    newFilters.add(ItemFilter(type: ItemFilterType.isFavorite));
-                  }
-                  break;
-                case ItemFilterType.isFullyDownloaded:
-                  final exists = newFilters.any((filter) => filter.type == ItemFilterType.isFullyDownloaded);
-                  if (exists) {
-                    newFilters.removeWhere((filter) => filter.type == ItemFilterType.isFullyDownloaded);
-                  } else {
-                    newFilters.add(ItemFilter(type: ItemFilterType.isFullyDownloaded));
-                  }
-                  break;
-                case ItemFilterType.startsWithCharacter:
-                  //TODO implement
-                  break;
-              }
-              updateFilterOverride!(newFilters);
-            }
-          }
-        });
-      },
+            });
+          },
     );
   }
 }

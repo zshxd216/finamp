@@ -46,18 +46,11 @@ class _HomeScreenSettingsScreenState extends State<HomeScreenSettingsScreen> {
   }
 }
 
-class QuickActionsSelector extends ConsumerStatefulWidget {
+class QuickActionsSelector extends ConsumerWidget {
   const QuickActionsSelector({super.key});
 
   @override
-  ConsumerState<QuickActionsSelector> createState() => _QuickActionsSelectorState();
-}
-
-class _QuickActionsSelectorState extends ConsumerState<QuickActionsSelector> {
-  bool isAddingAction = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final quickActions = ref.watch(finampSettingsProvider.homeScreenConfiguration).actions;
     return Padding(
       padding: const EdgeInsets.only(bottom: 28.0),
@@ -114,53 +107,33 @@ class _QuickActionsSelectorState extends ConsumerState<QuickActionsSelector> {
             },
             itemCount: quickActions.length,
             onReorder: (originalIndex, newIndex) {
-              setState(() {
-                if (originalIndex < newIndex) newIndex -= 1;
-                final action = quickActions[originalIndex];
-                final newActions = [...quickActions];
-                newActions.removeAt(originalIndex);
-                newActions.insert(newIndex, action);
-                final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
-                  actions: newActions,
-                );
-                FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
-              });
+              if (originalIndex < newIndex) {
+                newIndex -= 1;
+              }
+              final action = quickActions[originalIndex];
+              final newActions = [...quickActions];
+              newActions.removeAt(originalIndex);
+              newActions.insert(newIndex, action);
+              final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
+                actions: newActions,
+              );
+              FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
             },
           ),
-          if (isAddingAction)
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
-              child: FinampSettingsDropdown<FinampQuickAction>(
-                dropdownItems: FinampQuickAction.values
-                    .where((action) => !quickActions.contains(action))
-                    .map((e) => DropdownMenuEntry<FinampQuickAction>(value: e, label: e.toLocalisedString(context)))
-                    .toList(),
-                selectedValue: FinampQuickAction.values.firstWhere(
-                  (action) => !quickActions.contains(action),
-                  orElse: () => FinampQuickAction.trackMix,
-                ),
-                onSelected: (selectedAction) {
-                  if (selectedAction != null) {
-                    setState(() {
-                      isAddingAction = false;
-                    });
-                    final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
-                      actions: [...quickActions, selectedAction],
-                    );
-                    FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
-                  }
-                },
-              ),
-            ),
           Padding(
             padding: const EdgeInsets.only(top: 4.0, left: 16.0, right: 16.0),
             child: CTAMedium(
               text: "Add New Action*",
               icon: TablerIcons.plus,
               onPressed: () {
-                setState(() {
-                  isAddingAction = true;
-                });
+                final newAction = FinampQuickAction.values.firstWhere(
+                  (action) => !quickActions.contains(action),
+                  orElse: () => FinampQuickAction.trackMix,
+                );
+                final newHomeScreenConfig = FinampSettingsHelper.finampSettings.homeScreenConfiguration.copyWith(
+                  actions: [...quickActions, newAction],
+                );
+                FinampSetters.setHomeScreenConfiguration(newHomeScreenConfig);
               },
               disabled: quickActions.length >= FinampQuickAction.values.length,
             ),
