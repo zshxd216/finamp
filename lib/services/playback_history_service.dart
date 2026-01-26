@@ -153,7 +153,7 @@ class PlaybackHistoryService {
                 ? _audioService.queue.value[_audioService.queueIndex!]
                 : null;
               if (_lastPositionUpdate.add(const Duration(seconds: 3)).isBefore(DateTime.now()) &&
-                  currentItem.id == newCurrentTrack?.id) {
+                  currentItem.item.id == newCurrentTrack?.id) {
                 _playbackHistoryServiceLogger.fine("Handling seek event for ${currentItem.item.title}");
                 onPlaybackStateChanged(currentItem, currentState, prevState);
               }
