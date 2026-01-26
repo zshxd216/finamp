@@ -290,6 +290,8 @@ class TracksSliverList extends ConsumerStatefulWidget {
     super.key,
     required this.childrenForList,
     required this.childrenForQueue,
+    this.lazyAddMoreTracksToQueue = false,
+    this.selectedFilter,
     required this.parent,
     this.onRemoveFromList,
     this.forceAlbumArtists = false,
@@ -300,6 +302,8 @@ class TracksSliverList extends ConsumerStatefulWidget {
 
   final List<BaseItemDto> childrenForList;
   final List<BaseItemDto> childrenForQueue;
+  final bool lazyAddMoreTracksToQueue;
+  final CuratedItemSelectionType? selectedFilter;
   final BaseItemDto parent;
   final BaseItemDtoCallback? onRemoveFromList;
   final bool forceAlbumArtists;
@@ -362,6 +366,8 @@ class _TracksSliverListState extends ConsumerState<TracksSliverList> {
           key: ValueKey(item.id),
           item: item,
           children: widget.childrenForQueue,
+          lazyAddMoreTracksToQueue: widget.lazyAddMoreTracksToQueue,
+          selectedFilter: widget.selectedFilter,
           index: indexOffset,
           showIndex: item.albumId == widget.parent.id,
           showCover: item.albumId != widget.parent.id || ref.watch(finampSettingsProvider.showCoversOnAlbumScreen),
