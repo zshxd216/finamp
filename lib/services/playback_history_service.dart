@@ -47,7 +47,6 @@ class PlaybackHistoryService {
   final int _maxQueueLengthToReport = 100;
 
   PlaybackHistoryService() {
-
     FinampSettingsHelper.finampSettingsListener.addListener(() {
       final isOffline = FinampSettingsHelper.finampSettings.isOffline;
       if (!isOffline) {
@@ -84,31 +83,28 @@ class PlaybackHistoryService {
         }
 
         FinampQueueItem currentItem;
-        if (currentIndex is! int || currentIndex < 0
-          || currentIndex >= _audioService.sequenceState.effectiveSequence.length) {
+        if (currentIndex is! int ||
+            currentIndex < 0 ||
+            currentIndex >= _audioService.sequenceState.effectiveSequence.length) {
           return;
         }
-        if(_audioService.sequenceState.effectiveSequence[currentIndex].tag case FinampQueueItem item) {
+        if (_audioService.sequenceState.effectiveSequence[currentIndex].tag case FinampQueueItem item) {
           currentItem = item;
         } else {
           return;
         }
         if (currentItem.id != prevItem?.id) {
-          updateCurrentTrack(currentItem,
+          updateCurrentTrack(
+            currentItem,
             // add to playback history if playback was stopped before
-            forceNewTrack: currentState.playing != prevState?.playing);
+            forceNewTrack: currentState.playing != prevState?.playing,
+          );
           if (currentState.queueIndex != prevState?.queueIndex || currentState.position != prevState?.position) {
             _playbackHistoryServiceLogger.fine(
               "Handling track change event from ${prevItem?.item.title} to ${currentItem.item.title}",
             );
             //TODO handle reporting track changes based on history changes, as that is more reliable
-            onTrackChanged(
-              currentItem,
-              currentState,
-              prevItem,
-              prevState,
-              currentIndex > (prevState?.queueIndex ?? 0),
-            );
+            onTrackChanged(currentItem, currentState, prevItem, prevState, currentIndex > (prevState?.queueIndex ?? 0));
           }
         }
         // handle events that don't change the current track (e.g. loop, pause, seek, etc.)
@@ -150,8 +146,8 @@ class PlaybackHistoryService {
             // rate limit updates (only send update after no changes for 3 seconds) and if the track is still the same
             Future.delayed(const Duration(seconds: 3, milliseconds: 500), () {
               var newCurrentTrack = _audioService.queueIndex != null && _audioService.queue.hasValue
-                ? _audioService.queue.value[_audioService.queueIndex!]
-                : null;
+                  ? _audioService.queue.value[_audioService.queueIndex!]
+                  : null;
               if (_lastPositionUpdate.add(const Duration(seconds: 3)).isBefore(DateTime.now()) &&
                   currentItem.item.id == newCurrentTrack?.id) {
                 _playbackHistoryServiceLogger.fine("Handling seek event for ${currentItem.item.title}");
