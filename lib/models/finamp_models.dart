@@ -1274,6 +1274,10 @@ class DownloadStub {
             BaseItemDtoType.fromItem(baseItem!) == baseItemType;
       case DownloadItemType.image:
         return baseItem != null;
+      case DownloadItemType.animatedCover:
+        return baseItem != null;
+      case DownloadItemType.verticalBackgroundVideo:
+        return baseItem != null;
       case DownloadItemType.finampCollection:
         return baseItem == null && baseItemType == BaseItemDtoType.noItem && finampCollection != null;
       case DownloadItemType.anchor:
@@ -1598,7 +1602,9 @@ enum DownloadItemType {
   track("song", true, true),
   image("image", true, true),
   anchor("anchor", false, false),
-  finampCollection("finampCollection", false, false);
+  finampCollection("finampCollection", false, false),
+  animatedCover("animatedCover", true, true),
+  verticalBackgroundVideo("verticalBackgroundVideo", true, true);
 
   const DownloadItemType(this.isarType, this.requiresItem, this.hasFiles);
 
