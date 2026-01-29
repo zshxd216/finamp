@@ -37,7 +37,32 @@ This also means that you can keep using your regular install of Finamp (from the
 If you try to install a release build you built yourself (with your signing key) on top of a release build you downloaded from the Play Store or GitHub, Android will prevent you from doing so and show a generic error message. The only solution here is to uninstall the existing version, and then install your build. Note that this will delete any logins, settings and downloads that you had configured.  
 This generally shouldn't be needed, since debug builds works fine for daily usage, even though they are a bit less performant.
 
-### Developing on an Android Device without Android Studio on linux (not recommended)
+### Developing with Apple CarPlay
+
+Finamp includes Apple CarPlay support for iOS. To develop and test CarPlay features:
+
+#### CarPlay Simulator Testing
+1. Open Xcode
+2. Go to `Window > Devices and Simulators`
+3. Select your iOS Simulator
+4. In the simulator, go to `Hardware > External Displays > CarPlay`
+5. Run Finamp and test the CarPlay interface
+
+#### Physical CarPlay Testing
+- Requires an iPhone with iOS 12.0+
+- Connect to a CarPlay-enabled vehicle or CarPlay adapter
+- CarPlay interface will appear automatically when Finamp is running
+
+#### CarPlay Development Notes
+- CarPlay code is iOS-only and uses platform channels to communicate with Flutter
+- The implementation reuses Android Auto infrastructure for 80% code sharing
+- CarPlay templates are defined in `ios/Runner/CarPlaySceneDelegate.swift`
+- Flutter integration is handled by `lib/services/carplay_helper.dart`
+
+#### Production CarPlay Requirements
+- Apple Developer Program membership required
+- CarPlay entitlement must be requested from Apple
+- App Store review process includes CarPlay-specific approval### Developing on an Android Device without Android Studio on linux (not recommended)
 1. You need the following packages  
     *you may need to find out the equivalents for your distro, these are for Arch*  
     `android-sdk android-sdk-build-tools android-sdk-cmdline-tools-latest android-platform android-sdk-platform-tools`
