@@ -7,6 +7,7 @@ import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/screens/settings_screen.dart';
+import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/jellyfin_api_helper.dart';
@@ -43,9 +44,10 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
 
   final finampUserHelper = GetIt.instance<FinampUserHelper>();
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final downloadsService = GetIt.instance<DownloadsService>();
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 34); // Standard height
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 30); // Standard height
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,7 +59,7 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
     Color inactiveTabTextColor = AtContrast.getContrastiveTintedTextColor(onBackground: inactiveTabBackgroundColor);
 
     return Column(
-      spacing: 12.0,
+      spacing: 8.0,
       children: [
         FutureBuilder(
           future: PackageInfo.fromPlatform(),
@@ -92,8 +94,8 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                                   : null,
                             ),
                             Positioned(
-                              bottom: -6,
-                              right: 4,
+                              bottom: -4,
+                              right: -2,
                               child: Icon(
                                 ref.watch(finampSettingsProvider.isOffline)
                                     ? TablerIcons.plug_connected_x
@@ -103,6 +105,33 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                                     : TablerIcons.cloud_network,
                                 size: 16,
                               ),
+                            ),
+                            StreamBuilder<Map<String, int>>(
+                              stream: downloadsService.downloadCountsStream,
+                              initialData: downloadsService.downloadCounts,
+                              builder: (context, countSnapshot) {
+                                if (!countSnapshot.hasData) {
+                                  return SizedBox.shrink();
+                                }
+                                final isDownloadSystemDoingWork = (countSnapshot.data?["sync"] ?? 0) > 0;
+                                if (isDownloadSystemDoingWork) {
+                                  return Positioned(
+                                    bottom: -6,
+                                    right: -4,
+                                    child: SizedBox.square(
+                                      dimension: 20.0,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 1,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return SizedBox.shrink();
+                                }
+                              },
                             ),
                           ],
                         ),
