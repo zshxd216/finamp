@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:finamp/components/finamp_icon.dart';
+import 'package:finamp/extensions/color_extensions.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
@@ -49,6 +50,11 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Timer? debounce;
+
+    final activeTabBackgroundColor = ColorScheme.of(context).primaryContainer;
+    final inactiveTabBackgroundColor = ColorScheme.of(context).surface;
+    Color activeTabTextColor = AtContrast.getContrastiveTintedTextColor(onBackground: activeTabBackgroundColor);
+    Color inactiveTabTextColor = AtContrast.getContrastiveTintedTextColor(onBackground: inactiveTabBackgroundColor);
 
     return Column(
       spacing: 12.0,
@@ -202,13 +208,11 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
         genreFilter == null
             ? TabBar(
                 controller: tabController,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: ColorScheme.of(context).primaryContainer,
-                ),
+                indicator: BoxDecoration(borderRadius: BorderRadius.circular(8.0), color: activeTabBackgroundColor),
                 indicatorPadding: EdgeInsets.zero,
                 splashBorderRadius: BorderRadius.circular(8.0),
-                labelColor: TextTheme.of(context).bodyMedium?.color,
+                labelColor: activeTabTextColor,
+                // unselectedLabelColor: Colors.red, //!!! the label color is specified below, along with the font
                 labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
                 dividerHeight: 0.0,
                 dividerColor: Colors.transparent,
@@ -272,7 +276,10 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                                     Text(tabType.toLocalisedString(context)),
                                   ],
                                 )
-                              : Text(tabType.toLocalisedString(context), style: TextTheme.of(context).bodyMedium),
+                              : Text(
+                                  tabType.toLocalisedString(context),
+                                  style: TextTheme.of(context).bodyMedium!.copyWith(color: inactiveTabTextColor),
+                                ),
                         ),
                       ),
                     )
