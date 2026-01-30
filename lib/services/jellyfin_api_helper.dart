@@ -651,7 +651,34 @@ class JellyfinApiHelper {
       limit: limit ?? FinampSettingsHelper.finampSettings.trackShuffleItemCount,
     );
 
-    return (QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items);
+    final items = QueryResult_BaseItemDto.fromJson(response as Map<String, dynamic>).items;
+    
+    // Fix thumbnail issue: Enrich instant mix items with proper image data
+    // AudioMuse-AI returns items without imageTags, causing them to use parent thumbnails
+    if (items != null) {
+      final enrichedItems = <BaseItemDto>[];
+      for (final item in items) {
+        // If item lacks imageTags (hasOwnImage will be false), fetch complete item data
+        if (item.imageTags?.containsKey("Primary") != true && item.id != null) {
+          try {
+            final enrichedItem = await getItem(item.id!);
+            if (enrichedItem != null) {
+              enrichedItems.add(enrichedItem);
+            } else {
+              enrichedItems.add(item);
+            }
+          } catch (e) {
+            // If enrichment fails, use original item
+            enrichedItems.add(item);
+          }
+        } else {
+          enrichedItems.add(item);
+        }
+      }
+      return enrichedItems;
+    }
+
+    return items;
   }
 
   /// Get's similar albums based off a source album.
