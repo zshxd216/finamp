@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:finamp/components/Buttons/cta_medium.dart';
+import 'package:finamp/components/MusicScreen/item_card.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ import '../first_page_progress_indicator.dart';
 import '../global_snackbar.dart';
 import '../new_page_progress_indicator.dart';
 import 'alphabet_item_list.dart';
-import 'item_collection_wrapper.dart';
+import 'item_wrapper.dart';
 
 // this is used to allow refreshing the music screen from other parts of the app, e.g. after deleting items from the server
 final musicScreenRefreshStream = StreamController<void>.broadcast();
@@ -107,7 +108,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
         // starting with Jellyfin 10.9, only automatically created playlists will have a specific library as parent. user-created playlists will not be returned anymore
         // this condition fixes this by not providing a parentId when fetching playlists
         parentItem: widget.tabContentType.itemType == BaseItemDtoType.playlist ? null : widget.view,
-        includeItemTypes: widget.tabContentType.itemType.jellyfinName,
+        includeItemTypes: widget.tabContentType.itemType?.jellyfinName,
 
         // If we're on the tracks tab, sort by "Album,SortName". This is what the
         // Jellyfin web client does. If this isn't the case, sort by "SortName".
@@ -184,7 +185,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
     } else {
       offlineItems = await _isarDownloader.getAllCollections(
         nameFilter: widget.searchTerm,
-        baseTypeFilter: widget.tabContentType.itemType,
+        includeItemTypes: [widget.tabContentType.itemType].nonNulls.toList(),
         fullyDownloaded: settings.onlyShowFullyDownloaded,
         viewFilter: widget.tabContentType == TabContentType.albums ? widget.view?.id : null,
         childViewFilter:
@@ -192,11 +193,7 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
             ? widget.view?.id
             : null,
         nullableViewFilters: widget.tabContentType == TabContentType.albums && settings.showDownloadsWithUnknownLibrary,
-        onlyFavorites:
-            (widget.isFavoriteOverride == true || (widget.isFavoriteOverride == null && settings.onlyShowFavorites)) &&
-            settings.trackOfflineFavorites,
-        infoForType: (widget.tabContentType == TabContentType.artists) ? artistInfoForType : null,
-        genreFilter: widget.tabContentType == TabContentType.playlists ? null : widget.genreFilter,
+        onlyFavorites: settings.onlyShowFavorites && settings.trackOfflineFavorites,
       );
     }
 
@@ -460,8 +457,8 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                         index: index,
                         child: widget.tabContentType == TabContentType.tracks
                             ? TrackListTile(
+                                key: ValueKey(item.id),
                                 item: item,
-                                isTrack: true,
                                 index: index,
                                 isShownInSearchOrHistory: widget.searchTerm != null,
                                 // when the tabBar was filtered and we only have the tracks tab,
@@ -478,9 +475,9 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                                     ? _pagingController.itemList
                                     : null,
                               )
-                            : ItemCollectionWrapper(
+                            : ItemWrapper(
+                                key: ValueKey(item.id),
                                 item: item,
-                                isPlaylist: widget.tabContentType == TabContentType.playlists,
                                 genreFilter: widget.genreFilter,
                                 adaptiveAdditionalInfoSortBy: sortBy,
                                 showFavoriteIconOnlyWhenFilterDisabled: true,
@@ -511,9 +508,9 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
                       key: ValueKey(index),
                       controller: controller,
                       index: index,
-                      child: ItemCollectionWrapper(
+                      child: ItemWrapper(
+                        key: ValueKey(item.id),
                         item: item,
-                        isPlaylist: widget.tabContentType == TabContentType.playlists,
                         isGrid: true,
                         genreFilter: widget.genreFilter,
                       ),
@@ -525,15 +522,25 @@ class _MusicScreenTabViewState extends ConsumerState<MusicScreenTabView>
               newPageProgressIndicatorBuilder: (_) => const NewPageProgressIndicator(),
               noItemsFoundIndicatorBuilder: (_) => emptyListIndicator,
             ),
-            gridDelegate: FinampSettingsHelper.finampSettings.useFixedSizeGridTiles
-                ? SliverGridDelegateWithFixedSizeTiles(
-                    gridTileSize: FinampSettingsHelper.finampSettings.fixedGridTileSize.toDouble(),
-                  )
-                : SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: MediaQuery.orientationOf(context) == Orientation.landscape
-                        ? FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountLandscape
-                        : FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountPortrait,
-                  ),
+            //FIXME re-implement fixed size grid tiles
+            // gridDelegate: FinampSettingsHelper.finampSettings.useFixedSizeGridTiles
+            //     ? SliverGridDelegateWithFixedSizeTiles(
+            //         gridTileSize: FinampSettingsHelper.finampSettings.fixedGridTileSize.toDouble(),
+            //       )
+            //     : SliverGridDelegateWithFixedCrossAxisCount(
+            //         crossAxisCount: MediaQuery.orientationOf(context) == Orientation.landscape
+            //             ? FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountLandscape
+            //             : FinampSettingsHelper.finampSettings.contentGridViewCrossAxisCountPortrait,
+            //       ),
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: calculateItemCollectionCardWidth(context),
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio:
+                  (calculateItemCollectionCardWidth(context) / calculateItemCollectionCardHeight(context) * 10.0)
+                      .floorToDouble() /
+                  10.0,
+            ),
           );
 
     var showFastScroller = ref.watch(finampSettingsProvider.showFastScroller);
@@ -577,9 +584,9 @@ class SliverGridDelegateWithFixedSizeTiles extends SliverGridDelegate {
     final double crossAxisSpacing = (constraints.crossAxisExtent / crossAxisCount);
     return SliverGridRegularTileLayout(
       crossAxisCount: crossAxisCount,
-      mainAxisStride: gridTileSize,
+      mainAxisStride: gridTileSize * 1.2,
       crossAxisStride: crossAxisSpacing,
-      childMainAxisExtent: gridTileSize,
+      childMainAxisExtent: gridTileSize * 1.2,
       childCrossAxisExtent: gridTileSize,
       reverseCrossAxis: axisDirectionIsReversed(constraints.crossAxisDirection),
     );

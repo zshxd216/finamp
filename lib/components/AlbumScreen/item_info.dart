@@ -31,13 +31,15 @@ class ItemInfo extends ConsumerWidget {
         ? "$trackCountString (${printDuration(item.runTimeTicksDuration())})"
         : "$trackCountString (${printDuration(itemTracks.map((t) => t.runTimeTicksDuration()).whereType<Duration>().fold<Duration>(Duration.zero, (sum, dur) => sum + dur))})";
 
+    final isPlaylist = BaseItemDtoType.fromItem(item) == BaseItemDtoType.playlist;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // We display the title of a playlist here,
         // because we have too many actions in the AppBar
-        if (item.type == "Playlist")
+        if (isPlaylist)
           Padding(
             padding: EdgeInsets.only(left: 6, right: 6, top: 0, bottom: 6),
             child: Text(
@@ -49,12 +51,12 @@ class ItemInfo extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-        if (item.type != "Playlist") ArtistChips(baseItem: item, artistType: ArtistType.albumArtist),
+        if (!isPlaylist) ArtistChips(baseItem: item, artistType: ArtistType.albumArtist),
         IconAndText(
           iconData: Icons.music_note,
           textSpan: TextSpan(text: trackDurationString),
         ),
-        if (item.type != "Playlist")
+        if (!isPlaylist)
           IconAndText(
             iconData: Icons.event,
             textSpan: TextSpan(text: ReleaseDateHelper.autoFormat(item) ?? AppLocalizations.of(context)!.noReleaseDate),

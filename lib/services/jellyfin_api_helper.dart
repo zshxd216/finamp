@@ -259,6 +259,7 @@ class JellyfinApiHelper {
           recursive: recursive,
           fields: fields,
         );
+        //FIXME this check will break for mixed item types
       } else if (includeItemTypes == "MusicArtist") {
         // For artists, we need to use different endpoints
         if (artistType == ArtistType.albumArtist) {
@@ -473,8 +474,9 @@ class JellyfinApiHelper {
   /// Fetch the public server info from the server.
   /// Can be used to check if the server is online / the URL is correct.
   Future<PublicSystemInfoResult?> loadServerPublicInfo({Duration? timeout}) async {
+    final finampUserHelper = GetIt.instance<FinampUserHelper>();
     // Some users won't have a password.
-    if (_finampUserHelper.currentUser?.baseURL == null && baseUrlTemp == null) {
+    if (baseUrlTemp == null && finampUserHelper.currentUser?.baseURL == null) {
       return null;
     }
 

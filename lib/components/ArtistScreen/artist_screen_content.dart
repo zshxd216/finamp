@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:finamp/components/AlbumScreen/download_button.dart';
 import 'package:finamp/components/ArtistScreen/artist_screen_content_flexible_space_bar.dart';
-import 'package:finamp/components/MusicScreen/item_collection_wrapper.dart';
+import 'package:finamp/components/MusicScreen/item_wrapper.dart';
 import 'package:finamp/components/curated_item_filter_row.dart';
 import 'package:finamp/components/favorite_button.dart';
 import 'package:finamp/components/padded_custom_scrollview.dart';

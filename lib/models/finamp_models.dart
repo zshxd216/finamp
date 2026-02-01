@@ -13,6 +13,7 @@ import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
 import 'package:finamp/services/radio_service_helper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -120,7 +121,7 @@ class DefaultSettings {
   static const playbackSpeedVisibility = PlaybackSpeedVisibility.automatic;
   static const contentGridViewCrossAxisCountPortrait = 2;
   static const contentGridViewCrossAxisCountLandscape = 3;
-  static const showTextOnGridView = false;
+  static const showTextOnGridView = true;
   static const sleepTimerDurationSeconds = 60 * 30;
   static const useCoverAsBackground = true;
   static const playerScreenCoverMinimumPadding = 1.5;
@@ -131,7 +132,14 @@ class DefaultSettings {
   static const bufferDisableSizeConstraints = false;
   static const bufferDurationSeconds = 600;
   static const bufferSizeMegabytes = 50;
-  static const tabOrder = TabContentType.values;
+  static const tabOrder = [
+    TabContentType.home,
+    TabContentType.albums,
+    TabContentType.artists,
+    TabContentType.playlists,
+    TabContentType.tracks,
+    TabContentType.genres,
+  ];
   static const itemSwipeActionLeftToRight = ItemSwipeActions.nothing;
   static const itemSwipeActionRightToLeft = ItemSwipeActions.addToNextUp;
   static const loopMode = FinampLoopMode.none;
@@ -247,6 +255,40 @@ class DefaultSettings {
   static const radioEnabled = false;
   static const duckOnAudioInterruption = true;
   static const forceAudioOffloadingOnAndroid = false;
+  static final homeScreenConfiguration = FinampHomeScreenConfiguration(
+    actions: [FinampQuickAction.trackMix, FinampQuickAction.recents, FinampQuickAction.surpriseMe],
+    sections: [
+      HomeScreenSectionConfiguration.fromPreset(HomeScreenSectionPresetType.favoriteTracks),
+      HomeScreenSectionConfiguration.fromPreset(HomeScreenSectionPresetType.forgottenFavoriteTracks),
+      HomeScreenSectionConfiguration(
+        type: HomeScreenSectionType.tabView,
+        contentType: TabContentType.tracks,
+        sortAndFilterConfiguration: SortAndFilterConfiguration(
+          sortBy: SortBy.datePlayed,
+          sortOrder: SortOrder.descending,
+          filters: {},
+        ),
+      ),
+      HomeScreenSectionConfiguration(
+        type: HomeScreenSectionType.tabView,
+        contentType: TabContentType.albums,
+        sortAndFilterConfiguration: SortAndFilterConfiguration(
+          sortBy: SortBy.dateCreated,
+          sortOrder: SortOrder.descending,
+          filters: {},
+        ),
+      ),
+      HomeScreenSectionConfiguration(
+        type: HomeScreenSectionType.tabView,
+        contentType: TabContentType.artists,
+        sortAndFilterConfiguration: SortAndFilterConfiguration(
+          sortBy: SortBy.sortName,
+          sortOrder: SortOrder.ascending,
+          filters: {ItemFilter(type: ItemFilterType.isFavorite, extras: null)},
+        ),
+      ),
+    ],
+  );
 }
 
 @HiveType(typeId: 28)
@@ -388,6 +430,7 @@ class FinampSettings {
     this.useMonochromeIcon = DefaultSettings.useMonochromeIcon,
     this.duckOnAudioInterruption = DefaultSettings.duckOnAudioInterruption,
     this.forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid,
+    required this.homeScreenConfiguration,
   });
 
   @HiveField(0, defaultValue: DefaultSettings.isOffline)
@@ -837,6 +880,12 @@ class FinampSettings {
   @HiveField(143, defaultValue: DefaultSettings.forceAudioOffloadingOnAndroid)
   bool forceAudioOffloadingOnAndroid = DefaultSettings.forceAudioOffloadingOnAndroid;
 
+  @HiveField(
+    144,
+    defaultValue: FinampHomeScreenConfiguration(actions: [], sections: []),
+  )
+  FinampHomeScreenConfiguration homeScreenConfiguration = DefaultSettings.homeScreenConfiguration;
+
   static Future<FinampSettings> create() async {
     final downloadLocation = await DownloadLocation.create(
       name: DownloadLocation.internalStorageName,
@@ -851,6 +900,7 @@ class FinampSettings {
       tabSortBy: {},
       tabSortOrder: {},
       useFixedSizeGridTiles: !(Platform.isIOS || Platform.isAndroid),
+      homeScreenConfiguration: DefaultSettings.homeScreenConfiguration,
     );
   }
 
@@ -1019,11 +1069,13 @@ enum TabContentType {
   @HiveField(3)
   genres(BaseItemDtoType.genre),
   @HiveField(4)
-  tracks(BaseItemDtoType.track);
+  tracks(BaseItemDtoType.track),
+  @HiveField(5)
+  home(null);
 
   const TabContentType(this.itemType);
 
-  final BaseItemDtoType itemType;
+  final BaseItemDtoType? itemType;
 
   /// Human-readable version of the [TabContentType]. For example, toString() on
   /// [TabContentType.tracks], toString() would return "TabContentType.tracks".
@@ -1046,6 +1098,8 @@ enum TabContentType {
         return "Genres";
       case TabContentType.playlists:
         return "Playlists";
+      case TabContentType.home:
+        return "Home";
     }
   }
 
@@ -1061,6 +1115,8 @@ enum TabContentType {
         return AppLocalizations.of(context)!.genres;
       case TabContentType.playlists:
         return AppLocalizations.of(context)!.playlists;
+      case TabContentType.home:
+        return AppLocalizations.of(context)!.home;
     }
   }
 
@@ -1077,7 +1133,7 @@ enum TabContentType {
       case "Playlist":
         return TabContentType.playlists;
       default:
-        throw const FormatException("Unsupported itemType");
+        return TabContentType.home;
     }
   }
 }
@@ -1727,6 +1783,11 @@ enum BaseItemDtoType {
   video("Video", false, [], DownloadItemType.track),
   movie("Movie", false, [], DownloadItemType.track),
   trailer("Trailer", false, [], DownloadItemType.track),
+  //!!! apparently a typo in the API docs, "BoxSet" returns an invalid result (i.e. all libraries), but "BoxSets" returns the correct thing. at least for some requests?
+  collection("BoxSet", true, [
+    album, track, playlist, artist, genre, audioBook,
+    // collection,
+  ], DownloadItemType.collection),
   unknown(null, true, null, DownloadItemType.collection);
 
   // All possible types in Jellyfin as of 10.9:
@@ -1912,6 +1973,8 @@ enum QueueItemSourceType {
   remoteClient,
   @HiveField(22)
   radio,
+  @HiveField(23)
+  homeScreenSection,
 }
 
 @HiveType(typeId: 53)
@@ -2061,6 +2124,8 @@ enum QueueItemSourceNameType {
   remoteClient,
   @HiveField(10)
   radio,
+  @HiveField(11)
+  homeScreenSection,
 }
 
 @HiveType(typeId: 56)
@@ -2106,6 +2171,13 @@ class QueueItemSourceName {
         } else {
           return AppLocalizations.of(context)!.radio;
         }
+      case QueueItemSourceNameType.homeScreenSection:
+        return localizationParameter != null
+            ? HomeScreenSectionConfiguration.getTitleForPreset(
+                context: context,
+                presetType: HomeScreenSectionPresetType.values.byName(localizationParameter!),
+              )
+            : pretranslatedName ?? "";
     }
   }
 
@@ -3009,6 +3081,7 @@ enum ItemSwipeActions {
   playNext;
 
   /// Human-readable version of this enum.
+
   @override
   @Deprecated("Use toLocalisedString when possible")
   String toString() => _humanReadableName(this);
@@ -3116,11 +3189,6 @@ class FinampOutputRoute {
 
   Map<String, dynamic> toJson() {
     return _$FinampOutputRouteToJson(this);
-  }
-
-  @override
-  String toString() {
-    return jsonEncode(toJson());
   }
 }
 
@@ -3961,5 +4029,313 @@ class FinampStorableQueueInfo extends FinampStorableQueueInfoLegacy {
   @override
   String toString() {
     return "previous:${previousTracks.length} current:$currentTrack seek:$currentTrackSeek next:${nextUp.length} queue:${queue.length} order:${packedShuffleOrder == null ? "linear" : "shuffled"} sources $sourceList";
+  }
+}
+
+@HiveType(typeId: 111)
+enum HomeScreenSectionType {
+  @HiveField(0)
+  tabView,
+  @HiveField(1)
+  collection;
+
+  /// Human-readable version of the [HomeScreenSectionType]
+  @override
+  @Deprecated("Use toLocalisedString when possible")
+  String toString() => _humanReadableName(this);
+
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableName(HomeScreenSectionType homeScreenSectionType) {
+    switch (homeScreenSectionType) {
+      case HomeScreenSectionType.tabView:
+        return "Tab View";
+      case HomeScreenSectionType.collection:
+        return "Collection";
+    }
+  }
+
+  String _humanReadableLocalisedName(HomeScreenSectionType homeScreenSectionType, BuildContext context) {
+    switch (homeScreenSectionType) {
+      case HomeScreenSectionType.tabView:
+        return "Tab View*";
+      case HomeScreenSectionType.collection:
+        return "Collection*";
+    }
+  }
+}
+
+@JsonSerializable(converters: [BaseItemIdConverter()])
+@HiveType(typeId: 112)
+class HomeScreenSectionConfiguration {
+  @HiveField(0)
+  final HomeScreenSectionType type;
+  @HiveField(1)
+  final BaseItemId? itemId;
+  @HiveField(2)
+  final TabContentType? contentType; //TODO make this a list?
+  @HiveField(3)
+  final SortAndFilterConfiguration sortAndFilterConfiguration;
+  @HiveField(4)
+  final String? customSectionTitle;
+  @HiveField(5)
+  final HomeScreenSectionPresetType? presetType;
+
+  const HomeScreenSectionConfiguration({
+    required this.type,
+    this.itemId,
+    this.contentType,
+    required this.sortAndFilterConfiguration,
+    this.customSectionTitle,
+    this.presetType,
+  });
+
+  factory HomeScreenSectionConfiguration.fromPreset(HomeScreenSectionPresetType presetType) => switch (presetType) {
+    HomeScreenSectionPresetType.favoriteTracks => HomeScreenSectionConfiguration(
+      type: HomeScreenSectionType.tabView,
+      itemId: null,
+      contentType: TabContentType.tracks,
+      sortAndFilterConfiguration: const SortAndFilterConfiguration(
+        sortBy: SortBy.random,
+        sortOrder: SortOrder.ascending,
+        filters: {ItemFilter(type: ItemFilterType.isFavorite)},
+      ),
+      customSectionTitle: null,
+      presetType: presetType,
+    ),
+    HomeScreenSectionPresetType.forgottenFavoriteTracks => HomeScreenSectionConfiguration(
+      type: HomeScreenSectionType.tabView,
+      itemId: null,
+      contentType: TabContentType.tracks,
+      sortAndFilterConfiguration: const SortAndFilterConfiguration(
+        sortBy: SortBy.datePlayed,
+        sortOrder: SortOrder.ascending,
+        filters: {ItemFilter(type: ItemFilterType.isFavorite)},
+      ),
+      customSectionTitle: null,
+      presetType: presetType,
+    ),
+  };
+
+  String getTitle(BuildContext context) =>
+      customSectionTitle ??
+      (presetType != null ? getTitleForPreset(context: context, presetType: presetType!) : toLocalisedString(context));
+  static String getTitleForPreset({required BuildContext context, required HomeScreenSectionPresetType presetType}) =>
+      switch (presetType) {
+        HomeScreenSectionPresetType.favoriteTracks => AppLocalizations.of(
+          context,
+        )!.homeScreenSectionPresetFavoriteTracksTitle,
+        HomeScreenSectionPresetType.forgottenFavoriteTracks => AppLocalizations.of(
+          context,
+        )!.homeScreenSectionPresetForgottenFavoriteTracksTitle,
+      };
+  String getDescription(BuildContext context) => presetType != null
+      ? getDescriptionForPreset(context: context, presetType: presetType!)
+      : toLocalisedString(context);
+  static String getDescriptionForPreset({
+    required BuildContext context,
+    required HomeScreenSectionPresetType presetType,
+  }) => switch (presetType) {
+    HomeScreenSectionPresetType.favoriteTracks => AppLocalizations.of(
+      context,
+    )!.homeScreenSectionPresetFavoriteTracksDescription,
+    HomeScreenSectionPresetType.forgottenFavoriteTracks => AppLocalizations.of(
+      context,
+    )!.homeScreenSectionPresetForgottenFavoriteTracksDescription,
+  };
+
+  factory HomeScreenSectionConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$HomeScreenSectionConfigurationFromJson(json);
+
+  HomeScreenSectionConfiguration copyWith({
+    HomeScreenSectionType? type,
+    BaseItemId? itemId,
+    TabContentType? contentType,
+    SortAndFilterConfiguration? sortAndFilterConfiguration,
+    String? customSectionTitle,
+    HomeScreenSectionPresetType? presetType,
+  }) {
+    return HomeScreenSectionConfiguration(
+      type: type ?? this.type,
+      itemId: itemId ?? this.itemId,
+      contentType: contentType ?? this.contentType,
+      sortAndFilterConfiguration: sortAndFilterConfiguration ?? this.sortAndFilterConfiguration,
+      customSectionTitle: customSectionTitle ?? this.customSectionTitle,
+      presetType: presetType ?? this.presetType,
+    );
+  }
+
+  Map<String, dynamic> toJson() => _$HomeScreenSectionConfigurationToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableLocalisedName(HomeScreenSectionConfiguration homeScreenSectionInfo, BuildContext context) {
+    switch (homeScreenSectionInfo.type) {
+      case HomeScreenSectionType.tabView:
+        return "${homeScreenSectionInfo.sortAndFilterConfiguration.filters.map((filter) => filter.extras != null ? "${filter.type.name} (${filter.extras})" : filter.type.name).join(", ")} ${homeScreenSectionInfo.contentType?.toLocalisedString(context) ?? "Tab View"} ${homeScreenSectionInfo.sortAndFilterConfiguration.sortBy.toLocalisedString(context)} [${homeScreenSectionInfo.sortAndFilterConfiguration.sortOrder == SortOrder.ascending ? "^" : "v"}]*";
+      case HomeScreenSectionType.collection:
+        return "Collection*";
+    }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is HomeScreenSectionConfiguration &&
+        other.type == type &&
+        other.itemId == itemId &&
+        other.contentType == contentType &&
+        other.sortAndFilterConfiguration == sortAndFilterConfiguration &&
+        other.customSectionTitle == customSectionTitle &&
+        other.presetType == presetType;
+  }
+
+  @override
+  @ignore
+  int get hashCode => Object.hash(type, itemId, sortAndFilterConfiguration, customSectionTitle, presetType);
+}
+
+@HiveType(typeId: 113)
+enum HomeScreenSectionPresetType {
+  @HiveField(0)
+  favoriteTracks,
+  @HiveField(1)
+  forgottenFavoriteTracks,
+  //TODO add more
+}
+
+@HiveType(typeId: 114)
+enum FinampQuickAction {
+  @HiveField(0)
+  trackMix,
+  @HiveField(1)
+  recents,
+  @HiveField(2)
+  surpriseMe;
+
+  /// Human-readable version of the [FinampQuickActionType]
+  @override
+  @Deprecated("Use toLocalisedString when possible")
+  String toString() => _humanReadableName(this);
+
+  String toLocalisedString(BuildContext context) => _humanReadableLocalisedName(this, context);
+
+  String _humanReadableName(FinampQuickAction quickAction) {
+    switch (quickAction) {
+      case FinampQuickAction.trackMix:
+        return "Track Mix";
+      case FinampQuickAction.recents:
+        return "Recents";
+      case FinampQuickAction.surpriseMe:
+        return "Surprise Me";
+    }
+  }
+
+  String _humanReadableLocalisedName(FinampQuickAction quickAction, BuildContext context) {
+    switch (quickAction) {
+      case FinampQuickAction.trackMix:
+        return "Track Mix*";
+      case FinampQuickAction.recents:
+        return "Recents*";
+      case FinampQuickAction.surpriseMe:
+        return "Surprise Me*";
+    }
+  }
+}
+
+@JsonSerializable()
+@HiveType(typeId: 115)
+class FinampHomeScreenConfiguration {
+  const FinampHomeScreenConfiguration({required this.actions, required this.sections});
+
+  @HiveField(0)
+  final List<FinampQuickAction> actions;
+
+  @HiveField(1)
+  final List<HomeScreenSectionConfiguration> sections;
+
+  factory FinampHomeScreenConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$FinampHomeScreenConfigurationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FinampHomeScreenConfigurationToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+
+  // implement copyWith
+  FinampHomeScreenConfiguration copyWith({
+    List<FinampQuickAction>? actions,
+    List<HomeScreenSectionConfiguration>? sections,
+  }) {
+    return FinampHomeScreenConfiguration(actions: actions ?? this.actions, sections: sections ?? this.sections);
+  }
+}
+
+@HiveType(typeId: 116)
+enum ItemFilterType {
+  @HiveField(0)
+  isFavorite,
+  @HiveField(1)
+  isFullyDownloaded,
+  @HiveField(2)
+  startsWithCharacter,
+}
+
+@JsonSerializable()
+@HiveType(typeId: 117)
+class ItemFilter {
+  const ItemFilter({required this.type, this.extras});
+
+  @HiveField(0)
+  final ItemFilterType type;
+
+  @HiveField(1)
+  final dynamic extras;
+
+  factory ItemFilter.fromJson(Map<String, dynamic> json) => _$ItemFilterFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ItemFilterToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+}
+
+@JsonSerializable()
+@HiveType(typeId: 118)
+class SortAndFilterConfiguration {
+  const SortAndFilterConfiguration({required this.sortBy, required this.sortOrder, required this.filters});
+
+  @HiveField(0)
+  final SortBy sortBy;
+
+  @HiveField(1)
+  final SortOrder sortOrder;
+
+  @HiveField(2)
+  final Set<ItemFilter> filters;
+
+  factory SortAndFilterConfiguration.fromJson(Map<String, dynamic> json) => _$SortAndFilterConfigurationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SortAndFilterConfigurationToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SortAndFilterConfiguration &&
+        other.sortBy == sortBy &&
+        other.sortOrder == sortOrder &&
+        setEquals(other.filters, filters);
   }
 }

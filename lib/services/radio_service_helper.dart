@@ -164,7 +164,7 @@ Future<void> startRadioPlayback(BaseItemDto source) async {
   };
 
   invalidateRadioCache(); // we're starting a new queue, any older state is invalid now
-  var localResult = _radioCacheStateStream.value!.copyWith(generating: true);
+  var localResult = _radioCacheStateStream.value!.copyWith(generating: true, failed: false);
   _radioCacheStateStream.add(localResult);
 
   List<BaseItemDto> generatedTracks = [];
@@ -507,7 +507,7 @@ Future<List<BaseItemDto>> generateRadioTracks(
             // just fetch a random album from the library
             if (FinampSettingsHelper.finampSettings.isOffline) {
               similarAlbums = (await downloadsService.getAllCollections(
-                baseTypeFilter: BaseItemDtoType.album,
+                includeItemTypes: [BaseItemDtoType.album],
                 fullyDownloaded: false,
                 viewFilter: finampUserHelper.currentUser?.currentViewId,
                 nullableViewFilters: FinampSettingsHelper.finampSettings.showDownloadsWithUnknownLibrary,

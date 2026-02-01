@@ -1179,7 +1179,7 @@
   "@savedQueue": {
     "description": "Title for the queue source for tracks were previously in the queue before an app restart and have been reloaded"
   },
-  "playingFromType": "Playing From {source, select, album{Album} playlist{Playlist} trackMix{Track Mix} artistMix{Artist Mix} albumMix{Album Mix} genreMix{Genre Mix} favorites{Favorites} allTracks{All Tracks} filteredList{Tracks} genre{Genre} artist{Artist} track{Track} nextUpAlbum{Album in Next Up} nextUpPlaylist{Playlist in Next Up} nextUpArtist{Artist in Next Up} nextUpGenre{Genre in Next Up} remoteClient{a Remote Client} radio{Radio} other{}}",
+  "playingFromType": "Playing From {source, select, album{Album} playlist{Playlist} trackMix{Track Mix} artistMix{Artist Mix} albumMix{Album Mix} genreMix{Genre Mix} favorites{Favorites} allTracks{All Tracks} filteredList{Tracks} genre{Genre} artist{Artist} track{Track} nextUpAlbum{Album in Next Up} nextUpPlaylist{Playlist in Next Up} nextUpArtist{Artist in Next Up} nextUpGenre{Genre in Next Up} remoteClient{a Remote Client} radio{Radio} homeScreenSection{} other{}}",
   "@playingFromType": {
     "description": "Prefix shown before the type of the main queue source at the top of the player screen. Example: \"Playing From Album\"",
     "placeholders": {
@@ -1408,6 +1408,14 @@
   "@recentlyPlayed": {},
   "latestReleases": "Latest Releases",
   "@latestReleases": {},
+  "ascending": "Ascending",
+  "@ascending": {
+    "description": "Label for ascending order."
+  },
+  "descending": "Descending",
+  "@descending": {
+    "description": "Label for descending order."
+  },
   "itemSectionsOrder": "Item Sections Order",
   "@itemSectionsOrder": {
     "description": "Label for the setting that controls the order of item sections on the screens."
@@ -3234,5 +3242,41 @@
   "explicit": "Explicit",
   "@explicit": {
     "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Label for the home tab in the main navigation bar"
+  },
+  "homeScreenSettingsTitle": "Home Screen",
+  "@homeScreenSettingsTitle": {
+    "description": "Title for the home screen settings"
+  },
+  "homeScreenSectionPresetPickerMenuTitle": "Pick a Preset",
+  "@homeScreenSectionPresetPickerMenuTitle": {
+    "description": "Title for the preset picker menu, which allows users to pick a preset section to add to the home screen"
+  },
+  "homeScreenSectionCustomSectionTitle": "Custom Section",
+  "@homeScreenSectionCustomSectionTitle": {
+    "description": "Title for the custom section type, which can be added to the home screen"
+  },
+  "homeScreenSectionCustomSectionDescription": "Configure your own section",
+  "@homeScreenSectionCustomSectionDescription": {
+    "description": "Description for the custom section type, which can be added to the home screen"
+  },
+  "homeScreenSectionPresetFavoriteTracksTitle": "Favorite Tracks",
+  "@homeScreenSectionPresetFavoriteTracksTitle": {
+    "description": "Title for the favorite tracks preset section, which can be added to the home screen"
+  },
+  "homeScreenSectionPresetFavoriteTracksDescription": "Liked tracks in random order",
+  "@homeScreenSectionPresetFavoriteTracksDescription": {
+    "description": "Description for the favorite tracks preset section, which can be added to the home screen"
+  },
+  "homeScreenSectionPresetForgottenFavoriteTracksTitle": "Forgotten Favorite Tracks",
+  "@homeScreenSectionPresetForgottenFavoriteTracksTitle": {
+    "description": "Title for the forgotten favorite tracks preset section, which can be added to the home screen"
+  },
+  "homeScreenSectionPresetForgottenFavoriteTracksDescription": "Liked tracks which you least recently played",
+  "@homeScreenSectionPresetForgottenFavoriteTracksDescription": {
+    "description": "Description for the forgotten favorite tracks preset section, which can be added to the home screen"
   }
 }

@@ -1,4 +1,11 @@
+import 'dart:io';
+
+import 'package:finamp/components/themed_bottom_sheet.dart';
+import 'package:finamp/menus/choice_menu.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/services/feedback_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 
 class FinampSettingsDropdown<T> extends StatelessWidget {
@@ -7,10 +14,12 @@ class FinampSettingsDropdown<T> extends StatelessWidget {
     required this.dropdownItems,
     required this.selectedValue,
     required this.onSelected,
+    this.selectedIcon,
   });
 
   final List<DropdownMenuEntry<T>> dropdownItems;
   final T selectedValue;
+  final IconData? selectedIcon;
   final void Function(T?) onSelected;
 
   @override
@@ -41,6 +50,7 @@ class FinampSettingsDropdown<T> extends StatelessWidget {
           requestFocusOnTap: false,
           onSelected: onSelected,
           textStyle: Theme.of(context).textTheme.bodyMedium,
+          leadingIcon: selectedIcon != null ? Icon(selectedIcon) : null,
           trailingIcon: const Icon(TablerIcons.chevron_down),
           selectedTrailingIcon: const Icon(TablerIcons.chevron_up),
           menuStyle: MenuStyle(

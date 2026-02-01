@@ -246,7 +246,7 @@ class _GetArtistTracksSectionProviderElement
       (origin as GetArtistTracksSectionProvider).genreFilter;
 }
 
-String _$getArtistAlbumsHash() => r'0be5a769146a2e4875262c75dd190bf2aba646aa';
+String _$getArtistAlbumsHash() => r'c07ad4fb27ffc34608fcfea506d1eb1742a3a190';
 
 /// See also [getArtistAlbums].
 @ProviderFor(getArtistAlbums)
@@ -445,7 +445,7 @@ class _GetArtistAlbumsProviderElement
 }
 
 String _$getPerformingArtistAlbumsHash() =>
-    r'e462caededb7bcc2ee3dd74fe85994ba5b5ac905';
+    r'73ed42c18c093d2f396c0d2e6bd81d57abf9f8e9';
 
 /// See also [getPerformingArtistAlbums].
 @ProviderFor(getPerformingArtistAlbums)

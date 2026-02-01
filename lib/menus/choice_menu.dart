@@ -125,6 +125,8 @@ class ChoiceMenuOption extends StatelessWidget {
   final void Function()? onSelect;
   final bool enabled;
   final bool isInactive;
+
+  /// Icons or other small widgets to show in front of the description, to highlight certain options.
   final List<Widget> badges;
 
   @override

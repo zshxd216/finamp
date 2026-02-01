@@ -1,105 +1,158 @@
 import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/components/MusicScreen/offline_mode_switch_list_tile.dart';
 import 'package:finamp/components/MusicScreen/view_list_tile.dart';
+import 'package:finamp/models/finamp_models.dart';
+import 'package:finamp/models/jellyfin_models.dart';
 import 'package:finamp/screens/downloads_screen.dart';
 import 'package:finamp/screens/logs_screen.dart';
 import 'package:finamp/components/MusicScreen/offline_mode_status_label.dart';
 import 'package:finamp/screens/playback_history_screen.dart';
 import 'package:finamp/screens/queue_restore_screen.dart';
 import 'package:finamp/screens/settings_screen.dart';
+import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:finamp/services/jellyfin_api_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:finamp/l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class MusicScreenDrawer extends StatelessWidget {
+class MusicScreenDrawer extends ConsumerWidget {
   const MusicScreenDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final finampUserHelper = GetIt.instance<FinampUserHelper>();
+    final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+    final FinampSettings? settings = ref.watch(finampSettingsProvider).value;
+
     return Drawer(
       surfaceTintColor: Colors.white,
-      child: ListTileTheme(
-        // Shrink trailing padding from 24 to 8
-        contentPadding: const EdgeInsetsDirectional.only(start: 16.0, end: 8.0),
-        // Manually handle padding in leading/trailing icons
-        horizontalTitleGap: 0,
-        child: CustomScrollView(
-          slivers: [
-            SliverList(
-              delegate: SliverChildListDelegate.fixed([
-                DrawerHeader(
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(padding: const EdgeInsets.all(16.0), child: FinampIcon(56, 56)),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter - const Alignment(0, 0.2),
-                        child: Text(AppLocalizations.of(context)!.finamp, style: const TextStyle(fontSize: 20)),
-                      ),
-                    ],
-                  ),
-                ),
-                const OfflineModeSwitchListTile(),
-                const OfflineModeStatusLabel(),
-                Divider(),
-                ListTile(
-                  leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.file_download)),
-                  title: Text(AppLocalizations.of(context)!.downloads),
-                  onTap: () => Navigator.of(context).pushNamed(DownloadsScreen.routeName),
-                ),
-                ListTile(
-                  leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(TablerIcons.clock)),
-                  title: Text(AppLocalizations.of(context)!.playbackHistory),
-                  onTap: () => Navigator.of(context).pushNamed(PlaybackHistoryScreen.routeName),
-                ),
-                ListTile(
-                  leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.auto_delete)),
-                  title: Text(AppLocalizations.of(context)!.queuesScreen),
-                  onTap: () => Navigator.of(context).pushNamed(QueueRestoreScreen.routeName),
-                ),
-                const Divider(),
-              ]),
-            ),
-            // This causes an error when logging out if we show this widget
-            if (finampUserHelper.currentUser != null)
+      child: SafeArea(
+        bottom: false,
+        child: ListTileTheme(
+          // Shrink trailing padding from 24 to 8
+          contentPadding: const EdgeInsetsDirectional.only(start: 16.0, end: 8.0),
+          // Manually handle padding in leading/trailing icons
+          horizontalTitleGap: 0,
+          child: CustomScrollView(
+            slivers: [
               SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return ViewListTile(view: finampUserHelper.currentUser!.views.values.elementAt(index));
-                }, childCount: finampUserHelper.currentUser!.views.length),
+                delegate: SliverChildListDelegate.fixed([
+                  DrawerHeader(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(height: 12),
+                        FinampIcon(
+                          56,
+                          56,
+                          overrideColor: ref.watch(finampSettingsProvider.isOffline)
+                              ? TextTheme.of(context).bodyMedium?.color?.withOpacity(0.6)
+                              : null,
+                        ),
+                        SizedBox(height: 8),
+                        FutureBuilder(
+                          future: PackageInfo.fromPlatform(),
+                          builder: (context, snapshot) {
+                            final appName = snapshot.data?.appName ?? AppLocalizations.of(context)!.finamp;
+                            return Text(appName, style: const TextStyle(fontSize: 20));
+                          },
+                        ),
+                        if (settings?.isOffline ?? false)
+                          Text.rich(
+                            TextSpan(
+                              text: AppLocalizations.of(context)!.offlineMode,
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        else
+                          FutureBuilder<PublicSystemInfoResult?>(
+                            future: jellyfinApiHelper.loadServerPublicInfo(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return Text("Connected*");
+                              }
+                              final PublicSystemInfoResult serverInfo = snapshot.data!;
+                              return Text.rich(
+                                TextSpan(
+                                  text: 'Connected to* ',
+                                  children: [
+                                    TextSpan(
+                                      text: '${serverInfo.serverName}',
+                                      style: const TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                  const OfflineModeSwitchListTile(),
+                  const OfflineModeStatusLabel(),
+                  Divider(),
+                  ListTile(
+                    leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.file_download)),
+                    title: Text(AppLocalizations.of(context)!.downloads),
+                    onTap: () => Navigator.of(context).pushNamed(DownloadsScreen.routeName),
+                  ),
+                  ListTile(
+                    leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(TablerIcons.clock)),
+                    title: Text(AppLocalizations.of(context)!.playbackHistory),
+                    onTap: () => Navigator.of(context).pushNamed(PlaybackHistoryScreen.routeName),
+                  ),
+                  ListTile(
+                    leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.auto_delete)),
+                    title: Text(AppLocalizations.of(context)!.queuesScreen),
+                    onTap: () => Navigator.of(context).pushNamed(QueueRestoreScreen.routeName),
+                  ),
+                  const Divider(),
+                ]),
               ),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: SafeArea(
-                bottom: true,
-                top: false,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Divider(),
-                      ListTile(
-                        leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.warning)),
-                        title: Text(AppLocalizations.of(context)!.logs),
-                        onTap: () => Navigator.of(context).pushNamed(LogsScreen.routeName),
-                      ),
-                      ListTile(
-                        leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.settings)),
-                        title: Text(AppLocalizations.of(context)!.settings),
-                        onTap: () => Navigator.of(context).pushNamed(SettingsScreen.routeName),
-                      ),
-                    ],
+              // This causes an error when logging out if we show this widget
+              if (finampUserHelper.currentUser != null)
+                SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return ViewListTile(view: finampUserHelper.currentUser!.views.values.elementAt(index));
+                  }, childCount: finampUserHelper.currentUser!.views.length),
+                ),
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: SafeArea(
+                  bottom: true,
+                  top: false,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Divider(),
+                        ListTile(
+                          leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.warning)),
+                          title: Text(AppLocalizations.of(context)!.logs),
+                          onTap: () => Navigator.of(context).pushNamed(LogsScreen.routeName),
+                        ),
+                        ListTile(
+                          leading: const Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.settings)),
+                          title: Text(AppLocalizations.of(context)!.settings),
+                          onTap: () => Navigator.of(context).pushNamed(SettingsScreen.routeName),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

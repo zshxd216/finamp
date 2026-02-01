@@ -1,14 +1,13 @@
-import 'package:finamp/screens/splash_screen.dart';
+import 'package:finamp/screens/music_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:finamp/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
-
+import 'package:finamp/l10n/app_localizations.dart';
+import 'package:finamp/screens/splash_screen.dart';
 import '../components/ViewSelector/no_music_libraries_message.dart';
 import '../components/global_snackbar.dart';
 import '../models/jellyfin_models.dart';
 import '../services/finamp_user_helper.dart';
 import '../services/jellyfin_api_helper.dart';
-import 'music_screen.dart';
 
 class ViewSelector extends StatefulWidget {
   const ViewSelector({super.key});

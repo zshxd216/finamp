@@ -32,7 +32,7 @@ import '../services/process_artist.dart';
 import 'PlayerScreen/player_split_screen_scaffold.dart';
 import 'album_image.dart';
 
-class NowPlayingBar extends StatelessWidget {
+class NowPlayingBar extends ConsumerWidget {
   const NowPlayingBar({super.key});
 
   static const horizontalPadding = 8.0;
@@ -63,7 +63,7 @@ class NowPlayingBar extends StatelessWidget {
     );
   }
 
-  Widget buildLoadingQueueBar(WidgetRef ref, Function()? retryCallback) {
+  Widget buildLoadingQueueBar(WidgetRef ref, void Function()? retryCallback) {
     final progressBackgroundColor = getProgressBackgroundColor(ref).withOpacity(0.5);
     var context = ref.context;
 
@@ -79,9 +79,9 @@ class NowPlayingBar extends StatelessWidget {
         child: Container(
           decoration: getShadow(ref.context),
           child: Material(
-            shadowColor: Theme.of(
+            shadowColor: ColorScheme.of(
               context,
-            ).colorScheme.primary.withOpacity(Theme.brightnessOf(context) == Brightness.light ? 0.75 : 0.3),
+            ).primary.withOpacity(Theme.brightnessOf(context) == Brightness.light ? 0.75 : 0.3),
             borderRadius: BorderRadius.circular(12.0),
             clipBehavior: Clip.antiAlias,
             color: Theme.brightnessOf(context) == Brightness.dark
@@ -218,9 +218,9 @@ class NowPlayingBar extends StatelessWidget {
                     return false;
                   },
                   child: Material(
-                    shadowColor: Theme.of(
+                    shadowColor: ColorScheme.of(
                       context,
-                    ).colorScheme.primary.withOpacity(Theme.brightnessOf(context) == Brightness.light ? 0.75 : 0.3),
+                    ).primary.withOpacity(Theme.brightnessOf(context) == Brightness.light ? 0.75 : 0.3),
                     borderRadius: BorderRadius.circular(12.0),
                     clipBehavior: Clip.antiAlias,
                     color: Theme.brightnessOf(context) == Brightness.dark
@@ -283,8 +283,8 @@ class NowPlayingBar extends StatelessWidget {
                                           },
                                           color: Colors.white,
                                           icon: Icon(
-                                            playbackState.playing
-                                                ? fadeState.fadeDirection != FadeDirection.fadeOut
+                                            mediaState.playbackState.playing
+                                                ? mediaState.fadeState.fadeDirection != FadeDirection.fadeOut
                                                       ? TablerIcons.player_pause
                                                       : TablerIcons.player_play
                                                 : TablerIcons.player_play,
@@ -371,7 +371,7 @@ class NowPlayingBar extends StatelessWidget {
                                                             style: TextStyle(
                                                               color: primaryTextColor,
                                                               fontSize: 13,
-                                                              fontWeight: FontWeight.w300,
+                                                              fontWeight: FontWeight.w400,
                                                               overflow: TextOverflow.ellipsis,
                                                             ),
                                                           ),
@@ -491,42 +491,29 @@ class NowPlayingBar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final queueService = GetIt.instance<QueueService>();
 
     return Hero(
       tag: "nowplaying",
       createRectTween: (from, to) => RectTween(begin: from, end: from),
       child: PlayerScreenTheme(
-        // Scaffold ignores system elements padding if bottom bar is present, so we must
-        // use SafeArea in all cases to include it in our height
-        child: SafeArea(
-          // Use consumer inside PlayerScreenTheme to generate ref
-          child: Consumer(
-            builder: (context, ref, child) {
-              ref.listen(currentTrackMetadataProvider, (metadataOrNull, metadata) {}); // keep provider alive
-
-              return StreamBuilder<FinampQueueInfo?>(
-                stream: queueService.getQueueStream(),
-                initialData: queueService.getQueue(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data!.saveState == SavedQueueState.loading &&
-                      !usingPlayerSplitScreen) {
-                    return buildLoadingQueueBar(ref, null);
-                  } else if (snapshot.hasData &&
-                      snapshot.data!.saveState == SavedQueueState.failed &&
-                      !usingPlayerSplitScreen) {
-                    return buildLoadingQueueBar(ref, queueService.retryQueueLoad);
-                  } else if (snapshot.hasData && snapshot.data!.currentTrack != null && !usingPlayerSplitScreen) {
-                    return buildNowPlayingBar(ref, snapshot.data!.currentTrack!);
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              );
-            },
-          ),
+        child: StreamBuilder<FinampQueueInfo?>(
+          stream: queueService.getQueueStream(),
+          initialData: queueService.getQueue(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data!.saveState == SavedQueueState.loading && !usingPlayerSplitScreen) {
+              return buildLoadingQueueBar(ref, null);
+            } else if (snapshot.hasData &&
+                snapshot.data!.saveState == SavedQueueState.failed &&
+                !usingPlayerSplitScreen) {
+              return buildLoadingQueueBar(ref, queueService.retryQueueLoad);
+            } else if (snapshot.hasData && snapshot.data!.currentTrack != null && !usingPlayerSplitScreen) {
+              return buildNowPlayingBar(ref, snapshot.data!.currentTrack!);
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
         ),
       ),
     );

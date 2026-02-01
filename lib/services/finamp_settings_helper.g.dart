@@ -1248,6 +1248,16 @@ extension FinampSetters on FinampSettingsHelper {
     ).put("FinampSettings", finampSettingsTemp);
   }
 
+  static void setHomeScreenConfiguration(
+    FinampHomeScreenConfiguration newHomeScreenConfiguration,
+  ) {
+    FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
+    finampSettingsTemp.homeScreenConfiguration = newHomeScreenConfiguration;
+    Hive.box<FinampSettings>(
+      "FinampSettings",
+    ).put("FinampSettings", finampSettingsTemp);
+  }
+
   static void setBufferDuration(Duration newBufferDuration) {
     FinampSettings finampSettingsTemp = FinampSettingsHelper.finampSettings;
     finampSettingsTemp.bufferDuration = newBufferDuration;
@@ -1679,6 +1689,10 @@ extension FinampSettingsProviderSelectors on StreamProvider<FinampSettings> {
       finampSettingsProvider.select(
         (value) => value.requireValue.forceAudioOffloadingOnAndroid,
       );
+  ProviderListenable<FinampHomeScreenConfiguration>
+  get homeScreenConfiguration => finampSettingsProvider.select(
+    (value) => value.requireValue.homeScreenConfiguration,
+  );
   ProviderListenable<DownloadProfile> get downloadTranscodingProfile =>
       finampSettingsProvider.select(
         (value) => value.requireValue.downloadTranscodingProfile,

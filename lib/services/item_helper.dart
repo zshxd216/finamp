@@ -179,7 +179,7 @@ Future<List<BaseItemDto>> loadChildTracksFromShuffledGenreAlbums({required BaseI
   if (settings.isOffline) {
     // Offline Mode
     List<DownloadStub> fetchedGenreAlbums = await downloadsService.getAllCollections(
-      baseTypeFilter: BaseItemDtoType.album,
+      includeItemTypes: [BaseItemDtoType.album],
       fullyDownloaded: ref.read(finampSettingsProvider.onlyShowFullyDownloaded),
       viewFilter: finampUserHelper.currentUser?.currentView?.id,
       childViewFilter: finampUserHelper.currentUser?.currentView?.id,

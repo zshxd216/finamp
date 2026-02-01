@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:finamp/components/HomeScreen/show_all_screen.dart';
 import 'package:finamp/components/confirmation_prompt_dialog.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/l10n/app_localizations.dart';
@@ -42,14 +43,7 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
       break;
     case QueueItemSourceType.allTracks:
     case QueueItemSourceType.favorites:
-      Navigator.of(context).pushNamed(
-        MusicScreen.routeName,
-        arguments: FinampSettingsHelper.finampSettings.showTabs.entries
-            .where((element) => element.value == true)
-            .map((e) => e.key)
-            .toList()
-            .indexOf(TabContentType.tracks),
-      );
+      Navigator.of(context).pushNamed(MusicScreen.routeName, arguments: TabContentType.tracks);
       break;
     case QueueItemSourceType.track:
     case QueueItemSourceType.trackMix:
@@ -75,6 +69,8 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
         case BaseItemDtoType.genre:
           Navigator.of(context).pushNamed(GenreScreen.routeName, arguments: radioSource.item);
           break;
+        case BaseItemDtoType.collection:
+        //TODO implement collection screen
         case BaseItemDtoType.noItem:
         case BaseItemDtoType.library:
         case BaseItemDtoType.folder:
@@ -87,6 +83,12 @@ void navigateToSource(BuildContext context, QueueItemSource source) {
         case BaseItemDtoType.unknown:
           break;
       }
+      break;
+    case QueueItemSourceType.homeScreenSection:
+      final sectionInfo = FinampSettingsHelper.finampSettings.homeScreenConfiguration.sections.singleWhere(
+        (section) => section.toLocalisedString(context) == source.id,
+      );
+      Navigator.pushNamed(context, ShowAllScreen.routeName, arguments: sectionInfo);
       break;
     case QueueItemSourceType.downloads:
       Navigator.of(context).pushNamed(DownloadsScreen.routeName);

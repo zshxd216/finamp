@@ -123,7 +123,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         contentGridViewCrossAxisCountLandscape: fields[12] == null
             ? 3
             : (fields[12] as num).toInt(),
-        showTextOnGridView: fields[13] == null ? false : fields[13] as bool,
+        showTextOnGridView: fields[13] == null ? true : fields[13] as bool,
         downloadLocationsMap: fields[15] == null
             ? {}
             : (fields[15] as Map).cast<String, DownloadLocation>(),
@@ -163,11 +163,12 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
             : fields[119] as bool,
         tabOrder: fields[22] == null
             ? [
+                TabContentType.home,
                 TabContentType.albums,
                 TabContentType.artists,
                 TabContentType.playlists,
-                TabContentType.genres,
                 TabContentType.tracks,
+                TabContentType.genres,
               ]
             : (fields[22] as List).cast<TabContentType>(),
         autoloadLastQueueOnStartup: fields[28] == null
@@ -444,6 +445,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
         forceAudioOffloadingOnAndroid: fields[143] == null
             ? false
             : fields[143] as bool,
+        homeScreenConfiguration: fields[144] == null
+            ? const FinampHomeScreenConfiguration(actions: [], sections: [])
+            : fields[144] as FinampHomeScreenConfiguration,
       )
       ..disableGesture = fields[19] == null ? false : fields[19] as bool
       ..showFastScroller = fields[25] == null ? true : fields[25] as bool
@@ -462,7 +466,7 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
   @override
   void write(BinaryWriter writer, FinampSettings obj) {
     writer
-      ..writeByte(137)
+      ..writeByte(138)
       ..writeByte(0)
       ..write(obj.isOffline)
       ..writeByte(1)
@@ -736,7 +740,9 @@ class FinampSettingsAdapter extends TypeAdapter<FinampSettings> {
       ..writeByte(142)
       ..write(obj.duckOnAudioInterruption)
       ..writeByte(143)
-      ..write(obj.forceAudioOffloadingOnAndroid);
+      ..write(obj.forceAudioOffloadingOnAndroid)
+      ..writeByte(144)
+      ..write(obj.homeScreenConfiguration);
   }
 
   @override
@@ -1564,6 +1570,172 @@ class FinampStorableQueueInfoAdapter
           typeId == other.typeId;
 }
 
+class HomeScreenSectionConfigurationAdapter
+    extends TypeAdapter<HomeScreenSectionConfiguration> {
+  @override
+  final typeId = 112;
+
+  @override
+  HomeScreenSectionConfiguration read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return HomeScreenSectionConfiguration(
+      type: fields[0] as HomeScreenSectionType,
+      itemId: fields[1] as BaseItemId?,
+      contentType: fields[2] as TabContentType?,
+      sortAndFilterConfiguration: fields[3] as SortAndFilterConfiguration,
+      customSectionTitle: fields[4] as String?,
+      presetType: fields[5] as HomeScreenSectionPresetType?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, HomeScreenSectionConfiguration obj) {
+    writer
+      ..writeByte(6)
+      ..writeByte(0)
+      ..write(obj.type)
+      ..writeByte(1)
+      ..write(obj.itemId)
+      ..writeByte(2)
+      ..write(obj.contentType)
+      ..writeByte(3)
+      ..write(obj.sortAndFilterConfiguration)
+      ..writeByte(4)
+      ..write(obj.customSectionTitle)
+      ..writeByte(5)
+      ..write(obj.presetType);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HomeScreenSectionConfigurationAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FinampHomeScreenConfigurationAdapter
+    extends TypeAdapter<FinampHomeScreenConfiguration> {
+  @override
+  final typeId = 115;
+
+  @override
+  FinampHomeScreenConfiguration read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return FinampHomeScreenConfiguration(
+      actions: (fields[0] as List).cast<FinampQuickAction>(),
+      sections: (fields[1] as List).cast<HomeScreenSectionConfiguration>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, FinampHomeScreenConfiguration obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.actions)
+      ..writeByte(1)
+      ..write(obj.sections);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FinampHomeScreenConfigurationAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ItemFilterAdapter extends TypeAdapter<ItemFilter> {
+  @override
+  final typeId = 117;
+
+  @override
+  ItemFilter read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ItemFilter(
+      type: fields[0] as ItemFilterType,
+      extras: fields[1] as dynamic,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ItemFilter obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.type)
+      ..writeByte(1)
+      ..write(obj.extras);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ItemFilterAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class SortAndFilterConfigurationAdapter
+    extends TypeAdapter<SortAndFilterConfiguration> {
+  @override
+  final typeId = 118;
+
+  @override
+  SortAndFilterConfiguration read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return SortAndFilterConfiguration(
+      sortBy: fields[0] as SortBy,
+      sortOrder: fields[1] as SortOrder,
+      filters: (fields[2] as Set).cast<ItemFilter>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, SortAndFilterConfiguration obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.sortBy)
+      ..writeByte(1)
+      ..write(obj.sortOrder)
+      ..writeByte(2)
+      ..write(obj.filters);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SortAndFilterConfigurationAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class TabContentTypeAdapter extends TypeAdapter<TabContentType> {
   @override
   final typeId = 36;
@@ -1581,6 +1753,8 @@ class TabContentTypeAdapter extends TypeAdapter<TabContentType> {
         return TabContentType.genres;
       case 4:
         return TabContentType.tracks;
+      case 5:
+        return TabContentType.home;
       default:
         return TabContentType.albums;
     }
@@ -1599,6 +1773,8 @@ class TabContentTypeAdapter extends TypeAdapter<TabContentType> {
         writer.writeByte(3);
       case TabContentType.tracks:
         writer.writeByte(4);
+      case TabContentType.home:
+        writer.writeByte(5);
     }
   }
 
@@ -1781,6 +1957,8 @@ class QueueItemSourceTypeAdapter extends TypeAdapter<QueueItemSourceType> {
         return QueueItemSourceType.remoteClient;
       case 22:
         return QueueItemSourceType.radio;
+      case 23:
+        return QueueItemSourceType.homeScreenSection;
       default:
         return QueueItemSourceType.album;
     }
@@ -1835,6 +2013,8 @@ class QueueItemSourceTypeAdapter extends TypeAdapter<QueueItemSourceType> {
         writer.writeByte(21);
       case QueueItemSourceType.radio:
         writer.writeByte(22);
+      case QueueItemSourceType.homeScreenSection:
+        writer.writeByte(23);
     }
   }
 
@@ -1924,6 +2104,8 @@ class QueueItemSourceNameTypeAdapter
         return QueueItemSourceNameType.remoteClient;
       case 10:
         return QueueItemSourceNameType.radio;
+      case 11:
+        return QueueItemSourceNameType.homeScreenSection;
       default:
         return QueueItemSourceNameType.preTranslated;
     }
@@ -1954,6 +2136,8 @@ class QueueItemSourceNameTypeAdapter
         writer.writeByte(9);
       case QueueItemSourceNameType.radio:
         writer.writeByte(10);
+      case QueueItemSourceNameType.homeScreenSection:
+        writer.writeByte(11);
     }
   }
 
@@ -3099,6 +3283,163 @@ class RadioModeAdapter extends TypeAdapter<RadioMode> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RadioModeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class HomeScreenSectionTypeAdapter extends TypeAdapter<HomeScreenSectionType> {
+  @override
+  final typeId = 111;
+
+  @override
+  HomeScreenSectionType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return HomeScreenSectionType.tabView;
+      case 1:
+        return HomeScreenSectionType.collection;
+      default:
+        return HomeScreenSectionType.tabView;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, HomeScreenSectionType obj) {
+    switch (obj) {
+      case HomeScreenSectionType.tabView:
+        writer.writeByte(0);
+      case HomeScreenSectionType.collection:
+        writer.writeByte(1);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HomeScreenSectionTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class HomeScreenSectionPresetTypeAdapter
+    extends TypeAdapter<HomeScreenSectionPresetType> {
+  @override
+  final typeId = 113;
+
+  @override
+  HomeScreenSectionPresetType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return HomeScreenSectionPresetType.favoriteTracks;
+      case 1:
+        return HomeScreenSectionPresetType.forgottenFavoriteTracks;
+      default:
+        return HomeScreenSectionPresetType.favoriteTracks;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, HomeScreenSectionPresetType obj) {
+    switch (obj) {
+      case HomeScreenSectionPresetType.favoriteTracks:
+        writer.writeByte(0);
+      case HomeScreenSectionPresetType.forgottenFavoriteTracks:
+        writer.writeByte(1);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HomeScreenSectionPresetTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FinampQuickActionAdapter extends TypeAdapter<FinampQuickAction> {
+  @override
+  final typeId = 114;
+
+  @override
+  FinampQuickAction read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return FinampQuickAction.trackMix;
+      case 1:
+        return FinampQuickAction.recents;
+      case 2:
+        return FinampQuickAction.surpriseMe;
+      default:
+        return FinampQuickAction.trackMix;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, FinampQuickAction obj) {
+    switch (obj) {
+      case FinampQuickAction.trackMix:
+        writer.writeByte(0);
+      case FinampQuickAction.recents:
+        writer.writeByte(1);
+      case FinampQuickAction.surpriseMe:
+        writer.writeByte(2);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FinampQuickActionAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ItemFilterTypeAdapter extends TypeAdapter<ItemFilterType> {
+  @override
+  final typeId = 116;
+
+  @override
+  ItemFilterType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return ItemFilterType.isFavorite;
+      case 1:
+        return ItemFilterType.isFullyDownloaded;
+      case 2:
+        return ItemFilterType.startsWithCharacter;
+      default:
+        return ItemFilterType.isFavorite;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, ItemFilterType obj) {
+    switch (obj) {
+      case ItemFilterType.isFavorite:
+        writer.writeByte(0);
+      case ItemFilterType.isFullyDownloaded:
+        writer.writeByte(1);
+      case ItemFilterType.startsWithCharacter:
+        writer.writeByte(2);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ItemFilterTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -5409,7 +5750,8 @@ const _DownloadItembaseItemTypeEnumValueMap = {
   'video': 11,
   'movie': 12,
   'trailer': 13,
-  'unknown': 14,
+  'collection': 14,
+  'unknown': 15,
 };
 const _DownloadItembaseItemTypeValueEnumMap = {
   0: BaseItemDtoType.noItem,
@@ -5426,7 +5768,8 @@ const _DownloadItembaseItemTypeValueEnumMap = {
   11: BaseItemDtoType.video,
   12: BaseItemDtoType.movie,
   13: BaseItemDtoType.trailer,
-  14: BaseItemDtoType.unknown,
+  14: BaseItemDtoType.collection,
+  15: BaseItemDtoType.unknown,
 };
 const _DownloadItemstateEnumValueMap = {
   'notDownloaded': 0,
@@ -8805,6 +9148,7 @@ const _$BaseItemDtoTypeEnumMap = {
   BaseItemDtoType.video: 'video',
   BaseItemDtoType.movie: 'movie',
   BaseItemDtoType.trailer: 'trailer',
+  BaseItemDtoType.collection: 'collection',
   BaseItemDtoType.unknown: 'unknown',
 };
 
@@ -8868,6 +9212,7 @@ const _$TabContentTypeEnumMap = {
   TabContentType.playlists: 'playlists',
   TabContentType.genres: 'genres',
   TabContentType.tracks: 'tracks',
+  TabContentType.home: 'home',
 };
 
 const _$MediaItemParentTypeEnumMap = {
@@ -8950,3 +9295,138 @@ Map<String, dynamic> _$FinampOutputRouteToJson(FinampOutputRoute instance) =>
       'extras': instance.extras,
       'iconUri': instance.iconUri,
     };
+
+HomeScreenSectionConfiguration _$HomeScreenSectionConfigurationFromJson(
+  Map<String, dynamic> json,
+) => HomeScreenSectionConfiguration(
+  type: $enumDecode(_$HomeScreenSectionTypeEnumMap, json['type']),
+  itemId: _$JsonConverterFromJson<String, BaseItemId>(
+    json['itemId'],
+    const BaseItemIdConverter().fromJson,
+  ),
+  contentType: $enumDecodeNullable(
+    _$TabContentTypeEnumMap,
+    json['contentType'],
+  ),
+  sortAndFilterConfiguration: SortAndFilterConfiguration.fromJson(
+    json['sortAndFilterConfiguration'] as Map<String, dynamic>,
+  ),
+  customSectionTitle: json['customSectionTitle'] as String?,
+  presetType: $enumDecodeNullable(
+    _$HomeScreenSectionPresetTypeEnumMap,
+    json['presetType'],
+  ),
+);
+
+Map<String, dynamic> _$HomeScreenSectionConfigurationToJson(
+  HomeScreenSectionConfiguration instance,
+) => <String, dynamic>{
+  'type': _$HomeScreenSectionTypeEnumMap[instance.type]!,
+  'itemId': _$JsonConverterToJson<String, BaseItemId>(
+    instance.itemId,
+    const BaseItemIdConverter().toJson,
+  ),
+  'contentType': _$TabContentTypeEnumMap[instance.contentType],
+  'sortAndFilterConfiguration': instance.sortAndFilterConfiguration,
+  'customSectionTitle': instance.customSectionTitle,
+  'presetType': _$HomeScreenSectionPresetTypeEnumMap[instance.presetType],
+};
+
+const _$HomeScreenSectionTypeEnumMap = {
+  HomeScreenSectionType.tabView: 'tabView',
+  HomeScreenSectionType.collection: 'collection',
+};
+
+const _$HomeScreenSectionPresetTypeEnumMap = {
+  HomeScreenSectionPresetType.favoriteTracks: 'favoriteTracks',
+  HomeScreenSectionPresetType.forgottenFavoriteTracks:
+      'forgottenFavoriteTracks',
+};
+
+FinampHomeScreenConfiguration _$FinampHomeScreenConfigurationFromJson(
+  Map<String, dynamic> json,
+) => FinampHomeScreenConfiguration(
+  actions: (json['actions'] as List<dynamic>)
+      .map((e) => $enumDecode(_$FinampQuickActionEnumMap, e))
+      .toList(),
+  sections: (json['sections'] as List<dynamic>)
+      .map(
+        (e) =>
+            HomeScreenSectionConfiguration.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
+);
+
+Map<String, dynamic> _$FinampHomeScreenConfigurationToJson(
+  FinampHomeScreenConfiguration instance,
+) => <String, dynamic>{
+  'actions': instance.actions
+      .map((e) => _$FinampQuickActionEnumMap[e]!)
+      .toList(),
+  'sections': instance.sections,
+};
+
+const _$FinampQuickActionEnumMap = {
+  FinampQuickAction.trackMix: 'trackMix',
+  FinampQuickAction.recents: 'recents',
+  FinampQuickAction.surpriseMe: 'surpriseMe',
+};
+
+ItemFilter _$ItemFilterFromJson(Map<String, dynamic> json) => ItemFilter(
+  type: $enumDecode(_$ItemFilterTypeEnumMap, json['type']),
+  extras: json['extras'],
+);
+
+Map<String, dynamic> _$ItemFilterToJson(ItemFilter instance) =>
+    <String, dynamic>{
+      'type': _$ItemFilterTypeEnumMap[instance.type]!,
+      'extras': instance.extras,
+    };
+
+const _$ItemFilterTypeEnumMap = {
+  ItemFilterType.isFavorite: 'isFavorite',
+  ItemFilterType.isFullyDownloaded: 'isFullyDownloaded',
+  ItemFilterType.startsWithCharacter: 'startsWithCharacter',
+};
+
+SortAndFilterConfiguration _$SortAndFilterConfigurationFromJson(
+  Map<String, dynamic> json,
+) => SortAndFilterConfiguration(
+  sortBy: $enumDecode(_$SortByEnumMap, json['sortBy']),
+  sortOrder: $enumDecode(_$SortOrderEnumMap, json['sortOrder']),
+  filters: (json['filters'] as List<dynamic>)
+      .map((e) => ItemFilter.fromJson(e as Map<String, dynamic>))
+      .toSet(),
+);
+
+Map<String, dynamic> _$SortAndFilterConfigurationToJson(
+  SortAndFilterConfiguration instance,
+) => <String, dynamic>{
+  'sortBy': _$SortByEnumMap[instance.sortBy]!,
+  'sortOrder': _$SortOrderEnumMap[instance.sortOrder]!,
+  'filters': instance.filters.toList(),
+};
+
+const _$SortByEnumMap = {
+  SortBy.album: 'album',
+  SortBy.albumArtist: 'albumArtist',
+  SortBy.artist: 'artist',
+  SortBy.budget: 'budget',
+  SortBy.communityRating: 'communityRating',
+  SortBy.criticRating: 'criticRating',
+  SortBy.dateCreated: 'dateCreated',
+  SortBy.datePlayed: 'datePlayed',
+  SortBy.playCount: 'playCount',
+  SortBy.premiereDate: 'premiereDate',
+  SortBy.productionYear: 'productionYear',
+  SortBy.sortName: 'sortName',
+  SortBy.random: 'random',
+  SortBy.revenue: 'revenue',
+  SortBy.runtime: 'runtime',
+  SortBy.defaultOrder: 'defaultOrder',
+};
+
+const _$SortOrderEnumMap = {
+  SortOrder.ascending: 'ascending',
+  SortOrder.descending: 'descending',
+};
