@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
 class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWidget {
@@ -57,6 +58,16 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
     final inactiveTabBackgroundColor = ColorScheme.of(context).surface;
     Color activeTabTextColor = AtContrast.getContrastiveTintedTextColor(onBackground: activeTabBackgroundColor);
     Color inactiveTabTextColor = AtContrast.getContrastiveTintedTextColor(onBackground: inactiveTabBackgroundColor);
+
+    // refresh download counts
+    downloadsService.updateDownloadCounts();
+    Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (context.mounted) {
+        downloadsService.updateDownloadCounts();
+      } else {
+        timer.cancel();
+      }
+    });
 
     return Column(
       spacing: 8.0,
@@ -107,13 +118,16 @@ class FinampMusicScreenHeader extends ConsumerWidget implements PreferredSizeWid
                               ),
                             ),
                             StreamBuilder<Map<String, int>>(
+                              //!!! this stream doesn't refresh on its own, see timer above
                               stream: downloadsService.downloadCountsStream,
                               initialData: downloadsService.downloadCounts,
-                              builder: (context, countSnapshot) {
-                                if (!countSnapshot.hasData) {
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
                                   return SizedBox.shrink();
                                 }
-                                final isDownloadSystemDoingWork = (countSnapshot.data?["sync"] ?? 0) > 0;
+                                // final (counts, statuses) = snapshot.data!;
+                                final counts = snapshot.data!;
+                                final isDownloadSystemDoingWork = (counts["sync"] ?? 0) > 0;
                                 if (isDownloadSystemDoingWork) {
                                   return Positioned(
                                     bottom: -6,

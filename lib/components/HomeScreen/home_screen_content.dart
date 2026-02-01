@@ -249,6 +249,9 @@ class HomeScreenSectionContent extends ConsumerWidget {
   }
 
   Widget _buildHorizontalSkeletonLoader(BuildContext context) {
+    final skeletonBaseColor = Theme.of(context).brightness == Brightness.light
+        ? Colors.grey.shade300
+        : Colors.grey.shade800;
     return SizedBox(
       height: calculateItemCollectionCardHeight(context),
       child: ListView.separated(
@@ -262,7 +265,7 @@ class HomeScreenSectionContent extends ConsumerWidget {
               Container(
                 width: cardWidth,
                 height: cardWidth,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: skeletonBaseColor, borderRadius: BorderRadius.circular(8)),
               ),
               SizedBox(height: 4),
               Padding(
@@ -270,7 +273,7 @@ class HomeScreenSectionContent extends ConsumerWidget {
                 child: Container(
                   width: cardWidth * Random().nextDouble().clamp(0.2, 0.9),
                   height: max(calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 1) - 4, 0),
-                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: skeletonBaseColor, borderRadius: BorderRadius.circular(8)),
                 ),
               ),
               SizedBox(height: 2),
@@ -279,7 +282,7 @@ class HomeScreenSectionContent extends ConsumerWidget {
                 child: Container(
                   width: cardWidth * Random().nextDouble().clamp(0.2, 0.9),
                   height: max(calculateTextHeight(style: TextTheme.of(context).bodySmall!, lines: 1) - 4, 0),
-                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: skeletonBaseColor, borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ],
