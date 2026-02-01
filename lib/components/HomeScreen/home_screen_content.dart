@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:balanced_text/balanced_text.dart';
-import 'package:finamp/components/Buttons/simple_button.dart';
 import 'package:finamp/components/HomeScreen/show_all_button.dart';
 import 'package:finamp/components/HomeScreen/show_all_screen.dart';
 import 'package:finamp/components/MusicScreen/item_card.dart';
@@ -11,7 +10,6 @@ import 'package:finamp/components/finamp_icon.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/screens/music_screen.dart';
 import 'package:finamp/screens/queue_restore_screen.dart';
 import 'package:finamp/services/downloads_service.dart';
 import 'package:finamp/services/finamp_settings_helper.dart';
@@ -229,7 +227,13 @@ class HomeScreenSectionContent extends ConsumerWidget {
             itemCount: value.length,
             itemBuilder: (context, index) {
               final BaseItemDto item = value[index];
-              return ItemWrapper(item: item, isGrid: true, interactive: interactive, source: source);
+              return ItemWrapper(
+                key: ValueKey(item.id),
+                item: item,
+                isGrid: true,
+                interactive: interactive,
+                source: source,
+              );
             },
             separatorBuilder: (context, index) => const SizedBox(width: 8, height: 1),
           ),
