@@ -3213,23 +3213,23 @@
   "@explicit": {
     "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
   },
-  "volumeControlHint": "Use {modKey} + ↑/↓ to adjust volume",
+  "volumeControlHint": "Use {shortcut} to adjust volume",
   "@volumeControlHint": {
     "description": "Hint text displayed below the volume bar to inform users about keyboard shortcuts for volume control.",
     "placeholders": {
-      "modKey": {
+      "shortcut": {
         "type": "String",
-        "example": "Ctrl"
+        "example": "Ctrl + ↑/↓"
       }
     }
   },
-  "seekControlHint": "{modKey} + ←/→ to skip -5s/+30s",
+  "seekControlHint": "{shortcut} to skip -5s/+30s",
   "@seekControlHint": {
     "description": "Shortcut hint for seeking backward 5s or forward 30s.",
     "placeholders": {
-      "modKey": {
+      "shortcut": {
         "type": "String",
-        "example": "Ctrl"
+        "example": "Ctrl + ←/→"
       }
     }
   }

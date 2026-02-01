@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:finamp/color_schemes.g.dart';
 import 'package:finamp/components/Buttons/cta_medium.dart';
+import 'package:finamp/components/Shortcuts/global_shortcut_manager.dart';
+import 'package:finamp/components/Shortcuts/music_control_shortcuts.dart';
 import 'package:finamp/components/global_snackbar.dart';
 import 'package:finamp/components/themed_bottom_sheet.dart';
 import 'package:finamp/components/toggleable_list_tile.dart';
@@ -13,7 +15,6 @@ import 'package:finamp/services/finamp_settings_helper.dart';
 import 'package:finamp/services/music_player_background_task.dart';
 import 'package:finamp/services/queue_service.dart';
 import 'package:finamp/services/theme_provider.dart';
-import 'package:finamp/utils/platform_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
@@ -53,7 +54,10 @@ Future<void> showOutputMenu({required BuildContext context, bool usePlayerTheme 
         ),
         Center(
           child: Text(
-            AppLocalizations.of(context)!.volumeControlHint(ShortcutKeyDisplay.primaryModifier),
+            AppLocalizations.of(context)!.volumeControlHint(
+              "${GlobalShortcuts.getDisplay(VolumeUpIntent)} / "
+              "${GlobalShortcuts.getDisplay(VolumeDownIntent)}",
+            ),
             style: Theme.of(context).textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
