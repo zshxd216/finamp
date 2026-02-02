@@ -1,14 +1,18 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
 import '../components/favourite_button.dart';
+import '../components/glass_surface.dart';
+import '../components/native_airplay_button.dart';
 import '../services/finamp_settings_helper.dart';
 import '../services/music_player_background_task.dart';
 import '../models/jellyfin_models.dart';
@@ -32,6 +36,7 @@ class PlayerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
+    final isIOS = Platform.isIOS;
 
     return SimpleGestureDetector(
       onVerticalSwipe: (direction) {
@@ -56,11 +61,14 @@ class PlayerScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          actions: const [
-            SleepTimerButton(),
-            AddToPlaylistButton(),
+          backgroundColor: isIOS ? Colors.transparent : null,
+          elevation: isIOS ? 0 : null,
+          scrolledUnderElevation: isIOS ? 0 : null,
+          flexibleSpace: isIOS ? const GlassSurface() : null,
+          actions: [
+            if (isIOS) const NativeAirPlayButton(),
+            const SleepTimerButton(),
+            const AddToPlaylistButton(),
           ],
         ),
         // Required for sleep timer input
@@ -70,7 +78,7 @@ class PlayerScreen extends StatelessWidget {
           children: [
             if (FinampSettingsHelper.finampSettings.showCoverAsPlayerBackground)
               const _BlurredPlayerScreenBackground(),
-            const SafeArea(
+            SafeArea(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -105,7 +113,25 @@ class PlayerScreen extends StatelessWidget {
                                   child: QueueButton(),
                                 )
                               ],
-                            )
+                            ),
+                            if (isIOS)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .airplayAvailabilityNote,
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.6),
+                                      ),
+                                ),
+                              ),
                           ],
                         ),
                       ),

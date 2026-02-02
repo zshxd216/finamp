@@ -238,4 +238,11 @@ class FinampSettingsHelper {
     Hive.box<FinampSettings>("FinampSettings")
         .put("FinampSettings", finampSettingsTemp);
   }
+
+  static void setUseUniversalSearch(bool useUniversalSearch) {
+    FinampSettings finampSettingsTemp = finampSettings;
+    finampSettingsTemp.useUniversalSearch = useUniversalSearch;
+    Hive.box<FinampSettings>("FinampSettings")
+        .put("FinampSettings", finampSettingsTemp);
+  }
 }

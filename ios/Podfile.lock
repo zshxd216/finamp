@@ -136,26 +136,26 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  audio_service: f509d65da41b9521a61f1c404dd58651f265a567
-  audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
+  audio_service: 2023a4a1bdb2fd1443e7b00bdbdb1baa321525db
+  audio_session: f08db0697111ac84ba46191b55488c0563bb29c6
   CropViewController: 58fb440f30dac788b129d2a1f24cffdcb102669c
-  device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
+  device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   DKCamera: a902b66921fca14b7a75266feb8c7568aa7caa71
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
-  file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
+  file_picker: 9b3292d7c8bc68c8a7bf8eb78f730e49c8efc517
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_downloader: b7301ae057deadd4b1650dc7c05375f10ff12c39
-  just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
-  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  flutter_downloader: 78da0da1084e709cbfd3b723c7ea349c71681f09
+  just_audio: 6c031bb61297cf218b4462be616638e81c058e97
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   SDWebImage: e5cc87bf736e60f49592f307bdf9e157189298a3
-  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
-  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
-  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
 
 PODFILE CHECKSUM: 2129ec44a346995e229add1d94a10fae8b953738
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
