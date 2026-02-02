@@ -23,7 +23,6 @@ class GlobalShortcuts {
         map[keySet] = entry.key;
       }
     }
-    debugPrint(map.toString());
     return map;
   }
 
