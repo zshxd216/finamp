@@ -1,5 +1,7 @@
 import 'dart:io';
 
+bool get isDesktop => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+
 class ShortcutKeyDisplay {
   static String get primaryModifier => Platform.isIOS || Platform.isMacOS ? '⌘' : 'Ctrl';
   static String get shift => Platform.isIOS || Platform.isMacOS ? '⇧' : 'Shift';
