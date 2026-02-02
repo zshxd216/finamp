@@ -4,28 +4,32 @@ import 'package:flutter/services.dart';
 import 'package:finamp/utils/platform_helper.dart';
 
 class GlobalShortcuts {
-  static final Map<Intent, LogicalKeySet> _raw = {
-    const TogglePlaybackIntent(): LogicalKeySet(LogicalKeyboardKey.space),
-    const SkipToNextIntent(): LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyN),
-    const SkipToPreviousIntent(): LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyP),
-    const SeekForwardIntent(): LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowRight),
-    const SeekBackwardIntent(): LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowLeft),
-    const VolumeUpIntent(): LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowUp),
-    const VolumeDownIntent(): LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowDown),
-    const ToggleLoopModeIntent(): LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyL),
-    const TogglePlaybackOrderIntent(): LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyS),
+  static final Map<Intent, List<LogicalKeySet>> _raw = {
+    const TogglePlaybackIntent(): [LogicalKeySet(LogicalKeyboardKey.space)],
+    const SkipToNextIntent(): [LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyN)],
+    const SkipToPreviousIntent(): [LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyP)],
+    const SeekForwardIntent(): [LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowRight)],
+    const SeekBackwardIntent(): [LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowLeft)],
+    const VolumeUpIntent(): [LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowUp)],
+    const VolumeDownIntent(): [LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowDown)],
+    const ToggleLoopModeIntent(): [LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyL)],
+    const TogglePlaybackOrderIntent(): [LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyS)],
   };
 
-  static Map<LogicalKeySet, Intent> get shortcutMap => _raw.map((intent, keySet) => MapEntry(keySet, intent));
+  static Map<LogicalKeySet, Intent> get shortcutMap {
+    final Map<LogicalKeySet, Intent> map = {};
+    for (final entry in _raw.entries) {
+      for (final keySet in entry.value) {
+        map[keySet] = entry.key;
+      }
+    }
+    debugPrint(map.toString());
+    return map;
+  }
 
   static String getDisplay(Type intentType) {
-    final entry = _raw.entries.cast<MapEntry<Intent, LogicalKeySet>?>().firstWhere(
-      (e) => e!.key.runtimeType == intentType,
-      orElse: () => null,
-    );
-
-    if (entry == null) return '';
-    final keys = entry.value.keys;
+    final entry = _raw.entries.firstWhere((e) => e.key.runtimeType == intentType);
+    final keys = entry.value.first.keys;
     final parts = <String>[];
 
     // Modifiers
