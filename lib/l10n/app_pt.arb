@@ -372,7 +372,7 @@
     },
     "hideTrackArtistsIfSameAsAlbumArtistsSubtitle": "Se deve mostrar os artistas das faixas no ecrã do álbum, no caso destes não serem diferentes dos do álbum.",
     "@hideTrackArtistsIfSameAsAlbumArtistsSubtitle": {},
-    "bufferDurationSubtitle": "A duração máxima que deve ser colocada em buffer, em segundos. Requer reiniciar.",
+    "bufferDurationSubtitle": "A duração que deve ser colocada em buffer, em segundos. Requer reiniciar.",
     "@bufferDurationSubtitle": {},
     "insertedIntoQueue": "Inserido na fila.",
     "@insertedIntoQueue": {
@@ -741,7 +741,7 @@
     "@loginFlowQuickConnectInstructions": {
         "description": "Instructions for how and where to enter the Quick Connect code. Ideally, 'Quick Connect' should be capitalized and translated exactly as it is in the Jellyfin web UI."
     },
-    "volumeNormalizationIOSBaseGainEditorSubtitle": "Atualmente, a Normalização de Volume no iOS requer a alteração do volume de reprodução para emular a mudança de ganho. Como não podemos aumentar o volume acima de 100%, precisamos diminuir o volume predefinido para podermos aumentar o volume das faixas mais baixas. O valor é em decibéis (dB), onde -10 dB corresponde a ~30% de volume, -4,5 dB a ~60% de volume e -2 dB a ~80% de volume.",
+    "volumeNormalizationIOSBaseGainEditorSubtitle": "Escolha um desvio de ganho de volume (em dB)",
     "@volumeNormalizationIOSBaseGainEditorSubtitle": {
         "description": "Subtitle for the input that sets the replay gain base gain on iOS and other non-Android platforms"
     },
@@ -1054,7 +1054,7 @@
     "@bufferDisableSizeConstraintsSubtitle": {},
     "bufferSizeTitle": "Tamanho do Buffer",
     "@bufferSizeTitle": {},
-    "bufferSizeSubtitle": "O tamanho máximo do buffer em MB. É necessário reiniciar",
+    "bufferSizeSubtitle": "O tamanho do buffer em MB. É necessário reiniciar",
     "@bufferSizeSubtitle": {},
     "confirmPlayNext": "{type, select, track{Track} album{Album} artist{Artist} playlist{Playlist} genre{Genre} other{Item}} vai tocar a seguir",
     "@confirmPlayNext": {
@@ -2300,7 +2300,7 @@
     "@sleepTimerAfterCurrentTrack": {
         "description": "Option for the sleep timer that will stop playback after the current track finishes."
     },
-    "autoOfflineSettingDescription": "Automaticamente ativar Modo Offline.\nDesativado: Não vai ligar Automaticamente o Modo Offline. Pode poupar bateria.\nRede Local: Liga Modo Offline quando não está ligado a wifi ou ethernet.\nDesligado: Liga Modo Offline quando não está ligado a nada.\nInalcançável: Liga Modo Offline quando o servidor não pode ser pingado após mudança de rede.\nVocê pode sempre ligar manualmente o modo offline, o que pausa a automatização até que desligue o modo offline outra vez",
+    "autoOfflineSettingDescription": "{disabledModeName}:\nNão vai ligar Automaticamente o Modo Offline. Pode poupar bateria.\n\n{localNetworkModeName}:\nLiga Modo Offline quando não está ligado a wifi ou ethernet.\n\n{disconnectedModeName}:\nLiga Modo Offline quando não está ligado a nada.\n\n{unreachableModeName}:\nLiga Modo Offline quando o servidor não pode ser pingado após mudança de rede.\n\nVocê pode sempre ligar manualmente o modo offline, o que pausa a automatização até que a re-ative.",
     "@autoOfflineSettingDescription": {
         "description": "Setting description. Make sure the Mode names match the translations."
     },
@@ -2808,7 +2808,7 @@
     "@addDownloadLocationsErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs fails"
     },
-    "androidImageErrorPrompt": "AVISO: Nós somos incapazes de escrever imagens na paste Music do android devido a restrições do SO.  Você deve escolher outra localização.",
+    "androidImageErrorPrompt": "Nós somos incapazes de escrever imagens na pasta Music do android devido a restrições do SO.  Você deve escolher outra localização.",
     "@androidImageErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
     },
@@ -3135,5 +3135,57 @@
             }
         },
         "description": "Subtitle displayed in the queue to describe what the radio is doing if enabled"
+    },
+    "lyricsEmptyStateLoading": "A carregar letras...",
+    "@lyricsEmptyStateLoading": {
+        "description": "Message shown while lyrics are being loaded"
+    },
+    "lyricsEmptyStateFailed": "Não pude carregar letras",
+    "@lyricsEmptyStateFailed": {
+        "description": "Message shown when lyrics failed to load"
+    },
+    "lyricsEmptyStateNoLyrics": "Nenhumas letras disponíveis",
+    "@lyricsEmptyStateNoLyrics": {
+        "description": "Message shown when no lyrics are available for the current track"
+    },
+    "lyricsMissingLyricLinePlaceholder": "linha de letras em falta",
+    "@lyricsMissingLyricLinePlaceholder": {
+        "description": "Placeholder text for missing lyric lines in synchronized lyrics"
+    },
+    "radioModeEnableButtonTitle": "Ativar Radio",
+    "@radioModeEnableButtonTitle": {
+        "description": "Title for the option that enables radio mode."
+    },
+    "addDownloadLocationsErrorTitle": "Incapaz de escrever para localização de descarga",
+    "@addDownloadLocationsErrorTitle": {
+        "description": "Title of popup dialog when adding a download location fails"
+    },
+    "duckOnAudioInterruptionTitle": "Reduz Volume nas Interrupções",
+    "@duckOnAudioInterruptionTitle": {
+        "description": "Title for the setting that controls ducking."
+    },
+    "duckOnAudioInterruptionSubtitle": "Reduz o volume (baixa) quando outra aplicação reproduz áudio brevemente. Requer reiniciar.",
+    "@duckOnAudioInterruptionSubtitle": {
+        "description": "Subtitle for the setting that controls ducking."
+    },
+    "forceAudioOffloadingOnAndroidTitle": "Força Descarga de Áudio",
+    "@forceAudioOffloadingOnAndroidTitle": {
+        "description": "Title for the setting that controls audio offloading on Android."
+    },
+    "forceAudioOffloadingOnAndroidSubtitle": "Descarga de áudio processada pelo hardware, se suportado pelo dispositivo.",
+    "@forceAudioOffloadingOnAndroidSubtitle": {
+        "description": "Subtitle for the setting that controls audio offloading on Android."
+    },
+    "explicit": "Explícito",
+    "@explicit": {
+        "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
+    },
+    "volumeNormalizationIOSBaseGainEditorDescription": "Atualmente, a Normalização de Volume em plataformas diferentes de Android requer a alteração do volume de reprodução para emular a mudança de ganho. Como não podemos aumentar o volume acima de 100%, precisamos diminuir o volume predefinido para podermos aumentar o volume das faixas mais baixas. \n\nO valor é em decibéis (dB), onde -10 dB corresponde a ~30% de volume, -4,5 dB a ~60% de volume e -2 dB a ~80% de volume.\nValores positivos significam que nenhuma redução de volume é aplicada até ao limiar (isto é, ganho -6.4 dB (e mais positivo) para um desvio de +6.4 dB), mas previne que as faixas mais silenciosas sejam amplificadas.\n\nVocê deve definir isto para o inverso do ganho mais alto (mais positivo) na sua biblioteca, isto é, definir para +3 dB se o ganho mais alto na sua biblioteca for -3 dB (e todas as outras faixas terem ganhos como -5 dB, -8 dB, -10 dB, etc.).",
+    "@volumeNormalizationIOSBaseGainEditorDescription": {
+        "description": "Description for the input that sets the replay gain base gain on iOS and other non-Android platforms"
+    },
+    "autoOfflineSettingSubtitle": "Ativar automaticamente o Modo Offline com base na ligação de rede ou acesso ao servidor.",
+    "@autoOfflineSettingSubtitle": {
+        "description": "Subtitle for the automated offline mode setting."
     }
 }

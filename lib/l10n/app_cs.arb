@@ -382,7 +382,7 @@
             }
         }
     },
-    "bufferDurationSubtitle": "Maximální doba trvání, která má být uložena do vyrovnávací paměti, v sekundách. Vyžaduje restart aplikace.",
+    "bufferDurationSubtitle": "Doba trvání, která má být uložena do vyrovnávací paměti, v sekundách. Vyžaduje restart aplikace.",
     "@bufferDurationSubtitle": {},
     "startMix": "Spustit mix",
     "@startMix": {},
@@ -1520,7 +1520,7 @@
     "@emptyFilteredListTitle": {
         "description": "Message shown when a list of items is filtered and no items match the filter"
     },
-    "volumeNormalizationIOSBaseGainEditorSubtitle": "Normalizace hlasitosti v systému iOS v současné době vyžaduje změnu hlasitosti přehrávání, aby se napodobila změna zesílení. Protože nemůžeme zvýšit hlasitost nad 100 %, musíme ve výchozím nastavení hlasitost snížit, abychom mohli zvýšit hlasitost tichých skladeb. Hodnota je v decibelech (dB), kde -10 dB je ~30% hlasitost, -4,5 dB je ~60% hlasitost a -2 dB je ~80% hlasitost.",
+    "volumeNormalizationIOSBaseGainEditorSubtitle": "Vyberte kompenzaci zesílení hlasitosti (v dB)",
     "@volumeNormalizationIOSBaseGainEditorSubtitle": {
         "description": "Subtitle for the input that sets the replay gain base gain on iOS and other non-Android platforms"
     },
@@ -1795,7 +1795,7 @@
     "@bufferDisableSizeConstraintsTitle": {},
     "bufferSizeTitle": "Velikost vyrovnávací paměti",
     "@bufferSizeTitle": {},
-    "bufferSizeSubtitle": "Maximální velikost vyrovnávací paměti v MB. Vyžaduje restart",
+    "bufferSizeSubtitle": "Velikost vyrovnávací paměti v MB. Vyžaduje restart",
     "@bufferSizeSubtitle": {},
     "bufferDisableSizeConstraintsSubtitle": "Zakáže omezení velikosti vyrovnávací paměti. Vyrovnávací paměť bude vždy načtena na nastavené trvání, i pro velmi velké soubory. Může způsobit pády. Vyžaduje restart.",
     "@bufferDisableSizeConstraintsSubtitle": {},
@@ -1958,7 +1958,7 @@
     "@autoOfflineOptionDisconnected": {
         "description": "This is shown when the autoOffline feature is set to Disconnected, this means offline mode will be automatically enabled when either wifi, ethernet or cellular is active"
     },
-    "autoOfflineSettingDescription": "Automaticky povolit offline režim\nZakázáno: offline režim nebude automaticky zapnut. Může šetřit baterii.\nMístní síť: zapnout offline režim, když nejste připojeni k Wi-Fi nebo ethernetu.\nOdpojeno: zapnout offline režim, když nejste připojeni k ničemu.\nNedosažitelné: zapnout offline režim, pokud není možné kontaktovat server po změně sítí.\nOffline režim můžete vždy ručně zapnout. Pozastavíte tím automatické akce, dokud režim opět nevypnete",
+    "autoOfflineSettingDescription": "{disabledModeName}:\nRežim offline nebude automaticky zapnut. Může uspořit baterii.\n\n{localNetworkModeName}:\nZapnout režim offline, kdylž nejste připojeni k Wi-Fi nebo ethernetu.\n\n{disconnectedModeName}:\nZapnout režim offline, když nejste připojeni k žádné síti.\n\n{unreachableModeName}:\nZapnout režim offline, když nelze kontaktovat server po změně sítě.\n\nRežim offline můžete vždy zapnout ručně, což pozastaví automatizaci, dokud ji znovu nepovolíte.",
     "@autoOfflineSettingDescription": {
         "description": "Setting description. Make sure the Mode names match the translations."
     },
@@ -2720,7 +2720,7 @@
     "@addDownloadLocationsErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs fails"
     },
-    "androidImageErrorPrompt": "VAROVÁNÍ: Z důvodu omezení systému Android nemáme možnost vytvářet obrázky ve složce Music.  Měli byste si vybrat jiné umístění.",
+    "androidImageErrorPrompt": "Z důvodu omezení systému Android nemáme možnost vytvářet obrázky ve složce Music.  Měli byste si vybrat jiné umístění.",
     "@androidImageErrorPrompt": {
         "description": "Label shown on popup dialog when adding a download location when writing songs succeeds but writing images fails, which can occur on android."
     },
@@ -3125,5 +3125,57 @@
     "loopingUnavailableWhileRadioActiveWarning": "Změna režimu opakování není dostupná během zapnutého rádia, jelikož fronta bude pokračovat do nekonečna.",
     "@loopingUnavailableWhileRadioActiveWarning": {
         "description": "Warning message when trying to change the loop mode while radio is active."
+    },
+    "lyricsEmptyStateLoading": "Načítání textů…",
+    "@lyricsEmptyStateLoading": {
+        "description": "Message shown while lyrics are being loaded"
+    },
+    "lyricsEmptyStateFailed": "Nepodařilo se načíst texty",
+    "@lyricsEmptyStateFailed": {
+        "description": "Message shown when lyrics failed to load"
+    },
+    "lyricsEmptyStateNoLyrics": "Nejsou dostupné žádné texty",
+    "@lyricsEmptyStateNoLyrics": {
+        "description": "Message shown when no lyrics are available for the current track"
+    },
+    "lyricsMissingLyricLinePlaceholder": "chybějící řádek textů",
+    "@lyricsMissingLyricLinePlaceholder": {
+        "description": "Placeholder text for missing lyric lines in synchronized lyrics"
+    },
+    "radioModeEnableButtonTitle": "Zapnout rádio",
+    "@radioModeEnableButtonTitle": {
+        "description": "Title for the option that enables radio mode."
+    },
+    "addDownloadLocationsErrorTitle": "Nepodařilo se zapsat do lokace pro stahování",
+    "@addDownloadLocationsErrorTitle": {
+        "description": "Title of popup dialog when adding a download location fails"
+    },
+    "duckOnAudioInterruptionTitle": "Snížit hlasitost při přerušeních",
+    "@duckOnAudioInterruptionTitle": {
+        "description": "Title for the setting that controls ducking."
+    },
+    "duckOnAudioInterruptionSubtitle": "Snížit hlasitost, když jiná aplikace krátce přehraje zvuk. Vyžaduje restart.",
+    "@duckOnAudioInterruptionSubtitle": {
+        "description": "Subtitle for the setting that controls ducking."
+    },
+    "forceAudioOffloadingOnAndroidTitle": "Vynutit přenos zpracování zvuku",
+    "@forceAudioOffloadingOnAndroidTitle": {
+        "description": "Title for the setting that controls audio offloading on Android."
+    },
+    "forceAudioOffloadingOnAndroidSubtitle": "Přenést zpracování zvuku na hardware, pokud je to podporováno zařízením.",
+    "@forceAudioOffloadingOnAndroidSubtitle": {
+        "description": "Subtitle for the setting that controls audio offloading on Android."
+    },
+    "explicit": "Explicitní",
+    "@explicit": {
+        "description": "Label for content that is considered explicit, usually marked by an 'E' in music apps"
+    },
+    "autoOfflineSettingSubtitle": "Automaticky povolit režim offline v závislosti na připojení k síti nebo dosažitelnosti serveru.",
+    "@autoOfflineSettingSubtitle": {
+        "description": "Subtitle for the automated offline mode setting."
+    },
+    "volumeNormalizationIOSBaseGainEditorDescription": "V současné době vyžaduje normalizace hlasitosti na jiných platformách než Android změnu hlasitosti přehrávání, aby se emulovala změna zesílení. Jelikož nemůžeme zvýšit hlasitost nad 100 %, musíme hlasitost ve výchozím nastavení snížit, abychom mohli zesílit hlasitost tichých skladeb.\n\nHodnota je vyjádřena v decibelech (dB), kde -10 dB odpovídá hlasitosti ~30 %, -4,5 dB odpovídá hlasitosti ~60 % a -2 dB odpovídá hlasitosti ~80 %.\nKladné hodnoty znamenají, že až do prahové hodnoty (tj. zesílení -6,4 dB (a kladnější) pro offset +6,4 dB) není aplikováno žádné snížení hlasitosti, ale zabraňuje se zesílení tišších skladeb.\n\nMěli byste nastavit hodnotu jako inverzní k nejvyššímu (nejkladnějšímu) zisku ve vaší knihovně, tj. nastavit ji na +3 dB, pokud je nejvyšší zisk ve vaší knihovně -3 dB (a všechny ostatní skladby mají zisky jako -5 dB, -8 dB, -10 dB atd.).",
+    "@volumeNormalizationIOSBaseGainEditorDescription": {
+        "description": "Description for the input that sets the replay gain base gain on iOS and other non-Android platforms"
     }
 }
