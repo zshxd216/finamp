@@ -1,3 +1,5 @@
+import 'package:finamp/components/Shortcuts/global_shortcut_manager.dart';
+import 'package:finamp/components/Shortcuts/music_control_shortcuts.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/models/finamp_models.dart';
 import 'package:finamp/services/feedback_helper.dart';
@@ -20,7 +22,9 @@ class PlayerButtonsPlaybackOrder extends StatelessWidget {
       initialData: _queueService.playbackOrder,
       builder: (BuildContext context, snapshot) {
         return IconButton(
-          tooltip: getLocalizedPlaybackOrder(context, _queueService.playbackOrder),
+          tooltip:
+              "${getLocalizedPlaybackOrder(context, _queueService.playbackOrder)} "
+              "(${GlobalShortcuts.getDisplay(TogglePlaybackOrderIntent)})",
           onPressed: () async {
             FeedbackHelper.feedback(FeedbackType.light);
             await _queueService.togglePlaybackOrder();

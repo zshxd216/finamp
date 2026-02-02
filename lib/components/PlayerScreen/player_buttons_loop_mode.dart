@@ -1,3 +1,5 @@
+import 'package:finamp/components/Shortcuts/global_shortcut_manager.dart';
+import 'package:finamp/components/Shortcuts/music_control_shortcuts.dart';
 import 'package:finamp/l10n/app_localizations.dart';
 import 'package:finamp/menus/components/radio_mode_menu.dart';
 import 'package:finamp/models/finamp_models.dart';
@@ -64,7 +66,9 @@ class PlayerButtonsLoopMode extends ConsumerWidget {
       builder: (BuildContext context, snapshot) {
         return IconButton(
           tooltip:
-              "${getLocalizedLoopMode(context, snapshot.data!)}. ${AppLocalizations.of(context)!.genericToggleButtonTooltip}",
+              "${getLocalizedLoopMode(context, snapshot.data!)}. "
+              "${AppLocalizations.of(context)!.genericToggleButtonTooltip} "
+              "(${GlobalShortcuts.getDisplay(ToggleLoopModeIntent)})",
           onPressed: () async {
             if (radioEnabled) {
               await showRadioMenu(
