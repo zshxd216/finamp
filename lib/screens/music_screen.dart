@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
@@ -12,8 +14,10 @@ import '../components/MusicScreen/music_screen_tab_view.dart';
 import '../components/MusicScreen/music_screen_drawer.dart';
 import '../components/MusicScreen/sort_by_menu_button.dart';
 import '../components/MusicScreen/sort_order_button.dart';
+import '../components/glass_surface.dart';
 import '../components/now_playing_bar.dart';
 import '../components/error_snackbar.dart';
+import '../screens/universal_search_screen.dart';
 import '../services/jellyfin_api_helper.dart';
 
 class MusicScreen extends StatefulWidget {
@@ -158,6 +162,8 @@ class _MusicScreenState extends State<MusicScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isIOS = Platform.isIOS;
+
     return ValueListenableBuilder<Box<FinampUser>>(
       valueListenable: _finampUserHelper.finampUsersListenable,
       builder: (context, value, _) {
@@ -165,6 +171,8 @@ class _MusicScreenState extends State<MusicScreen>
           valueListenable: FinampSettingsHelper.finampSettingsListener,
           builder: (context, value, _) {
             final finampSettings = value.get("FinampSettings");
+            final useUniversalSearch =
+                finampSettings?.useUniversalSearch ?? true;
 
             // Get the tabs from the user's tab order, and filter them to only
             // include enabled tabs
@@ -179,7 +187,7 @@ class _MusicScreenState extends State<MusicScreen>
 
             return WillPopScope(
               onWillPop: () async {
-                if (isSearching) {
+                if (!useUniversalSearch && isSearching) {
                   _stopSearching();
                   return false;
                 }
@@ -187,7 +195,7 @@ class _MusicScreenState extends State<MusicScreen>
               },
               child: Scaffold(
                 appBar: AppBar(
-                  title: isSearching
+                  title: !useUniversalSearch && isSearching
                       ? TextField(
                           controller: textEditingController,
                           autofocus: true,
@@ -202,64 +210,77 @@ class _MusicScreenState extends State<MusicScreen>
                         )
                       : Text(_finampUserHelper.currentUser?.currentView?.name ??
                           AppLocalizations.of(context)!.music),
-                  bottom: TabBar(
-                    controller: _tabController,
-                    tabs: tabs
-                        .map((tabType) => Tab(
-                              text: tabType
-                                  .toLocalisedString(context)
-                                  .toUpperCase(),
-                            ))
-                        .toList(),
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                  ),
-                  leading: isSearching
-                      ? BackButton(
-                          onPressed: () => _stopSearching(),
-                        )
-                      : null,
-                  actions: isSearching
-                      ? [
-                          IconButton(
-                            icon: Icon(
-                              Icons.cancel,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            onPressed: () => setState(() {
-                              textEditingController.clear();
-                              searchQuery = null;
-                            }),
-                            tooltip: AppLocalizations.of(context)!.clear,
-                          )
-                        ]
-                      : [
-                          SortOrderButton(
-                            tabs.elementAt(_tabController!.index),
-                          ),
-                          SortByMenuButton(
-                            tabs.elementAt(_tabController!.index),
-                          ),
-                          IconButton(
-                            icon: finampSettings.isFavourite
-                                ? const Icon(Icons.favorite)
-                                : const Icon(Icons.favorite_outline),
-                            onPressed: finampSettings.isOffline
-                                ? null
-                                : () => FinampSettingsHelper.setIsFavourite(
-                                    !finampSettings.isFavourite),
-                            tooltip: AppLocalizations.of(context)!.favourites,
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.search),
-                            onPressed: () => setState(() {
-                              isSearching = true;
-                            }),
-                            tooltip: MaterialLocalizations.of(context)
-                                .searchFieldLabel,
-                          ),
-                        ],
+                bottom: TabBar(
+                  controller: _tabController,
+                  tabs: tabs
+                      .map((tabType) => Tab(
+                            text: tabType
+                                .toLocalisedString(context)
+                                .toUpperCase(),
+                          ))
+                      .toList(),
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
                 ),
+                leading: !useUniversalSearch && isSearching
+                    ? BackButton(
+                        onPressed: () => _stopSearching(),
+                      )
+                    : null,
+                actions: !useUniversalSearch && isSearching
+                    ? [
+                        IconButton(
+                          icon: Icon(
+                            Icons.cancel,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          onPressed: () => setState(() {
+                            textEditingController.clear();
+                            searchQuery = null;
+                          }),
+                          tooltip: AppLocalizations.of(context)!.clear,
+                        )
+                      ]
+                    : [
+                        SortOrderButton(
+                          tabs.elementAt(_tabController!.index),
+                        ),
+                        SortByMenuButton(
+                          tabs.elementAt(_tabController!.index),
+                        ),
+                        IconButton(
+                          icon: finampSettings.isFavourite
+                              ? const Icon(Icons.favorite)
+                              : const Icon(Icons.favorite_outline),
+                          onPressed: finampSettings.isOffline
+                              ? null
+                              : () => FinampSettingsHelper.setIsFavourite(
+                                  !finampSettings.isFavourite),
+                          tooltip: AppLocalizations.of(context)!.favourites,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: finampSettings.isOffline
+                              ? null
+                              : () {
+                                  if (useUniversalSearch) {
+                                    Navigator.of(context).pushNamed(
+                                        UniversalSearchScreen.routeName);
+                                  } else {
+                                    setState(() {
+                                      isSearching = true;
+                                    });
+                                  }
+                                },
+                          tooltip: MaterialLocalizations.of(context)
+                              .searchFieldLabel,
+                        ),
+                      ],
+                backgroundColor: isIOS ? Colors.transparent : null,
+                elevation: isIOS ? 0 : null,
+                scrolledUnderElevation: isIOS ? 0 : null,
+                flexibleSpace: isIOS ? const GlassSurface() : null,
+              ),
                 bottomNavigationBar: const NowPlayingBar(),
                 drawer: const MusicScreenDrawer(),
                 floatingActionButton: Padding(
@@ -271,7 +292,7 @@ class _MusicScreenState extends State<MusicScreen>
                   children: tabs
                       .map((tabType) => MusicScreenTabView(
                             tabContentType: tabType,
-                            searchTerm: searchQuery,
+                            searchTerm: useUniversalSearch ? null : searchQuery,
                             isFavourite: finampSettings.isFavourite,
                             sortBy: finampSettings.getTabSortBy(tabType),
                             sortOrder: finampSettings.getSortOrder(tabType),

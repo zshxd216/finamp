@@ -56,6 +56,7 @@ const _showFastScroller = true;
 const _bufferDurationSeconds = 50;
 const _tabOrder = TabContentType.values;
 const _swipeInsertQueueNext = false;
+const _useUniversalSearch = true;
 
 @HiveType(typeId: 28)
 class FinampSettings {
@@ -91,6 +92,7 @@ class FinampSettings {
     this.hasCompletedBlurhashImageMigration = true,
     this.hasCompletedBlurhashImageMigrationIdFix = true,
     this.swipeInsertQueueNext = _swipeInsertQueueNext,
+    this.useUniversalSearch = _useUniversalSearch,
   });
 
   @HiveField(0)
@@ -188,6 +190,9 @@ class FinampSettings {
 
   @HiveField(26, defaultValue: _swipeInsertQueueNext)
   bool swipeInsertQueueNext;
+
+  @HiveField(27, defaultValue: _useUniversalSearch)
+  bool useUniversalSearch;
 
   static Future<FinampSettings> create() async {
     final internalSongDir = await getInternalSongDir();

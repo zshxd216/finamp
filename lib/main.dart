@@ -41,6 +41,7 @@ import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/tabs_settings_screen.dart';
 import 'screens/transcoding_settings_screen.dart';
+import 'screens/universal_search_screen.dart';
 import 'screens/user_selector.dart';
 import 'screens/view_selector.dart';
 import 'services/audio_service_helper.dart';
@@ -315,6 +316,8 @@ class Finamp extends StatelessWidget {
                       AddToPlaylistScreen.routeName: (context) =>
                           const AddToPlaylistScreen(),
                       PlayerScreen.routeName: (context) => const PlayerScreen(),
+                        UniversalSearchScreen.routeName: (context) =>
+                          const UniversalSearchScreen(),
                       DownloadsScreen.routeName: (context) =>
                           const DownloadsScreen(),
                       DownloadsErrorScreen.routeName: (context) =>

@@ -8,6 +8,7 @@ import '../components/LayoutSettingsScreen/content_view_type_dropdown_list_tile.
 import '../components/LayoutSettingsScreen/show_text_on_grid_view_selector.dart';
 import '../components/LayoutSettingsScreen/show_cover_as_player_background_selector.dart';
 import '../components/LayoutSettingsScreen/hide_song_artists_if_same_as_album_artists_selector.dart';
+import '../components/LayoutSettingsScreen/universal_search_toggle.dart';
 
 class LayoutSettingsScreen extends StatelessWidget {
   const LayoutSettingsScreen({Key? key}) : super(key: key);
@@ -28,6 +29,7 @@ class LayoutSettingsScreen extends StatelessWidget {
           const ShowTextOnGridViewSelector(),
           const ShowCoverAsPlayerBackgroundSelector(),
           const HideSongArtistsIfSameAsAlbumArtistsSelector(),
+          const UniversalSearchToggle(),
           const ThemeSelector(),
           const Divider(),
           ListTile(
