@@ -1,0 +1,44 @@
+name: Build Finamp Android APK
+
+on:
+  push:
+    branches: [ main, master ]  # 触发分支
+  pull_request:
+    branches: [ main, master ]  # PR触发
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 使用Ubuntu环境（Android构建更稳定）
+
+    steps:
+      # 1. 检出代码
+      - uses: actions/checkout@v4
+
+      # 2. 设置Java版本（Android构建需要Java 11+）
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'  # 使用Eclipse Temurin JDK
+          java-version: '17'  # Java版本
+
+      # 3. 设置Flutter环境
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'  # 使用稳定版Flutter
+
+      # 4. 安装Flutter依赖
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. 构建Debug版本APK（无需签名，可直接测试）
+      - name: Build Debug APK
+        run: flutter build apk --debug
+
+      # 6. 上传APK作为Artifact（便于下载）
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: finamp-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
