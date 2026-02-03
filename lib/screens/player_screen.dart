@@ -9,6 +9,7 @@ import 'package:octo_image/octo_image.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
 import '../components/favourite_button.dart';
+import '../services/car_mode_helper.dart';
 import '../services/finamp_settings_helper.dart';
 import '../services/music_player_background_task.dart';
 import '../models/jellyfin_models.dart';
@@ -20,6 +21,8 @@ import '../components/PlayerScreen/queue_button.dart';
 import '../components/PlayerScreen/playback_mode.dart';
 import '../components/PlayerScreen/add_to_playlist_button.dart';
 import '../components/PlayerScreen/sleep_timer_button.dart';
+import '../components/PlayerScreen/sleep_timer_dialog.dart';
+import '../screens/add_to_playlist_screen.dart';
 
 final _albumImageProvider =
     StateProvider.autoDispose<ImageProvider?>((_) => null);
@@ -32,6 +35,8 @@ class PlayerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
+    final carModeHelper = GetIt.instance<CarModeHelper>();
+    final isCarMode = carModeHelper.isCarMode;
 
     return SimpleGestureDetector(
       onVerticalSwipe: (direction) {
@@ -58,9 +63,36 @@ class PlayerScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          actions: const [
-            SleepTimerButton(),
-            AddToPlaylistButton(),
+          actions: [
+            if (isCarMode)
+              IconButton(
+                icon: const Icon(Icons.timer),
+                onPressed: () {
+                  // 简化的睡眠定时器按钮，适合车机模式
+                  showDialog(
+                    context: context,
+                    builder: (context) => const SleepTimerDialog(),
+                  );
+                },
+                style: IconButton.styleFrom(
+                  iconSize: carModeHelper.getCarModeIconSize(28),
+                ),
+              )
+            else
+              const SleepTimerButton(),
+            if (isCarMode)
+              IconButton(
+                icon: const Icon(Icons.playlist_add),
+                onPressed: () {
+                  // 简化的添加到播放列表按钮，适合车机模式
+                  Navigator.of(context).pushNamed(AddToPlaylistScreen.routeName);
+                },
+                style: IconButton.styleFrom(
+                  iconSize: carModeHelper.getCarModeIconSize(28),
+                ),
+              )
+            else
+              const AddToPlaylistButton(),
           ],
         ),
         // Required for sleep timer input
@@ -70,7 +102,7 @@ class PlayerScreen extends StatelessWidget {
           children: [
             if (FinampSettingsHelper.finampSettings.showCoverAsPlayerBackground)
               const _BlurredPlayerScreenBackground(),
-            const SafeArea(
+            SafeArea(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -80,32 +112,111 @@ class PlayerScreen extends StatelessWidget {
                     ),
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isCarMode ? 24 : 16,
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SongName(),
-                            ProgressSlider(),
-                            PlayerButtons(),
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: PlaybackMode(),
+                            if (isCarMode)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: SongName(
+                                  fontSize: carModeHelper.getCarModeFontSize(24),
                                 ),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: _PlayerScreenFavoriteButton(),
+                              )
+                            else
+                              SongName(),
+                            if (isCarMode)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: ProgressSlider(
+                                  height: carModeHelper.getCarModeButtonSize(50),
                                 ),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: QueueButton(),
-                                )
-                              ],
-                            )
+                              )
+                            else
+                              ProgressSlider(),
+                            if (isCarMode)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: PlayerButtons(
+                                  buttonSize: carModeHelper.getCarModeButtonSize(70),
+                                  iconSize: carModeHelper.getCarModeIconSize(32),
+                                ),
+                              )
+                            else
+                              PlayerButtons(),
+                            if (isCarMode)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.repeat),
+                                      onPressed: () {
+                                        // 简化的播放模式按钮，适合车机模式
+                                        audioHandler.setRepeatMode(
+                                          audioHandler.playbackState.value.repeatMode == RepeatMode.all
+                                              ? RepeatMode.none
+                                              : RepeatMode.all,
+                                        );
+                                      },
+                                      style: IconButton.styleFrom(
+                                        iconSize: carModeHelper.getCarModeIconSize(28),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.favorite_outline),
+                                      onPressed: () {
+                                        // 简化的收藏按钮，适合车机模式
+                                        final mediaItem = audioHandler.mediaItem.value;
+                                        if (mediaItem != null && mediaItem.extras?["itemJson"] != null) {
+                                          final item = BaseItemDto.fromJson(mediaItem.extras!["itemJson"]);
+                                          FavoriteButton(item: item, inPlayer: true);
+                                        }
+                                      },
+                                      style: IconButton.styleFrom(
+                                        iconSize: carModeHelper.getCarModeIconSize(28),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.queue),
+                                      onPressed: () {
+                                        // 简化的队列按钮，适合车机模式
+                                        showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          builder: (context) => const QueueList(),
+                                        );
+                                      },
+                                      style: IconButton.styleFrom(
+                                        iconSize: carModeHelper.getCarModeIconSize(28),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: PlaybackMode(),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: _PlayerScreenFavoriteButton(),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: QueueButton(),
+                                  )
+                                ],
+                              )
                           ],
                         ),
                       ),

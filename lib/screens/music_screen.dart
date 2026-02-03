@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 
 import '../models/finamp_models.dart';
+import '../services/car_mode_helper.dart';
 import '../services/finamp_settings_helper.dart';
 import '../services/audio_service_helper.dart';
 import '../services/finamp_user_helper.dart';
@@ -158,6 +159,9 @@ class _MusicScreenState extends State<MusicScreen>
 
   @override
   Widget build(BuildContext context) {
+    final carModeHelper = GetIt.instance<CarModeHelper>();
+    final isCarMode = carModeHelper.isCarMode;
+
     return ValueListenableBuilder<Box<FinampUser>>(
       valueListenable: _finampUserHelper.finampUsersListenable,
       builder: (context, value, _) {

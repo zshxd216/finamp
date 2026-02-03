@@ -44,6 +44,7 @@ import 'screens/transcoding_settings_screen.dart';
 import 'screens/user_selector.dart';
 import 'screens/view_selector.dart';
 import 'services/audio_service_helper.dart';
+import 'services/car_mode_helper.dart';
 import 'services/download_update_stream.dart';
 import 'services/downloads_helper.dart';
 import 'services/jellyfin_api_helper.dart';
@@ -66,6 +67,8 @@ void main() async {
     await _setupDownloader();
     await _setupDownloadsHelper();
     await _setupAudioServiceHelper();
+    // Initialize CarModeHelper
+    CarModeHelper().init();
   } catch (e) {
     hasFailed = true;
     runApp(FinampErrorApp(

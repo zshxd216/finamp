@@ -238,4 +238,11 @@ class FinampSettingsHelper {
     Hive.box<FinampSettings>("FinampSettings")
         .put("FinampSettings", finampSettingsTemp);
   }
+
+  static void setEnableCarMode(bool enableCarMode) {
+    FinampSettings finampSettingsTemp = finampSettings;
+    finampSettingsTemp.enableCarMode = enableCarMode;
+    Hive.box<FinampSettings>("FinampSettings")
+        .put("FinampSettings", finampSettingsTemp);
+  }
 }
