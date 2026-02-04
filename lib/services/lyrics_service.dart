@@ -12,27 +12,22 @@ class LyricsService {
   // 拉取歌词
   Future<String?> fetchLyrics(BaseItemDto song) async {
     try {
-      print('开始获取歌词: ${song.name}');
-      
       // 1. 尝试从本地缓存获取歌词
       final cachedLyrics = await _getCachedLyrics(song.id);
       if (cachedLyrics != null) {
-        print('从缓存获取歌词成功');
         return cachedLyrics;
       }
-      print('缓存中未找到歌词');
 
       // 2. 从网络API获取歌词
-      // 尝试多个歌词源
-      final lyrics = await _fetchFromMultipleSources(song);
+      // 这里使用NetEase Cloud Music API作为示例
+      // 实际应用中可能需要使用其他API或服务
+      final lyrics = await _fetchFromNetEase(song);
       if (lyrics != null) {
         // 缓存歌词
         await _cacheLyrics(song.id, lyrics);
-        print('从网络获取歌词成功并缓存');
         return lyrics;
       }
 
-      print('所有歌词源均失败');
       return null;
     } catch (e) {
       print('Error fetching lyrics: $e');
@@ -40,125 +35,38 @@ class LyricsService {
     }
   }
 
-  // 从多个来源获取歌词
-  Future<String?> _fetchFromMultipleSources(BaseItemDto song) async {
-    // 构建搜索查询
-    final artistsString = song.artists != null
-        ? song.artists!.map((a) => a is String ? a : (a as dynamic).name ?? '').join(' ')
-        : '';
-    final query = '${song.name} $artistsString';
-    print('搜索查询: $query');
-    
-    // 尝试不同的歌词源
-    // 1. 尝试备用的NetEase API
-    var lyrics = await _fetchFromAlternativeNetEase(song, query);
-    if (lyrics != null) return lyrics;
-    
-    // 2. 尝试其他备用源（可以根据需要添加）
-    // lyrics = await _fetchFromOtherSource(song, query);
-    // if (lyrics != null) return lyrics;
-    
-    return null;
-  }
-
-  // 从备用的NetEase Cloud Music API获取歌词
-  Future<String?> _fetchFromAlternativeNetEase(BaseItemDto song, String query) async {
+  // 从NetEase Cloud Music API获取歌词
+  Future<String?> _fetchFromNetEase(BaseItemDto song) async {
     try {
-      // 使用备用的API地址
+      // 构建搜索查询
+      final query = '${song.name} ${song.artists?.map((a) => a.name).join(' ')}';
       final encodedQuery = Uri.encodeComponent(query);
       
-      // 尝试不同的API端点
-      final apiEndpoints = [
-        'https://music.163.com/api/search/get',
-        'https://api.music.liuzhijin.cn',
-        'https://netease-cloud-music-api-git-master-zhao-hui.vercel.app'
-      ];
+      // 搜索歌曲
+      final searchUrl = 'https://api.music.liuzhijin.cn/search?keywords=$encodedQuery&type=1';
+      final searchResponse = await http.get(Uri.parse(searchUrl));
       
-      for (final endpoint in apiEndpoints) {
-        try {
-          print('尝试API: $endpoint');
+      if (searchResponse.statusCode == 200) {
+        final searchData = jsonDecode(searchResponse.body);
+        final songs = searchData['result']['songs'] as List;
+        
+        if (songs.isNotEmpty) {
+          final songId = songs[0]['id'];
           
-          // 构建搜索URL
-          String searchUrl;
-          if (endpoint.contains('163.com')) {
-            // 网易云官方API格式
-            searchUrl = '$endpoint?s=$encodedQuery&type=1&offset=0&limit=1';
-          } else {
-            // 其他API格式
-            searchUrl = '$endpoint/search?keywords=$encodedQuery&type=1';
+          // 获取歌词
+          final lyricsUrl = 'https://api.music.liuzhijin.cn/lyric?id=$songId';
+          final lyricsResponse = await http.get(Uri.parse(lyricsUrl));
+          
+          if (lyricsResponse.statusCode == 200) {
+            final lyricsData = jsonDecode(lyricsResponse.body);
+            final lrc = lyricsData['lrc']['lyric'] as String;
+            return lrc;
           }
-          
-          final searchResponse = await http.get(
-            Uri.parse(searchUrl),
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            },
-            timeout: Duration(seconds: 5),
-          );
-          
-          print('API响应状态: ${searchResponse.statusCode}');
-          
-          if (searchResponse.statusCode == 200) {
-            final searchData = jsonDecode(searchResponse.body);
-            print('API响应数据: ${searchData.keys}');
-            
-            // 处理不同API的响应格式
-            dynamic songs;
-            if (searchData.containsKey('result') && searchData['result'].containsKey('songs')) {
-              songs = searchData['result']['songs'];
-            } else if (searchData.containsKey('songs')) {
-              songs = searchData['songs'];
-            }
-            
-            if (songs is List && songs.isNotEmpty) {
-              final songId = songs[0]['id'];
-              print('找到歌曲ID: $songId');
-              
-              // 获取歌词
-              String lyricsUrl;
-              if (endpoint.contains('163.com')) {
-                lyricsUrl = 'https://music.163.com/api/song/lyric?id=$songId&lv=1&kv=1&tv=-1';
-              } else {
-                lyricsUrl = '$endpoint/lyric?id=$songId';
-              }
-              
-              final lyricsResponse = await http.get(
-                Uri.parse(lyricsUrl),
-                headers: {
-                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                },
-                timeout: Duration(seconds: 5),
-              );
-              
-              if (lyricsResponse.statusCode == 200) {
-                final lyricsData = jsonDecode(lyricsResponse.body);
-                print('歌词API响应: ${lyricsData.keys}');
-                
-                // 处理不同格式的歌词数据
-                String? lrc;
-                if (lyricsData.containsKey('lrc') && lyricsData['lrc'].containsKey('lyric')) {
-                  lrc = lyricsData['lrc']['lyric'] as String;
-                } else if (lyricsData.containsKey('tlyric') && lyricsData['tlyric'].containsKey('lyric')) {
-                  lrc = lyricsData['tlyric']['lyric'] as String;
-                }
-                
-                if (lrc != null && lrc.isNotEmpty) {
-                  print('获取歌词成功');
-                  return lrc;
-                }
-              }
-            }
-          }
-        } catch (e) {
-          print('备用API失败: $e');
-          // 继续尝试下一个API
-          continue;
         }
       }
-      
       return null;
     } catch (e) {
-      print('Error fetching lyrics from alternative sources: $e');
+      print('Error fetching lyrics from NetEase: $e');
       return null;
     }
   }
@@ -175,7 +83,6 @@ class LyricsService {
       
       final file = File('${lyricsDir.path}/$songId.lrc');
       await file.writeAsString(lyrics);
-      print('歌词缓存成功: $songId');
     } catch (e) {
       print('Error caching lyrics: $e');
     }

@@ -245,4 +245,11 @@ class FinampSettingsHelper {
     Hive.box<FinampSettings>("FinampSettings")
         .put("FinampSettings", finampSettingsTemp);
   }
+
+  static void setEnableFloatingLyrics(bool enableFloatingLyrics) {
+    FinampSettings finampSettingsTemp = finampSettings;
+    finampSettingsTemp.enableFloatingLyrics = enableFloatingLyrics;
+    Hive.box<FinampSettings>("FinampSettings")
+        .put("FinampSettings", finampSettingsTemp);
+  }
 }

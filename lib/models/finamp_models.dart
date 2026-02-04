@@ -57,6 +57,7 @@ const _bufferDurationSeconds = 50;
 const _tabOrder = TabContentType.values;
 const _swipeInsertQueueNext = false;
 const _enableCarMode = false;
+const _enableFloatingLyrics = false;
 
 @HiveType(typeId: 28)
 class FinampSettings {
@@ -93,6 +94,7 @@ class FinampSettings {
     this.hasCompletedBlurhashImageMigrationIdFix = true,
     this.swipeInsertQueueNext = _swipeInsertQueueNext,
     this.enableCarMode = _enableCarMode,
+    this.enableFloatingLyrics = _enableFloatingLyrics,
   });
 
   @HiveField(0)
@@ -193,6 +195,9 @@ class FinampSettings {
 
   @HiveField(27, defaultValue: _enableCarMode)
   bool enableCarMode;
+
+  @HiveField(28, defaultValue: _enableFloatingLyrics)
+  bool enableFloatingLyrics;
 
   static Future<FinampSettings> create() async {
     final internalSongDir = await getInternalSongDir();

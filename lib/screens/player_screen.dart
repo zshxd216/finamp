@@ -24,6 +24,7 @@ import '../components/PlayerScreen/add_to_playlist_button.dart';
 import '../components/PlayerScreen/sleep_timer_button.dart';
 import '../components/PlayerScreen/sleep_timer_dialog.dart';
 import '../components/PlayerScreen/lyrics_display.dart';
+import '../components/PlayerScreen/floating_lyrics_display.dart';
 import '../screens/add_to_playlist_screen.dart';
 
 final _albumImageProvider =
@@ -124,6 +125,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
           children: [
             if (FinampSettingsHelper.finampSettings.showCoverAsPlayerBackground && !_showLyrics)
               const _BlurredPlayerScreenBackground(),
+            // 悬浮歌词显示
+            if (carModeHelper.enableFloatingLyrics && isCarMode)
+              FloatingLyricsDisplay(
+                isCarMode: isCarMode,
+              ),
             SafeArea(
               child: Center(
                 child: Column(
@@ -190,6 +196,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                               ? AudioServiceRepeatMode.none
                                               : AudioServiceRepeatMode.all,
                                         );
+                                      },
+                                      style: IconButton.styleFrom(
+                                        iconSize: carModeHelper.getCarModeIconSize(28),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(carModeHelper.enableFloatingLyrics ? Icons.lyrics : Icons.lyrics_outlined),
+                                      onPressed: () {
+                                        // 切换悬浮歌词
+                                        carModeHelper.toggleFloatingLyrics(!carModeHelper.enableFloatingLyrics);
                                       },
                                       style: IconButton.styleFrom(
                                         iconSize: carModeHelper.getCarModeIconSize(28),
