@@ -71,8 +71,10 @@ class CarModeHelper {
 }
 
 // 注册到GetIt
-try {
-  GetIt.instance.registerSingleton(CarModeHelper());
-} catch (e) {
-  // 已注册
+void registerCarModeHelper() {
+  try {
+    GetIt.instance.registerSingleton(CarModeHelper());
+  } catch (e) {
+    // 已注册
+  }
 }

@@ -14,7 +14,9 @@ import '../artists_text_spans.dart';
 
 /// Creates some text that shows the song's name, album and the artist.
 class SongName extends StatelessWidget {
-  const SongName({Key? key}) : super(key: key);
+  const SongName({Key? key, this.fontSize}) : super(key: key);
+  
+  final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +80,8 @@ class SongName extends StatelessWidget {
                 textColour,
                 context,
                 true,
-              ));
+              ),
+              fontSize: fontSize);
         }
 
         return const SongNameContent(
@@ -97,10 +100,12 @@ class SongNameContent extends StatelessWidget {
     required this.songBaseItemDto,
     required this.mediaItem,
     required this.separatedArtistTextSpans,
+    this.fontSize,
   }) : super(key: key);
   final BaseItemDto? songBaseItemDto;
   final MediaItem? mediaItem;
   final List<TextSpan> separatedArtistTextSpans;
+  final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +140,7 @@ class SongNameContent extends StatelessWidget {
             mediaItem == null
                 ? AppLocalizations.of(context)!.noItem
                 : mediaItem!.title,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: fontSize ?? 24, fontWeight: FontWeight.w600),
             overflow: TextOverflow.fade,
             softWrap: false,
             maxLines: 1,

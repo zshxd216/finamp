@@ -18,6 +18,7 @@ import '../components/PlayerScreen/song_name.dart';
 import '../components/PlayerScreen/progress_slider.dart';
 import '../components/PlayerScreen/player_buttons.dart';
 import '../components/PlayerScreen/queue_button.dart';
+import '../components/PlayerScreen/queue_list.dart';
 import '../components/PlayerScreen/playback_mode.dart';
 import '../components/PlayerScreen/add_to_playlist_button.dart';
 import '../components/PlayerScreen/sleep_timer_button.dart';
@@ -159,9 +160,9 @@ class PlayerScreen extends StatelessWidget {
                                       onPressed: () {
                                         // 简化的播放模式按钮，适合车机模式
                                         audioHandler.setRepeatMode(
-                                          audioHandler.playbackState.value.repeatMode == RepeatMode.all
-                                              ? RepeatMode.none
-                                              : RepeatMode.all,
+                                          audioHandler.playbackState.value.repeatMode == AudioServiceRepeatMode.all
+                                              ? AudioServiceRepeatMode.none
+                                              : AudioServiceRepeatMode.all,
                                         );
                                       },
                                       style: IconButton.styleFrom(
@@ -189,7 +190,7 @@ class PlayerScreen extends StatelessWidget {
                                         showModalBottomSheet(
                                           context: context,
                                           isScrollControlled: true,
-                                          builder: (context) => const QueueList(),
+                                          builder: (context) => QueueList(scrollController: ScrollController()),
                                         );
                                       },
                                       style: IconButton.styleFrom(

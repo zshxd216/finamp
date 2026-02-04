@@ -12,12 +12,14 @@ class ProgressSlider extends StatefulWidget {
     this.showBuffer = true,
     this.showDuration = true,
     this.showPlaceholder = true,
+    this.height,
   }) : super(key: key);
 
   final bool allowSeeking;
   final bool showBuffer;
   final bool showDuration;
   final bool showPlaceholder;
+  final double? height;
 
   @override
   State<ProgressSlider> createState() => _ProgressSliderState();

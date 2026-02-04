@@ -6,7 +6,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../services/music_player_background_task.dart';
 
 class PlayerButtons extends StatelessWidget {
-  const PlayerButtons({Key? key}) : super(key: key);
+  const PlayerButtons({Key? key, this.buttonSize, this.iconSize}) : super(key: key);
+  
+  final double? buttonSize;
+  final double? iconSize;
   @override
   Widget build(BuildContext context) {
     final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
@@ -42,7 +45,7 @@ class PlayerButtons extends StatelessWidget {
                       }
                     }
                   : null,
-              iconSize: 20,
+              iconSize: iconSize ?? 20,
             ),
             IconButton(
               tooltip: AppLocalizations.of(context)!.skipToPrevious,
@@ -50,11 +53,11 @@ class PlayerButtons extends StatelessWidget {
               onPressed: playbackState != null
                   ? () async => await audioHandler.skipToPrevious()
                   : null,
-              iconSize: 36,
+              iconSize: iconSize ?? 36,
             ),
             SizedBox(
-              height: 56,
-              width: 56,
+              height: buttonSize ?? 56,
+              width: buttonSize ?? 56,
               child: FloatingActionButton(
                 tooltip: AppLocalizations.of(context)!.togglePlayback,
                 // We set a heroTag because otherwise the play button on AlbumScreenContent will do hero widget stuff
@@ -76,7 +79,7 @@ class PlayerButtons extends StatelessWidget {
                   playbackState == null || playbackState.playing
                       ? Icons.pause
                       : Icons.play_arrow,
-                  size: 36,
+                  size: iconSize ?? 36,
                 ),
               ),
             ),
@@ -86,7 +89,7 @@ class PlayerButtons extends StatelessWidget {
                 onPressed: playbackState != null
                     ? () async => audioHandler.skipToNext()
                     : null,
-                iconSize: 36),
+                iconSize: iconSize ?? 36),
             IconButton(
               tooltip: playbackState?.repeatMode == AudioServiceRepeatMode.all
                   ? AppLocalizations.of(context)!.loopModeAllTooltip
@@ -116,7 +119,7 @@ class PlayerButtons extends StatelessWidget {
                       }
                     }
                   : null,
-              iconSize: 20,
+              iconSize: iconSize ?? 20,
             ),
           ],
         );
