@@ -67,7 +67,8 @@ void main() async {
     await _setupDownloader();
     await _setupDownloadsHelper();
     await _setupAudioServiceHelper();
-    // Initialize CarModeHelper
+    // Register and initialize CarModeHelper
+    registerCarModeHelper();
     CarModeHelper().init();
   } catch (e) {
     hasFailed = true;
