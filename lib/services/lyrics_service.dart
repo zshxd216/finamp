@@ -39,7 +39,10 @@ class LyricsService {
   Future<String?> _fetchFromNetEase(BaseItemDto song) async {
     try {
       // 构建搜索查询
-      final query = '${song.name} ${song.artists?.map((a) => a.name).join(' ')}';
+      final artistsString = song.artists != null
+          ? song.artists!.map((a) => a is String ? a : (a as dynamic).name ?? '').join(' ')
+          : '';
+      final query = '${song.name} $artistsString';
       final encodedQuery = Uri.encodeComponent(query);
       
       // 搜索歌曲
