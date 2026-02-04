@@ -51,6 +51,7 @@ import 'services/jellyfin_api_helper.dart';
 import 'services/locale_helper.dart';
 import 'services/music_player_background_task.dart';
 import 'services/theme_mode_helper.dart';
+import 'services/lyrics_service.dart';
 import 'setup_logging.dart';
 
 void main() async {
@@ -68,8 +69,11 @@ void main() async {
     await _setupDownloadsHelper();
     await _setupAudioServiceHelper();
     // Register and initialize CarModeHelper
-    registerCarModeHelper();
-    CarModeHelper().init();
+  registerCarModeHelper();
+  CarModeHelper().init();
+  
+  // Register LyricsService
+  GetIt.instance.registerSingleton(LyricsService());
   } catch (e) {
     hasFailed = true;
     runApp(FinampErrorApp(

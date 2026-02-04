@@ -39,6 +39,7 @@ dependencies:
       url: https://github.com/jmshrv/flutter_downloader.git
       ref: "db66f36ec48dc50117e510e2f37995cc17b44534"
   path_provider: ^2.0.14
+  http: ^1.2.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   file_sizes: ^1.0.6

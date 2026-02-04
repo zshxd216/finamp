@@ -23,15 +23,29 @@ import '../components/PlayerScreen/playback_mode.dart';
 import '../components/PlayerScreen/add_to_playlist_button.dart';
 import '../components/PlayerScreen/sleep_timer_button.dart';
 import '../components/PlayerScreen/sleep_timer_dialog.dart';
+import '../components/PlayerScreen/lyrics_display.dart';
 import '../screens/add_to_playlist_screen.dart';
 
 final _albumImageProvider =
     StateProvider.autoDispose<ImageProvider?>((_) => null);
 
-class PlayerScreen extends StatelessWidget {
+class PlayerScreen extends StatefulWidget {
   const PlayerScreen({Key? key}) : super(key: key);
 
   static const routeName = "/nowplaying";
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  bool _showLyrics = false;
+  
+  void _toggleLyrics() {
+    setState(() {
+      _showLyrics = !_showLyrics;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +79,13 @@ class PlayerScreen extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           actions: [
+            IconButton(
+              icon: Icon(_showLyrics ? Icons.album : Icons.lyrics),
+              onPressed: _toggleLyrics,
+              style: IconButton.styleFrom(
+                iconSize: isCarMode ? carModeHelper.getCarModeIconSize(28) : 24,
+              ),
+            ),
             if (isCarMode)
               IconButton(
                 icon: const Icon(Icons.timer),
@@ -101,7 +122,7 @@ class PlayerScreen extends StatelessWidget {
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
-            if (FinampSettingsHelper.finampSettings.showCoverAsPlayerBackground)
+            if (FinampSettingsHelper.finampSettings.showCoverAsPlayerBackground && !_showLyrics)
               const _BlurredPlayerScreenBackground(),
             SafeArea(
               child: Center(
@@ -109,7 +130,12 @@ class PlayerScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
-                      child: _PlayerScreenAlbumImage(),
+                      child: _showLyrics
+                          ? LyricsDisplay(
+                              isCarMode: isCarMode,
+                              fontScale: isCarMode ? carModeHelper.getCarModeFontSize(1.0) : 1.0,
+                            )
+                          : const _PlayerScreenAlbumImage(),
                     ),
                     Expanded(
                       child: Padding(
