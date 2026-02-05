@@ -37,12 +37,6 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
     _listenToPlaybackState();
   }
   
-  @override
-  void didUpdateWidget(covariant LyricsDisplay oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _loadLyrics();
-  }
-  
   void _loadLyrics() async {
     final mediaItem = _audioHandler.mediaItem.value;
     if (mediaItem == null || mediaItem.extras?["itemJson"] == null) {
@@ -131,10 +125,10 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
             _error!,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: widget.isCarMode ? 24 : 16 * widget.fontScale,
               color: Theme.of(context).hintColor,
-              textAlign: TextAlign.center,
             ),
           ),
         ),
@@ -147,10 +141,10 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
             "No lyrics available",
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: widget.isCarMode ? 24 : 16,
               color: Theme.of(context).hintColor,
-              textAlign: TextAlign.center,
             ),
           ),
         ),
