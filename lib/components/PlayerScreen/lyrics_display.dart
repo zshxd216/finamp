@@ -118,18 +118,25 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
         _currentLineIndex = newIndex;
       });
       
-      // 自动滚动到当前歌词行
-      if (_scrollController.hasClients && newIndex >= 0) {
-        // 计算滚动位置，使当前行居中显示
-        final itemHeight = widget.isCarMode ? 48.0 : 32.0;
-        final scrollPosition = (newIndex * itemHeight) - (_scrollController.position.viewportDimension / 2) + (itemHeight / 2);
-        
-        _scrollController.animateTo(
-          scrollPosition.clamp(0.0, _scrollController.position.maxScrollExtent),
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
+      // 立即触发滚动，确保歌词与播放进度实时同步
+      _scrollToCurrentLine();
+    }
+  }
+  
+  void _scrollToCurrentLine() {
+    // 自动滚动到当前歌词行
+    if (_scrollController.hasClients && _currentLineIndex >= 0) {
+      // 计算滚动位置，使当前行居中显示
+      final isSmallScreen = MediaQuery.of(context).size.height < 600;
+      final itemHeight = widget.isCarMode ? 48.0 : (isSmallScreen ? 24.0 : 32.0);
+      final scrollPosition = (_currentLineIndex * itemHeight) - (_scrollController.position.viewportDimension / 2) + (itemHeight / 2);
+      
+      // 使用更短的动画时间，使滚动更加快速响应
+      _scrollController.animateTo(
+        scrollPosition.clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
     }
   }
   

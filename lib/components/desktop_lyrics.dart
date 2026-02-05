@@ -32,7 +32,7 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
   bool _isLocked = false;
   double _opacity = 0.8;
   double _fontSize = 24;
-  Offset _position = Offset(0, 100);
+  Offset _position = Offset(0, 0);
   MediaItem? _currentMediaItem;
   bool _isPlaying = false;
   AudioServiceRepeatMode _repeatMode = AudioServiceRepeatMode.none;
@@ -45,6 +45,24 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
     _fontSize = widget.fontSize;
     _loadLyrics();
     _listenToPlaybackState();
+  }
+  
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 初始化桌面歌词位置，靠下居中显示
+    _initializePosition();
+  }
+  
+  void _initializePosition() {
+    final screenSize = MediaQuery.of(context).size;
+    // 计算靠下居中的位置
+    final centerX = (screenSize.width - 300) / 2; // 300是桌面歌词的大致宽度
+    final bottomY = screenSize.height - 200; // 距离底部200像素
+    
+    setState(() {
+      _position = Offset(centerX, bottomY);
+    });
   }
   
   void _loadLyrics() async {
@@ -199,7 +217,7 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
     
     // 确保悬浮歌词在屏幕范围内
     final constrainedPosition = Offset(
-      _position.dx.clamp(20, screenSize.width - 20),
+      _position.dx.clamp(20, screenSize.width - 320), // 320是桌面歌词的大致宽度
       _position.dy.clamp(20, screenSize.height - 200),
     );
     
