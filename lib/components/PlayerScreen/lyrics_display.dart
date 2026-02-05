@@ -76,21 +76,22 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
     // 监听播放状态变化，包括进度变化
     _audioHandler.playbackState.listen((state) {
       final position = state.position;
+      print('播放状态变化，位置: $position');
       _updateCurrentLine(position);
     });
     
     // 监听媒体项变化
     _audioHandler.mediaItem.listen((_) {
+      print('媒体项变化，重新加载歌词');
       _loadLyrics();
       _currentLineIndex = -1;
     });
     
     // 监听播放状态的所有变化，确保拖动进度条后能同步
     _audioHandler.playbackState.listen((state) {
-      if (state.playing || state.processingState == AudioProcessingState.completed) {
-        final position = state.position;
-        _updateCurrentLine(position);
-      }
+      final position = state.position;
+      print('播放状态详细变化，状态: ${state.processingState}, 位置: $position');
+      _updateCurrentLine(position);
     });
   }
   

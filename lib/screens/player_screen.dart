@@ -25,6 +25,7 @@ import '../components/PlayerScreen/sleep_timer_button.dart';
 import '../components/PlayerScreen/sleep_timer_dialog.dart';
 import '../components/PlayerScreen/lyrics_display.dart';
 import '../components/PlayerScreen/enhanced_floating_lyrics.dart';
+import '../components/desktop_lyrics.dart';
 import '../screens/add_to_playlist_screen.dart';
 
 final _albumImageProvider =
@@ -41,10 +42,19 @@ class PlayerScreen extends StatefulWidget {
 
 class _PlayerScreenState extends State<PlayerScreen> {
   bool _showLyrics = false;
+  bool _showDesktopLyrics = false;
   
   void _toggleLyrics() {
     setState(() {
       _showLyrics = !_showLyrics;
+    });
+  }
+  
+  void _toggleDesktopLyrics() {
+    setState(() {
+      _showDesktopLyrics = !_showDesktopLyrics;
+      final carModeHelper = GetIt.instance<CarModeHelper>();
+      carModeHelper.toggleFloatingLyrics(_showDesktopLyrics);
     });
   }
 
@@ -87,6 +97,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 iconSize: isCarMode ? carModeHelper.getCarModeIconSize(28) : 24,
               ),
             ),
+            IconButton(
+              icon: Icon(_showDesktopLyrics ? Icons.lyrics_off : Icons.desktop_windows),
+              onPressed: _toggleDesktopLyrics,
+              style: IconButton.styleFrom(
+                iconSize: isCarMode ? carModeHelper.getCarModeIconSize(28) : 24,
+              ),
+              tooltip: _showDesktopLyrics ? '关闭桌面歌词' : '显示桌面歌词',
+            ),
             if (isCarMode)
               IconButton(
                 icon: const Icon(Icons.timer),
@@ -125,10 +143,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
           children: [
             if (FinampSettingsHelper.finampSettings.showCoverAsPlayerBackground && !_showLyrics)
               const _BlurredPlayerScreenBackground(),
-            // 增强版悬浮歌词显示
-            if (carModeHelper.enableFloatingLyrics && isCarMode)
+            // 增强版悬浮歌词显示（车机模式）
+            if (carModeHelper.enableFloatingLyrics && isCarMode && !_showDesktopLyrics)
               EnhancedFloatingLyrics(
                 isCarMode: isCarMode,
+                isVisible: true,
+              ),
+            // 桌面歌词显示
+            if (_showDesktopLyrics)
+              DesktopLyrics(
                 isVisible: true,
               ),
             SafeArea(
