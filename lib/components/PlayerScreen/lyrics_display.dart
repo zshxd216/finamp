@@ -24,6 +24,7 @@ class LyricsDisplay extends ConsumerStatefulWidget {
 class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
   final LyricsService _lyricsService = GetIt.instance<LyricsService>();
   final MusicPlayerBackgroundTask _audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
+  final ScrollController _scrollController = ScrollController();
   
   List<LyricLine> _lyrics = [];
   int _currentLineIndex = -1;
@@ -116,6 +117,19 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
       setState(() {
         _currentLineIndex = newIndex;
       });
+      
+      // 自动滚动到当前歌词行
+      if (_scrollController.hasClients && newIndex >= 0) {
+        // 计算滚动位置，使当前行居中显示
+        final itemHeight = widget.isCarMode ? 48.0 : 32.0;
+        final scrollPosition = (newIndex * itemHeight) - (_scrollController.position.viewportDimension / 2) + (itemHeight / 2);
+        
+        _scrollController.animateTo(
+          scrollPosition.clamp(0.0, _scrollController.position.maxScrollExtent),
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
     }
   }
   
@@ -172,6 +186,7 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
         horizontal: widget.isCarMode ? 60 : 20,
       ),
       child: ListView.builder(
+        controller: _scrollController,
         padding: EdgeInsets.symmetric(
           vertical: widget.isCarMode ? 40 : 20,
         ),
@@ -179,9 +194,13 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
         itemBuilder: (context, index) {
           final isCurrentLine = index == _currentLineIndex;
           
+          // 根据屏幕尺寸调整歌词行高
+          final screenHeight = MediaQuery.of(context).size.height;
+          final isSmallScreen = screenHeight < 600;
+          
           return Container(
             padding: EdgeInsets.symmetric(
-              vertical: widget.isCarMode ? 16 : 8,
+              vertical: widget.isCarMode ? 16 : (isSmallScreen ? 6 : 8),
             ),
             alignment: Alignment.center,
             child: Text(
@@ -189,13 +208,13 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: isCurrentLine 
-                  ? widget.isCarMode ? 32 : 20 * widget.fontScale 
-                  : widget.isCarMode ? 24 : 16 * widget.fontScale,
+                  ? widget.isCarMode ? 32 : (isSmallScreen ? 18 : 20) * widget.fontScale 
+                  : widget.isCarMode ? 24 : (isSmallScreen ? 14 : 16) * widget.fontScale,
                 fontWeight: isCurrentLine ? FontWeight.bold : FontWeight.normal,
                 color: isCurrentLine 
                   ? Theme.of(context).primaryColor 
                   : Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
-                height: widget.isCarMode ? 1.6 : 1.5,
+                height: widget.isCarMode ? 1.6 : (isSmallScreen ? 1.4 : 1.5),
                 letterSpacing: widget.isCarMode ? 0.5 : 0,
               ),
             ),

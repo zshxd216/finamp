@@ -31,6 +31,7 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
   bool _isDragging = false;
   bool _isLocked = false;
   double _opacity = 0.8;
+  double _fontSize = 24;
   Offset _position = Offset(0, 100);
   MediaItem? _currentMediaItem;
   bool _isPlaying = false;
@@ -41,6 +42,7 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
   void initState() {
     super.initState();
     _opacity = widget.opacity;
+    _fontSize = widget.fontSize;
     _loadLyrics();
     _listenToPlaybackState();
   }
@@ -115,6 +117,12 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
   void _adjustOpacity(double change) {
     setState(() {
       _opacity = (_opacity + change).clamp(0.3, 1.0);
+    });
+  }
+  
+  void _adjustFontSize(double change) {
+    setState(() {
+      _fontSize = (_fontSize + change).clamp(16, 40);
     });
   }
   
@@ -238,7 +246,7 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
                 currentLyric,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: widget.fontSize,
+                  fontSize: _fontSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   shadows: [
@@ -334,6 +342,26 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
                   IconButton(
                     icon: Icon(Icons.opacity, size: 16),
                     onPressed: () => _adjustOpacity(0.1),
+                    color: Colors.white,
+                    padding: EdgeInsets.all(4),
+                    constraints: BoxConstraints(minWidth: 32, minHeight: 32),
+                  ),
+                  
+                  SizedBox(width: 8),
+                  
+                  // 字体减小
+                  IconButton(
+                    icon: Icon(Icons.text_decrease, size: 16),
+                    onPressed: () => _adjustFontSize(-2),
+                    color: Colors.white,
+                    padding: EdgeInsets.all(4),
+                    constraints: BoxConstraints(minWidth: 32, minHeight: 32),
+                  ),
+                  
+                  // 字体增大
+                  IconButton(
+                    icon: Icon(Icons.text_increase, size: 16),
+                    onPressed: () => _adjustFontSize(2),
                     color: Colors.white,
                     padding: EdgeInsets.all(4),
                     constraints: BoxConstraints(minWidth: 32, minHeight: 32),
