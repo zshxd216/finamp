@@ -98,7 +98,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               ),
             ),
             IconButton(
-              icon: Icon(_showDesktopLyrics ? Icons.lyrics_off : Icons.desktop_windows),
+              icon: Icon(_showDesktopLyrics ? Icons.close : Icons.desktop_windows),
               onPressed: _toggleDesktopLyrics,
               style: IconButton.styleFrom(
                 iconSize: isCarMode ? carModeHelper.getCarModeIconSize(28) : 24,
