@@ -52,16 +52,32 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
     super.didChangeDependencies();
     // 初始化桌面歌词位置，靠下居中显示
     _initializePosition();
+    // 根据屏幕大小调整字体大小
+    _adjustFontSizeForScreen();
   }
   
   void _initializePosition() {
     final screenSize = MediaQuery.of(context).size;
     // 计算靠下居中的位置
-    final centerX = (screenSize.width - 300) / 2; // 300是桌面歌词的大致宽度
-    final bottomY = screenSize.height - 200; // 距离底部200像素
+    final desktopLyricsWidth = 300.0; // 桌面歌词的大致宽度
+    final centerX = (screenSize.width - desktopLyricsWidth) / 2;
+    // 根据屏幕高度动态调整距离底部的距离
+    final bottomY = screenSize.height - (screenSize.height * 0.2); // 距离底部20%屏幕高度
     
     setState(() {
       _position = Offset(centerX, bottomY);
+    });
+  }
+  
+  void _adjustFontSizeForScreen() {
+    final screenSize = MediaQuery.of(context).size;
+    // 根据屏幕宽度调整字体大小
+    final screenWidth = screenSize.width;
+    // 字体大小与屏幕宽度成正比，确保在不同尺寸的屏幕上都能正常显示
+    final calculatedFontSize = screenWidth * 0.06; // 字体大小为屏幕宽度的6%
+    
+    setState(() {
+      _fontSize = calculatedFontSize.clamp(16.0, 40.0); // 字体大小范围：16-40
     });
   }
   
@@ -87,7 +103,7 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
   }
   
   void _listenToPlaybackState() {
-    // 监听播放状态变化
+    // 监听播放状态变化，确保与播放进度完全同步
     _audioHandler.playbackState.listen((state) {
       final position = state.position;
       setState(() {
@@ -95,6 +111,7 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
         _repeatMode = state.repeatMode;
         _isShuffling = state.shuffleMode == AudioServiceShuffleMode.all;
       });
+      // 立即更新当前歌词行，确保与播放进度完全同步
       _updateCurrentLine(position);
     });
     
@@ -110,6 +127,7 @@ class _DesktopLyricsState extends ConsumerState<DesktopLyrics> {
   void _updateCurrentLine(Duration position) {
     if (_lyrics.isEmpty) return;
     
+    // 精确匹配歌词时间，使用歌曲当前播放时间去匹配歌词时间
     int newIndex = -1;
     for (int i = 0; i < _lyrics.length; i++) {
       if (position >= _lyrics[i].duration) {

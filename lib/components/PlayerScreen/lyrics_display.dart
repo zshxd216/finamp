@@ -132,10 +132,9 @@ class _LyricsDisplayState extends ConsumerState<LyricsDisplay> {
       final scrollPosition = (_currentLineIndex * itemHeight) - (_scrollController.position.viewportDimension / 2) + (itemHeight / 2);
       
       // 使用更短的动画时间，使滚动更加快速响应
-      _scrollController.animateTo(
-        scrollPosition.clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeOut,
+      // 直接跳转到指定位置，无动画，确保与播放进度完全同步
+      _scrollController.jumpTo(
+        scrollPosition.clamp(0.0, _scrollController.position.maxScrollExtent)
       );
     }
   }
